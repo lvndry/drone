@@ -1,9 +1,10 @@
 import importlib.util
+from pathlib import Path
 
 import pytest
 import torch
 
-from drone.checkpoints import save_checkpoint
+from drone.checkpoints import load_checkpoint, save_checkpoint
 from drone.model import KeyCNN
 
 pytestmark = pytest.mark.skipif(
@@ -26,6 +27,30 @@ def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path, width):
     assert metadata["onnx_parity_max_abs_error"] < 1e-5
     assert output.is_file()
     assert output.with_suffix(".json").is_file()
+    session = cpu_session(output)
+    restored, _ = load_checkpoint(checkpoint)
+    for frames in (8, 56, 319, 645):
+        x = torch.randn(1, 192, frames)
+        with torch.inference_mode():
+            expected = restored(x)
+        actual = session.run(["logits"], {"features": x.numpy()})[0]
+        torch.testing.assert_close(torch.from_numpy(actual), expected, rtol=1e-4, atol=1e-5)
     options = cpu_session(output).get_session_options()
     assert options.intra_op_num_threads == 1
     assert options.get_session_config_entry("session.intra_op.allow_spinning") == "0"
+
+
+def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths():
+    from drone.export import cpu_session
+
+    weights = Path(__file__).resolve().parents[1] / "weights"
+    model, _ = load_checkpoint(weights / "drone-v1.pt")
+    session = cpu_session(weights / "drone-v1.onnx")
+    shape = session.get_inputs()[0].shape
+    assert isinstance(shape[0], str) and isinstance(shape[2], str)
+    for frames in (8, 319, 645):
+        x = torch.randn(1, 192, frames)
+        with torch.inference_mode():
+            expected = model(x)
+        actual = session.run(["logits"], {"features": x.numpy()})[0]
+        torch.testing.assert_close(torch.from_numpy(actual), expected, rtol=1e-4, atol=1e-5)

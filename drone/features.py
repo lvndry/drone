@@ -29,7 +29,7 @@ BINS_PER_SEMI = BINS_PER_OCT // 12
 N_TOTAL = (N_OCT * 12 + 2 * PAD_SEMI) * BINS_PER_SEMI  # 208, with pad
 N_CORE = N_OCT * BINS_PER_OCT  # 192
 
-CROP_FRAMES = 320  # K10 training crop length (~78 s at 4.1 fps)
+CROP_FRAMES = 320  # K10 training crop length (~59.4 s at 22050 / 4096 fps)
 
 FEATURE_SPEC = "cqt24-8oct-c1-pad4-hop4096-v2"
 FEATURE_ID = hashlib.sha256(
@@ -63,7 +63,7 @@ def cqt(samples: np.ndarray) -> np.ndarray:
     """Constant-Q transform: (N_TOTAL bins, n_frames) log1p amplitude.
 
     librosa.cqt, exactly as the K10 (MIREX 2026, MIT) script: 24 bins per
-    octave, 208 bins from two semitones below C1, hop 4096, default window.
+    octave, 208 bins from four semitones below C1, hop 4096, default window.
     """
     import librosa
 
