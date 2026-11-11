@@ -246,6 +246,13 @@ def paired_result(study: str, title: str, candidate_name: str) -> None:
         "Seed 13 · same 2,206 fitting / 376 validation identities · fixed selection policy · symmetric-fifth MIREX\n"
         "Reused development data, not independent test evidence. Exact accuracy is a separate gate; no confirmation after a failed pilot.",
     )
+    scores = [
+        report[arm][domain][metric] * 100
+        for arm in ("control_metrics", "metrics")
+        for domain in ("beatport", "fmak")
+        for metric in ("mirex", "exact")
+    ]
+    lower = max(0, min(60, 5 * int((min(scores) - 5) // 5)))
     for axis, domain, label in zip(
         axes, ("beatport", "fmak"), ("Beatport validation", "FMAK validation"), strict=True
     ):
@@ -269,7 +276,7 @@ def paired_result(study: str, title: str, candidate_name: str) -> None:
             xticks=[0, 1],
             xticklabels=["Verified RAW control", candidate_name],
             xlim=(-0.3, 1.3),
-            ylim=(60, 81),
+            ylim=(lower, 81),
         )
         axis.legend(frameon=False, loc="lower left")
     save(figure, study, "accuracy")
@@ -336,6 +343,9 @@ def main() -> None:
     )
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
+    paired_result(
+        "tonal-key-ranker", "Tonal summaries and trees: fixed pilot rejected", "Tonal ranker"
+    )
     paired_result(
         "pitch-circle", "Pitch-circle sharing: fixed pilot missed the accuracy gate", "Pitch-circle"
     )
