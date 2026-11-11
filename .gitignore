@@ -11,3 +11,8 @@ weights/*
 !weights/*.onnx
 !weights/*.pt
 !weights/README.md
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/

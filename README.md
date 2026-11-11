@@ -1,112 +1,152 @@
 # drone
 
-A 0.33M-parameter classifier that answers one question: **what key is this track in?**
+A small neural classifier for the musical key of an audio track, intended for
+[Euphoria](https://github.com/lvndry/euphoria). It predicts 24 classes: 12 tonics,
+each in major or minor.
 
-Given audio, it outputs a probability over the 24 keys (12 tonics × major/minor). It was built to power key detection in [euphoria](https://github.com/lvndry/euphoria) (whose [benchmark](https://github.com/lvndry/euphoria/blob/main/docs/concepts/accuracy.md) uses it against libkeyfinder, Mixed In Key and others), but it is a standalone model — anyone can use the weights.
+**Status:** corrected training/inference pipeline and three experimental model
+sizes. No pretrained weights or verified accuracy results ship yet. Earlier
+features and unversioned checkpoints are incompatible and must be regenerated.
+Larger profiles are capacity experiments, not demonstrated accuracy upgrades.
 
-```
-audio ──► CQT (33 semitones × 300 frames) ──► CNN ──► 24-way softmax ──► "C minor"
-```
+## Setup
 
-## Why it exists
-
-Template matching (the approach in libkeyfinder, keyfinder, Essentia) compares the spectral content against hand-built key profiles. It is transparent and fast, but it caps out: on the 604-track GiantSteps benchmark, libkeyfinder reaches 69.4% MIREX with tuning correction. A small neural classifier trained on labelled music learns the actual statistical signature of keys and does materially better. drone is that classifier, kept as small as possible so the weights ship in any app.
-
-## Results
-
-Held-out [GiantSteps Key Dataset](https://zenodo.org/records/1101082) (604 tracks, never seen in training):
-
-| System | Exact | MIREX |
-|---|---:|---:|
-| libkeyfinder + tuning correction | 60.6% | 69.4% |
-| Mixed In Key 8.3 (commercial) | 69.4% | 75.7% |
-| Korzeniowski & Widmer 2017 (published) | ~67% | 74.6% |
-| **drone** | **see below** | **see below** |
-
-MIREX scoring: exact match = 1.0, relative major/minor = 0.3, parallel = 0.2, relative fifth = 0.5, other = 0 — the same weights euphoria's benchmark uses.
-
-> Full numbers and the complete run record (config, seed, timings) land in `TRAINING.md` when the reference run finishes.
-
-## The model
-
-| | |
-|---|---|
-| Architecture | 3 Conv2d (32/64/128 filters) → global avg pool → dropout 0.3 → linear 24 |
-| Parameters | 0.33M (≈1.3 MB in float32, ≈0.3 MB quantized) |
-| Input | 33 × 300: a log-frequency spectrogram, one semitone per row (A1 = 55 Hz up to A7), one frame every 0.023 s, per-track z-scored |
-| Output | 24 softmax classes: `tonic_index * 2 + mode` (0 = C major … 23 = B minor) |
-| Inference | < 1 s per track on a laptop CPU; no GPU required |
-
-The design follows [Korzeniowski & Widmer, "Estimating the Musical Key with Convolutional Neural Networks" (2017)](https://arxiv.org/abs/1706.02921), whose central finding — that a single small model trained on a few thousand tracks across genres matches genre-specialised ones — is what makes a 0.3M-parameter key classifier viable at all.
-
-## How it was trained
-
-### Data
-
-- **Training:** 1,363 of the 1,486 tracks from the [Beatport EDM Key Dataset](https://zenodo.org/records/1101082) (CC BY-SA 4.0 annotations; 2-minute previews, 933 minor / 430 major labels, 25 of which are ambiguous "X | Y" labels resolved to the first option). The 129 tracks without a clean label are skipped.
-- **Test (held out, never used for training or model selection):** all 604 tracks of the [GiantSteps Key Dataset](https://github.com/GiantSteps/giantsteps-key-dataset), whose labels are Beatport user corrections. Intersection with the training set: zero (verified by track ID).
-- **Validation:** every 10th training track (~136), used only to pick the best epoch.
-
-See [DATA.md](DATA.md) for the provenance and licensing position on the preview audio.
-
-### Features
-
-One STFT (4096-bin, 512-hop, Hann window) per track at 22.05 kHz. Every FFT bin is assigned to its nearest semitone and summed, giving the 33-semitone CQT; amplitudes are log-compressed (`log1p`) and the spectrogram is time-resampled to 300 frames. The semitone-rows representation is chosen so that **pitch shifting is a circular shift of rows** — see augmentation.
-
-### Training loop
-
-- PyTorch, cross-entropy, AdamW (lr 1e-3, weight decay 1e-4), cosine LR decay, 120 epochs, batch 64, seed 13.
-- **Augmentation:** each training sample is pitch-shifted by a random amount of −6…+6 semitones by rolling the CQT rows, with the label rotated the same way. This is exact (no resampling artifacts) and it re-balances the class distribution: without it, minor keys would be trained ~2× as often as major.
-- Checkpoints are saved when validation MIREX improves; the best is the shipped one.
-
-### Compute
-
-Trained on the CPU of a workstation (AMD Ryzen Threadripper PRO 9955WX, 16 cores / 32 threads, 188 GB RAM). The two GPUs on the box (RTX PRO 6000, RTX 5090) were occupied by unrelated vLLM serving and were deliberately **not** used — the model is small enough that a GPU buys almost nothing here. Total wall time: feature extraction ≈ 10 min, training ≈ a few hours on CPU. No GPU required to reproduce.
-
-### Optimizations
-
-- **CQT caching:** each track is decoded (ffmpeg) and transformed exactly once, then cached as a `.npy`; pitch-shift augmentation operates on the cached spectrogram, so retraining never touches the audio again.
-- **Row-rolled augmentation:** pitch shift as a `np.roll` on 33 rows instead of resampling 1.7M audio samples per track.
-- **Strided STFT via fancy indexing:** one gather instead of a sliding-window view, so the windowed frames are a writable array (and faster).
-- **Small model by construction:** 330k parameters keep the weights under 1.5 MB, which is the whole point of shipping the model in a CLI, a desktop app, and (eventually) an HF hub page.
-
-## Evaluation against the state of the art
-
-The comparison set mirrors euphoria's accuracy page, so the numbers are directly comparable to the product's published benchmark:
-
-| System | Class | Notes |
-|---|---|---|
-| libkeyfinder | open-source template matching | what euphoria ships today |
-| MadKey / Essentia | open-source | template matching |
-| Korzeniowski & Widmer 2017 | paper | CNN on 12-bin log-freq spectrogram, GiantSteps+Billboard training |
-| MusicalKeyCNN (a1ex90) | open-source reimplementation | PyTorch, same datasets, ~73.5% MIREX published |
-| Mixed In Key 8.3 | commercial | the benchmark's strongest baseline |
-| MIREX 2026 submission | challenge SOTA | MusicFM encoder, 1.3 GB — not a shipping candidate |
-
-drone's position: it targets the **Korzeniowski/Widmer / MusicalKeyCNN band** (≈73–75% MIREX on this benchmark) with a model small enough to embed, i.e. between template matching and the large-encoder frontier. The FMAK generalization check (5,489 songs, 17 genres) is the open question — tracked in euphoria issue #21.
-
-## Reproducing
+Install [uv](https://docs.astral.sh/uv/) and `ffmpeg` (`brew install ffmpeg` on
+macOS, or `apt install ffmpeg` on Ubuntu), then:
 
 ```bash
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt        # torch, numpy
-bash fetch.sh                          # downloads the 2.1 GB training set + labels to data/
-python train.py prepare                # decode + CQT features (cached)
-python train.py train                  # 120 epochs, keeps best validation checkpoint
-python train.py evaluate runs/<ckpt>   # reports held-out GiantSteps 604 exact/MIREX
+uv sync --locked
+uv run pytest
 ```
 
-The trained weights are committed to [`weights/`](weights/) and published on [Hugging Face](https://huggingface.co/lvndry/drone).
+`pyproject.toml` defines the package and dependencies; `uv.lock` pins the resolved
+environment. `.python-version` selects Python 3.12. PyTorch backend/index choices
+for a training host must match its GPU and driver; see the
+[official uv/PyTorch guide](https://docs.astral.sh/uv/guides/integration/pytorch/).
+Python inference defaults to CPU. The Python package is named `drone-key`,
+imported as `drone`; Euphoria's eventual native integration should consume an
+exported model rather than embed Python/PyTorch.
 
-## Using it
+## Data and training
+
+```bash
+bash fetch.sh                 # Beatport audio + labels and held-out GiantSteps
+uv run train.py prepare       # versioned, content-addressed feature caches
+uv run train.py train --model-size small --device cpu --threads 1
+uv run train.py evaluate data/runs/<run>/drone.pt --output data/results.json
+```
+
+`fetch.sh` requires `curl`. It verifies Beatport archives against the checksums
+published on Zenodo, pins GiantSteps annotations to a repository revision, and
+verifies each test preview against its upstream MD5. Downloads are dev-time only;
+the roughly 2.1 GB training archive plus test audio are not packaged. Use
+`bash fetch.sh --dataset train` or `--dataset test` for one dataset, and `--data`
+or `DRONE_DATA` to choose a data directory. See [DATA.md](DATA.md).
+
+The initial sizes share one architecture and feature contract:
+
+| Profile | Parameters | Approximate FP32 parameter storage | Intended experiment |
+|---|---:|---:|---|
+| small | 331,704 | 1.27 MiB | Default CPU candidate |
+| medium | 1,318,744 | 5.03 MiB | Capacity/latency comparison |
+| large | 5,258,904 | 20.06 MiB | Optional GPU/teacher candidate |
+
+Storage excludes metadata, buffers, and the inference runtime. GPU speed and
+accuracy gains have not been established. Select CUDA explicitly for GPU runs:
+
+```bash
+uv run train.py train --model-size large --device cuda --batch-size 64
+```
+
+Training uses cross-entropy, AdamW, cosine decay, and a fixed seeded stratified
+validation split. Changing the training seed leaves the split fixed. Learning
+rate, dropout, weight decay, and label smoothing are configurable; their defaults
+are a baseline, not an optimized recipe. Validation alone selects checkpoints;
+the training command does not score the held-out test set. ID/content overlap
+checks reject training/test leakage. Evaluation does not need training features.
+
+Every run writes `run.json` with source hashes, Git revision, dependency-lock hash,
+data manifests, split IDs, configuration, per-epoch metrics, timing, and checkpoint
+hash. Checkpoints include the model configuration, label schema, feature spec,
+and time resolution. Evaluation can write per-track predictions and both symmetric
+and asymmetric MIREX scores. The default symmetric convention awards fifths in
+both directions, matching Euphoria's benchmark; compare like scoring conventions.
+
+## Features
+
+Audio is decoded to mono 22.05 kHz PCM. A 4096-point Hann STFT with 512-sample hop
+is grouped into 33 semitone bands from A1 (55 Hz) through F4 (about 349 Hz).
+This is an STFT-derived log-frequency representation, **not a constant-Q transform**.
+Energy is log-compressed, time is independently interpolated per band to 300 frames,
+and each track is z-scored. The resulting model input is `(batch, 33, 300)`.
+Resampling time to 300 frames means the final time step depends on track duration.
+
+Training translations are sampled uniformly from -6 through +5 semitones. The
+same shift changes the label and frequency bands; out-of-range bands are discarded
+and padded at the feature floor before renormalization. This is an approximation
+of pitch shifting, not artifact-free audio transposition. Pitch shifts preserve
+major/minor mode and therefore do not rebalance mode counts.
+
+## Inference
+
+Supply a compatible trained checkpoint:
+
+```bash
+uv run python -m drone track.mp3 --weights data/runs/<run>/drone.pt --threads 1
+```
+
+For multiple files, load once and reuse the predictor:
 
 ```python
-import drone
-print(drone.predict("track.mp3"))  # -> ("C", "minor", confidence)
+from drone import Predictor
+
+predictor = Predictor("data/runs/<run>/drone.pt", device="cpu")
+print(predictor.predict("first.mp3"))  # tonic, mode, softmax probability
+print(predictor.predict("second.mp3"))
 ```
 
-Inference is a single forward pass over one 33×300 tensor; no audio dependencies beyond decoding to mono PCM.
+`drone.predict(path, weights=...)` is also available for a single file.
+`DRONE_WEIGHTS` overrides the default artifact location; otherwise drone checks
+packaged `drone/weights/drone-v1.pt`, then the checkout's `weights/drone-v1.pt`.
+No model is downloaded automatically. A missing or incompatible artifact produces
+an actionable error. Softmax probabilities are not calibrated accuracy estimates.
+Audio feature caches are keyed by file contents and feature specification.
 
-## License
+## Export and CPU measurement
 
-Code: MIT. Weights: trained on the CC BY-SA 4.0 Beatport EDM Key Dataset annotations and the preview audio described in [DATA.md](DATA.md).
+```bash
+uv run --extra export python -m drone.export data/runs/<run>/drone.pt data/drone-small.onnx
+uv run --extra export python -m drone.benchmark data/runs/<run>/drone.pt \
+  --onnx data/drone-small.onnx --audio track.mp3 --threads 1 --output data/cpu.json
+```
+
+Export verifies ONNX/PyTorch output parity at several batch sizes and writes a
+JSON sidecar containing the feature, model, and label contracts. It exports the
+network only: decoding, feature extraction, normalization, and class mapping must
+also match in a native host. ONNX is optional and adds no dependency to core Python
+inference. The CPU session helper uses sequential execution, one intra-op thread,
+and disabled worker spinning by default. Euphoria must bound total concurrency
+across analysis workers as well.
+
+Benchmarks separate model loading, warm forward latency, cold decoding/features/
+forward time, and warm feature-cache time. They report parameter and artifact size,
+thread count, and hardware. Parent-process CPU timing excludes ffmpeg; it is not a
+whole-system CPU or energy measurement. No CPU latency/accuracy guarantee is claimed
+before measuring a trained artifact on representative deployment hardware.
+
+## Development
+
+```bash
+uv sync --locked --all-extras
+uv run --extra export pytest
+uv run ruff check .
+uv run ruff format --check .
+uv build
+```
+
+Tests cover all key encodings and relationships, synthetic-tone frequency mapping,
+time interpolation, augmentation, content-cache invalidation, checkpoint versions,
+all model sizes, ONNX parity, and a synthetic prepare/train/evaluate/predict run.
+They validate pipeline correctness, not real-world musical-key accuracy.
+
+Code: MIT. Dataset provenance and audio-use notes: [DATA.md](DATA.md).

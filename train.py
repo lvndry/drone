@@ -1,208 +1,384 @@
-"""Train and evaluate the key detection CNN.
+"""Prepare features, train on Beatport, and evaluate once on held-out GiantSteps.
 
-Usage:
-  python train.py prepare            # decode + CQT features for train and test sets
-  python train.py train              # train, keep best model by validation MIREX
-  python train.py evaluate <ckpt>    # report the held-out GiantSteps 604 results
-
-MIREX weights match crates/euphoria-bench: exact 1.0, fifth 0.5, relative 0.3,
-parallel 0.2.
+Training follows the K10 (MIREX 2026, MIT) protocol: 192 core CQT bins,
+320-frame crops, uniform +/-4-semitone shift as an exact re-slice of the
+padded spectrogram, plain cross-entropy, AdamW 1e-3, cosine schedule.
 """
 
 import argparse
-import sys
+import hashlib
 import json
 import os
+import subprocess
+import tempfile
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from drone.datasets import load_beatport, load_giantsteps, prepare
-from drone.features import TONICS
+from drone.checkpoints import load_checkpoint, save_checkpoint
+from drone.datasets import load_beatport, load_giantsteps, prepare, sample_features
+from drone.features import CROP_FRAMES, FEATURE_ID, FEATURE_SPEC, N_CORE, audio_digest
+from drone.keys import LABEL_SCHEMA, encode_key, score_breakdown, score_mirex
 from drone.model import KeyCNN, params_count
 
-DATA = os.environ.get("DRONE_DATA", os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"))
-FEAT = os.path.join(DATA, "features")
-RUN = os.path.join(DATA, "runs")
-
+DATA = Path(os.environ.get("DRONE_DATA", Path(__file__).resolve().parent / "data"))
 SEED = 13
-T = 300
 EPOCHS = 120
-BATCH = 64
+BATCH = 32
 LR = 1e-3
-AUG_SEMITONES = 12  # full circle of shifts, so every key is equally represented
 
 
-# --- MIREX scoring in the 24-class space (index = tonic * 2 + mode) ---
-
-def score_mirex(pred, ref):
-    """Returns (exact, fifth, relative, parallel, other, mirex) as fractions."""
-    n = len(ref)
-    counts = [0, 0, 0, 0, 0]
-    for p, r in zip(pred, ref):
-        pt, pm = p % 12, p // 12
-        rt, rm = r % 12, r // 12
-        if p == r:
-            counts[0] += 1
-        elif pt == (rt + 7) % 12 and pm == rm:
-            counts[1] += 1
-        elif pm != rm and pt == (rt + 9) % 12:
-            counts[2] += 1
-        elif pt == rt:
-            counts[3] += 1
-        else:
-            counts[4] += 1
-    mirex = (counts[0] + 0.5 * counts[1] + 0.3 * counts[2] + 0.2 * counts[3]) / n
-    return counts[0] / n, mirex
-
-
-def evaluate_set(model, feats, refs, device, batch=128):
+def evaluate_tracks(model, tracks, track_dir, device, batch=16):
+    """Per-track evaluation at full length (K10 does not pad at inference)."""
     model.eval()
     pred = []
-    with torch.no_grad():
-        for i in range(0, len(refs), batch):
-            x = torch.from_numpy(feats[i : i + batch]).to(device)
-            logits = model(x.transpose(1, 2))
-            pred.append(logits.argmax(1).cpu().numpy())
-    pred = np.concatenate(pred)
-    exact, mirex = score_mirex(pred.tolist(), refs)
-    return pred, exact, mirex
+    for i in range(0, len(tracks), batch):
+        xs = []
+        for track in tracks[i : i + batch]:
+            features, _ = prepare(track, track_dir)
+            xs.append(features)
+        T = max(x.shape[1] for x in xs)
+        x = torch.zeros(len(xs), N_CORE, T)
+        for j, feat in enumerate(xs):
+            x[j, :, : feat.shape[1]] = torch.from_numpy(feat)
+        with torch.inference_mode():
+            pred.append(model(x.to(device)).argmax(1).cpu().numpy())
+    return np.concatenate(pred)
 
 
-def class_id_of(track):
-    return TONICS.index(track.key[0]) * 2 + (1 if track.key[1] == "minor" else 0)
+def prepared_path(data, tag):
+    return Path(data) / "features" / FEATURE_ID / f"{tag}.json"
 
 
-def prepare_dir(tag, tracks, track_dir):
-    out = os.path.join(FEAT, f"{tag}_feats.npy")
-    refs_path = os.path.join(FEAT, f"{tag}_refs.json")
-    os.makedirs(FEAT, exist_ok=True)
-    if os.path.exists(out) and os.path.exists(refs_path):
-        return np.load(out), json.load(open(refs_path))
-    feats, refs, ids = [], [], []
-    t0 = time.time()
+def prepare_dir(tag, tracks, track_dir, *, data=DATA):
+    """Warm the content-addressed CQT cache and write the track manifest."""
+    if not tracks:
+        raise ValueError(f"No tracks for {tag}; download the datasets with bash fetch.sh")
+    metadata = {
+        "feature_spec": FEATURE_SPEC,
+        "label_schema": LABEL_SCHEMA,
+        "crop": CROP_FRAMES,
+        "tracks": [
+            {
+                "id": track.id,
+                "path": str(track.audio),
+                "sha256": audio_digest(track.audio),
+                "key": list(track.key),
+            }
+            for track in tracks
+        ],
+        "refs": [encode_key(*track.key) for track in tracks],
+        "ids": [track.id for track in tracks],
+    }
+    out = prepared_path(data, tag)
+    if out.is_file():
+        try:
+            cached = json.loads(out.read_text())
+        except (ValueError, OSError):
+            pass
+        else:
+            if cached == metadata:
+                return metadata
+    start = time.monotonic()
     for i, track in enumerate(tracks):
-        f, _ = prepare(track, track_dir, T=T, augment=0)
-        feats.append(f)
-        refs.append(class_id_of(track))
-        ids.append(track.id)
+        prepare(track, track_dir)
         if (i + 1) % 50 == 0:
-            print(f"  {tag}: {i + 1}/{len(tracks)} ({time.time() - t0:.0f}s)", flush=True)
-    np.save(out, np.stack(feats))
-    json.dump({"refs": refs, "ids": ids}, open(refs_path, "w"))
-    print(f"  {tag}: done {len(tracks)} tracks in {time.time() - t0:.0f}s", flush=True)
-    return np.stack(feats), refs
+            print(f"{tag}: {i + 1}/{len(tracks)} ({time.monotonic() - start:.0f}s)", flush=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=out.parent) as scratch:
+        pending = Path(scratch) / "manifest.json"
+        pending.write_text(json.dumps(metadata, indent=2) + "\n")
+        os.replace(pending, out)
+    print(f"{tag}: done {len(tracks)} tracks in {time.monotonic() - start:.0f}s", flush=True)
+    return metadata
+
+
+def load_manifest(data, tag):
+    path = prepared_path(data, tag)
+    if not path.is_file():
+        raise FileNotFoundError(f"Missing {tag} manifest. Run uv run train.py prepare.")
+    metadata = json.loads(path.read_text())
+    if (
+        metadata.get("feature_spec") != FEATURE_SPEC
+        or metadata.get("label_schema") != LABEL_SCHEMA
+        or not metadata.get("refs")
+        or len(metadata["ids"]) != len(metadata["refs"])
+    ):
+        raise ValueError(f"Invalid {tag} manifest; run uv run train.py prepare")
+    return metadata
+
+
+def assert_disjoint(train_ids, test_ids):
+    overlap = set(train_ids) & set(test_ids)
+    if overlap:
+        raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
+
+
+def validation_split(refs, seed=SEED):
+    """Fixed seeded, stratified split; training augmentation never touches validation."""
+    rng = np.random.default_rng(seed)
+    val = []
+    for key in sorted(set(refs)):
+        indices = np.flatnonzero(np.asarray(refs) == key)
+        rng.shuffle(indices)
+        if len(indices) > 1:
+            val.extend(indices[: max(1, len(indices) // 10)].tolist())
+    val = sorted(val)
+    chosen = set(val)
+    train = [i for i in range(len(refs)) if i not in chosen]
+    if not train or not val:
+        raise ValueError("Need at least two examples in a class for a training/validation split")
+    return train, val
+
+
+def git_revision():
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            cwd=Path(__file__).parent,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
+def train_model(
+    data,
+    device,
+    *,
+    epochs=EPOCHS,
+    batch=BATCH,
+    seed=SEED,
+    lr=LR,
+    width=1.0,
+    weight_decay=1e-4,
+    label_smoothing=0.0,
+):
+    data = Path(data)
+    meta = load_manifest(data, "train")
+    test_meta = load_manifest(data, "test")
+    assert_disjoint(meta["ids"], test_meta["ids"])
+    assert_disjoint(
+        [t["sha256"] for t in meta["tracks"]], [t["sha256"] for t in test_meta["tracks"]]
+    )
+    from drone.datasets import Track
+
+    ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
+    refs = meta["refs"]
+    tr_idx, val_idx = validation_split(refs, SEED)
+    torch.manual_seed(seed)
+    rng = np.random.default_rng(seed)
+    if epochs < 1 or batch < 1 or lr <= 0 or weight_decay < 0 or not 0 <= label_smoothing < 1:
+        raise ValueError("Invalid training hyperparameters")
+    model = KeyCNN(width=width).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+
+    run_root = data / "runs"
+    run_root.mkdir(parents=True, exist_ok=True)
+    run = Path(
+        tempfile.mkdtemp(
+            prefix=f"w{width}-seed{seed}-{time.strftime('%Y%m%d-%H%M%S')}-", dir=run_root
+        )
+    )
+    checkpoint = run / "drone.pt"
+    config = {
+        "epochs": epochs,
+        "batch": batch,
+        "seed": seed,
+        "lr": lr,
+        "device": str(device),
+        "split_seed": SEED,
+        "width": width,
+        "crop": CROP_FRAMES,
+        "weight_decay": weight_decay,
+        "label_smoothing": label_smoothing,
+    }
+    source_files = [Path(__file__), *sorted((Path(__file__).parent / "drone").glob("*.py"))]
+    source_hashes = {
+        str(p.relative_to(Path(__file__).parent)): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in source_files
+    }
+    record = {
+        "source_sha256": source_hashes,
+        "config": config,
+        "feature_spec": FEATURE_SPEC,
+        "label_schema": LABEL_SCHEMA,
+        "git_revision": git_revision(),
+        "torch": str(torch.__version__),
+        "numpy": np.__version__,
+        "training_manifest": meta,
+        "train_ids": [meta["ids"][i] for i in tr_idx],
+        "validation_ids": [meta["ids"][i] for i in val_idx],
+        "held_out_ids": test_meta["ids"],
+        "history": [],
+    }
+    lock = Path(__file__).parent / "uv.lock"
+    record["lock_sha256"] = hashlib.sha256(lock.read_bytes()).hexdigest() if lock.exists() else None
+
+    val_tracks = [ordered[i] for i in val_idx]
+    best_val, start = -1.0, time.monotonic()
+    print(f"device {device}, params {params_count(model):,}", flush=True)
+    for epoch in range(1, epochs + 1):
+        model.train()
+        order = rng.permutation(tr_idx)
+        loss_sum = 0.0
+        for i in range(0, len(order), batch):
+            idx = order[i : i + batch]
+            feats, y = [], []
+            for j in idx:
+                feat, cls = sample_features(ordered[j], data, rng, T=CROP_FRAMES)
+                feats.append(feat)
+                y.append(cls)
+            T = max(f.shape[1] for f in feats)
+            x = torch.zeros(len(feats), N_CORE, T)
+            for k, feat in enumerate(feats):
+                x[k, :, : feat.shape[1]] = torch.from_numpy(feat)
+            optimizer.zero_grad()
+            loss = criterion(
+                model(x.to(device)),
+                torch.from_numpy(np.asarray(y, dtype=np.int64)).to(device),
+            )
+            if not torch.isfinite(loss):
+                raise RuntimeError("Nonfinite training loss")
+            loss.backward()
+            optimizer.step()
+            loss_sum += loss.item() * len(idx)
+        scheduler.step()
+        val_pred = evaluate_tracks(model, val_tracks, data, device)
+        exact, mirex = score_mirex(val_pred, [refs[i] for i in val_idx])
+        record["history"].append(
+            {
+                "epoch": epoch,
+                "loss": loss_sum / len(order),
+                "validation_exact": exact,
+                "validation_mirex": mirex,
+            }
+        )
+        if mirex > best_val:
+            best_val = mirex
+            record["best_epoch"] = epoch
+            save_checkpoint(
+                checkpoint,
+                model,
+                width=width,
+                config=config,
+                epoch=epoch,
+                validation_mirex=mirex,
+                git_revision=record["git_revision"],
+                train_ids=record["train_ids"],
+                validation_ids=record["validation_ids"],
+                source_sha256=source_hashes,
+                training_audio_sha256=[t["sha256"] for t in meta["tracks"]],
+            )
+        record["elapsed_seconds"] = time.monotonic() - start
+        (run / "run.json").write_text(json.dumps(record, indent=2) + "\n")
+        print(
+            f"epoch {epoch}/{epochs} loss {loss_sum / len(order):.4f} "
+            f"val MIREX {100 * mirex:.1f}% best {100 * best_val:.1f}%",
+            flush=True,
+        )
+    record["checkpoint_sha256"] = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+    (run / "run.json").write_text(json.dumps(record, indent=2) + "\n")
+    print(f"Best checkpoint: {checkpoint}\nRun `uv run train.py evaluate {checkpoint}` when ready.")
+    return checkpoint
+
+
+def evaluate_checkpoint(data, checkpoint, device):
+    data = Path(data)
+    meta = load_manifest(data, "test")
+    model, payload = load_checkpoint(checkpoint, device)
+    trained_ids = payload.get("metadata", {}).get("train_ids", [])
+    validation_ids = payload.get("metadata", {}).get("validation_ids", [])
+    assert_disjoint(trained_ids + validation_ids, meta["ids"])
+    assert_disjoint(
+        payload.get("metadata", {}).get("training_audio_sha256", []),
+        [t["sha256"] for t in meta["tracks"]],
+    )
+    from drone.datasets import Track
+
+    ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
+    pred = evaluate_tracks(model, ordered, data, device)
+    exact, mirex = score_mirex(pred, meta["refs"])
+    cats = score_breakdown(pred, meta["refs"])
+    result = {
+        "tracks": len(pred),
+        "exact": exact,
+        "mirex": mirex,
+        "mirex_asymmetric": score_mirex(pred, meta["refs"], symmetric=False)[1],
+        "counts": dict(cats),
+        "feature_spec": FEATURE_SPEC,
+        "test_manifest": meta,
+        "predictions": pred.tolist(),
+        "checkpoint_sha256": hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
+    }
+    print(
+        f"Held-out GiantSteps ({len(pred)} tracks): exact {100 * exact:.1f}% MIREX {100 * mirex:.1f}%"
+    )
+    print(
+        " ".join(
+            f"{key}: {cats[key]}" for key in ("exact", "fifth", "relative", "parallel", "other")
+        )
+    )
+    return result
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("command")
-    ap.add_argument("ckpt", nargs="?", default="")
-    args = ap.parse_args()
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    torch.manual_seed(SEED)
-    np.random.seed(SEED)
-
-    if args.command == "prepare":
-        beatport = load_beatport(DATA, os.path.join(DATA, "labels"))
-        print(f"beatport tracks: {len(beatport)}")
-        giantsteps = load_giantsteps(os.path.join(DATA, "giantsteps"))
-        print(f"giantsteps tracks: {len(giantsteps)}")
-        prepare_dir("train", beatport, os.path.join(DATA, "audio"))
-        prepare_dir("test", giantsteps, os.path.join(DATA, "giantsteps"))
-
-    elif args.command in ("train", "evaluate"):
-        feats, refs = np.load(os.path.join(FEAT, "train_feats.npy")), None
-        meta = json.load(open(os.path.join(FEAT, "train_refs.json")))
-        refs = meta["refs"]
-        # validation split: every 10th track, never touched for training
-        val_idx = list(range(9, len(refs), 10))
-        tr_idx = [i for i in range(len(refs)) if i not in set(val_idx)]
-        val_refs = [refs[i] for i in val_idx]
-
-        model = KeyCNN().to(device)
-        print(f"device {device}, params {params_count(model) / 1e6:.2f}M")
-
-        if args.command == "evaluate":
-            ckpt = torch.load(args.ckpt, map_location=device)
-            model.load_state_dict(ckpt)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=("prepare", "train", "evaluate"))
+    parser.add_argument("checkpoint", nargs="?")
+    parser.add_argument("--data", type=Path, default=DATA)
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--epochs", type=int, default=EPOCHS)
+    parser.add_argument("--batch-size", type=int, default=BATCH)
+    parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--width", type=float, default=1.0)
+    parser.add_argument("--lr", type=float, default=LR)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--label-smoothing", type=float, default=0.0)
+    parser.add_argument(
+        "--threads", type=int, default=1, help="CPU intra-op threads (process-wide)"
+    )
+    parser.add_argument("--output", type=Path, help="Write evaluation JSON to this path")
+    args = parser.parse_args()
+    if args.epochs < 1 or args.batch_size < 1:
+        parser.error("epochs/batch-size must be positive")
+    if args.threads < 1:
+        parser.error("threads must be positive")
+    torch.set_num_threads(args.threads)
+    try:
+        if args.command == "prepare":
+            beatport = load_beatport(args.data, args.data / "labels")
+            giantsteps = load_giantsteps(args.data / "giantsteps")
+            assert_disjoint([t.id for t in beatport], [t.id for t in giantsteps])
+            prepare_dir("train", beatport, args.data, data=args.data)
+            prepare_dir("test", giantsteps, args.data / "giantsteps", data=args.data)
+        elif args.command == "train":
+            train_model(
+                args.data,
+                args.device,
+                epochs=args.epochs,
+                batch=args.batch_size,
+                seed=args.seed,
+                lr=args.lr,
+                width=args.width,
+                weight_decay=args.weight_decay,
+                label_smoothing=args.label_smoothing,
+            )
         else:
-            os.makedirs(RUN, exist_ok=True)
-            ckpt_path = os.path.join(RUN, f"key-cnn-run{time.strftime('%Y%m%d-%H%M%S')}.pt")
-            criterion = nn.CrossEntropyLoss()
-            opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=1e-4)
-            sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, EPOCHS)
-            best_val, best_epoch = -1.0, 0
-            for epoch in range(1, EPOCHS + 1):
-                model.train()
-                order = np.random.permutation(tr_idx)
-                loss_sum, t0 = 0.0, time.time()
-                for i in range(0, len(order), BATCH):
-                    idx = order[i : i + BATCH]
-                    x = np.stack([feats[j] for j in idx])
-                    shift = np.random.randint(-AUG_SEMITONES // 2, AUG_SEMITONES // 2 + 1, len(idx))
-                    y = np.array([((refs[j] % 12) + s) % 12 * 2 + refs[j] // 12 for j, s in zip(idx, shift)])
-                    for j, s in enumerate(idx):
-                        if s:
-                            x[j] = np.roll(x[j], s, axis=1)
-                    xb = torch.from_numpy(x).to(device)
-                    yb = torch.from_numpy(y.astype(np.int64)).to(device)
-                    opt.zero_grad()
-                    loss = criterion(model(xb.transpose(1, 2)), yb)
-                    loss.backward()
-                    opt.step()
-                    loss_sum += loss.item()
-                sched.step()
-                val_pred, _, val_mirex = evaluate_set(model, feats[val_idx], val_refs, device)
-                if val_mirex > best_val:
-                    best_val, best_epoch = val_mirex, epoch
-                    torch.save(model.state_dict(), ckpt_path)
-                if epoch % 5 == 0 or epoch == 1:
-                    print(
-                        f"epoch {epoch}/{EPOCHS} loss {loss_sum / len(order) * BATCH:.4f} "
-                        f"val MIREX {100 * val_mirex:.1f}% (best {100 * best_val:.1f}% @ {best_epoch}) "
-                        f"{time.time() - t0:.0f}s",
-                        flush=True,
-                    )
-            print(f"training done, best val MIREX {100 * best_val:.1f}% @ epoch {best_epoch}")
-            model.load_state_dict(torch.load(ckpt_path, map_location=device))
-
-        test_feats, test_meta = (
-            np.load(os.path.join(FEAT, "test_feats.npy")),
-            json.load(open(os.path.join(FEAT, "test_refs.json"))),
-        )
-        pred, exact, mirex = evaluate_set(model, test_feats, test_meta["refs"], device)
-        # per-class breakdown for the table
-        from collections import Counter
-
-        cats = Counter()
-        for p, r in zip(pred, test_meta["refs"]):
-            pt, pm = p % 12, p // 12
-            rt, rm = r % 12, r // 12
-            if p == r:
-                cats["exact"] += 1
-            elif pt == (rt + 7) % 12 and pm == rm:
-                cats["fifth"] += 1
-            elif pm != rm and pt == (rt + 9) % 12:
-                cats["relative"] += 1
-            elif pt == rt:
-                cats["parallel"] += 1
-            else:
-                cats["other"] += 1
-        n = len(test_meta["refs"])
-        print(
-            f"held-out GiantSteps 604: exact {100 * exact:.1f}%  "
-            + "  ".join(f"{k} {100 * cats[k] / n:.1f}%" for k in ("fifth", "relative", "parallel", "other"))
-            + f"  MIREX {100 * mirex:.1f}%",
-            flush=True,
-        )
-        if args.command == "train":
-            print(ckpt_path, flush=True)
+            if not args.checkpoint:
+                parser.error("evaluate requires a checkpoint path")
+            result = evaluate_checkpoint(args.data, args.checkpoint, args.device)
+            if args.output:
+                args.output.parent.mkdir(parents=True, exist_ok=True)
+                args.output.write_text(json.dumps(result, indent=2) + "\n")
+    except (ValueError, FileNotFoundError) as exc:
+        parser.exit(1, f"{exc}\n")
 
 
 if __name__ == "__main__":

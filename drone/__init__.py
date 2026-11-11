@@ -1,48 +1,65 @@
-"""drone: a 0.33M-parameter classifier for the musical key of a track."""
+"""drone: a small classifier for musical key detection."""
 
 from __future__ import annotations
 
 import os
+import tempfile
+from importlib.resources import files
+from pathlib import Path
 
 import torch
 
-from drone.datasets import prepare, Track
-from drone.features import TONICS
+from drone.checkpoints import load_checkpoint
+from drone.datasets import Track, prepare
+from drone.keys import decode_key
 from drone.model import KeyCNN
 
-_WEIGHTS = os.path.join(os.path.dirname(__file__), "weights", "drone-v1.pt")
+
+def default_weights():
+    override = os.environ.get("DRONE_WEIGHTS")
+    if override:
+        return Path(override)
+    packaged = Path(str(files("drone").joinpath("weights", "drone-v1.pt")))
+    if packaged.is_file():
+        return packaged
+    return Path(__file__).resolve().parent.parent / "weights" / "drone-v1.pt"
 
 
-def load_model(path: str = _WEIGHTS) -> KeyCNN:
-    model = KeyCNN()
-    model.load_state_dict(torch.load(path, map_location="cpu"))
-    model.eval()
-    return model
+def load_model(path: str | Path | None = None) -> KeyCNN:
+    return load_checkpoint(path or default_weights())[0]
 
 
-def predict(audio_path: str, workdir: str | None = None) -> tuple[str, str, float]:
-    """Return (tonic, mode, confidence) for one audio file.
+class Predictor:
+    """Load once per analysis worker/service; no model initialization per track.
 
-    audio_path: any file ffmpeg can decode (mp3, wav, flac, ...)
-    workdir: where CQT feature cache files are stored (default: ./drone-cache)
+    Thread policy belongs to the host process. The CLI uses one CPU thread;
+    Euphoria should use a bounded ONNX session with worker spinning disabled.
     """
-    import tempfile
 
-    workdir = workdir or os.path.join(tempfile.gettempdir(), "drone-cache")
-    model = load_model()
-    track = Track("track", audio_path, ("C", "major"))
-    features, _ = prepare(track, workdir)
-    with torch.no_grad():
-        logits = model(torch.from_numpy(features[None]).transpose(1, 2))
-    prob = torch.softmax(logits, 1).squeeze(0)
-    conf, class_id = prob.max(0)
-    class_id, conf = int(class_id), float(conf)
-    return TONICS[class_id % 12], "minor" if class_id // 12 else "major", conf
+    def __init__(self, weights=None, *, device="cpu", workdir=None):
+        self.model, self.checkpoint = load_checkpoint(weights or default_weights(), device)
+        self.device = device
+        self.workdir = workdir or os.path.join(tempfile.gettempdir(), "drone-cache")
+
+    def predict(self, audio_path):
+        # Full-length feature; the net pools over time, so no fixed frame count.
+        features, _ = prepare(Track("track", audio_path, ("C", "major")), self.workdir)
+        x = torch.from_numpy(features[None]).transpose(1, 2).to(self.device)
+        with torch.inference_mode():
+            prob = torch.softmax(self.model(x), 1).squeeze(0)
+        confidence, class_id = prob.max(0)
+        return (*decode_key(int(class_id)), float(confidence))
 
 
-if __name__ == "__main__":
-    import sys
+def predict(
+    audio_path: str,
+    workdir: str | None = None,
+    *,
+    weights: str | Path | None = None,
+    device="cpu",
+) -> tuple[str, str, float]:
+    """Return tonic, mode and uncalibrated softmax probability for one file.
 
-    for path in sys.argv[1:]:
-        tonic, mode, conf = predict(path)
-        print(f"{path}: {tonic} {mode} ({100 * conf:.1f}%)")
+    Reuse a Predictor for multiple tracks. CPU is the default; GPU use is explicit.
+    """
+    return Predictor(weights, device=device, workdir=workdir).predict(audio_path)

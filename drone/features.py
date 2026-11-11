@@ -1,28 +1,109 @@
-"""CQT features for the key detection CNN.
+"""Constant-Q features for key detection, matching the K10 (MIREX 2026, MIT) pipeline.
 
-The spectrogram is a 33-semitone log frequency CQT (55 Hz to 880 Hz, one
-semitone per column, amplitude per frame), built from a single STFT. Pitch
-shifting is a circular shift of the semitone columns, which also moves the
-label, so training-time augmentation is nearly free.
+A true CQT: 24 bins per octave, 8 core octaves up from C1, log1p amplitude,
+hop 4096. The spectrogram is computed with a +/-4 semitone pad (208 bins)
+so pitch-shift augmentation is an exact re-slice of 192 core bins; 24
+bins per octave gives 2 bins per semitone, so the network sees absolute
+frequency position, which carries the tonic.
 """
 
+from __future__ import annotations
+
+import hashlib
+import json
 import os
 import struct
 import subprocess
+import tempfile
+from pathlib import Path
 
 import numpy as np
 
 SR = 22050
-SEMIBASE = 55  # A1
-N_SEM = 33
-FFT_SIZE = 4096
-HOP = 512
+FFT = 4096
+HOP = 4096
+BINS_PER_OCT = 24
+N_OCT = 8
+PAD_SEMI = 4
+BINS_PER_SEMI = BINS_PER_OCT // 12
+N_TOTAL = (N_OCT * 12 + 2 * PAD_SEMI) * BINS_PER_SEMI  # 208, with pad
+N_CORE = N_OCT * BINS_PER_OCT  # 192
 
-TONICS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+CROP_FRAMES = 320  # K10 training crop length (~78 s at 4.1 fps)
+
+FEATURE_SPEC = "cqt24-8oct-c1-pad4-hop4096-v2"
+FEATURE_ID = hashlib.sha256(
+    json.dumps(
+        {
+            "spec": FEATURE_SPEC,
+            "sr": SR,
+            "fft": FFT,
+            "hop": HOP,
+            "n_oct": N_OCT,
+            "bins_per_oct": BINS_PER_OCT,
+            "pad_semi": PAD_SEMI,
+        },
+        sort_keys=True,
+    ).encode()
+).hexdigest()[:16]
+
+
+def _note_to_hz(name: str) -> float:
+    """C1 = 32.703199..., one semitone = twelfth root of two."""
+    semis_from_c0 = (
+        12 * int(name[-1]) + {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}[name[0]]
+    )
+    return 16.351597933828117 * 2.0 ** (semis_from_c0 / 12)
+
+
+FMIN_HZ = _note_to_hz("C1") * 2.0 ** (-PAD_SEMI / 12)
+
+
+def cqt(samples: np.ndarray) -> np.ndarray:
+    """Constant-Q transform: (N_TOTAL bins, n_frames) log1p amplitude.
+
+    librosa.cqt, exactly as the K10 (MIREX 2026, MIT) script: 24 bins per
+    octave, 208 bins from two semitones below C1, hop 4096, default window.
+    """
+    import librosa
+
+    samples = np.ascontiguousarray(samples, dtype=np.float32)
+    coeffs = librosa.cqt(
+        samples,
+        sr=SR,
+        hop_length=HOP,
+        fmin=FMIN_HZ,
+        n_bins=N_TOTAL,
+        bins_per_octave=BINS_PER_OCT,
+    )
+    mag = np.abs(coeffs)
+    if mag.shape[0] > N_TOTAL:
+        mag = mag[:N_TOTAL]
+    return np.log1p(mag).astype(np.float32)
+
+
+def window(cqt: np.ndarray, shift: int = 0) -> np.ndarray:
+    """Slice the N_CORE core bins, starting `shift` semitones above C1.
+
+    A positive shift moves content down the frequency axis (the track sounds
+    `shift` semitones lower), so the key label must transpose by -shift.
+    """
+    if not -PAD_SEMI <= shift <= PAD_SEMI:
+        raise ValueError(f"shift must be within +/-{PAD_SEMI} semitones")
+    lo = (PAD_SEMI + shift) * BINS_PER_SEMI
+    return cqt[lo : lo + N_CORE, :]
 
 
 def cqt_path(track_dir, name):
-    return os.path.join(track_dir, "cqt", f"{name}.npy")
+    return os.path.join(track_dir, "cqt", FEATURE_ID, f"{name}.npy")
+
+
+def audio_digest(path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def decode_mp3(path, out_wav):
@@ -65,63 +146,47 @@ def resample_linear(x, from_rate, to_rate):
     return x[i] * (1.0 - frac) + x[i + 1] * frac
 
 
-def stft_magnitude(x):
-    # gather the strided frames into a fresh array so the window can be applied in place
-    starts = np.arange(0, len(x) - FFT_SIZE + 1, HOP)
-    idx = starts[:, None] + np.arange(FFT_SIZE)[None, :]
-    frames = x[idx].astype(np.float32)
-    window = np.hanning(FFT_SIZE).astype(np.float32)
-    frames *= window
-    spec = np.fft.rfft(frames, axis=1)
-    return np.abs(spec).astype(np.float32)
+def extract_cqt(mp3: str, track_dir) -> np.ndarray:
+    """Decode one audio file to its full (N_TOTAL, frames) CQT, cached by
+    content hash. Cached arrays are float16; load as float32."""
+    out = Path(cqt_path(track_dir, audio_digest(mp3)))
+    if out.is_file():
+        features = np.load(out)
+        if features.ndim == 2 and features.shape[0] == N_TOTAL and np.isfinite(features).all():
+            return features.astype(np.float32)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=out.parent) as scratch:
+        wav = Path(scratch) / f"{out.name}.wav"
+        decode_mp3(str(mp3), str(wav))
+        samples, rate = read_wav_mono(str(wav))
+        samples = resample_linear(samples, rate, SR)
+        features = cqt(samples).astype(np.float16)
+        pending = Path(scratch) / out.name
+        np.save(pending, features)
+        os.replace(pending, out)
+    return features.astype(np.float32)
 
 
-def build_cqt(x):
-    """(n_frames, n_sem) semitone-amplitude CQT. Bins per semitone are summed."""
-    mag = stft_magnitude(x)
-    freqs = np.arange(mag.shape[1]) * (SR / FFT_SIZE)
-    # nearest semitone for every bin, A1..A7
-    sem_of_bin = np.rint(np.log2(np.maximum(freqs, 1.0) / SEMIBASE)).astype(np.int64)
-    valid = (sem_of_bin >= 0) & (sem_of_bin < N_SEM)
-    bins = np.where(valid)[0]
-    cqt = np.zeros((mag.shape[0], N_SEM), dtype=np.float32)
-    for b in bins:
-        cqt[:, int(sem_of_bin[b])] += mag[:, b]
-    cqt = np.log1p(10.0 * cqt / max(np.percentile(cqt, 99), 1e-9))
-    return cqt
+def prepare(
+    track,
+    track_dir,
+    *,
+    shift: int = 0,
+    T: int | None = None,
+    rng: np.random.Generator | None = None,
+):
+    """Core-bins feature for one track: (N_CORE, T) or (N_CORE, frames).
 
-
-def extract(name, mp3, track_dir):
-    """Decode one mp3 to a CQT, cache it, return the array (n_frames, 33)."""
-    out = cqt_path(track_dir, name)
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    if not os.path.exists(out):
-        wav = out + ".wav"
-        decode_mp3(mp3, wav)
-        samples, rate = read_wav_mono(wav)
-        os.remove(wav)
-        x = resample_linear(samples, rate, SR)
-        if len(x) < FFT_SIZE * 2:
-            x = np.pad(x, (0, FFT_SIZE * 2 - len(x)))
-        np.save(out, build_cqt(x))
-    return np.load(out)
-
-
-FLATS = {"Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
-
-
-def parse_key(text):
-    """'D# minor | E major' -> ('D#', 'minor'); None when unparseable.
-    Flats are normalized to sharps so both datasets share the same 24 classes."""
-    first = text.split("|")[0].strip()
-    parts = first.split()
-    if len(parts) != 2:
-        return None
-    tonic, mode = parts
-    if mode not in ("major", "minor"):
-        return None
-    if tonic not in TONICS:
-        tonic = FLATS.get(tonic)
-        if tonic is None:
-            return None
-    return tonic, mode
+    With T set: shorter tracks are zero-padded, longer ones random-cropped
+    (rng) to T frames, matching the K10 training protocol.
+    """
+    features = window(extract_cqt(track.audio, track_dir), shift)
+    if T is not None:
+        if T < 1:
+            raise ValueError("T must be positive")
+        if features.shape[1] < T:
+            features = np.pad(features, ((0, 0), (0, T - features.shape[1])))
+        elif rng is not None:
+            start = int(rng.integers(0, features.shape[1] - T + 1))
+            features = features[:, start : start + T]
+    return features, track.key
