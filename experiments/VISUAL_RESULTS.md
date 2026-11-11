@@ -14,6 +14,8 @@ processes for the same 20 public validation tracks, one CPU core, one warmup and
 full / 76.0 MiB chunked. The longest (28 minutes) peaked at **739.6 MiB full /
 120.7 MiB chunked**. Paired logits and key decisions agreed within the fixed gate.
 This directly shows the long-track memory growth that a parameter count misses.
+The approximately four-minute case used 158.3 / 110.7 MiB: savings for ordinary
+song lengths are smaller than the longest-track result.
 
 Full inference retains large intermediate activation tensors. Chunking bounds
 those tensors while retaining every model output position. Total RSS still
