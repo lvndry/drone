@@ -9,16 +9,19 @@ someone maintaining Drone or integrating a future validated model into Euphoria.
 The [results report](../experiments/RESULTS-2026-11-11.md) contains the detailed
 measurements; the protocols linked below record decisions made before each stage.
 
-The completed research snapshot is [PR #3](https://github.com/lvndry/drone/pull/3),
-targeting `main` after the K10 merge. The subsequent DSP-guided pilot completed
-and failed its development gate; the later update below records it. The separate [K10 architecture PR #2](https://github.com/lvndry/drone/pull/2)
+The completed research snapshot is commit `36382c3` (the compact-model
+research record, merged to `main` on 2026-11-11 after the K10 merge).
+The subsequent DSP-guided pilot completed
+and failed its development gate; the later update below records it. The separate K10 architecture
+port (commit `c165c05`, merged 2026-11-11)
 has not been measured under this protocol. Its architecture and published-paper
 results must not be substituted for the measurements here.
 
 Subsequent evidence from that separate K10 run is now available: seed 13 scored
 **74.83% symmetric-fifth MIREX / 68.54% exact** on the 604 GiantSteps recordings,
 versus native Euphoria's 69.35% / 60.60%. The subsequent three-seed K10 mean is
-**73.58% MIREX**; its weights shipped through [PR #4](https://github.com/lvndry/drone/pull/4).
+**73.58% MIREX**; its weights shipped in commit `367e807` (the drone-v1 weights
+commit, merged 2026-11-11).
 This is a stronger observed point estimate
 than this document's octave candidate. It is a Beatport-only recipe, not a
 controlled comparison on the fixed joint Beatport/FMAK training split below;

@@ -55,6 +55,12 @@ layer. At width 1.0 it has 109,128 parameters; `--width` scales the channels
 for smaller or larger profiles, which must each be trained and evaluated
 independently.
 
+We adopted the published K10 architecture and trained our own weights after the
+compact-model screen supported retaining absolute frequency position. The
+measured release recipe improved on the native reference, while remaining small
+enough for CPU deployment. See the "Why K10" section of
+[docs/training.md](docs/training.md) for the evidence and comparison limits.
+
 Training follows the K10 recipe: 320-frame crops, uniform +/-4 semitone shifts
 applied as exact feature re-slices with a transposed label, AdamW at 1e-3,
 cosine decay over 120 epochs, batch 32, plain cross-entropy. A fixed seeded
