@@ -63,9 +63,14 @@ def prepare_dir(tag, tracks, track_dir, *, data=DATA, frames=T):
     }
     out = prepared_path(data, tag)
     if out.is_file():
-        features, cached = load_prepared(data, tag)
-        if cached == metadata:
-            return features, cached
+        try:
+            features, cached = load_prepared(data, tag)
+        except (ValueError, KeyError):
+            # Preparation is the recovery command for stale or damaged bundles.
+            pass
+        else:
+            if cached == metadata:
+                return features, cached
     features = []
     start = time.monotonic()
     for i, track in enumerate(tracks):
@@ -182,8 +187,16 @@ def train_model(
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-    run = Path(data) / "runs" / time.strftime("%Y%m%d-%H%M%S")
-    run.mkdir(parents=True, exist_ok=False)
+    import tempfile
+
+    run_root = Path(data) / "runs"
+    run_root.mkdir(parents=True, exist_ok=True)
+    run = Path(
+        tempfile.mkdtemp(
+            prefix=f"{model_size}-seed{seed}-{time.strftime('%Y%m%d-%H%M%S')}-",
+            dir=run_root,
+        )
+    )
     checkpoint = run / "drone.pt"
     config = {
         "epochs": epochs,

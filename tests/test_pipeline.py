@@ -103,6 +103,12 @@ def test_prepare_train_evaluate_and_infer(tmp_path):
     cached, cached_meta = prepare_dir("train", tracks, tmp_path, data=tmp_path)
     np.testing.assert_array_equal(cached, train_features)
     assert cached_meta == meta
+    # The recovery command must replace damaged/stale bundles instead of looping on an error.
+    np.savez(
+        prepared_path(tmp_path, "train"), features=train_features[:1], metadata=json.dumps(meta)
+    )
+    recovered, _ = prepare_dir("train", tracks, tmp_path, data=tmp_path)
+    np.testing.assert_array_equal(recovered, train_features)
     # A changed label must invalidate the prepared bundle, even with identical audio.
     tracks[0].key = ("C", "major")
     _, changed = prepare_dir("train", tracks, tmp_path, data=tmp_path)
