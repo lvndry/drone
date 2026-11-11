@@ -45,9 +45,9 @@ def evaluate_features(
     model.eval()
     pred = np.empty(len(features), dtype=np.int64)
     for i in range(0, len(features), batch):
-        groups = {}
+        groups: dict[int, list[tuple[int, np.ndarray]]] = {}
         for j, feature in enumerate(features[i : i + batch], start=i):
-            groups.setdefault(feature.shape[1], []).append((j, feature))
+            groups.setdefault(int(feature.shape[1]), []).append((j, feature))
         for entries in groups.values():
             indices, arrays = zip(*entries, strict=True)
             x = torch.from_numpy(np.stack(arrays)).to(device)
@@ -62,7 +62,7 @@ def evaluate_tracks(
     """Evaluate full tracks without making predictions depend on padded peers."""
     if not len(tracks) or batch < 1:
         raise ValueError("Evaluation needs nonempty tracks and a positive batch")
-    pred = []
+    pred: list[np.ndarray] = []
     for i in range(0, len(tracks), batch):
         features = [prepare(t, track_dir)[0] for t in tracks[i : i + batch]]
         pred.append(evaluate_features(model, features, device, batch))
@@ -79,7 +79,7 @@ def prepare_dir(
     """Warm the content-addressed CQT cache and write the track manifest."""
     if not tracks:
         raise ValueError(f"No tracks for {tag}; download the datasets with bash fetch.sh")
-    metadata = {
+    metadata: dict[str, Any] = {
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
         "crop": CROP_FRAMES,
@@ -122,7 +122,7 @@ def load_manifest(data: str | Path, tag: str) -> dict[str, Any]:
     path = prepared_path(data, tag)
     if not path.is_file():
         raise FileNotFoundError(f"Missing {tag} manifest. Run uv run train.py prepare.")
-    metadata = json.loads(path.read_text())
+    metadata: dict[str, Any] = json.loads(path.read_text())
     if (
         metadata.get("feature_spec") != FEATURE_SPEC
         or metadata.get("label_schema") != LABEL_SCHEMA
@@ -204,7 +204,7 @@ def train_model(
         "label_smoothing": label_smoothing,
     }
     source_files = [Path(__file__), *sorted((Path(__file__).parent / "drone").glob("*.py"))]
-    source_hashes = {
+    source_hashes: dict[str, str] = {
         str(p.relative_to(Path(__file__).parent)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in source_files
     }
@@ -234,7 +234,8 @@ def train_model(
         loss_sum = 0.0
         for i in range(0, len(order), batch):
             idx = order[i : i + batch]
-            feats, y = [], []
+            feats: list[np.ndarray] = []
+            y: list[int] = []
             for j in idx:
                 feat, cls = sample_features(ordered[j], data, rng, T=CROP_FRAMES)
                 feats.append(feat)

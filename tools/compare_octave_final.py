@@ -101,7 +101,7 @@ def main() -> None:
         "limitations": "Our artist-purged FMAK partition is not directly comparable to published all-FMAK/different-holdout results. GiantSteps was exposed earlier in this research program; its intervals use track hashes, not artist groups. Confidence intervals do not remove annotation ambiguity or unrecognized remix overlap.",
     }
     result["meets_observed_quality_gate"] = all(
-        result[name]["paired"][metric]["delta"] >= 0
+        float(result[name]["paired"][metric]["delta"]) >= 0
         for name in ("fmak_final", "giantsteps")
         for metric in ("mirex", "exact")
     )

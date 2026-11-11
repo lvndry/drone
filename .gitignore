@@ -10,6 +10,7 @@ runs/
 __pycache__/
 *.npy
 *.wav
+.claude/
 
 # weights are the product: they are tracked
 weights/*

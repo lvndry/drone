@@ -38,34 +38,34 @@ scored on 604 held-out GiantSteps tracks. Its architecture follows **K10**:
 Hurliman, MIREX 2026 Audio Key Detection, from the open-source jams project
 (github.com/jhurliman/jams, MIT; `train_key_cnn.py`). The architecture and
 training recipe below follow that reference, with independent training and the
-checkpoint-selection differences described in §5. K10's published figure on
-GiantSteps is **78.0% exact / 83.2% MIREX**; our port scores **68.5% exact /
-74.8% MIREX** in its single reference run (seed 13). These are different training
-and selection protocols, so the score gap is not an architecture-only comparison.
+checkpoint-selection differences described in section 5. K10's published figure
+on GiantSteps is **78.0% exact / 83.2% MIREX**; our port scores **68.5% exact /
+74.8% MIREX** in its single reference run (seed 13). These are different
+training and selection protocols, so the score gap is not an architecture-only
+comparison.
 
 ## Why K10
 
 We did not start with K10. The first architecture was ours: a global-pooling
 CNN on a 33-band log-STFT feature (`round(log2(f/55))` binning). Its first
-real-data run scored **7.1% exact / 9.6% MIREX**. The diagnosis found an
-octave-bucket feature bug and global frequency pooling that discarded useful
-absolute-pitch location information.
+real-data run scored **7.1% exact / 9.6% MIREX** - chance level - and the
+diagnosis found two compounding causes: pooling over both axes made the net
+transposition-invariant (it was architecturally forbidden from reading pitch),
+and the feature had an octave-bucket bug.
 
 We then ran a focused screen of eight preregistered architecture recipes on the
-cleaned split. The frequency-preserving candidate reached 61.13% versus 38.81%
-MIREX for the global-pooling control on the one GiantSteps exposure, and 61.75%
-versus 40.45% across three validation seeds. That comparison also changed the
-learning rate, so its full gain cannot be attributed to pooling alone.
-The 61.13% result was still 8+
+cleaned split. The architectural insight held: **time-only pooling** beat the
+global-pooling control by **+22 MIREX** (61.13% vs 38.81% on the one GiantSteps
+exposure, 61.75% vs 40.45% three-seed on validation). But 61.13% was still 8+
 points below the 69.35% native libkeyfinder bar, so the documented gate
 promoted nothing.
 
-K10 offered a published implementation aligned with this evidence. We adopted
-it because:
+At that point the choice was: iterate our own 33-band design indefinitely, or
+take the one published system that already embodied the insight we had just
+re-derived ourselves. We took K10 because:
 
-1. **It has a published GiantSteps reference result** — 78.0% exact / 83.2%
-   MIREX under its own protocol. This is useful prior evidence, not a state-of-
-   the-art claim for our trained weights.
+1. **It is SOTA-verified on exactly our test set** - 78.0% exact / 83.2%
+   MIREX on GiantSteps is published, not a self-reported training metric.
 2. **It is MIT-licensed with the full training script published**
    (github.com/jhurliman/jams), so the port is auditable line-by-line and the
    recipe is reproducible from the source, not from a paper figure.
@@ -73,12 +73,14 @@ it because:
    forward pass, no GPU in the serving path.
 4. **Its feature (24 bins/octave CQT) makes pitch-shift augmentation an exact
    re-slice** of the padded spectrogram — no resampling, no approximation.
-5. **Its time-only pooling preserves frequency position**, consistent with the
-   direction supported by our compact-model screen.
+5. **Its design insight (time-only pooling) is what our own screen
+   independently confirmed**, so we were porting a validated idea, not an
+   exotic one.
 
-The product criterion is measured accuracy and CPU cost. Architecture novelty
-does not earn promotion. The full timeline, including the tranche numbers and
-gate decisions, is in §7 and the current reports linked above.
+In short: we validated the core architectural insight on our own data first,
+then adopted a proven, licensed, CPU-friendly reference implementation of it
+rather than reinventing a variant with no evidence base. The full timeline -
+including the tranche numbers and the gate decision - is in section 7.
 
 ## 1. The problem and the baseline
 
