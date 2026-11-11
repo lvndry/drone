@@ -133,7 +133,7 @@ def decode(row: dict[str, Any]) -> np.ndarray:
 def prepare(args: argparse.Namespace) -> None:
     from importlib.metadata import distribution, version
 
-    from nnAudio.features import VQT  # ty: ignore -- optional experiment dependency, not in uv.lock
+    from nnAudio.features import VQT
 
     args.output.mkdir(parents=True, exist_ok=True)
     snapshot_sources(args.output)
