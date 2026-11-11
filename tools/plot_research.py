@@ -236,6 +236,85 @@ def ema() -> None:
     save(figure, "k10-ema", "k10-ema")
 
 
+def paired_result(study: str, title: str, candidate_name: str) -> None:
+    report = read(f"studies/{study}/data/candidate-result.json")
+    if report["status"] != "complete" or not report["control_reproduced"]:
+        raise ValueError("Paired result needs a completed candidate and verified control")
+    figure, axes = canvas(
+        title,
+        2,
+        "Seed 13 · same 2,206 fitting / 376 validation identities · fixed selection policy · symmetric-fifth MIREX\n"
+        "Reused development data, not independent test evidence. Exact accuracy is a separate gate; no confirmation after a failed pilot.",
+    )
+    for axis, domain, label in zip(
+        axes, ("beatport", "fmak"), ("Beatport validation", "FMAK validation"), strict=True
+    ):
+        for metric, metric_label, color in (
+            ("mirex", "MIREX", BLUE),
+            ("exact", "Exact accuracy", ORANGE),
+        ):
+            values = [report[key][domain][metric] * 100 for key in ("control_metrics", "metrics")]
+            axis.plot([0, 1], values, "o-", color=color, label=metric_label, linewidth=2)
+            for i, value in enumerate(values):
+                axis.annotate(
+                    f"{value:.2f}",
+                    (i, value),
+                    xytext=(0, 10),
+                    textcoords="offset points",
+                    ha="center",
+                )
+        axis.set(
+            title=label,
+            ylabel="Score (%)",
+            xticks=[0, 1],
+            xticklabels=["Verified RAW control", candidate_name],
+            xlim=(-0.3, 1.3),
+            ylim=(60, 81),
+        )
+        axis.legend(frameon=False, loc="lower left")
+    save(figure, study, "accuracy")
+
+
+def capacity_history() -> None:
+    report = read("studies/k10-capacity/data/histories.json")
+    figure, axes = canvas(
+        "K10 capacity: observed fitting and selection traces",
+        2,
+        "Hard cross entropy in both arms · same data/augmentation/optimizer recipe · seed 13 · selected epochs marked\n"
+        "These traces describe one width comparison. They do not establish a general capacity or optimization law.",
+    )
+    for name, label, color in (
+        ("control", "K10 width 1", BLUE),
+        ("candidate", "K10 width 2", ORANGE),
+    ):
+        run = report[name]
+        epochs = [r["epoch"] for r in run["history"]]
+        axes[0].plot(epochs, [r["loss"] for r in run["history"]], color=color, label=label)
+        axes[1].plot(epochs, [r["mirex"] * 100 for r in run["history"]], color=color, label=label)
+        best = next(r for r in run["history"] if r["epoch"] == run["best_epoch"])
+        axes[1].plot(best["epoch"], best["mirex"] * 100, "o", color=color)
+        axes[1].annotate(
+            f"Epoch {best['epoch']}",
+            (best["epoch"], best["mirex"] * 100),
+            xytext=(0, 10),
+            textcoords="offset points",
+            ha="center",
+            color=color,
+        )
+    axes[0].set(
+        title="Fitting loss", xlabel="Epoch", ylabel="Mean hard cross entropy", ylim=(0, None)
+    )
+    axes[1].set(
+        title="Combined validation criterion",
+        xlabel="Epoch",
+        ylabel="Symmetric-fifth MIREX (%)",
+        ylim=(0, 83),
+    )
+    for axis in axes:
+        axis.legend(frameon=False, loc="lower right")
+    save(figure, "k10-capacity", "training-history")
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -250,6 +329,13 @@ def main() -> None:
     chunk_summary()
     multidomain()
     ema()
+    paired_result(
+        "k10-structured-targets",
+        "Structured targets: fixed pilot missed the accuracy gate",
+        "Structured targets",
+    )
+    paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
+    capacity_history()
     INPUTS["_generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     INPUTS["_uv_lock_sha256"] = hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
     INPUTS["_matplotlib_version"] = matplotlib.__version__

@@ -112,9 +112,9 @@ def schedule_batches(
         yield torch.from_numpy(np.stack(features))
 
 
-def check_budget(start: float) -> None:
-    if time.monotonic() - start > BUDGET_SECONDS:
-        raise TimeoutError("EMA probe exceeded 20-minute total training/scoring budget")
+def check_budget(start: float, budget_seconds: int = BUDGET_SECONDS) -> None:
+    if time.monotonic() - start > budget_seconds:
+        raise TimeoutError(f"Fit exceeded {budget_seconds}-second total training/scoring budget")
 
 
 def recalibrate_bn(
@@ -154,6 +154,8 @@ def evaluate_logits(
     features: list[np.ndarray],
     device: str,
     start: float,
+    *,
+    budget_seconds: int = BUDGET_SECONDS,
 ) -> np.ndarray:
     """Mirror evaluate_features grouping and true-length inference exactly."""
     model.eval()
@@ -163,13 +165,13 @@ def evaluate_logits(
         for index, feature in enumerate(features[offset : offset + 4], start=offset):
             groups.setdefault(feature.shape[1], []).append((index, feature))
         for entries in groups.values():
-            check_budget(start)
+            check_budget(start, budget_seconds)
             indices, arrays = zip(*entries, strict=True)
             with torch.inference_mode():
                 output[list(indices)] = (
                     model(torch.from_numpy(np.stack(arrays)).to(device)).cpu().numpy()
                 )
-    check_budget(start)
+    check_budget(start, budget_seconds)
     if not np.isfinite(output).all():
         raise ValueError("Nonfinite EMA diagnostic logits")
     return output
