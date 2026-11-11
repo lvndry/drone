@@ -171,6 +171,7 @@ def run_recipe(
     threads=16,
     max_seconds=300,
     stop_after=None,
+    split_policy="stratified-seed13-validation-priority-audio-dedup-v1",
 ):
     """Train/resume one recipe. A hard per-run wall budget is checked every batch."""
     output = Path(output)
@@ -184,7 +185,7 @@ def run_recipe(
         "feature_spec": FEATURE_SPEC,
         "manifest_sha256": signature(meta),
         "split_sha256": signature({"train": tr, "validation": val}),
-        "split_policy": "stratified-seed13-validation-priority-audio-dedup-v1",
+        "split_policy": split_policy,
         "source_sha256": source_manifest(),
     }
     result_path = output / "run.json"
