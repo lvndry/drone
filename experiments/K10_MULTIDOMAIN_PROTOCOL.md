@@ -57,6 +57,11 @@ confirmation of both arms with seeds 37 and 73, fixed recipe and validation IDs.
 Require mean FMAK gain >=2 points and mean Beatport loss <=2 points. Repeating
 seed 13 is a reproducibility check, not an independent seed.
 
+Confirmation is bounded to 85 minutes for four fits (two remaining seeds times
+two arms), retaining the 20-minute cap per fit. If the mean gate passes, retain
+the canonical joint seed-13 checkpoint for later freezing; do not pick the best
+confirmation seed or introduce an ensemble after seeing their results.
+
 No default weight replacement follows development results. Freeze any qualifying
 candidate before an independently audited external protocol. Prior GiantSteps
 and FMAK final scores are exposed; additional scores there are diagnostics, not
