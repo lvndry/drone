@@ -224,6 +224,11 @@ def train(args: argparse.Namespace) -> None:
         "calibration_used": False,
         "final_holdout_used": False,
     }
+    probe = None
+    if getattr(args, "ema_probe", False):
+        from experiments.ema import EmaProbe
+
+        probe = EmaProbe(args, record, model, rows, arrays, fitting)
     best, best_epoch, start = -1, 0, time.monotonic()
     for epoch in range(1, 121):
         model.train()
@@ -249,10 +254,14 @@ def train(args: argparse.Namespace) -> None:
                 raise RuntimeError("Nonfinite training loss")
             loss.backward()
             optimizer.step()
+            if probe is not None:
+                probe.step(model)
             loss_sum += float(loss.detach()) * len(idx)
             if time.monotonic() - start > 1200:
                 record.update(status="budget_exhausted", elapsed_seconds=time.monotonic() - start)
                 atomic_json(args.output / "run.json", record)
+                if probe is not None:
+                    probe.budget_exhausted(start)
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
@@ -272,6 +281,8 @@ def train(args: argparse.Namespace) -> None:
             atomic_json(
                 args.output / "best-validation.json", domain_metrics(pred, val_refs, val_rows)
             )
+            if probe is not None:
+                probe.save_best(model)
         record.update(best_epoch=best_epoch, elapsed_seconds=time.monotonic() - start)
         atomic_json(args.output / "run.json", record)
         print(
@@ -287,6 +298,8 @@ def train(args: argparse.Namespace) -> None:
         checkpoint_sha256=audio_digest(args.output / "best.pt"),
     )
     atomic_json(args.output / "run.json", record)
+    if probe is not None:
+        probe.finish(record, val_features, val_refs, val_rows, start)
 
 
 def diagnose(args: argparse.Namespace) -> None:
@@ -332,7 +345,19 @@ def main() -> None:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--arm", choices=("control", "joint"))
     p.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
+    p.add_argument("--ema-probe", action="store_true")
+    p.add_argument("--reference-run", type=Path)
+    p.add_argument("--reference-bp", type=Path)
+    p.add_argument("--reference-checkpoint", type=Path)
+    p.add_argument("--pilot-run", type=Path)
     args = p.parse_args()
+    if args.ema_probe and (
+        args.command != "train"
+        or args.arm != "joint"
+        or args.reference_run is None
+        or args.reference_bp is None
+    ):
+        p.error("--ema-probe requires train --arm joint --reference-run and --reference-bp")
     {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
 
 
