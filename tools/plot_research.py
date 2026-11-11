@@ -336,6 +336,9 @@ def main() -> None:
     )
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
+    paired_result(
+        "pitch-circle", "Pitch-circle sharing: fixed pilot missed the accuracy gate", "Pitch-circle"
+    )
     INPUTS["_generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     INPUTS["_uv_lock_sha256"] = hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
     INPUTS["_matplotlib_version"] = matplotlib.__version__

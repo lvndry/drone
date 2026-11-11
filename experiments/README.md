@@ -8,10 +8,12 @@ before evaluation, and `data/` retains measured evidence and provenance.
 |---|---|---|
 | [K10 CPU baseline](studies/k10-cpu/REPORT.md) | What actually costs CPU time and memory? | Frontend median 353 ms versus ONNX 35.6 ms; long-track activation memory warrants optimization. |
 | [K10 chunked inference](studies/k10-chunked/REPORT.md) | Bound activation memory without discarding evidence | All 376 keys agree; paired RSS 865 → 129 MiB, latency +1.91%. Proceed to native integration testing. |
+| [Native cached-feature CPU study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cached/REPORT.md) | Validate the Rust implementation and its memory cost | All 376 keys agree; paired RSS 828 → 95 MiB, latency +1.84%. Audio frontend remains unmeasured. |
 | [K10 multi-domain fitting](studies/k10-multidomain/REPORT.md) | Improve broader-domain accuracy with more fitting data | FMAK mean +1.60 points misses the fixed +2.00 gate. Keep release weights. |
 | [K10 EMA](studies/k10-ema/REPORT.md) | Improve accuracy through training-time averaging | Pilot loses accuracy; stop confirmation. Keep release weights. |
 | [Structured key targets](studies/k10-structured-targets/REPORT.md) | Use harmonic error structure in the training loss | Fixed pilot reduces MIREX and exact accuracy; no confirmation. |
 | [K10 capacity](studies/k10-capacity/REPORT.md) | Earn a stronger teacher through one wider model | Width 2 loses accuracy under the same recipe; no teacher or product tier earned. |
+| [Pitch-circle sharing](studies/pitch-circle/REPORT.md) | Retain octaves while sharing transposition patterns | Seed-13 pilot rejected; FMAK exact −0.40 points, no confirmation. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
