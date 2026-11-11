@@ -1,0 +1,109 @@
+{
+  "status": "architecture-only; no fitting/accuracy/latency benchmark",
+  "torch": "2.15.0",
+  "seed": 13,
+  "input_frames_checked": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38
+  ],
+  "geometry": {
+    "torch.float64": {
+      "forward_rotation_comparisons": 192,
+      "max_abs_error": 0.0,
+      "rtol": 1e-10,
+      "atol": 1e-12
+    },
+    "torch.float32": {
+      "forward_rotation_comparisons": 192,
+      "max_abs_error": 0.0,
+      "rtol": 1e-05,
+      "atol": 1e-06
+    }
+  },
+  "pitch_circle": {
+    "frames": 320,
+    "batch": 1,
+    "convolution_macs": 185917440,
+    "parameters": 73506,
+    "largest_fp32_tensor_bytes": 655360,
+    "output_frames": 40,
+    "layers": [
+      {
+        "layer": 1,
+        "channels": 16,
+        "frames": 320,
+        "macs": 8847360,
+        "output_elements": 122880,
+        "padded_elements": 66560
+      },
+      {
+        "layer": 2,
+        "channels": 16,
+        "frames": 320,
+        "macs": 17694720,
+        "output_elements": 122880,
+        "padded_elements": 133120
+      },
+      {
+        "layer": 3,
+        "channels": 32,
+        "frames": 160,
+        "macs": 17694720,
+        "output_elements": 122880,
+        "padded_elements": 71680
+      },
+      {
+        "layer": 4,
+        "channels": 32,
+        "frames": 160,
+        "macs": 35389440,
+        "output_elements": 122880,
+        "padded_elements": 143360
+      },
+      {
+        "layer": 5,
+        "channels": 64,
+        "frames": 80,
+        "macs": 35389440,
+        "output_elements": 122880,
+        "padded_elements": 81920
+      },
+      {
+        "layer": 6,
+        "channels": 64,
+        "frames": 80,
+        "macs": 70778880,
+        "output_elements": 122880,
+        "padded_elements": 163840
+      }
+    ],
+    "readout_macs": 122880,
+    "caveat": "Arithmetic/storage estimate only; circular/dilated kernels need real benchmarking"
+  },
+  "k10_baseline": {
+    "parameters": 109128,
+    "conv_linear_macs": 575115264,
+    "largest_fp32_conv_linear_tensor_bytes": 3932160
+  },
+  "source_sha256": {
+    "experiments/pitch_circle_model.py": "c004a6ac835cdadb412135ce5f62b0e9bbd0ef2550c954c4196e335195f1bb50",
+    "tests/test_pitch_circle_model.py": "e8975ed816996096d26f5751912e787125609d9a68c397c70cdce8540159014b",
+    "drone/model.py": "1381f893fe439b917fdedd852c5037b9a050ba17bc31b9eb0eaa0beda7a392d0"
+  },
+  "caveat": "MAC/tensor estimates exclude runtime workspace, autograd, normalization/activation/pool cost, finite check, CQT and RSS; no physical-transposition equivariance claim",
+  "artifact_version": "pitch-circle-geometry-cost-v1"
+}
