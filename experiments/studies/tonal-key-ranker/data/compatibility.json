@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "scope": "synthetic API compatibility only; no real audio/labels or accuracy measurement",
+  "checked_at_utc": "2026-11-11T23:49:37Z",
+  "local_timezone": "Europe/Paris",
+  "python": "3.12.12",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "groups": 3,
+  "candidates_per_group": 24,
+  "features": 24,
+  "trees": 128,
+  "objective": "QuerySoftMax:beta=1",
+  "export": "cbm",
+  "reload_scores_exact": true,
+  "standalone_initial_test": "7 passed in 14.13s; before full-suite historical RSS test isolation",
+  "versions": {
+    "catboost": "1.2.10",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pandas": "3.1.1",
+    "plotly": "7.1.0",
+    "graphviz": "0.21",
+    "six": "1.17.0",
+    "matplotlib": "3.11.2"
+  },
+  "lockfile_change": {
+    "removed_or_updated_existing_packages": [],
+    "added": {
+      "catboost": "1.2.10",
+      "graphviz": "0.21",
+      "pandas": "3.1.1",
+      "plotly": "7.1.0",
+      "six": "1.17.0"
+    }
+  }
+}
