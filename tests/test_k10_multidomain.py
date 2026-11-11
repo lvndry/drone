@@ -3,6 +3,7 @@ import copy
 import pytest
 
 from experiments.k10_multidomain import validate_rows
+from tools.compare_k10_multidomain import compare
 
 
 def rows():
@@ -32,3 +33,42 @@ def test_development_preparation_refuses_audio_leakage_and_duplicate_fit_rows():
     duplicated[1]["sha256"] = duplicated[0]["sha256"]
     with pytest.raises(ValueError, match="unique"):
         validate_rows(duplicated)
+
+
+def paired_runs():
+    control = dict(
+        status="complete",
+        arm="control",
+        seed=13,
+        config={},
+        source_sha256={},
+        feature_manifest_sha256="same",
+        validation_ids=["beatport:3", "fmak:4"],
+        fit_ids=["beatport:1"],
+        calibration_used=False,
+        final_holdout_used=False,
+        domain_metrics={
+            d: dict(ids=[d + ":val"], tracks=1, mirex=0.5) for d in ("beatport", "fmak")
+        },
+    )
+    joint = copy.deepcopy(control)
+    joint.update(arm="joint", fit_ids=["beatport:1", "fmak:2"])
+    joint["domain_metrics"]["fmak"]["mirex"] = 0.53
+    return control, joint
+
+
+def test_gate_requires_a_comparable_completed_pair_and_both_domain_constraints():
+    control, joint = paired_runs()
+    assert compare(control, joint)["qualifies_for_confirmation"]
+    joint["domain_metrics"]["beatport"]["mirex"] = 0.47
+    assert not compare(control, joint)["qualifies_for_confirmation"]
+    joint["status"] = "budget_exhausted"
+    with pytest.raises(ValueError, match="complete"):
+        compare(control, joint)
+
+
+def test_gate_rejects_changed_validation_identities():
+    control, joint = paired_runs()
+    joint["validation_ids"].reverse()
+    with pytest.raises(ValueError, match="validation_ids"):
+        compare(control, joint)
