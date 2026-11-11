@@ -62,7 +62,7 @@ def record(root: Path, output: Path) -> dict[str, Any]:
         libsoxr_version=version.decode(),
         source_revision="python-soxr1.1.0 vendored libsoxr0.1.3-14-ga66f3ee",
         libsoxr_license="LGPL-2.1-or-later; research dynamic build, no product licensing claim",
-        wrapper_license="python-soxr BSD-3-Clause; wrapper follows split mono float32 HQ 96000-sample/flush semantics",
+        wrapper_license="python-soxr LGPL-2.1-or-later; wrapper follows split mono float32 HQ 96000-sample/flush semantics",
         upstream_source="https://pypi.org/project/soxr/1.1.0/#files",
         runtime_environment=runtime_environment(),
         compiler=command("cc", "--version"),
