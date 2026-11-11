@@ -62,12 +62,7 @@ def prepare_dir(tag, tracks, track_dir, *, data=DATA):
         "label_schema": LABEL_SCHEMA,
         "crop": CROP_FRAMES,
         "tracks": [
-            {
-                "id": track.id,
-                "path": str(track.mp3),
-                "sha256": audio_digest(track.mp3),
-                "key": list(track.key),
-            }
+            {"id": track.id, "path": str(track.audio), "sha256": audio_digest(track.audio), "key": list(track.key)}
             for track in tracks
         ],
         "refs": [encode_key(*track.key) for track in tracks],

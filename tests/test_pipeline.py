@@ -58,6 +58,7 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path):
     torch.save(model.state_dict(), path)
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
+    torch.load(path, weights_only=True)  # raw state dict loads fine
     save_checkpoint(tmp_path / "good.pt", model)
     good = torch.load(tmp_path / "good.pt", weights_only=True)
     good["feature_spec"] = "stft-33bands-a1-f4-zscore-v1"
@@ -161,7 +162,7 @@ def test_prepare_train_evaluate_and_infer(tmp_path):
     assert sum(result["counts"].values()) == 2
     assert 0 <= result["mirex"] <= 1
     model, _ = load_checkpoint(checkpoint)
-    prediction = predict(str(held_out[0].mp3), str(tmp_path / "infer"), weights=checkpoint)
+    prediction = predict(str(held_out[0].audio), str(tmp_path / "infer"), weights=checkpoint)
     assert len(prediction) == 3
 
 

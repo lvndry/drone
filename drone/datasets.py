@@ -22,7 +22,6 @@ class Track:
     def __init__(self, track_id, audio, key):
         self.id = track_id
         self.audio = audio
-        self.mp3 = audio  # compatibility alias
         self.key = key  # (tonic, mode)
         self.class_id = encode_key(*key)
 
@@ -110,7 +109,7 @@ def sample_features(track, track_dir, rng, *, shift=None, T=CROP_FRAMES):
     """
     if shift is None:
         shift = int(rng.integers(-4, 5))
-    cqt = extract_cqt(track.mp3, track_dir)
+    cqt = extract_cqt(track.audio, track_dir)
     features = window(cqt, shift)
     if T is not None:
         if features.shape[1] < T:
@@ -123,4 +122,4 @@ def sample_features(track, track_dir, rng, *, shift=None, T=CROP_FRAMES):
 
 def prepare(track, track_dir, *, T=None):
     """Inference feature for one track: (N_CORE, frames), no augmentation."""
-    return window(extract_cqt(track.mp3, track_dir)), track.key
+    return window(extract_cqt(track.audio, track_dir)), track.key

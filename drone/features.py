@@ -180,7 +180,7 @@ def prepare(
     With T set: shorter tracks are zero-padded, longer ones random-cropped
     (rng) to T frames, matching the K10 training protocol.
     """
-    features = window(extract_cqt(track.mp3, track_dir), shift)
+    features = window(extract_cqt(track.audio, track_dir), shift)
     if T is not None:
         if T < 1:
             raise ValueError("T must be positive")
