@@ -98,7 +98,7 @@ def window(cqt: np.ndarray, shift: int = 0) -> np.ndarray:
     return cqt[lo : lo + N_CORE, :]
 
 
-def cqt_path(track_dir: str, name: str) -> str:
+def cqt_path(track_dir: str | Path, name: str) -> str:
     return os.path.join(track_dir, "cqt", FEATURE_ID, f"{name}.npy")
 
 

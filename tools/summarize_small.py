@@ -1,14 +1,17 @@
 """Validate completed small-model experiment records and summarize training seeds."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import json
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 
-def summarize(screen, confirmation):
+def summarize(screen: dict[str, Any], confirmation: dict[str, Any]) -> dict[str, Any]:
     for key in ("source_sha256", "manifest_sha256", "split_sha256", "split_policy"):
         if screen[key] != confirmation[key]:
             raise ValueError(f"Screen and confirmation differ: {key}")
@@ -73,7 +76,7 @@ def summarize(screen, confirmation):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--screen", type=Path, required=True)
     parser.add_argument("--confirmation", type=Path, required=True)

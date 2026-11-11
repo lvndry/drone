@@ -149,5 +149,8 @@ specificity, the shift re-slice contract, content-cache invalidation, checkpoint
 versions, ONNX parity, and a synthetic prepare/train/evaluate/predict run.
 They validate pipeline correctness, not real-world musical-key accuracy.
 See [docs/TYPING.md](docs/TYPING.md) for the type-checking scope and research extra.
+All Python functions, including research scripts and tests, have parameter and
+return annotations. CI enforces their presence with Ruff's `ANN` rules and checks
+compatibility with `ty`.
 
 Code: MIT. Dataset provenance and audio-use notes: [DATA.md](DATA.md).

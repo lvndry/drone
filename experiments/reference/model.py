@@ -6,13 +6,16 @@ Global pooling remains the default until controlled real-data experiments justif
 promoting a different model.
 """
 
+from __future__ import annotations
+
+import torch
 import torch.nn as nn
 
 MODEL_SIZES = {"small": 1, "medium": 2, "large": 4}
 
 
 class KeyCNN(nn.Module):
-    def __init__(self, size="small", dropout=0.3, pooling="global"):
+    def __init__(self, size: str = "small", dropout: float = 0.3, pooling: str = "global") -> None:
         super().__init__()
         if size not in MODEL_SIZES:
             raise ValueError(f"Unknown model size: {size}")
@@ -41,10 +44,10 @@ class KeyCNN(nn.Module):
             nn.Linear(c * height, 24),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, n_sem, T) -> (B, 1, n_sem, T)
         return self.head(self.net(x.unsqueeze(1)))
 
 
-def params_count(model):
+def params_count(model: nn.Module) -> int:
     return sum(p.numel() for p in model.parameters())

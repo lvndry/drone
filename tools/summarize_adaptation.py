@@ -1,5 +1,7 @@
 """Verify and summarize the fixed three-seed adaptation confirmation."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -8,11 +10,11 @@ from pathlib import Path
 from typing import Any
 
 
-def read(path):
+def read(path: Path) -> dict[str, Any]:
     return json.loads(path.read_bytes())
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--pilot", type=Path, required=True)

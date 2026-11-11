@@ -5,6 +5,8 @@ ConvNeXt blocks and octave-pooled tonic/mode head. No pretrained weights.
 Reference: https://github.com/deezer/skey (MIT code; research-only weights).
 """
 
+from __future__ import annotations
+
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -25,14 +27,14 @@ FEATURE_SPEC = {
 }
 
 
-def compress(magnitude):
+def compress(magnitude: torch.Tensor) -> torch.Tensor:
     peak = magnitude.amax(dim=(-2, -1), keepdim=True)
     db = 20 * (magnitude.clamp_min(1e-9).log10() - peak.clamp_min(1e-9).log10())
     return torch.where(peak > 1e-8, db.clamp(-80, 0) / 80 + 1, 0)
 
 
 class Block(nn.Module):
-    def __init__(self, channels, kernel):
+    def __init__(self, channels: int, kernel: int) -> None:
         super().__init__()
         self.depthwise = nn.Conv2d(
             channels,
@@ -46,7 +48,7 @@ class Block(nn.Module):
         self.contract = nn.Linear(channels * 4, channels)
         self.scale = nn.Parameter(torch.full((channels,), 0.1))
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         y = self.depthwise(x)
         y = F.layer_norm(y, y.shape[1:]).permute(0, 2, 3, 1)
         y = (self.contract(F.gelu(self.expand(y))) * self.scale).permute(0, 3, 1, 2)
@@ -57,7 +59,7 @@ class Block(nn.Module):
 
 
 class OctaveNet(nn.Module):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         channels, kernels = (2, 3, 40, 40, 30, 10, 3), (7, 7, 7, 7, 7, 5, 5)
         self.down = nn.ModuleList()
@@ -71,11 +73,11 @@ class OctaveNet(nn.Module):
         self.mode_norm = nn.BatchNorm2d(2, affine=False)
 
     @staticmethod
-    def canonical_logits(x):
+    def canonical_logits(x: torch.Tensor) -> torch.Tensor:
         """A-based pitch bins -> C-based tonic*2+minor, retaining mode channels."""
         return torch.roll(x, 9, dims=2).squeeze(-1).transpose(1, 2).flatten(1)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.ndim != 3 or x.shape[1] != 84 or x.shape[2] < 128:
             raise ValueError("Expected batch,84,time with at least 128 frames")
         x = x.unsqueeze(1)

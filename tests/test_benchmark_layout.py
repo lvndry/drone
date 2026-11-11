@@ -1,4 +1,9 @@
+from __future__ import annotations
+
+from pathlib import Path
+
 import numpy as np
+import pytest
 
 import drone.benchmark as benchmark_module
 from drone.checkpoints import load_checkpoint, save_checkpoint
@@ -6,7 +11,9 @@ from drone.features import N_CORE
 from drone.model import KeyCNN
 
 
-def test_audio_benchmark_uses_the_k10_feature_layout(tmp_path, monkeypatch):
+def test_audio_benchmark_uses_the_k10_feature_layout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     checkpoint = tmp_path / "model.pt"
     save_checkpoint(checkpoint, KeyCNN())
     model, payload = load_checkpoint(checkpoint)

@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import shutil
 import wave
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -17,7 +20,7 @@ from experiments.reference.features import (
 from experiments.reference.train import augment_batch
 
 
-def write_tone(path, frequency, seconds=0.25):
+def write_tone(path: Path, frequency: float, seconds: float = 0.25) -> None:
     t = np.arange(int(SR * seconds)) / SR
     samples = (np.sin(2 * np.pi * frequency * t) * 16000).astype("<i2")
     with wave.open(str(path), "wb") as out:
@@ -28,14 +31,14 @@ def write_tone(path, frequency, seconds=0.25):
 
 
 @pytest.mark.parametrize("band", [0, 3, 12, 24, 31, 32])
-def test_tones_land_in_semitone_bands(band):
+def test_tones_land_in_semitone_bands(band: int) -> None:
     t = np.arange(SR) / SR
     features = build_cqt(np.sin(2 * np.pi * 55 * 2 ** (band / 12) * t))
     assert features.shape[1] == N_SEM
-    assert features.mean(axis=0).argmax() == band
+    assert features.mean(axis=0).argmax(axis=0) == band
 
 
-def test_time_resampling_preserves_channels_and_endpoints():
+def test_time_resampling_preserves_channels_and_endpoints() -> None:
     features = np.array([[0, 100, 1000], [10, 110, 1010]], dtype=np.float32)
     actual = resample_time(features, 5)
     np.testing.assert_allclose(actual[0], features[0])
@@ -45,7 +48,7 @@ def test_time_resampling_preserves_channels_and_endpoints():
     np.testing.assert_allclose(resample_time(features[:1], 3), np.repeat(features[:1], 3, axis=0))
 
 
-def test_zero_shift_identity_and_no_frequency_wrap():
+def test_zero_shift_identity_and_no_frequency_wrap() -> None:
     features = np.zeros((300, N_SEM), dtype=np.float32)
     features[:, -1] = 10
     features = normalize(features)
@@ -56,19 +59,19 @@ def test_zero_shift_identity_and_no_frequency_wrap():
     np.testing.assert_allclose(shift_features(normalize(features), -1), 0)
 
 
-def test_augmentation_applies_same_shift_to_audio_and_label():
+def test_augmentation_applies_same_shift_to_audio_and_label() -> None:
     features = np.zeros((24, 300, N_SEM), dtype=np.float32)
     features[:, :, 12] = 1
     shifts = np.tile(np.arange(-6, 6), 2)
     shifted, labels = augment_batch(features, list(range(24)), shifts)
     for class_id, shift in enumerate(shifts):
-        assert shifted[class_id].mean(axis=0).argmax() == 12 + shift
+        assert shifted[class_id].mean(axis=0).argmax(axis=0) == 12 + shift
         assert labels[class_id] // 2 == (class_id // 2 + shift) % 12
         assert labels[class_id] % 2 == class_id % 2
     np.testing.assert_array_equal(features[:, :, 12], 1)
 
 
-def test_short_and_silent_audio_are_finite():
+def test_short_and_silent_audio_are_finite() -> None:
     features = build_cqt(np.zeros(10, dtype=np.float32))
     assert features.shape == (1, N_SEM)
     np.testing.assert_array_equal(normalize(features), 0)
@@ -78,21 +81,21 @@ def test_short_and_silent_audio_are_finite():
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
-def test_cache_distinguishes_files_and_changed_content(tmp_path):
+def test_cache_distinguishes_files_and_changed_content(tmp_path: Path) -> None:
     first, second = tmp_path / "first.wav", tmp_path / "second.wav"
     write_tone(first, 110)
     write_tone(second, 220)
     a = extract("track", first, tmp_path)
     b = extract("track", second, tmp_path)
-    assert a.mean(axis=0).argmax() == 12
-    assert b.mean(axis=0).argmax() == 24
+    assert a.mean(axis=0).argmax(axis=0) == 12
+    assert b.mean(axis=0).argmax(axis=0) == 24
     np.testing.assert_array_equal(extract("different-id", first, tmp_path), a)
     write_tone(first, 220)
     np.testing.assert_array_equal(extract("track", first, tmp_path), b)
     assert len(list((tmp_path / "cqt").rglob("*.npy"))) == 2
 
 
-def test_blockwise_bands_are_bitwise_identical_to_full_stft_reference():
+def test_blockwise_bands_are_bitwise_identical_to_full_stft_reference() -> None:
     from experiments.reference.features import SEMIBASE, stft_magnitude
 
     rng = np.random.default_rng(13)
@@ -108,7 +111,7 @@ def test_blockwise_bands_are_bitwise_identical_to_full_stft_reference():
     np.testing.assert_array_equal(build_cqt(waveform), expected)
 
 
-def test_band_extraction_does_not_retain_a_full_track_fft_matrix():
+def test_band_extraction_does_not_retain_a_full_track_fft_matrix() -> None:
     import tracemalloc
 
     waveform = np.zeros(FFT_SIZE + 12000 * 512, dtype=np.float32)

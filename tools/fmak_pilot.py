@@ -1,5 +1,7 @@
 """Time a bounded FMAKv2 preparation pilot; never evaluate keys or train a model."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -11,6 +13,7 @@ import time
 import zipfile
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 from drone.download import download
 from experiments.reference.datasets import Track, prepare
@@ -21,7 +24,7 @@ ANNOTATION_URL = "https://zenodo.org/api/records/12759100/files/fmakv2.csv/conte
 ANNOTATION_MD5 = "3b2d16784ffbda850c8ddf0519478bfd"
 
 
-def prepare_one(args):
+def prepare_one(args: tuple[Path, Path]) -> dict[str, Any]:
     path, cache = args
     start = time.monotonic()
     features, _ = prepare(Track(path.stem, str(path), ("C", "major")), cache)
@@ -33,7 +36,7 @@ def prepare_one(args):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--count", type=int, default=100)

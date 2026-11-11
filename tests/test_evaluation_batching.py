@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import pytest
 import torch
@@ -8,12 +10,14 @@ from drone.features import N_CORE
 
 
 class MeanClassifier(torch.nn.Module):
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         signal = x.mean((1, 2)) - 0.75
         return torch.stack((signal, torch.zeros_like(signal)), dim=1)
 
 
-def test_evaluation_predictions_are_independent_of_other_track_lengths(monkeypatch):
+def test_evaluation_predictions_are_independent_of_other_track_lengths(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     features = [
         np.ones((N_CORE, 8), dtype=np.float32),
         np.ones((N_CORE, 16), dtype=np.float32),
@@ -26,13 +30,14 @@ def test_evaluation_predictions_are_independent_of_other_track_lengths(monkeypat
         np.testing.assert_array_equal(prediction, [0, 0, 1])
 
 
-@pytest.mark.parametrize("tracks,batch", [([], 1), ([0], 0), ([0], -1)])
-def test_evaluation_requires_tracks_and_positive_batch(tracks, batch):
+@pytest.mark.parametrize("empty,batch", [(True, 1), (False, 0), (False, -1)])
+def test_evaluation_requires_tracks_and_positive_batch(empty: bool, batch: int) -> None:
+    tracks = [] if empty else [Track("0", "unused.wav", ("C", "major"))]
     with pytest.raises(ValueError):
         train.evaluate_tracks(MeanClassifier(), tracks, "unused", "cpu", batch)
 
 
-def test_k10_split_quarantines_training_copies_of_validation_audio():
+def test_k10_split_quarantines_training_copies_of_validation_audio() -> None:
     refs = [0] * 20 + [1] * 20
     original_train, original_val = train.validation_split(refs)
     hashes = [str(i) for i in range(len(refs))]

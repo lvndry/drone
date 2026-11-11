@@ -6,7 +6,6 @@ import subprocess
 import tarfile
 import zipfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -21,7 +20,7 @@ def test_download_checksums_and_atomic_install(
     checksum = "sha256:" + hashlib.sha256(body).hexdigest()
     calls: list[list[str]] = []
 
-    def fake_curl(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+    def fake_curl(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[bytes]:
         calls.append(command)
         Path(command[command.index("--output") + 1]).write_bytes(body)
         return subprocess.CompletedProcess(command, 0)

@@ -1,5 +1,7 @@
 """Measure a frozen model's complete CPU audio path with empty feature caches."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -16,13 +18,13 @@ from experiments.reference.checkpoints import load_checkpoint
 from experiments.reference.datasets import Track, prepare
 
 
-def cpu_seconds():
+def cpu_seconds() -> float:
     own = resource.getrusage(resource.RUSAGE_SELF)
     children = resource.getrusage(resource.RUSAGE_CHILDREN)
     return own.ru_utime + own.ru_stime + children.ru_utime + children.ru_stime
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--audio", type=Path, required=True)

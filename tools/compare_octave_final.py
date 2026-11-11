@@ -1,5 +1,7 @@
 """Compare frozen final predictions with fixed native Euphoria; no model selection."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -9,10 +11,10 @@ from typing import Any
 
 import numpy as np
 
-from drone.keys import WEIGHTS, key_relation
+from drone.keys import WEIGHTS, KeyIndices, key_relation
 
 
-def scores(pred, ref, symmetric=True):
+def scores(pred: KeyIndices, ref: KeyIndices, symmetric: bool = True) -> np.ndarray:
     return np.array(
         [
             WEIGHTS[key_relation(int(p), int(r), symmetric=symmetric)] if p >= 0 else 0
@@ -21,7 +23,7 @@ def scores(pred, ref, symmetric=True):
     )
 
 
-def compare(neural, native_pred):
+def compare(neural: dict[str, Any], native_pred: KeyIndices) -> dict[str, Any]:
     refs = np.array(neural["references"])
     pred = np.array(neural["predictions"])
     native = np.array(native_pred)
@@ -65,7 +67,7 @@ def compare(neural, native_pred):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in (
         "fmak",

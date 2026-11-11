@@ -1,9 +1,12 @@
 """One fixed small-model data-adaptation pilot, with artist-purged FMAK splits."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -23,7 +26,9 @@ from experiments.small import (
 POLICY = "fmak-artist-album-audio-purged-70-20-10-hash-v1"
 
 
-def development_split(meta, partition, audit):
+def development_split(
+    meta: dict[str, Any], partition: dict[str, Any], audit: dict[str, Any]
+) -> dict[str, list[int]]:
     """Fix label-independent group roles; no final-related artist enters fitting."""
     assert partition["metadata_sha256"] == signature(meta)
     eligible = audit["eligible_development_indices"]
@@ -62,7 +67,7 @@ def development_split(meta, partition, audit):
     return parts
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--beatport", type=Path, required=True)
     parser.add_argument("--fmak", type=Path, required=True)

@@ -1,5 +1,7 @@
 """Bounded K10 data-only comparison on frozen development identities."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import importlib.metadata
@@ -9,6 +11,7 @@ import shutil
 import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -32,7 +35,7 @@ from train import evaluate_features
 FROZEN_SHA256 = "5f995f516430332a37f591ec299a36f9a46c16b2cd01cd887700837fd600bac9"
 
 
-def validate_rows(rows):
+def validate_rows(rows: list[dict[str, Any]]) -> None:
     ids = [r["id"] for r in rows]
     if len(ids) != len(set(ids)):
         raise ValueError("Duplicate development identities")
@@ -56,7 +59,7 @@ def validate_rows(rows):
         labels[r["sha256"]] = r["ref"]
 
 
-def prepare_one(task):
+def prepare_one(task: tuple[dict[str, Any], Path, Path]) -> dict[str, Any]:
     row, output, existing = task
     if audio_digest(row["path"]) != row["sha256"]:
         raise ValueError(f"Audio content changed: {row['id']}")
@@ -90,7 +93,7 @@ def prepare_one(task):
     )
 
 
-def prepare(args):
+def prepare(args: argparse.Namespace) -> None:
     raw = args.manifest.read_bytes()
     if hashlib.sha256(raw).hexdigest() != FROZEN_SHA256:
         raise ValueError("The frozen development manifest differs")
@@ -138,7 +141,7 @@ def prepare(args):
     )
 
 
-def load_data(data):
+def load_data(data: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[np.ndarray]]:
     manifest = json.loads((data / "manifest.json").read_bytes())
     if not manifest["complete"] or manifest["feature_spec"] != FEATURE_SPEC:
         raise ValueError("Incomplete or incompatible feature preparation")
@@ -158,7 +161,9 @@ def load_data(data):
     return manifest, rows, arrays
 
 
-def domain_metrics(pred, refs, rows):
+def domain_metrics(
+    pred: np.ndarray, refs: np.ndarray, rows: list[dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
     result = {}
     for domain in ("beatport", "fmak"):
         indices = [i for i, r in enumerate(rows) if r["domain"] == domain]
@@ -176,7 +181,7 @@ def domain_metrics(pred, refs, rows):
     return result
 
 
-def train(args):
+def train(args: argparse.Namespace) -> None:
     if (args.output / "run.json").exists():
         raise ValueError("Use a fresh run directory; this pilot does not silently restart")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -284,7 +289,7 @@ def train(args):
     atomic_json(args.output / "run.json", record)
 
 
-def diagnose(args):
+def diagnose(args: argparse.Namespace) -> None:
     device_setup(args.device)
     _, rows, arrays = load_data(args.data)
     indices = [i for i, r in enumerate(rows) if r["role"] == "validation"]
@@ -316,7 +321,7 @@ def diagnose(args):
     )
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("command", choices=("prepare", "train", "diagnose"))
     p.add_argument("--output", type=Path, required=True)

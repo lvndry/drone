@@ -4,6 +4,8 @@ Run with python -m experiments.small. JSON records, immutable source copies and
 resumable optimizer state live in the chosen output directory, outside git.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -11,6 +13,7 @@ import os
 import platform
 import time
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -19,7 +22,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from drone.keys import score_breakdown, score_mirex
+from drone.keys import KeyIndices, score_breakdown, score_mirex
 from experiments.reference.checkpoints import load_checkpoint, save_checkpoint
 from experiments.reference.features import FEATURE_SPEC
 from experiments.reference.model import KeyCNN, params_count
@@ -57,14 +60,14 @@ RECIPES = (
 )
 
 
-def atomic_json(path, value):
+def atomic_json(path: str | Path, value: object) -> None:
     path = Path(path)
     pending = path.with_suffix(path.suffix + ".pending")
     pending.write_text(json.dumps(value, indent=2) + "\n")
     os.replace(pending, path)
 
 
-def source_manifest(root=None):
+def source_manifest(root: str | Path | None = None) -> dict[str, str]:
     root = Path(root or Path(__file__).resolve().parents[1])
     paths = [root / "train.py", root / "pyproject.toml", root / "uv.lock"]
     for directory in ("drone", "experiments"):
@@ -76,11 +79,11 @@ def source_manifest(root=None):
     }
 
 
-def signature(value):
+def signature(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
 
-def snapshot_sources(output):
+def snapshot_sources(output: Path) -> dict[str, str]:
     root = Path(__file__).resolve().parents[1]
     hashes = source_manifest(root)
     for name, expected in hashes.items():
@@ -94,7 +97,7 @@ def snapshot_sources(output):
     return hashes
 
 
-def load_development(data):
+def load_development(data: str | Path) -> tuple[np.ndarray, dict[str, Any], list[int], list[int]]:
     features, meta = load_prepared(data, "train")
     train, val = validation_split(meta["refs"], SEED, [t["sha256"] for t in meta["tracks"]])
     if set(meta["ids"][i] for i in train) & set(meta["ids"][i] for i in val):
@@ -107,7 +110,7 @@ def load_development(data):
     return features, meta, train, val
 
 
-def probabilities(model, features, batch=128):
+def probabilities(model: nn.Module, features: np.ndarray, batch: int = 128) -> np.ndarray:
     model.eval()
     results = []
     with torch.inference_mode():
@@ -120,7 +123,7 @@ def probabilities(model, features, batch=128):
     return np.concatenate(results)
 
 
-def development_metrics(model, features, refs):
+def development_metrics(model: nn.Module, features: np.ndarray, refs: KeyIndices) -> dict[str, Any]:
     prob = probabilities(model, features)
     pred = prob.argmax(1)
     refs = np.asarray(refs)
@@ -144,14 +147,18 @@ def development_metrics(model, features, refs):
     }
 
 
-def mode_weights(refs):
+def mode_weights(refs: KeyIndices) -> torch.Tensor:
     modes = np.bincount(np.asarray(refs) % 2, minlength=2)
     if np.any(modes == 0):
         raise ValueError("Mode balancing needs both major and minor examples")
     return torch.tensor([len(refs) / (2 * modes[k % 2]) for k in range(24)], dtype=torch.float32)
 
 
-def initial_state(recipe, seed, epochs, refs):
+def initial_state(
+    recipe: Recipe, seed: int, epochs: int, refs: KeyIndices
+) -> tuple[
+    KeyCNN, torch.optim.AdamW, torch.optim.lr_scheduler.CosineAnnealingLR, nn.CrossEntropyLoss
+]:
     torch.manual_seed(seed)
     model = KeyCNN(pooling=recipe.pooling, dropout=recipe.dropout)
     optimizer = torch.optim.AdamW(
@@ -165,21 +172,21 @@ def initial_state(recipe, seed, epochs, refs):
 
 
 def run_recipe(
-    features,
-    meta,
-    tr,
-    val,
-    recipe,
+    features: np.ndarray,
+    meta: dict[str, Any],
+    tr: Sequence[int],
+    val: Sequence[int],
+    recipe: Recipe,
     *,
-    seed,
-    output,
-    epochs=120,
-    batch=64,
-    threads=16,
-    max_seconds=300,
-    stop_after=None,
-    split_policy="stratified-seed13-validation-priority-audio-dedup-v1",
-):
+    seed: int,
+    output: Path,
+    epochs: int = 120,
+    batch: int = 64,
+    threads: int = 16,
+    max_seconds: float = 300,
+    stop_after: int | None = None,
+    split_policy: str = "stratified-seed13-validation-priority-audio-dedup-v1",
+) -> dict[str, Any]:
     """Train/resume one recipe. A hard per-run wall budget is checked every batch."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
@@ -327,7 +334,15 @@ def run_recipe(
         raise
 
 
-def diagnostics(features, meta, tr, val, checkpoint, output, threads=16):
+def diagnostics(
+    features: np.ndarray,
+    meta: dict[str, Any],
+    tr: Sequence[int],
+    val: Sequence[int],
+    checkpoint: Path,
+    output: Path,
+    threads: int = 16,
+) -> dict[str, Any]:
     torch.set_num_threads(threads)
     refs = np.asarray(meta["refs"])
     model, payload = load_checkpoint(checkpoint)
@@ -412,7 +427,9 @@ def diagnostics(features, meta, tr, val, checkpoint, output, threads=16):
     return result
 
 
-def confirmation_recipes(summary, manifest_hash, split_hash, sources):
+def confirmation_recipes(
+    summary: dict[str, Any], manifest_hash: str, split_hash: str, sources: dict[str, str]
+) -> list[Recipe]:
     """Promote at most two challengers with >=2 validation MIREX points over control."""
     if (
         summary["status"] != "complete"
@@ -444,7 +461,7 @@ def confirmation_recipes(summary, manifest_hash, split_hash, sources):
     return [recipe for recipe in RECIPES if recipe.name in names]
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("diagnose", "screen", "confirm"))
     parser.add_argument("--data", type=Path, required=True)

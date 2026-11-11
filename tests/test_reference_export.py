@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import importlib.util
+from pathlib import Path
 
 import pytest
 import torch
@@ -16,7 +19,9 @@ pytestmark = pytest.mark.skipif(
     "size,pooling",
     [("small", "global"), ("medium", "global"), ("large", "global"), ("small", "frequency")],
 )
-def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path, size, pooling):
+def test_export_verifies_dynamic_batch_and_cpu_parity(
+    tmp_path: Path, size: str, pooling: str
+) -> None:
     from experiments.reference.export import cpu_session, export_checkpoint
 
     torch.set_num_threads(1)

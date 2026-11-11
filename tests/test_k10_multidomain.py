@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 from typing import Any
 
@@ -8,7 +10,7 @@ from tools.compare_k10_multidomain import compare
 from tools.summarize_k10_multidomain import summarize
 
 
-def rows():
+def rows() -> list[dict[str, Any]]:
     return [
         dict(id="beatport:1", domain="beatport", role="train", sha256="a", ref=0),
         dict(id="fmak:2", domain="fmak", role="train", sha256="b", ref=1),
@@ -17,14 +19,14 @@ def rows():
 
 
 @pytest.mark.parametrize("role", ["calibration", "final", "test"])
-def test_preparation_refuses_non_development_roles(role):
+def test_preparation_refuses_non_development_roles(role: str) -> None:
     data = rows()
     data[-1]["role"] = role
     with pytest.raises(ValueError, match="Only fitting and validation"):
         validate_rows(data)
 
 
-def test_development_preparation_refuses_audio_leakage_and_duplicate_fit_rows():
+def test_development_preparation_refuses_audio_leakage_and_duplicate_fit_rows() -> None:
     data = rows()
     validate_rows(data)
     leaked = copy.deepcopy(data)
@@ -37,7 +39,7 @@ def test_development_preparation_refuses_audio_leakage_and_duplicate_fit_rows():
         validate_rows(duplicated)
 
 
-def paired_runs():
+def paired_runs() -> tuple[dict[str, Any], dict[str, Any]]:
     control: dict[str, Any] = dict(
         status="complete",
         arm="control",
@@ -59,7 +61,7 @@ def paired_runs():
     return control, joint
 
 
-def test_gate_requires_a_comparable_completed_pair_and_both_domain_constraints():
+def test_gate_requires_a_comparable_completed_pair_and_both_domain_constraints() -> None:
     control, joint = paired_runs()
     assert compare(control, joint)["qualifies_for_confirmation"]
     joint["domain_metrics"]["beatport"]["mirex"] = 0.47
@@ -69,14 +71,14 @@ def test_gate_requires_a_comparable_completed_pair_and_both_domain_constraints()
         compare(control, joint)
 
 
-def test_gate_rejects_changed_validation_identities():
+def test_gate_rejects_changed_validation_identities() -> None:
     control, joint = paired_runs()
     joint["validation_ids"].reverse()
     with pytest.raises(ValueError, match="validation_ids"):
         compare(control, joint)
 
 
-def test_confirmation_gate_does_not_promote_a_lucky_pilot_seed():
+def test_confirmation_gate_does_not_promote_a_lucky_pilot_seed() -> None:
     pairs = {}
     for seed, gain in ((13, 0.0352), (37, 0.0012), (73, 0.01)):
         control, joint = paired_runs()

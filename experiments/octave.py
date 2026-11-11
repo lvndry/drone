@@ -1,17 +1,21 @@
 """Capped, supervised CQT/octave pilot. Does not open calibration/final audio."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 import os
 import subprocess
 import time
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import torch
+from torch import nn
 
 from drone.keys import LABEL_SCHEMA, score_mirex
 from experiments.adapt import development_split
@@ -21,7 +25,7 @@ from experiments.reference.train import load_prepared
 from experiments.small import atomic_json, load_development, signature, snapshot_sources
 
 
-def device_setup(device):
+def device_setup(device: str) -> None:
     torch.set_num_threads(4)
     if device.startswith("cuda"):
         torch.cuda.set_device(device)
@@ -35,7 +39,7 @@ def device_setup(device):
         torch.backends.cuda.matmul.allow_tf32 = False
 
 
-def selected_rows(args):
+def selected_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     _, bm, btr, bval = load_development(args.beatport)
     _, fm = load_prepared(args.fmak, "fmak")
     partition, audit = json.loads(args.partition.read_bytes()), json.loads(args.groups.read_bytes())
@@ -73,7 +77,7 @@ def selected_rows(args):
     return rows
 
 
-def decode(row):
+def decode(row: dict[str, Any]) -> np.ndarray:
     assert audio_digest(row["path"]) == row["sha256"]
     duration = float(
         subprocess.check_output(
@@ -126,7 +130,7 @@ def decode(row):
     return np.stack(segments)
 
 
-def prepare(args):
+def prepare(args: argparse.Namespace) -> None:
     from importlib.metadata import distribution, version
 
     from nnAudio.features import VQT
@@ -206,7 +210,9 @@ def prepare(args):
                 )
 
 
-def probabilities(model, array, indices, device, batch=16):
+def probabilities(
+    model: nn.Module, array: np.ndarray, indices: Sequence[int], device: str, batch: int = 16
+) -> np.ndarray:
     model.eval()
     output = []
     with torch.inference_mode():
@@ -221,7 +227,7 @@ def probabilities(model, array, indices, device, batch=16):
     return np.concatenate(output)
 
 
-def metrics(prob, refs):
+def metrics(prob: np.ndarray, refs: np.ndarray) -> dict[str, Any]:
     pred = prob.argmax(1)
     exact, mirex = score_mirex(pred, refs)
     return {
@@ -232,7 +238,7 @@ def metrics(prob, refs):
     }
 
 
-def train(args):
+def train(args: argparse.Namespace) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     device_setup(args.device)
@@ -398,7 +404,7 @@ def train(args):
     atomic_json(args.output / "run.json", record)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("prepare", "train"))
     parser.add_argument("--device", default="cpu")

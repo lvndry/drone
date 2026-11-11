@@ -5,16 +5,22 @@ whole-repository check, including research tools and tests. The `research` extra
 pins nnAudio 0.3.4, which the octave research frontend imports; ordinary production
 installation does not require that extra.
 
-The production package, training CLI and K10 tests have explicit function
-annotations. Historical research modules are checked too, but are not fully
-annotated: ty can analyze unannotated functions and does not require every
-function to have annotations. A passing check is not a claim of complete
-annotation coverage or runtime validation.
+Every Python function has explicit parameter and return annotations, including
+the training CLI, historical research modules, tools, nested helpers and tests.
+Implicit `self`/`cls` parameters need no annotation; lambdas do not support
+annotation syntax and are checked in the context of their callers.
+
+CI enforces two separate properties: `uv run ruff check .` includes the full
+`ANN` rule set, which rejects missing parameter/return annotations and direct
+`Any` parameter annotations; `uv run ty check .` checks type compatibility.
+Removing an annotation therefore fails CI even when ty could infer a type.
 
 Heterogeneous JSON/checkpoint records use explicit `dict[str, Any]` annotations
 where their fields are loaded dynamically. Scientific tests narrow concrete
 PyTorch layers and gradients before accessing them. NumPy integer arrays remain
 valid scoring inputs; callers do not need to convert them to Python lists.
 
-No repository directories or diagnostics are excluded to make the check pass.
-The full runtime tests, Ruff and build checks remain separate CI steps.
+No research directories or annotation rules are excluded to make the checks pass.
+Annotations do not replace runtime validation, numerical parity or the full test
+suite. The existing feature contracts, model weights and experiment protocols
+are unchanged; source snapshots acquire new hashes when rerunning annotated code.
