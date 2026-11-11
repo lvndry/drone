@@ -96,7 +96,7 @@ def test_prepare_train_evaluate_and_infer(tmp_path):
     tracks = []
     for i in range(8):
         audio = tmp_path / f"{i}.wav"
-        write_tone(audio, 110 if i < 4 else 220)
+        write_tone(audio, (110 if i < 4 else 220) + i * 0.2)
         tracks.append(Track(str(i), audio, ("A", "major" if i < 4 else "minor")))
     train_features, meta = prepare_dir("train", tracks, tmp_path, data=tmp_path)
     assert train_features.shape == (8, 300, 33)
@@ -167,7 +167,7 @@ def test_model_size_profiles_and_checkpoint_config(tmp_path, size):
     path = tmp_path / f"{size}.pt"
     save_checkpoint(path, model)
     restored, metadata = load_checkpoint(path)
-    assert restored.config == {"size": size, "dropout": 0.15}
+    assert restored.config == {"size": size, "dropout": 0.15, "pooling": "global"}
     assert metadata["model_config"] == restored.config
 
 
