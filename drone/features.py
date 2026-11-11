@@ -77,29 +77,44 @@ def read_wav_mono(path):
         return samples.astype(np.float32) / 32768.0, wav.getframerate()
 
 
-def stft_magnitude(x):
-    """Compute in batches to avoid a track-sized FFT index and work array."""
+def _audio_frames(x):
     if x.ndim != 1 or not len(x) or not np.isfinite(x).all():
         raise ValueError("Audio must be a finite, nonempty mono waveform")
     if len(x) < FFT_SIZE:
         x = np.pad(x, (0, FFT_SIZE - len(x)))
-    frames = np.lib.stride_tricks.sliding_window_view(x, FFT_SIZE)[::HOP]
+    return np.lib.stride_tricks.sliding_window_view(x, FFT_SIZE)[::HOP]
+
+
+def _magnitude_blocks(frames):
     window = np.hanning(FFT_SIZE).astype(np.float32)
-    result = np.empty((len(frames), FFT_SIZE // 2 + 1), dtype=np.float32)
     for start in range(0, len(frames), 256):
         block = frames[start : start + 256] * window
-        result[start : start + 256] = np.abs(np.fft.rfft(block, axis=1))
+        yield start, np.abs(np.fft.rfft(block, axis=1)).astype(np.float32)
+
+
+def stft_magnitude(x):
+    """Full STFT reference; band extraction uses bounded blocks directly."""
+    frames = _audio_frames(x)
+    result = np.empty((len(frames), FFT_SIZE // 2 + 1), dtype=np.float32)
+    for start, magnitude in _magnitude_blocks(frames):
+        result[start : start + len(magnitude)] = magnitude
     return result
 
 
 def build_cqt(x):
-    """Return (frames, bands) log-frequency energy (historical function name)."""
-    mag = stft_magnitude(x)
+    """Return (frames, bands) log-frequency energy (historical function name).
+
+    Retain only the narrow band matrix, not a track-length full FFT matrix.
+    The feature contract and floating-point aggregation order are unchanged.
+    """
+    frames = _audio_frames(x)
     freqs = np.fft.rfftfreq(FFT_SIZE, d=1 / SR)
     sem_of_bin = np.rint(12 * np.log2(np.maximum(freqs, 1.0) / SEMIBASE)).astype(int)
-    bands = np.zeros((mag.shape[0], N_SEM), dtype=np.float32)
-    for band in range(N_SEM):
-        bands[:, band] = mag[:, sem_of_bin == band].sum(axis=1)
+    band_bins = [np.flatnonzero(sem_of_bin == band) for band in range(N_SEM)]
+    bands = np.zeros((len(frames), N_SEM), dtype=np.float32)
+    for start, magnitude in _magnitude_blocks(frames):
+        for band, indices in enumerate(band_bins):
+            bands[start : start + len(magnitude), band] = magnitude[:, indices].sum(axis=1)
     return np.log1p(10 * bands / max(float(np.percentile(bands, 99)), 1e-9))
 
 

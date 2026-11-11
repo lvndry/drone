@@ -90,3 +90,34 @@ def test_cache_distinguishes_files_and_changed_content(tmp_path):
     write_tone(first, 220)
     np.testing.assert_array_equal(extract("track", first, tmp_path), b)
     assert len(list((tmp_path / "cqt").rglob("*.npy"))) == 2
+
+
+def test_blockwise_bands_are_bitwise_identical_to_full_stft_reference():
+    from drone.features import SEMIBASE, stft_magnitude
+
+    rng = np.random.default_rng(13)
+    # Spans several FFT blocks, including a final partial block.
+    waveform = rng.normal(size=360_000).astype(np.float32)
+    magnitude = stft_magnitude(waveform)
+    freqs = np.fft.rfftfreq(FFT_SIZE, d=1 / SR)
+    indices = np.rint(12 * np.log2(np.maximum(freqs, 1.0) / SEMIBASE)).astype(int)
+    bands = np.zeros((len(magnitude), N_SEM), dtype=np.float32)
+    for band in range(N_SEM):
+        bands[:, band] = magnitude[:, indices == band].sum(axis=1)
+    expected = np.log1p(10 * bands / max(float(np.percentile(bands, 99)), 1e-9))
+    np.testing.assert_array_equal(build_cqt(waveform), expected)
+
+
+def test_band_extraction_does_not_retain_a_full_track_fft_matrix():
+    import tracemalloc
+
+    waveform = np.zeros(FFT_SIZE + 12000 * 512, dtype=np.float32)
+    full_magnitude_bytes = 12001 * (FFT_SIZE // 2 + 1) * 4
+    tracemalloc.start()
+    try:
+        bands = build_cqt(waveform)
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert bands.shape == (12001, N_SEM)
+    assert peak < full_magnitude_bytes / 2
