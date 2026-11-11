@@ -235,8 +235,8 @@ def train(args):
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     device_setup(args.device)
-    torch.manual_seed(13)
-    rng = np.random.default_rng(13)
+    torch.manual_seed(args.seed)
+    rng = np.random.default_rng(args.seed)
     manifest = json.loads((args.data / "manifest.json").read_bytes())
     assert manifest["feature_spec"] == FEATURE_SPEC
     assert json.loads((args.data / "preparation.json").read_bytes())["complete"]
@@ -249,7 +249,7 @@ def train(args):
     identity = {
         "feature_manifest_sha256": signature(manifest),
         "source_sha256": sources,
-        "seed": 13,
+        "seed": args.seed,
         "epochs": 120,
         "batch": 16,
         "lr": 0.0003,
@@ -401,6 +401,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("prepare", "train"))
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
     parser.add_argument("--output", type=Path, required=True)
     for name in ("beatport", "fmak", "partition", "groups", "data", "reference"):
         parser.add_argument("--" + name, type=Path)

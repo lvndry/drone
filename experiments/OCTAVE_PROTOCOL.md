@@ -41,3 +41,29 @@ size without subsequent ablations.
 The experimental checkpoint format differs from the deployed v2 feature contract;
 ordinary Drone loading must reject it. Accuracy comes first; Rust runtime work
 and final real-library performance testing follow a validated quality candidate.
+
+## Confirmation after the qualifying pilot
+
+The pilot stopped at epoch 66 (best 41) in 432.39 seconds. Beatport validation
+MIREX 72.94%, FMAK validation 68.76%: gains 11.51 and 4.80 points versus the
+frozen adapted seed-13 reference, respectively. This passes the fixed gate.
+
+Confirm the same recipe at seeds 13, 37, 73, repeating 13 with the seed-selectable
+CLI source used for the other seeds. Reuse identical immutable CQT arrays and
+identity lists. Report per-domain means/sample SD and verify the repeated pilot
+history/predictions. Per-run cap remains 15 minutes; sequential stage cap 50
+minutes. No new architecture, optimizer, frontend, crop or stopping-rule search.
+Canonical artifact remains seed 13.
+
+Before seeing seeds 37/73, predeclare one optional inference candidate: equal-
+probability averaging of all three models (each already averages its two segments).
+No seed subset/weight search. Choose it only if combined validation MIREX gains
+at least 1 point over canonical seed 13 and neither domain loses more than 0.5
+points. Otherwise retain canonical 13. Three models total 141,852 parameters /
+567,408 FP32 parameter bytes, excluding buffers and metadata.
+
+A model is eligible for later final evaluation only if the confirmation mean
+meets the native validation references in both domains (65.16% Beatport, 66.76%
+FMAK) and the chosen canonical/ensemble candidate also meets both. Passing this
+is permission to freeze/evaluate, not a state-of-the-art or product claim.
+Calibration and final 1,000 rows remain unused during confirmation/selection.
