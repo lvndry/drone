@@ -229,6 +229,14 @@ def train(args: argparse.Namespace) -> None:
         from experiments.ema import EmaProbe
 
         probe = EmaProbe(args, record, model, rows, arrays, fitting)
+    structured = None
+    targets = None
+    if getattr(args, "structured_control", False) or getattr(args, "structured_targets", False):
+        from experiments.structured import StructuredProbe, target_matrix
+
+        structured = StructuredProbe(args, record)
+        if args.structured_targets:
+            targets = target_matrix().to(args.device)
     best, best_epoch, start = -1, 0, time.monotonic()
     for epoch in range(1, 121):
         model.train()
@@ -249,7 +257,14 @@ def train(args: argparse.Namespace) -> None:
                 ys.append(transpose_key(rows[i]["ref"], -shift))
             optimizer.zero_grad()
             logits = model(torch.from_numpy(np.stack(xs)).to(args.device))
-            loss = torch.nn.functional.cross_entropy(logits, torch.tensor(ys, device=args.device))
+            if targets is None:
+                loss = torch.nn.functional.cross_entropy(
+                    logits, torch.tensor(ys, device=args.device)
+                )
+            else:
+                loss = torch.nn.functional.cross_entropy(
+                    logits, targets[torch.tensor(ys, device=args.device)]
+                )
             if not torch.isfinite(loss):
                 raise RuntimeError("Nonfinite training loss")
             loss.backward()
@@ -262,6 +277,8 @@ def train(args: argparse.Namespace) -> None:
                 atomic_json(args.output / "run.json", record)
                 if probe is not None:
                     probe.budget_exhausted(start)
+                if structured is not None:
+                    structured.budget_exhausted(start)
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
@@ -300,6 +317,10 @@ def train(args: argparse.Namespace) -> None:
     atomic_json(args.output / "run.json", record)
     if probe is not None:
         probe.finish(record, val_features, val_refs, val_rows, start)
+    if structured is not None:
+        result = structured.finish(record, val_features, val_refs, val_rows, start)
+        if result["status"] != "complete":
+            raise RuntimeError(f"Structured probe failed: {result.get('error', result['status'])}")
 
 
 def diagnose(args: argparse.Namespace) -> None:
@@ -345,7 +366,11 @@ def main() -> None:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--arm", choices=("control", "joint"))
     p.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
-    p.add_argument("--ema-probe", action="store_true")
+    probes = p.add_mutually_exclusive_group()
+    probes.add_argument("--ema-probe", action="store_true")
+    probes.add_argument("--structured-control", action="store_true")
+    probes.add_argument("--structured-targets", action="store_true")
+    p.add_argument("--paired-control", type=Path)
     p.add_argument("--reference-run", type=Path)
     p.add_argument("--reference-bp", type=Path)
     p.add_argument("--reference-checkpoint", type=Path)
@@ -358,6 +383,18 @@ def main() -> None:
         or args.reference_bp is None
     ):
         p.error("--ema-probe requires train --arm joint --reference-run and --reference-bp")
+    if (args.structured_control or args.structured_targets) and (
+        args.command != "train"
+        or args.arm != "joint"
+        or args.reference_run is None
+        or args.reference_bp is None
+        or (args.structured_targets and args.paired_control is None)
+    ):
+        p.error(
+            "Structured probes require train --arm joint and archived references; candidate needs --paired-control"
+        )
+    if args.paired_control is not None and not args.structured_targets:
+        p.error("--paired-control requires --structured-targets")
     {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
 
 
