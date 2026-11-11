@@ -141,6 +141,10 @@ before measuring a trained artifact on representative deployment hardware.
 
 ## Development
 
+See [research results in graphs](experiments/VISUAL_RESULTS.md) for track-length
+memory/latency curves, CPU costs and controlled accuracy experiments. The figures
+include raw measurements and a reproducible PNG/SVG generator.
+
 ```bash
 uv sync --locked --all-extras
 uv run --extra export pytest

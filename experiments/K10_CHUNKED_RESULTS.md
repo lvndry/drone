@@ -1,5 +1,7 @@
 # K10 chunked CPU inference: development gates passed
 
+[Memory versus track length and paired measurements](VISUAL_RESULTS.md#memory-grows-with-track-length).
+
 The unchanged-weight prototype passed all 376 public validation inputs without
 reading their reference labels for scoring. Every predicted key matched the
 shipped full ONNX artifact. Maximum logit difference was 1.90735e-6, within the

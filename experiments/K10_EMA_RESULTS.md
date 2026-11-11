@@ -1,5 +1,7 @@
 # K10 EMA pilot: rejected
 
+[Accuracy graph and interpretation](VISUAL_RESULTS.md#ema-a-negative-result-worth-keeping).
+
 The fixed seed-13 probe completed on lysk-server on 11 November 2026. Its ordinary
 training history and every selected checkpoint tensor exactly reproduced the
 archived joint control. The EMA candidate failed the predeclared method gate;

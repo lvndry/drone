@@ -1,0 +1,74 @@
+{
+  "seeds": {
+    "13": {
+      "seed": 13,
+      "delta_mirex": {
+        "beatport": 0.025396825396825418,
+        "fmak": 0.0351999999999999
+      },
+      "qualifies_for_confirmation": true,
+      "calibration_used": false,
+      "final_holdout_used": false
+    },
+    "37": {
+      "seed": 37,
+      "delta_mirex": {
+        "beatport": 0.042857142857142816,
+        "fmak": 0.0012000000000000899
+      },
+      "qualifies_for_confirmation": false,
+      "calibration_used": false,
+      "final_holdout_used": false
+    },
+    "73": {
+      "seed": 73,
+      "delta_mirex": {
+        "beatport": 0.0031746031746030523,
+        "fmak": 0.011599999999999944
+      },
+      "qualifies_for_confirmation": false,
+      "calibration_used": false,
+      "final_holdout_used": false
+    }
+  },
+  "mirex": {
+    "control": {
+      "beatport": {
+        "mean": 0.7277777777777779,
+        "sample_std": 0.01729721802992331
+      },
+      "fmak": {
+        "mean": 0.7270666666666666,
+        "sample_std": 0.00882118661707892
+      }
+    },
+    "joint": {
+      "beatport": {
+        "mean": 0.7515873015873016,
+        "sample_std": 0.009152827456088012
+      },
+      "fmak": {
+        "mean": 0.7430666666666667,
+        "sample_std": 0.010192807921928716
+      }
+    }
+  },
+  "delta_mean_mirex": {
+    "beatport": 0.023809523809523725,
+    "fmak": 0.016000000000000014
+  },
+  "qualifies_for_external_freeze": false,
+  "canonical_seed": null,
+  "calibration_used": false,
+  "final_holdout_used": false,
+  "uncertainty": "Sample SD over training seeds; not uncertainty over new recordings",
+  "run_sha256": {
+    "control-seed13": "d3a7ff2e7057caef802ac83f4ada3aa0fe2d3725fee8daf196915bc39fc64911",
+    "joint-seed13": "cbdc3b4b14f4a0be6aea82166b380f6fb1bc2ee16fc5489fce1965cdfdc5bff4",
+    "control-seed37": "bd9c079b126f782c31f8141635780dfe0ba050966c84203ad35658cbb4586fba",
+    "joint-seed37": "ea3104c315e3b070d76e4d4641b69f466103b3a6b6e4951ec0ec8cba21e0a7e6",
+    "control-seed73": "94bb32e3976443f3cfec3fcbf2d5778119c0bc6d312930a311644d96bca81b37",
+    "joint-seed73": "782b7b5835600f2bc48278bd4554a0e24ea6970154ab658ede45cc7d3ff7be34"
+  },
+  "summary_source_sha256": "bb2ef1aa2836a817da04a492e3343d1d080b369e214d080b303efa742afd2f14"
+}

@@ -1,5 +1,7 @@
 # First small-model tranche
 
+For current K10 results, see [research results in graphs](VISUAL_RESULTS.md).
+
 This is a validation-only experiment, not a release or architecture promotion.
 The reviewed control is the 331,704-parameter CNN. The frequency-preserving head
 has 347,064 parameters, still below the 2 MiB FP32 weight budget. Global pooling

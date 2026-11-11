@@ -1,5 +1,7 @@
 # K10 multi-domain comparison: positive means, confirmation gate missed
 
+[Accuracy graph with training-seed variation](VISUAL_RESULTS.md#more-fitting-data-helpful-insufficient).
+
 Six fits completed under the [predeclared protocol](K10_MULTIDOMAIN_PROTOCOL.md).
 Adding the approved FMAK fitting rows increased both domain means, but the FMAK
 gain was 1.60 points, below the required 2.00 points. Do not promote these weights
