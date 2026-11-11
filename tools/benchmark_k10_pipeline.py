@@ -100,6 +100,8 @@ def main() -> None:
         if time.perf_counter() - stage_start > 540:
             raise TimeoutError("Nine-minute benchmark budget exhausted")
         track = Track(row["id"], row["path"], ("C", "major"))
+        if audio_digest(track.audio) != row["sha256"]:
+            raise ValueError(f"Selected audio changed: {track.id}")
         with tempfile.TemporaryDirectory(dir=args.output.parent) as cache:
             cpu_start, wall_start = cpu_seconds(), time.perf_counter()
             features, _ = prepare(track, cache)
