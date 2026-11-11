@@ -1,14 +1,16 @@
-"""CQT features for the key detection CNN.
+"""STFT energy grouped into 33 semitone bands, A1 through F4.
 
-The spectrogram is a 33-semitone log frequency CQT (55 Hz to 880 Hz, one
-semitone per column, amplitude per frame), built from a single STFT. Pitch
-shifting is a circular shift of the semitone columns, which also moves the
-label, so training-time augmentation is nearly free.
+This is a log-frequency spectrogram, not a constant-Q transform. Bounded
+frequency translations approximate pitch shifts; they never wrap octaves.
 """
 
+import hashlib
+import json
 import os
-import struct
 import subprocess
+import tempfile
+import wave
+from pathlib import Path
 
 import numpy as np
 
@@ -17,111 +19,139 @@ SEMIBASE = 55  # A1
 N_SEM = 33
 FFT_SIZE = 4096
 HOP = 512
+FEATURE_SPEC = {
+    "version": 2,
+    "sample_rate": SR,
+    "base_hz": SEMIBASE,
+    "bands": N_SEM,
+    "fft_size": FFT_SIZE,
+    "hop": HOP,
+    "window": "hann",
+    "compression": "log1p-10x-p99",
+    "time_resampling": "linear-per-band",
+    "normalization": "per-track-zscore",
+    "augmentation": "bounded-band-shift-renormalized",
+}
+FEATURE_ID = hashlib.sha256(json.dumps(FEATURE_SPEC, sort_keys=True).encode()).hexdigest()[:16]
 
-TONICS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+def audio_digest(path):
+    with open(path, "rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def cqt_path(track_dir, name):
-    return os.path.join(track_dir, "cqt", f"{name}.npy")
+    return os.path.join(track_dir, "cqt", FEATURE_ID, f"{name}.npy")
 
 
 def decode_mp3(path, out_wav):
-    subprocess.run(
-        ["ffmpeg", "-loglevel", "error", "-y", "-i", path, "-ac", "1", "-ar", str(SR), out_wav],
-        check=True,
-    )
+    try:
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-loglevel",
+                "error",
+                "-y",
+                "-i",
+                str(path),
+                "-ac",
+                "1",
+                "-ar",
+                str(SR),
+                "-c:a",
+                "pcm_s16le",
+                str(out_wav),
+            ],
+            check=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("Audio decoding requires ffmpeg on PATH") from exc
 
 
 def read_wav_mono(path):
-    """Read a 16-bit PCM wav. Returns (float32 samples in [-1, 1], sample_rate)."""
-    with open(path, "rb") as f:
-        data = f.read()
-    pos = 12
-    sample_rate = None
-    while pos + 8 <= len(data):
-        chunk_id = data[pos : pos + 4]
-        (chunk_size,) = struct.unpack("<I", data[pos + 4 : pos + 8])
-        if chunk_id == b"fmt ":
-            # audio_format, n_channels, sample_rate, byte_rate, block_align, bits
-            (_, _, sample_rate, _, _, bits) = struct.unpack("<HHIIHH", data[pos + 8 : pos + 24])
-            if bits != 16:
-                raise ValueError(f"unexpected sample width {bits} for {path}")
-        elif chunk_id == b"data":
-            raw = data[pos + 8 : pos + 8 + chunk_size]
-            samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-            return samples, sample_rate
-        pos += 8 + chunk_size + (chunk_size & 1)
-    raise ValueError(f"bad wav: {path}")
-
-
-def resample_linear(x, from_rate, to_rate):
-    if from_rate == to_rate:
-        return x
-    n_out = int(len(x) * to_rate / from_rate)
-    t = np.linspace(0.0, len(x) - 1.0, n_out)
-    i = np.floor(t).astype(np.int64)
-    frac = (t - i).astype(np.float32)
-    i = np.clip(i, 0, len(x) - 2)
-    return x[i] * (1.0 - frac) + x[i + 1] * frac
+    """Read mono, uncompressed 16-bit PCM WAV produced by ffmpeg."""
+    with wave.open(str(path), "rb") as wav:
+        if wav.getnchannels() != 1 or wav.getsampwidth() != 2 or wav.getcomptype() != "NONE":
+            raise ValueError(f"Expected mono 16-bit PCM: {path}")
+        samples = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2")
+        return samples.astype(np.float32) / 32768.0, wav.getframerate()
 
 
 def stft_magnitude(x):
-    # gather the strided frames into a fresh array so the window can be applied in place
-    starts = np.arange(0, len(x) - FFT_SIZE + 1, HOP)
-    idx = starts[:, None] + np.arange(FFT_SIZE)[None, :]
-    frames = x[idx].astype(np.float32)
+    """Compute in batches to avoid a track-sized FFT index and work array."""
+    if x.ndim != 1 or not len(x) or not np.isfinite(x).all():
+        raise ValueError("Audio must be a finite, nonempty mono waveform")
+    if len(x) < FFT_SIZE:
+        x = np.pad(x, (0, FFT_SIZE - len(x)))
+    frames = np.lib.stride_tricks.sliding_window_view(x, FFT_SIZE)[::HOP]
     window = np.hanning(FFT_SIZE).astype(np.float32)
-    frames *= window
-    spec = np.fft.rfft(frames, axis=1)
-    return np.abs(spec).astype(np.float32)
+    result = np.empty((len(frames), FFT_SIZE // 2 + 1), dtype=np.float32)
+    for start in range(0, len(frames), 256):
+        block = frames[start : start + 256] * window
+        result[start : start + 256] = np.abs(np.fft.rfft(block, axis=1))
+    return result
 
 
 def build_cqt(x):
-    """(n_frames, n_sem) semitone-amplitude CQT. Bins per semitone are summed."""
+    """Return (frames, bands) log-frequency energy (historical function name)."""
     mag = stft_magnitude(x)
-    freqs = np.arange(mag.shape[1]) * (SR / FFT_SIZE)
-    # nearest semitone for every bin, A1..A7
-    sem_of_bin = np.rint(np.log2(np.maximum(freqs, 1.0) / SEMIBASE)).astype(np.int64)
-    valid = (sem_of_bin >= 0) & (sem_of_bin < N_SEM)
-    bins = np.where(valid)[0]
-    cqt = np.zeros((mag.shape[0], N_SEM), dtype=np.float32)
-    for b in bins:
-        cqt[:, int(sem_of_bin[b])] += mag[:, b]
-    cqt = np.log1p(10.0 * cqt / max(np.percentile(cqt, 99), 1e-9))
-    return cqt
+    freqs = np.fft.rfftfreq(FFT_SIZE, d=1 / SR)
+    sem_of_bin = np.rint(12 * np.log2(np.maximum(freqs, 1.0) / SEMIBASE)).astype(int)
+    bands = np.zeros((mag.shape[0], N_SEM), dtype=np.float32)
+    for band in range(N_SEM):
+        bands[:, band] = mag[:, sem_of_bin == band].sum(axis=1)
+    return np.log1p(10 * bands / max(float(np.percentile(bands, 99)), 1e-9))
+
+
+def normalize(features):
+    mu = features.mean(dtype=np.float64)
+    sigma = features.std(dtype=np.float64)
+    if sigma < 1e-8 * max(1.0, abs(mu)):
+        return np.zeros_like(features)
+    return ((features - mu) / sigma).astype(np.float32)
+
+
+def resample_time(features, frames):
+    """Interpolate time independently for each frequency band."""
+    if frames < 1 or features.ndim != 2 or not len(features):
+        raise ValueError("Expected a nonempty (time, frequency) array and positive frame count")
+    positions = np.linspace(0, len(features) - 1, frames)
+    source = np.arange(len(features))
+    return np.column_stack(
+        [np.interp(positions, source, features[:, band]) for band in range(features.shape[1])]
+    ).astype(np.float32)
+
+
+def shift_features(features, semitones):
+    """Translate absolute-frequency bands; discard edges and pad with the energy floor.
+
+    Accepts raw or z-scored (time, frequency) features. Renormalization matches
+    preparation. This is a bounded spectrogram approximation, not audio resampling.
+    """
+    semitones = int(semitones)
+    if not semitones:
+        return features.copy()
+    shifted = np.full_like(features, features.min())
+    if 0 < semitones < features.shape[1]:
+        shifted[:, semitones:] = features[:, :-semitones]
+    elif -features.shape[1] < semitones < 0:
+        shifted[:, :semitones] = features[:, -semitones:]
+    return normalize(shifted)
 
 
 def extract(name, mp3, track_dir):
-    """Decode one mp3 to a CQT, cache it, return the array (n_frames, 33)."""
-    out = cqt_path(track_dir, name)
-    os.makedirs(os.path.dirname(out), exist_ok=True)
-    if not os.path.exists(out):
-        wav = out + ".wav"
-        decode_mp3(mp3, wav)
-        samples, rate = read_wav_mono(wav)
-        os.remove(wav)
-        x = resample_linear(samples, rate, SR)
-        if len(x) < FFT_SIZE * 2:
-            x = np.pad(x, (0, FFT_SIZE * 2 - len(x)))
-        np.save(out, build_cqt(x))
-    return np.load(out)
-
-
-FLATS = {"Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
-
-
-def parse_key(text):
-    """'D# minor | E major' -> ('D#', 'minor'); None when unparseable.
-    Flats are normalized to sharps so both datasets share the same 24 classes."""
-    first = text.split("|")[0].strip()
-    parts = first.split()
-    if len(parts) != 2:
-        return None
-    tonic, mode = parts
-    if mode not in ("major", "minor"):
-        return None
-    if tonic not in TONICS:
-        tonic = FLATS.get(tonic)
-        if tonic is None:
-            return None
-    return tonic, mode
+    """Cache by audio content and feature specification, independent of track IDs."""
+    out = Path(cqt_path(track_dir, audio_digest(mp3)))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if not out.exists():
+        with tempfile.TemporaryDirectory(dir=out.parent) as scratch:
+            wav = Path(scratch) / "audio.wav"
+            decode_mp3(mp3, wav)
+            samples, rate = read_wav_mono(wav)
+            if rate != SR:
+                raise ValueError(f"Decoder returned {rate} Hz, expected {SR}")
+            features = build_cqt(samples)
+            pending = Path(scratch) / "features.npy"
+            np.save(pending, features)
+            os.replace(pending, out)
+    return np.load(out, allow_pickle=False)
