@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -15,6 +16,11 @@ from drone.features import CROP_FRAMES, N_CORE
 
 if TYPE_CHECKING:
     import onnxruntime as ort
+
+
+class _TimeMean(torch.nn.Module):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x.mean(dim=-1, keepdim=True)
 
 
 def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
@@ -33,26 +39,33 @@ def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
 
 def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     model, payload = load_checkpoint(checkpoint)
+    # Three frequency pools leave 24 bins, so the final (24, 1) adaptive
+    # pool only averages time. An explicit reduction prevents the exporter
+    # from specializing its kernel to the 320-frame example.
+    export_model = copy.deepcopy(model)
+    export_model.net[-1] = _TimeMean()
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     generator = torch.Generator().manual_seed(13)
-    # Export with batch >1 so the batch dimension remains symbolic.
+    # Batch and time vary at inference; retain each recording's full duration.
     example = torch.randn(2, N_CORE, CROP_FRAMES, generator=generator)
     torch.onnx.export(
-        model,
+        export_model,
         (example,),
         str(output),
         dynamo=True,
         opset_version=18,
         input_names=["features"],
         output_names=["logits"],
-        dynamic_shapes=({0: torch.export.Dim("batch", min=1)},),
+        dynamic_shapes=(
+            {0: torch.export.Dim("batch", min=1), 2: torch.export.Dim("frames", min=8)},
+        ),
         external_data=False,
     )
     session = cpu_session(output)
     errors: list[float] = []
-    for batch in (1, 2, 3):
-        x = torch.randn(batch, N_CORE, CROP_FRAMES, generator=generator)
+    for batch, frames in ((1, 8), (2, 56), (3, 319), (1, CROP_FRAMES), (2, 645)):
+        x = torch.randn(batch, N_CORE, frames, generator=generator)
         with torch.inference_mode():
             expected = model(x).numpy()
         actual = np.asarray(session.run(["logits"], {"features": x.numpy()})[0], dtype=np.float32)
@@ -62,6 +75,7 @@ def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, A
     metadata.update(
         {
             "input_layout": "batch,bands,time",
+            "dynamic_axes": ["batch", "time"],
             "output": "logits",
             "onnx_parity_max_abs_error": max(errors),
         }
