@@ -1,12 +1,15 @@
 """Apply the declared development gate only to a comparable completed pair."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 
-def compare(control, joint):
+def compare(control: dict[str, Any], joint: dict[str, Any]) -> dict[str, Any]:
     for run in (control, joint):
         if run["status"] != "complete":
             raise ValueError("Both arms must complete before comparison")
@@ -17,17 +20,17 @@ def compare(control, joint):
     for key in ("seed", "config", "source_sha256", "feature_manifest_sha256", "validation_ids"):
         if control[key] != joint[key]:
             raise ValueError(f"Arms differ in {key}, beyond their fitting data")
-    control_fit, joint_fit = set(control["fit_ids"]), set(joint["fit_ids"])
+    control_fit, joint_fit = set(map(str, control["fit_ids"])), set(map(str, joint["fit_ids"]))
     if not control_fit < joint_fit or not all(i.startswith("beatport:") for i in control_fit):
         raise ValueError("The control must fit the same Beatport subset only")
     if not all(i.startswith("fmak:") for i in joint_fit - control_fit):
         raise ValueError("The candidate may add only FMAK fitting rows")
-    delta = {}
+    delta: dict[str, float] = {}
     for domain in ("beatport", "fmak"):
         a, b = control["domain_metrics"][domain], joint["domain_metrics"][domain]
         if a["ids"] != b["ids"] or a["tracks"] != b["tracks"]:
             raise ValueError("Domain validation identities differ")
-        delta[domain] = b["mirex"] - a["mirex"]
+        delta[domain] = float(b["mirex"]) - float(a["mirex"])
     return {
         "seed": control["seed"],
         "delta_mirex": delta,
@@ -37,7 +40,7 @@ def compare(control, joint):
     }
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--control", type=Path, required=True)
     p.add_argument("--joint", type=Path, required=True)

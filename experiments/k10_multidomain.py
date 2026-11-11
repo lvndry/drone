@@ -1,5 +1,7 @@
 """Bounded K10 data-only comparison on frozen development identities."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import importlib.metadata
@@ -9,6 +11,7 @@ import shutil
 import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -32,7 +35,7 @@ from train import evaluate_features
 FROZEN_SHA256 = "5f995f516430332a37f591ec299a36f9a46c16b2cd01cd887700837fd600bac9"
 
 
-def validate_rows(rows):
+def validate_rows(rows: list[dict[str, Any]]) -> None:
     ids = [r["id"] for r in rows]
     if len(ids) != len(set(ids)):
         raise ValueError("Duplicate development identities")
@@ -49,19 +52,19 @@ def validate_rows(rows):
         raise ValueError("Identical audio crosses fitting and validation")
     if len(fit) != sum(r["role"] == "train" for r in rows):
         raise ValueError("Fitting audio must be unique")
-    labels = {}
+    labels: dict[str, int] = {}
     for r in rows:
         if r["sha256"] in labels and labels[r["sha256"]] != r["ref"]:
             raise ValueError("Conflicting labels on identical audio")
         labels[r["sha256"]] = r["ref"]
 
 
-def prepare_one(task):
+def prepare_one(task: tuple[dict[str, Any], Path, Path]) -> dict[str, Any]:
     row, output, existing = task
     if audio_digest(row["path"]) != row["sha256"]:
         raise ValueError(f"Audio content changed: {row['id']}")
-    destination = Path(cqt_path(output, row["sha256"]))
-    original = Path(cqt_path(existing, row["sha256"]))
+    destination = Path(cqt_path(str(output), row["sha256"]))
+    original = Path(cqt_path(str(existing), row["sha256"]))
     reused = False
     if not destination.exists() and original.is_file():
         cached = np.load(original, allow_pickle=False)
@@ -81,22 +84,23 @@ def prepare_one(task):
     array = extract_cqt(row["path"], output)
     if array.shape[1] < 8 or not np.isfinite(array).all():
         raise ValueError(f"Invalid CQT: {row['id']}")
-    return dict(
+    result: dict[str, Any] = dict(
         row,
         cache=str(destination.relative_to(output)),
         frames=array.shape[1],
         cache_sha256=audio_digest(destination),
         reused_cache=reused,
     )
+    return result
 
 
-def prepare(args):
+def prepare(args: argparse.Namespace) -> None:
     raw = args.manifest.read_bytes()
     if hashlib.sha256(raw).hexdigest() != FROZEN_SHA256:
         raise ValueError("The frozen development manifest differs")
     rows = json.loads(raw)["rows"]
     validate_rows(rows)
-    counts = {
+    counts: dict[str, int] = {
         f"{domain}_{role}": sum(r["domain"] == domain and r["role"] == role for r in rows)
         for domain in ("beatport", "fmak")
         for role in ("train", "validation")
@@ -108,9 +112,11 @@ def prepare(args):
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     start = time.monotonic()
-    completed = []
+    completed: list[dict[str, Any]] = []
     with ProcessPoolExecutor(max_workers=8) as pool:
-        tasks = [(r, args.output, args.existing_cache) for r in rows]
+        tasks: list[tuple[dict[str, Any], Path, Path]] = [
+            (r, args.output, args.existing_cache) for r in rows
+        ]
         for row in pool.map(prepare_one, tasks):
             completed.append(row)
             if len(completed) % 50 == 0:
@@ -138,7 +144,7 @@ def prepare(args):
     )
 
 
-def load_data(data):
+def load_data(data: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[np.ndarray]]:
     manifest = json.loads((data / "manifest.json").read_bytes())
     if not manifest["complete"] or manifest["feature_spec"] != FEATURE_SPEC:
         raise ValueError("Incomplete or incompatible feature preparation")
@@ -146,7 +152,7 @@ def load_data(data):
         raise ValueError("Different development identities")
     rows = manifest["rows"]
     validate_rows(rows)
-    arrays = []
+    arrays: list[np.ndarray] = []
     for r in rows:
         path = data / r["cache"]
         if audio_digest(path) != r["cache_sha256"]:
@@ -158,17 +164,21 @@ def load_data(data):
     return manifest, rows, arrays
 
 
-def domain_metrics(pred, refs, rows):
-    result = {}
+def domain_metrics(
+    pred: np.ndarray, refs: np.ndarray, rows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    result: dict[str, Any] = {}
     for domain in ("beatport", "fmak"):
         indices = [i for i, r in enumerate(rows) if r["domain"] == domain]
         p, y = pred[indices], refs[indices]
-        exact, mirex = score_mirex(p, y)
+        exact, mirex = score_mirex([int(c) for c in p], [int(c) for c in y])
         result[domain] = {
             "tracks": len(indices),
             "exact": exact,
             "mirex": mirex,
-            "mirex_asymmetric": score_mirex(p, y, symmetric=False)[1],
+            "mirex_asymmetric": score_mirex(
+                [int(c) for c in p], [int(c) for c in y], symmetric=False
+            )[1],
             "mode_accuracy": float(np.mean(p % 2 == y % 2)),
             "predictions": p.tolist(),
             "ids": [rows[i]["id"] for i in indices],
@@ -176,7 +186,7 @@ def domain_metrics(pred, refs, rows):
     return result
 
 
-def train(args):
+def train(args: argparse.Namespace) -> None:
     if (args.output / "run.json").exists():
         raise ValueError("Use a fresh run directory; this pilot does not silently restart")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -197,7 +207,7 @@ def train(args):
     model = KeyCNN().to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 120)
-    record = {
+    record: dict[str, Any] = {
         "status": "running",
         "arm": args.arm,
         "seed": args.seed,
@@ -219,14 +229,15 @@ def train(args):
         "calibration_used": False,
         "final_holdout_used": False,
     }
-    best, best_epoch, start = -1, 0, time.monotonic()
+    best, best_epoch, start = -1.0, 0, time.monotonic()
     for epoch in range(1, 121):
         model.train()
         order = rng.permutation(fitting)
         loss_sum = 0.0
         for offset in range(0, len(order), 32):
             idx = order[offset : offset + 32]
-            xs, ys = [], []
+            xs: list[np.ndarray] = []
+            ys: list[int] = []
             for i in idx:
                 shift = int(rng.integers(-4, 5))
                 feature = window(arrays[i], shift).astype(np.float32)
@@ -251,7 +262,7 @@ def train(args):
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
-        _, score = score_mirex(pred, val_refs)
+        _, score = score_mirex([int(c) for c in pred], [int(c) for c in val_refs])
         record["history"].append(dict(epoch=epoch, loss=loss_sum / len(order), mirex=score))
         if score > best:
             best, best_epoch = score, epoch
@@ -284,7 +295,7 @@ def train(args):
     atomic_json(args.output / "run.json", record)
 
 
-def diagnose(args):
+def diagnose(args: argparse.Namespace) -> None:
     device_setup(args.device)
     _, rows, arrays = load_data(args.data)
     indices = [i for i, r in enumerate(rows) if r["role"] == "validation"]
@@ -293,7 +304,7 @@ def diagnose(args):
     refs = np.array([r["ref"] for r in val_rows])
     model, _ = load_checkpoint(args.checkpoint, args.device)
     corrected = evaluate_features(model, features, args.device, batch=4)
-    padded = []
+    padded: list[int] = []
     for offset in range(0, len(features), 4):
         chunk = features[offset : offset + 4]
         x = np.zeros((len(chunk), 192, max(f.shape[1] for f in chunk)), dtype=np.float32)
@@ -316,7 +327,7 @@ def diagnose(args):
     )
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("command", choices=("prepare", "train", "diagnose"))
     p.add_argument("--output", type=Path, required=True)

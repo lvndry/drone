@@ -1,17 +1,20 @@
-"""Verify and summarize the fixed three-seed adaptation confirmation."""
+""" "Verify and summarize the fixed three-seed adaptation confirmation."""
+
+from __future__ import annotations
 
 import argparse
 import hashlib
 import json
 import statistics
 from pathlib import Path
+from typing import Any
 
 
-def read(path):
+def read(path: Path) -> dict[str, Any]:
     return json.loads(path.read_bytes())
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--pilot", type=Path, required=True)
@@ -32,7 +35,7 @@ def main():
     assert pilot["validation"]["predictions"] == runs[0]["validation"]["predictions"]
     assert all(not row["calibration_used"] and not row["final_holdout_used"] for row in results)
     baseline = read(args.root / "seed13/baseline.json")
-    domains = {}
+    domains: dict[str, dict[str, Any]] = {}
     for name in ("beatport", "fmak"):
         values = [row["metrics"][name]["mirex"] for row in results]
         domains[name] = {
@@ -41,7 +44,7 @@ def main():
             "mirex_mean": statistics.mean(values),
             "mirex_sample_sd": statistics.stdev(values),
             "exact_mean": statistics.mean(row["metrics"][name]["exact"] for row in results),
-            "delta_mirex_mean": statistics.mean(values) - baseline[name]["mirex"],
+            "delta_mirex_mean": float(statistics.mean(values) - baseline[name]["mirex"]),
         }
     canonical = args.root / "seed13/seed13/best.pt"
     result = {

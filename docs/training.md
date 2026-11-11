@@ -23,12 +23,52 @@ Every code reference below is `file:line` against the `k10-arch` branch.
 
 The current model is a **109k-parameter CNN** that predicts 24 musical keys
 (12 tonics × major/minor) from audio, trained on 1,363 EDM track previews and
-scored on 604 held-out GiantSteps tracks. It was ported 1:1 from **K10**, the
-winner-adjacent entry of the MIREX 2026 audio key detection task (MIT license,
-`jhurliman/jams` `train_key_cnn.py`). K10's published figure on GiantSteps is
-**78.0% exact / 83.2% MIREX**; our port scores **68.5% exact / 74.8% MIREX** in
-its single reference run (seed 13). Both numbers are below or above the bar
-for reasons explained in §6 and §7.
+scored on 604 held-out GiantSteps tracks. It was ported 1:1 from **K10**:
+"K10: A Compact Convolutional Network for Global Key Estimation" by John
+Hurliman, MIREX 2026 Audio Key Detection, from the open-source jams project
+(github.com/jhurliman/jams, MIT; `train_key_cnn.py`). The architecture and
+training recipe below are that paper's, unmodified. K10's published figure on
+GiantSteps is **78.0% exact / 83.2% MIREX**; our port scores **68.5% exact /
+74.8% MIREX** in its single reference run (seed 13). Both numbers are below
+or above the bar for reasons explained in §6 and §7.
+
+## Why K10
+
+We did not start with K10. The first architecture was ours: a global-pooling
+CNN on a 33-band log-STFT feature (`round(log2(f/55))` binning). Its first
+real-data run scored **7.1% exact / 9.6% MIREX** — chance level — and the
+diagnosis found two compounding causes: pooling over both axes made the net
+transposition-invariant (it was architecturally forbidden from reading pitch),
+and the feature had an octave-bucket bug.
+
+We then ran a focused screen of eight preregistered architecture recipes on the
+cleaned split. The architectural insight held: **time-only pooling** beat the
+global-pooling control by **+22 MIREX** (61.13% vs 38.81% on the one GiantSteps
+exposure, 61.75% vs 40.45% three-seed on validation). But 61.13% was still 8+
+points below the 69.35% native libkeyfinder bar, so the documented gate
+promoted nothing.
+
+At that point the choice was: iterate our own 33-band design indefinitely, or
+take the one published system that already embodied the insight we had just
+re-derived ourselves. We took K10 because:
+
+1. **It is SOTA-verified on exactly our test set** — 78.0% exact / 83.2%
+   MIREX on GiantSteps is published, not a self-reported training metric.
+2. **It is MIT-licensed with the full training script published**
+   (github.com/jhurliman/jams), so the port is auditable line-by-line and the
+   recipe is reproducible from the source, not from a paper figure.
+3. **It is the scale we wanted for CPU inference** — 109k parameters, one
+   forward pass, no GPU in the serving path.
+4. **Its feature (24 bins/octave CQT) makes pitch-shift augmentation an exact
+   re-slice** of the padded spectrogram — no resampling, no approximation.
+5. **Its design insight (time-only pooling) is what our own screen
+   independently confirmed**, so we were porting a validated idea, not an
+   exotic one.
+
+In short: we validated the core architectural insight on our own data first,
+then adopted a proven, licensed, CPU-friendly reference implementation of it
+rather than reinventing a variant with no evidence base. The full timeline —
+including the tranche numbers and the gate decision — is in §7.
 
 ## 1. The problem and the baseline
 

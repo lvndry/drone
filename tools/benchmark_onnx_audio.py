@@ -38,7 +38,8 @@ def main():
     if args.limit < 1:
         parser.error("--limit must be positive")
     rss_scale = 1 / 1024 if sys.platform == "darwin" else 1
-    spec = importlib.util.spec_from_file_location("isolated_features", args.feature_source)
+    spec = importlib.util.spec_from_file_location("isolated_features", str(args.feature_source))
+    assert spec is not None and spec.loader is not None
     features = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(features)
     metadata = json.loads(args.model.with_suffix(".json").read_text())

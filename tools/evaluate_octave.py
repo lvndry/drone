@@ -1,5 +1,7 @@
 """Calibrate a frozen eligible octave candidate, then evaluate sealed datasets once."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -7,6 +9,7 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -135,7 +138,7 @@ def rows_for(args, selection):
 
 
 def features_for(rows, cache, device):
-    from nnAudio.features import VQT
+    from nnAudio.features import VQT  # ty: ignore -- optional experiment dependency, not in uv.lock
 
     cache = cache / signature(FEATURE_SPEC)[:16]
     cache.mkdir(parents=True, exist_ok=True)
@@ -201,7 +204,7 @@ def main():
         print(f"Already evaluated: {target}; refusing repeated scoring", flush=True)
         return
     freeze_path = args.output / "freeze.json"
-    freeze = None
+    freeze: dict[str, Any] | None = None
     if args.mode != "calibrate":
         freeze = json.loads(freeze_path.read_bytes())
         assert freeze["selection_sha256"] == hashlib.sha256(selection_bytes).hexdigest()
@@ -243,7 +246,7 @@ def main():
     ]
     raw = np.mean(predictions, axis=0)
     refs = np.array([row["ref"] for row in rows])
-    result = {
+    result: dict[str, Any] = {
         "selection_sha256": hashlib.sha256(selection_bytes).hexdigest(),
         "identities_sha256": signature(identities),
         "tracks": len(rows),
@@ -268,7 +271,7 @@ def main():
             fitted_uncertainty=uncertainty(calibrated_prob, refs),
             accuracy_used_for_selection=False,
         )
-        freeze = {
+        freeze: dict[str, Any] = {
             "selection_sha256": result["selection_sha256"],
             "feature_spec": FEATURE_SPEC,
             "selected_checkpoints": selection["selected_checkpoints"],
@@ -286,20 +289,23 @@ def main():
         else:
             atomic_json(freeze_path, freeze)
     else:
+        assert freeze is not None
         probability = calibrated(raw, freeze["temperature"])
         pred = probability.argmax(1)
         assert np.array_equal(pred, raw.argmax(1))
-        exact, mirex = score_mirex(pred, refs)
+        classes = [int(c) for c in pred]
+        refs_int = [int(r) for r in refs]
+        exact, mirex = score_mirex(classes, refs_int)
         matrix = np.zeros((24, 24), dtype=int)
         np.add.at(matrix, (refs, pred), 1)
         result.update(
             freeze_sha256=hashlib.sha256(freeze_path.read_bytes()).hexdigest(),
             exact=exact,
             mirex=mirex,
-            mirex_asymmetric=score_mirex(pred, refs, symmetric=False)[1],
+            mirex_asymmetric=score_mirex(classes, refs_int, symmetric=False)[1],
             mode_accuracy=float(np.mean(pred % 2 == refs % 2)),
             uncertainty=uncertainty(probability, refs),
-            counts=dict(score_breakdown(pred, refs)),
+            counts=dict(score_breakdown(classes, refs_int)),
             confusion_matrix=matrix.tolist(),
             predictions=pred.tolist(),
             ids=[row["id"] for row in rows],

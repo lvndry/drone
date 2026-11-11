@@ -1,4 +1,8 @@
+from __future__ import annotations
+
 from dataclasses import asdict
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -9,7 +13,7 @@ from experiments.reference.model import KeyCNN, params_count
 from experiments.small import RECIPES, Recipe, confirmation_recipes, load_development, run_recipe
 
 
-def test_research_and_production_checkpoints_reject_each_other(tmp_path):
+def test_research_and_production_checkpoints_reject_each_other(tmp_path: Path) -> None:
     from drone.checkpoints import load_checkpoint as load_production
     from drone.checkpoints import save_checkpoint as save_production
     from drone.model import KeyCNN as ProductionModel
@@ -116,14 +120,14 @@ def test_experiment_resume_matches_uninterrupted_training(tmp_path):
 
 
 def test_development_loader_never_opens_test_data_and_quarantines_duplicates(monkeypatch):
-    meta = {
+    meta: dict[str, Any] = {
         "refs": [0] * 10,
         "ids": [str(i) for i in range(10)],
         "tracks": [{"sha256": str(i)} for i in range(10)],
     }
     opened = []
 
-    def fake_load(data, tag):
+    def fake_load(data: object, tag: str) -> tuple[np.ndarray, dict[str, Any]]:
         opened.append(tag)
         assert tag == "train"
         return np.zeros((10, 300, 33), np.float32), meta
@@ -144,7 +148,7 @@ def test_development_loader_never_opens_test_data_and_quarantines_duplicates(mon
 
 
 def test_confirmation_requires_same_protocol_and_material_screen_gain():
-    results = [
+    results: list[dict[str, Any]] = [
         {
             "status": "complete",
             "identity": {"recipe": asdict(recipe)},

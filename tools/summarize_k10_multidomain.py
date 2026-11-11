@@ -1,19 +1,22 @@
 """Summarize the predeclared three paired seeds without choosing a lucky seed."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 import statistics
 from pathlib import Path
+from typing import Any
 
 from tools.compare_k10_multidomain import compare
 
 
-def summarize(pairs):
+def summarize(pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]]) -> dict[str, Any]:
     if sorted(pairs) != [13, 37, 73]:
         raise ValueError("Need exactly the three declared paired seeds")
     reference = pairs[13][0]
-    results = {}
+    results: dict[str, Any] = {}
     for seed, (control, joint) in pairs.items():
         if control["seed"] != seed or joint["seed"] != seed:
             raise ValueError("Seed label and run disagree")
@@ -22,15 +25,17 @@ def summarize(pairs):
                 if run[key] != reference[key]:
                     raise ValueError(f"Confirmation changed {key}")
         results[str(seed)] = compare(control, joint)
-    means = {}
+    means: dict[str, dict[str, dict[str, float]]] = {}
     for arm_index, arm in enumerate(("control", "joint")):
         means[arm] = {}
         for domain in ("beatport", "fmak"):
-            values = [pairs[s][arm_index]["domain_metrics"][domain]["mirex"] for s in (13, 37, 73)]
+            values = [
+                float(pairs[s][arm_index]["domain_metrics"][domain]["mirex"]) for s in (13, 37, 73)
+            ]
             means[arm][domain] = dict(
                 mean=statistics.mean(values), sample_std=statistics.stdev(values)
             )
-    delta = {
+    delta: dict[str, float] = {
         d: means["joint"][d]["mean"] - means["control"][d]["mean"] for d in ("beatport", "fmak")
     }
     qualifies = delta["fmak"] >= 0.02 and delta["beatport"] >= -0.02
@@ -46,19 +51,20 @@ def summarize(pairs):
     )
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, required=True)
     args = p.parse_args()
-    pairs, hashes = {}, {}
+    pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]] = {}
+    hashes: dict[str, str] = {}
     for seed in (13, 37, 73):
-        runs = []
+        runs: list[dict[str, Any]] = []
         for arm in ("control", "joint"):
             path = args.root / f"{arm}-seed{seed}" / "run.json"
             raw = path.read_bytes()
             runs.append(json.loads(raw))
             hashes[f"{arm}-seed{seed}"] = hashlib.sha256(raw).hexdigest()
-        pairs[seed] = runs
+        pairs[seed] = (runs[0], runs[1])
     result = summarize(pairs)
     result["run_sha256"] = hashes
     result["summary_source_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()

@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import json
 import shutil
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -31,7 +35,7 @@ def one_cpu_thread():
     torch.set_num_threads(old)
 
 
-def test_checkpoint_round_trip_and_version_rejection(tmp_path):
+def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
     torch.manual_seed(13)
     model = KeyCNN().eval()
     path = tmp_path / "model.pt"
@@ -44,7 +48,7 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path):
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
     save_checkpoint(path, model)
-    payload = torch.load(path, weights_only=True)
+    payload: dict[str, Any] = torch.load(path, weights_only=True)
     payload["feature_spec"] = {**FEATURE_SPEC, "version": 1}
     torch.save(payload, path)
     with pytest.raises(ValueError, match="Incompatible"):
@@ -54,14 +58,14 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path):
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
-def test_inference_decodes_interleaved_classes(tmp_path):
+def test_inference_decodes_interleaved_classes(tmp_path: Path) -> None:
     audio = tmp_path / "audio.wav"
     write_tone(audio, 110)
     model = KeyCNN()
     with torch.no_grad():
         for parameter in model.parameters():
             parameter.zero_()
-        model.head[-1].bias[1] = 10
+        model.head[-1].bias[1] = 10  # ty: ignore -- head is nn.Sequential; Linear bias set for the test
     weights = tmp_path / "weights.pt"
     save_checkpoint(weights, model)
     tonic, mode, confidence = predict(str(audio), str(tmp_path / "cache"), weights=weights)

@@ -50,6 +50,10 @@ only, leaving a 24x1 readout so absolute frequency position reaches the final
 layer. At width 1.0 it has 109,128 parameters; `--width` scales the channels
 for smaller or larger profiles, which must each be trained and evaluated
 independently.
+We adopted K10 (MIT, `jhurliman/jams`) rather than our own architecture after
+independently confirming K10's core insight — pooling over time only — beat our
+global-pooling control by ~22 MIREX; the full rationale is in the "Why K10"
+section of [docs/training.md](docs/training.md).
 
 Training follows the K10 recipe: 320-frame crops, uniform +/-4 semitone shifts
 applied as exact feature re-slices with a transposed label, AdamW at 1e-3,

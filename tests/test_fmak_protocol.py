@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import copy
+from typing import Any
 
 from tools.fmak_protocol import partition
 
 
-def test_final_holdout_is_label_independent_and_keeps_recordings_together():
-    meta = {
+def test_final_holdout_is_label_independent_and_keeps_recordings_together() -> None:
+    meta: dict[str, Any] = {
         "ids": [str(i) for i in range(100)],
         "tracks": [{"sha256": str(i // 2), "key": ["C", "major"]} for i in range(100)],
         "refs": [0] * 100,

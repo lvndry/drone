@@ -1,10 +1,13 @@
 """Compare frozen final predictions with fixed native Euphoria; no model selection."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -20,7 +23,7 @@ def scores(pred, ref, symmetric=True):
     )
 
 
-def compare(neural, native_pred):
+def compare(neural: dict[str, Any], native_pred) -> dict[str, Any]:
     refs = np.array(neural["references"])
     pred = np.array(neural["predictions"])
     native = np.array(native_pred)
@@ -88,7 +91,7 @@ def main():
         rows = list(csv.DictReader(stream))
     lookup = {row["id"]: int(row["prediction"]) for row in rows}
     assert len(rows) == len(lookup) == len(fmak["ids"]) and set(lookup) == set(fmak["ids"])
-    result = {
+    result: dict[str, Any] = {
         "model_choice": fmak["model_choice"],
         "freeze_sha256": fmak["freeze_sha256"],
         "native_provenance": provenance,
@@ -98,7 +101,7 @@ def main():
         "limitations": "Our artist-purged FMAK partition is not directly comparable to published all-FMAK/different-holdout results. GiantSteps was exposed earlier in this research program; its intervals use track hashes, not artist groups. Confidence intervals do not remove annotation ambiguity or unrecognized remix overlap.",
     }
     result["meets_observed_quality_gate"] = all(
-        result[name]["paired"][metric]["delta"] >= 0
+        float(result[name]["paired"][metric]["delta"]) >= 0
         for name in ("fmak_final", "giantsteps")
         for metric in ("mirex", "exact")
     )

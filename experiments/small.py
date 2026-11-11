@@ -4,6 +4,8 @@ Run with python -m experiments.small. JSON records, immutable source copies and
 resumable optimizer state live in the chosen output directory, outside git.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -13,6 +15,7 @@ import time
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -123,7 +126,7 @@ def development_metrics(model, features, refs):
     prob = probabilities(model, features)
     pred = prob.argmax(1)
     refs = np.asarray(refs)
-    exact, mirex = score_mirex(pred, refs)
+    exact, mirex = score_mirex([int(c) for c in pred], [int(c) for c in refs])
     matrix = np.zeros((24, 24), dtype=int)
     np.add.at(matrix, (refs, pred), 1)
     support = matrix.sum(1)
@@ -131,11 +134,13 @@ def development_metrics(model, features, refs):
     return {
         "exact": exact,
         "mirex": mirex,
-        "mirex_asymmetric": score_mirex(pred, refs, symmetric=False)[1],
+        "mirex_asymmetric": score_mirex(
+            [int(c) for c in pred], [int(c) for c in refs], symmetric=False
+        )[1],
         "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
         "macro_recall_present_classes": float(recalls[support > 0].mean()),
         "nll": float(-np.log(np.maximum(prob[np.arange(len(refs)), refs], 1e-12)).mean()),
-        "counts": dict(score_breakdown(pred, refs)),
+        "counts": dict(score_breakdown([int(c) for c in pred], [int(c) for c in refs])),
         "predicted_counts": np.bincount(pred, minlength=24).tolist(),
         "reference_counts": np.bincount(refs, minlength=24).tolist(),
         "confusion_matrix": matrix.tolist(),
@@ -206,7 +211,7 @@ def run_recipe(
     refs = np.asarray(meta["refs"])
     model, optimizer, scheduler, criterion = initial_state(recipe, seed, epochs, refs[tr])
     rng = np.random.default_rng(seed)
-    record = {
+    record: dict[str, Any] = {
         "identity": identity,
         "status": "running",
         "history": [],
@@ -280,7 +285,7 @@ def run_recipe(
                     source_sha256=identity["source_sha256"],
                     training_audio_sha256=[meta["tracks"][i]["sha256"] for i in tr],
                 )
-            record["elapsed_seconds"] = prior_elapsed + time.monotonic() - start
+            record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
             atomic_json(result_path, record)
             state = {
                 "identity": identity,
@@ -313,20 +318,20 @@ def run_recipe(
             (output / "best.pt").read_bytes()
         ).hexdigest()
         record["status"] = "complete"
-        record["elapsed_seconds"] = prior_elapsed + time.monotonic() - start
+        record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
         atomic_json(result_path, record)
         return record
     except Exception as exc:
         record.update(
             status="failed",
             error=str(exc),
-            elapsed_seconds=prior_elapsed + time.monotonic() - start,
+            elapsed_seconds=float(prior_elapsed + time.monotonic() - start),
         )
         atomic_json(result_path, record)
         raise
 
 
-def diagnostics(features, meta, tr, val, checkpoint, output, threads=16):
+def diagnostics(features, meta, tr, val, checkpoint, output, threads=16) -> dict[str, Any]:
     torch.set_num_threads(threads)
     refs = np.asarray(meta["refs"])
     model, payload = load_checkpoint(checkpoint)
