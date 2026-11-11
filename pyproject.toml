@@ -19,7 +19,7 @@ export = [
 ]
 
 [dependency-groups]
-dev = ["mypy>=1.13", "pytest>=8", "ruff>=0.9"]
+dev = ["pytest>=8", "ruff>=0.9", "ty>=0.0.101"]
 
 [build-system]
 requires = ["hatchling"]
@@ -33,15 +33,6 @@ packages = ["drone"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "weights" = "drone/weights"
-
-[tool.mypy]
-python_version = "3.12"
-disallow_untyped_defs = true
-disallow_untyped_calls = false
-
-[[tool.mypy.overrides]]
-module = ["librosa.*", "onnxruntime.*"]
-ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100

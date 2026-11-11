@@ -20,7 +20,7 @@ from drone.features import CROP_FRAMES, N_CORE
 from drone.model import params_count
 
 
-def timed(call: Callable[[], None], iterations: int) -> dict[str, Any]:
+def timed(call: Callable[[], object], iterations: int) -> dict[str, Any]:
     elapsed = []
     cpu_start = time.process_time()
     for _ in range(iterations):
