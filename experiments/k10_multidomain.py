@@ -192,6 +192,16 @@ def train(args: argparse.Namespace) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     device_setup(args.device)
+    capacity_candidate = getattr(args, "capacity_probe", False)
+    capacity_active = capacity_candidate or getattr(args, "capacity_control", False)
+    capacity_memory = {}
+    if capacity_candidate:
+        from experiments.capacity import memory_guard
+
+        capacity_memory = memory_guard(args.device)
+    elif capacity_active:
+        capacity_memory = dict(allocator_fraction=0.04, required_free_bytes=8 * 1024**3)
+    budget_seconds = 2700 if capacity_candidate else 1200
     manifest, rows, arrays = load_data(args.data)
     fitting = [
         i
@@ -204,7 +214,7 @@ def train(args: argparse.Namespace) -> None:
     val_refs = np.array([rows[i]["ref"] for i in validation])
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
-    model = KeyCNN().to(args.device)
+    model = KeyCNN(width=2.0).to(args.device) if capacity_candidate else KeyCNN().to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 120)
     record: dict[str, Any] = {
@@ -242,7 +252,14 @@ def train(args: argparse.Namespace) -> None:
         structured = StructuredProbe(args, record)
         if args.structured_targets:
             targets = target_matrix().to(args.device)
+    capacity = None
+    if capacity_active:
+        from experiments.capacity import CapacityProbe
+
+        capacity = CapacityProbe(args, record, capacity_memory)
     best, best_epoch, start = -1.0, 0, time.monotonic()
+    if capacity_active and args.device.startswith("cuda"):
+        torch.cuda.reset_peak_memory_stats()
     for epoch in range(1, 121):
         model.train()
         order = rng.permutation(fitting)
@@ -278,13 +295,15 @@ def train(args: argparse.Namespace) -> None:
             if probe is not None:
                 probe.step(model)
             loss_sum += float(loss.detach()) * len(idx)
-            if time.monotonic() - start > 1200:
+            if time.monotonic() - start > budget_seconds:
                 record.update(status="budget_exhausted", elapsed_seconds=time.monotonic() - start)
                 atomic_json(args.output / "run.json", record)
                 if probe is not None:
                     probe.budget_exhausted(start)
                 if structured is not None:
                     structured.budget_exhausted(start)
+                if capacity is not None:
+                    capacity.failure(record, start, "Fixed fit budget exhausted", budget=True)
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
@@ -300,6 +319,7 @@ def train(args: argparse.Namespace) -> None:
                 arm=args.arm,
                 seed=args.seed,
                 source_sha256=sources,
+                **({"width": 2.0} if capacity_candidate else {}),
             )
             atomic_json(
                 args.output / "best-validation.json", domain_metrics(pred, val_refs, val_rows)
@@ -327,6 +347,10 @@ def train(args: argparse.Namespace) -> None:
         result = structured.finish(record, val_features, val_refs, val_rows, start)
         if result["status"] != "complete":
             raise RuntimeError(f"Structured probe failed: {result.get('error', result['status'])}")
+    if capacity is not None:
+        result = capacity.finish(record, val_features, val_refs, val_rows, start)
+        if result["status"] != "complete":
+            raise RuntimeError(f"Capacity probe failed: {result.get('error', result['status'])}")
 
 
 def diagnose(args: argparse.Namespace) -> None:
@@ -376,32 +400,37 @@ def main() -> None:
     probes.add_argument("--ema-probe", action="store_true")
     probes.add_argument("--structured-control", action="store_true")
     probes.add_argument("--structured-targets", action="store_true")
+    probes.add_argument("--capacity-probe", action="store_true")
+    probes.add_argument("--capacity-control", action="store_true")
     p.add_argument("--paired-control", type=Path)
     p.add_argument("--reference-run", type=Path)
     p.add_argument("--reference-bp", type=Path)
     p.add_argument("--reference-checkpoint", type=Path)
     p.add_argument("--pilot-run", type=Path)
     args = p.parse_args()
-    if args.ema_probe and (
+    selected = args.ema_probe or args.structured_control or args.structured_targets or args.capacity_probe or args.capacity_control
+    if args.command in ("train", "diagnose") and args.data is None:
+        p.error("--data is required for train and diagnose")
+    if selected and (
         args.command != "train"
         or args.arm != "joint"
         or args.reference_run is None
         or args.reference_bp is None
     ):
-        p.error("--ema-probe requires train --arm joint --reference-run and --reference-bp")
-    if (args.structured_control or args.structured_targets) and (
-        args.command != "train"
-        or args.arm != "joint"
-        or args.reference_run is None
-        or args.reference_bp is None
-        or (args.structured_targets and args.paired_control is None)
-    ):
-        p.error(
-            "Structured probes require train --arm joint and archived references; candidate needs --paired-control"
-        )
-    if args.paired_control is not None and not args.structured_targets:
-        p.error("--paired-control requires --structured-targets")
-    {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
+        p.error("Research probes require train --arm joint, --reference-run and --reference-bp")
+    candidate = args.structured_targets or args.capacity_probe
+    if candidate and args.paired_control is None:
+        p.error("Candidate probes require --paired-control")
+    if args.paired_control is not None and not candidate:
+        p.error("--paired-control requires a structured-target or capacity candidate")
+    try:
+        {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
+    except torch.OutOfMemoryError as exc:
+        if args.capacity_probe or args.capacity_control:
+            from experiments.capacity import record_oom
+
+            record_oom(args, exc)
+        raise
 
 
 if __name__ == "__main__":
