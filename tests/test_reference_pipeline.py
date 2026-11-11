@@ -4,6 +4,7 @@ import json
 import shutil
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -48,7 +49,7 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
     save_checkpoint(path, model)
-    payload = torch.load(path, weights_only=True)
+    payload: dict[str, Any] = torch.load(path, weights_only=True)
     payload["feature_spec"] = {**FEATURE_SPEC, "version": 1}
     torch.save(payload, path)
     with pytest.raises(ValueError, match="Incompatible"):

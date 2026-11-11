@@ -133,7 +133,7 @@ def decode(row: dict[str, Any]) -> np.ndarray:
 def prepare(args: argparse.Namespace) -> None:
     from importlib.metadata import distribution, version
 
-    from nnAudio.features import VQT
+    from nnAudio.features import VQT  # ty: ignore -- optional experiment dependency, not in uv.lock
 
     args.output.mkdir(parents=True, exist_ok=True)
     snapshot_sources(args.output)
@@ -229,12 +229,13 @@ def probabilities(
 
 def metrics(prob: np.ndarray, refs: np.ndarray) -> dict[str, Any]:
     pred = prob.argmax(1)
-    exact, mirex = score_mirex(pred, refs)
+    classes = [int(c) for c in pred]
+    exact, mirex = score_mirex(classes, [int(r) for r in refs])
     return {
         "exact": exact,
         "mirex": mirex,
         "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
-        "predictions": pred.tolist(),
+        "predictions": classes,
     }
 
 
@@ -304,7 +305,7 @@ def train(args: argparse.Namespace) -> None:
         for offset in range(0, len(order), 16):
             if prior + time.monotonic() - start > 900:
                 record.update(
-                    status="budget-stopped", elapsed_seconds=prior + time.monotonic() - start
+                    status="budget-stopped", elapsed_seconds=float(prior + time.monotonic() - start)
                 )
                 atomic_json(args.output / "run.json", record)
                 raise TimeoutError(
@@ -355,12 +356,12 @@ def train(args: argparse.Namespace) -> None:
                 },
                 args.output / "best.pt",
             )
-            domain_metrics = {}
+            domain_metrics: dict[str, dict[str, Any]] = {}
             for domain in ("beatport", "fmak"):
                 positions = [j for j, i in enumerate(val) if rows[i]["domain"] == domain]
                 domain_metrics[domain] = metrics(prob[positions], refs[np.array(val)[positions]])
             atomic_json(args.output / "best-validation.json", domain_metrics)
-        record["elapsed_seconds"] = prior + time.monotonic() - start
+        record["elapsed_seconds"] = float(prior + time.monotonic() - start)
         atomic_json(args.output / "run.json", record)
         pending = last.with_suffix(".pending")
         torch.save(
@@ -389,8 +390,9 @@ def train(args: argparse.Namespace) -> None:
             record["early_stopped"] = True
             break
     domain_metrics = json.loads((args.output / "best-validation.json").read_bytes())
-    delta = {
-        domain: domain_metrics[domain]["mirex"] - reference["metrics"][domain]["mirex"]
+    delta: dict[str, float] = {
+        domain: float(domain_metrics[domain]["mirex"])
+        - float(reference["metrics"][domain]["mirex"])
         for domain in domain_metrics
     }
     record.update(

@@ -127,7 +127,7 @@ def development_metrics(model: nn.Module, features: np.ndarray, refs: KeyIndices
     prob = probabilities(model, features)
     pred = prob.argmax(1)
     refs = np.asarray(refs)
-    exact, mirex = score_mirex(pred, refs)
+    exact, mirex = score_mirex([int(c) for c in pred], [int(c) for c in refs])
     matrix = np.zeros((24, 24), dtype=int)
     np.add.at(matrix, (refs, pred), 1)
     support = matrix.sum(1)
@@ -135,11 +135,13 @@ def development_metrics(model: nn.Module, features: np.ndarray, refs: KeyIndices
     return {
         "exact": exact,
         "mirex": mirex,
-        "mirex_asymmetric": score_mirex(pred, refs, symmetric=False)[1],
+        "mirex_asymmetric": score_mirex(
+            [int(c) for c in pred], [int(c) for c in refs], symmetric=False
+        )[1],
         "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
         "macro_recall_present_classes": float(recalls[support > 0].mean()),
         "nll": float(-np.log(np.maximum(prob[np.arange(len(refs)), refs], 1e-12)).mean()),
-        "counts": dict(score_breakdown(pred, refs)),
+        "counts": dict(score_breakdown([int(c) for c in pred], [int(c) for c in refs])),
         "predicted_counts": np.bincount(pred, minlength=24).tolist(),
         "reference_counts": np.bincount(refs, minlength=24).tolist(),
         "confusion_matrix": matrix.tolist(),
@@ -288,7 +290,7 @@ def run_recipe(
                     source_sha256=identity["source_sha256"],
                     training_audio_sha256=[meta["tracks"][i]["sha256"] for i in tr],
                 )
-            record["elapsed_seconds"] = prior_elapsed + time.monotonic() - start
+            record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
             atomic_json(result_path, record)
             state = {
                 "identity": identity,
@@ -321,14 +323,14 @@ def run_recipe(
             (output / "best.pt").read_bytes()
         ).hexdigest()
         record["status"] = "complete"
-        record["elapsed_seconds"] = prior_elapsed + time.monotonic() - start
+        record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
         atomic_json(result_path, record)
         return record
     except Exception as exc:
         record.update(
             status="failed",
             error=str(exc),
-            elapsed_seconds=prior_elapsed + time.monotonic() - start,
+            elapsed_seconds=float(prior_elapsed + time.monotonic() - start),
         )
         atomic_json(result_path, record)
         raise

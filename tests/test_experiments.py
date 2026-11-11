@@ -122,7 +122,7 @@ def test_experiment_resume_matches_uninterrupted_training(tmp_path: Path) -> Non
 def test_development_loader_never_opens_test_data_and_quarantines_duplicates(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    meta = {
+    meta: dict[str, Any] = {
         "refs": [0] * 10,
         "ids": [str(i) for i in range(10)],
         "tracks": [{"sha256": str(i)} for i in range(10)],
