@@ -1,8 +1,11 @@
 """Export a checkpoint to ONNX and verify CPU output parity."""
 
+from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -10,8 +13,11 @@ import torch
 from drone.checkpoints import load_checkpoint
 from drone.features import CROP_FRAMES, N_CORE
 
+if TYPE_CHECKING:
+    import onnxruntime as ort
 
-def cpu_session(path, threads=1):
+
+def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
     import onnxruntime as ort
 
     if threads < 1:
@@ -25,7 +31,7 @@ def cpu_session(path, threads=1):
     return ort.InferenceSession(str(path), sess_options=options, providers=["CPUExecutionProvider"])
 
 
-def export_checkpoint(checkpoint, output):
+def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     model, payload = load_checkpoint(checkpoint)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -44,7 +50,7 @@ def export_checkpoint(checkpoint, output):
         external_data=False,
     )
     session = cpu_session(output)
-    errors = []
+    errors: list[float] = []
     for batch in (1, 2, 3):
         x = torch.randn(batch, N_CORE, CROP_FRAMES, generator=generator)
         with torch.inference_mode():
@@ -64,7 +70,7 @@ def export_checkpoint(checkpoint, output):
     return metadata
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
     parser.add_argument("output", type=Path)

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import importlib.util
+from pathlib import Path
 
 import pytest
 import torch
@@ -13,7 +16,7 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.mark.parametrize("width", [0.5, 0.7, 1.0])
-def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path, width):
+def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path: Path, width: float) -> None:
     from drone.export import cpu_session, export_checkpoint
 
     torch.set_num_threads(1)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from drone.keys import (
@@ -12,7 +14,7 @@ from drone.keys import (
 
 
 @pytest.mark.parametrize("class_id", range(24))
-def test_all_keys_round_trip_and_transpose(class_id):
+def test_all_keys_round_trip_and_transpose(class_id: int) -> None:
     assert encode_key(*decode_key(class_id)) == class_id
     assert transpose_key(class_id, 0) == class_id
     assert transpose_key(class_id, 12) == class_id
@@ -24,10 +26,10 @@ def test_all_keys_round_trip_and_transpose(class_id):
 
 @pytest.mark.parametrize("tonic", TONICS)
 @pytest.mark.parametrize("mode", ["major", "minor"])
-def test_scoring_relationships_for_every_key(tonic, mode):
+def test_scoring_relationships_for_every_key(tonic: str, mode: str) -> None:
     ref = encode_key(tonic, mode)
     opposite = ref ^ 1
-    cases = [
+    cases: list[tuple[int, str, float]] = [
         (ref, "exact", 1.0),
         (transpose_key(ref, 7), "fifth", 0.5),
         (transpose_key(ref, -7), "fifth", 0.5),
@@ -40,18 +42,19 @@ def test_scoring_relationships_for_every_key(tonic, mode):
         assert score_mirex([pred], [ref]) == (float(pred == ref), weight)
 
 
-def test_invalid_inputs_and_flat_labels():
+def test_invalid_inputs_and_flat_labels() -> None:
     assert parse_key("Bb minor | C major") == ("A#", "minor")
     assert parse_key("not a key") is None
     for bad in [-1, 24, 1.5]:
         with pytest.raises(ValueError):
-            decode_key(bad)
+            decode_key(bad)  # type: ignore[arg-type]  # the float must be rejected by the Integral guard
+
     for pred, ref in [([], []), ([0], []), ([24], [0])]:
         with pytest.raises(ValueError):
             score_mirex(pred, ref)
 
 
-def test_symmetric_and_asymmetric_fifth_conventions_are_explicit():
+def test_symmetric_and_asymmetric_fifth_conventions_are_explicit() -> None:
     c_major = encode_key("C", "major")
     f_major = encode_key("F", "major")
     assert score_mirex([f_major], [c_major]) == (0.0, 0.5)
