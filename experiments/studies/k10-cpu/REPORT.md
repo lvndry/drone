@@ -1,10 +1,15 @@
 # Full-track K10 CPU baseline
 
-[Graphs and interpretation](VISUAL_RESULTS.md#frontend-time-and-repeated-run-memory).
-
 Measured on 11 November 2026, after the K10 layout and variable-length export
 fixes. This is a reference for CPU optimization, not an application performance
 guarantee or another key-accuracy evaluation.
+
+## Problem
+
+A 109k-parameter model is small on disk, but that does not tell us how much CPU
+time or memory Euphoria will need to analyze a song. We need to identify whether
+decoding, feature extraction, inference or long-track activations dominate before
+choosing an optimization. This study establishes the unchanged-model baseline.
 
 ## Method
 
@@ -25,6 +30,11 @@ preparation, which was measured once per track. Its p95 is a quantile over these
 duration-rank examples, not an estimated library-wide latency guarantee.
 
 ## Timing results
+
+![CPU baseline phase timings](figures/k10-pipeline-cost.png)
+
+*Figure 1. Median costs across the 20 selected cases. The frontend dominates
+the measured cold path. Separate phase medians are not additive.*
 
 | Phase | Median | p95 across cases | Longest observed |
 |---|---:|---:|---:|
@@ -69,8 +79,9 @@ session and caching final analysis results are important for startup behavior;
 a feature cache alone still reruns the network. A cache identity must include
 audio identity, frontend/decoder contract, model hash and inference version.
 
-Next test aligned, overlapping inference with every temporal output retained,
-then aggregate the original hidden features before applying the unchanged head.
+The subsequent [chunking study](../k10-chunked/REPORT.md) tested aligned,
+overlapping inference with every temporal output retained, then aggregated the
+original hidden features before applying the unchanged head.
 Do not replace this with equal-weight crop voting, input truncation, quantization
 or an early exit. The first target is lower activation memory without changing
 key decisions; decoder/CQT streaming requires a separate frontend parity check.
@@ -80,11 +91,11 @@ Real Euphoria behavior and target-laptop resource use remain to be measured.
 
 ## Reproduction artifacts
 
-- [Raw phase timings](cpu-k10-2026-11-11/pipeline.json),
-  [isolated memory probe](cpu-k10-2026-11-11/ort-memory.json), and
-  [source/environment provenance](cpu-k10-2026-11-11/provenance.json).
-- [Pipeline benchmark](../tools/benchmark_k10_pipeline.py) and
-  [Torch-free ORT probe](../tools/benchmark_k10_ort_memory.py).
+- [Raw phase timings](data/pipeline.json),
+  [isolated memory probe](data/ort-memory.json), and
+  [source/environment provenance](data/provenance.json).
+- [Pipeline benchmark](../../../tools/benchmark_k10_pipeline.py) and
+  [Torch-free ORT probe](../../../tools/benchmark_k10_ort_memory.py).
 - Server root: `~/drone-experiments/k10-cpu-20261111-v1/`; `selection.json` records
   input IDs/content hashes and the source development manifest hash. It contains
   server paths and stays with the server artifacts; no audio is committed.

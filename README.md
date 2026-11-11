@@ -141,9 +141,9 @@ before measuring a trained artifact on representative deployment hardware.
 
 ## Development
 
-See [research results in graphs](experiments/VISUAL_RESULTS.md) for track-length
-memory/latency curves, CPU costs and controlled accuracy experiments. The figures
-include raw measurements and a reproducible PNG/SVG generator.
+See [research studies](experiments/README.md) for the problems, methods, measured
+results and decisions behind the models. Each result report includes its figures,
+raw evidence and reproduction instructions.
 
 ```bash
 uv sync --locked --all-extras

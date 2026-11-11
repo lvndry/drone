@@ -323,7 +323,9 @@ def test_preflight_requires_passing_canonical_pilot_and_rejects_changed_confirma
     from drone.features import audio_digest
     from experiments.ema import PROTOCOL, EmaProbe
 
-    reviewed = json.loads(Path("experiments/ema-reviewed-sources.json").read_bytes())
+    reviewed = json.loads(
+        Path("experiments/studies/k10-ema/data/reviewed-sources.json").read_bytes()
+    )
     rows = [
         dict(id=f"{domain}:{i}", domain=domain)
         for domain, count in (("beatport", 1230), ("fmak", 976))
