@@ -6,7 +6,7 @@ uses the shared content-deduplicated split. The old variable-length evaluation
 also padded shorter tracks to their batch peers; corrected evaluation batches
 only equal-length inputs and preserves each track's actual length. Historical
 scores below describe the original runs and have not been silently recomputed.
-See [the controlled multi-domain protocol](../experiments/K10_MULTIDOMAIN_PROTOCOL.md)
+See [the controlled multi-domain protocol](../experiments/studies/k10-multidomain/PROTOCOL.md)
 for a fresh comparison of fitting data under both corrected contracts. These
 findings do not establish contamination of the GiantSteps test set.
 
@@ -15,12 +15,12 @@ The inference audit also corrected `Predictor`'s old feature transpose: K10 expe
 with CPU parity checked against the unchanged PyTorch model at multiple lengths.
 The original PyTorch weights remain the release candidate; the controlled
 multi-domain comparison and its gate decision are recorded in
-[the results](../experiments/K10_MULTIDOMAIN_RESULTS.md).
+[the results](../experiments/studies/k10-multidomain/REPORT.md).
 
 Current research status: the release recipe's three-seed GiantSteps mean is
 73.58% MIREX / 66.8% exact. The corrected multi-domain comparison missed its
-predeclared FMAK gate; the later [EMA pilot](../experiments/K10_EMA_RESULTS.md)
-also failed. The [chunked CPU prototype](../experiments/K10_CHUNKED_RESULTS.md)
+predeclared FMAK gate; the later [EMA pilot](../experiments/studies/k10-ema/REPORT.md)
+also failed. The [chunked CPU prototype](../experiments/studies/k10-chunked/REPORT.md)
 passed observed decision parity and its memory/latency development gates, but
 native Euphoria integration is not measured yet. Release weights are unchanged.
 The historical narrative below preserves original runs and code-line references;

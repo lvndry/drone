@@ -17,7 +17,7 @@ from matplotlib.figure import Figure
 
 ROOT = Path(__file__).resolve().parents[1]
 EXP = ROOT / "experiments"
-OUT = EXP / "figures"
+STUDIES = EXP / "studies"
 BLUE, ORANGE, RED = "#2563eb", "#c2410c", "#b91c1c"
 INPUTS: dict[str, str] = {}
 
@@ -41,15 +41,18 @@ def canvas(title: str, columns: int, note: str) -> tuple[Figure, list[Axes]]:
     return figure, axes
 
 
-def save(figure: Figure, name: str) -> None:
-    OUT.mkdir(exist_ok=True)
-    figure.savefig(OUT / f"{name}.png", dpi=170, metadata={"Software": "Drone research"})
-    figure.savefig(OUT / f"{name}.svg", metadata={"Date": None, "Creator": "Drone research"})
+def save(figure: Figure, study: str, name: str) -> None:
+    output = STUDIES / study / "figures"
+    output.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output / f"{name}.png", dpi=170, metadata={"Software": "Drone research"})
+    svg = output / f"{name}.svg"
+    figure.savefig(svg, metadata={"Date": None, "Creator": "Drone research"})
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
     plt.close(figure)
 
 
 def memory_curve() -> None:
-    report = read("plot-data/k10-memory-curve.json")
+    report = read("studies/k10-chunked/data/memory-curve.json")
     if report["status"] != "complete" or not report["paired_parity_passed"]:
         raise ValueError("Incomplete or non-parity memory experiment")
     figure, axes = canvas(
@@ -82,35 +85,60 @@ def memory_curve() -> None:
     ):
         axis.set(title=title, xlabel="Track duration (minutes)", ylabel=unit, ylim=(0, None))
         axis.legend(frameon=False)
-    save(figure, "k10-memory-length")
+    save(figure, "k10-chunked", "k10-memory-length")
 
 
 def pipeline() -> None:
-    raw = read("cpu-k10-2026-11-11/pipeline.json")
-    base = "chunked-k10-2026-11-11/v2/"
-    full, chunk = read(base + "full-benchmark.json"), read(base + "chunked-benchmark.json")
+    raw = read("studies/k10-cpu/data/pipeline.json")
     figure, axes = canvas(
-        "Where CPU time and memory go",
-        2,
-        "Server CPU, one core · cached-feature inference excludes decoding/CQT · RSS is process high-water\n"
-        "Left: median across 20 cases; medians are not additive. Right: separate fresh processes, each running all 20 cases with 20 repetitions.",
+        "K10 CPU baseline: frontend cost dominates inference",
+        1,
+        "20 public validation recordings · server CPU, one core · median across cases\n"
+        "Each phase has a different cache condition. Separate medians are not additive. No native Euphoria or target-laptop measurement.",
     )
     times = [
         float(np.median([r["frontend_seconds"] for r in raw["records"]])) * 1000,
+        float(np.median([r["pytorch_full_forward"]["p50_seconds"] for r in raw["records"]])) * 1000,
         float(np.median([r["onnx_full_forward"]["p50_seconds"] for r in raw["records"]])) * 1000,
+        float(np.median([r["warm_feature_cache_plus_onnx"]["p50_seconds"] for r in raw["records"]]))
+        * 1000,
     ]
     axes[0].bar(
-        ["Decode + CQT\n(empty feature cache)", "Full ONNX\n(cached features)"],
+        [
+            "Decode + CQT\n(empty feature cache)",
+            "Torch inference\n(features loaded)",
+            "ONNX inference\n(features loaded)",
+            "Feature cache + ONNX\n(warm cache)",
+        ],
         times,
-        color=["#64748b", BLUE],
+        color=["#64748b", BLUE, ORANGE, "#7c3aed"],
     )
     axes[0].set(
-        title="Frontend cost dominates inference",
         ylabel="Milliseconds",
         ylim=(0, max(times) * 1.23),
     )
     for i, value in enumerate(times):
-        axes[0].text(i, value + 10, f"{value:.0f} ms", ha="center", fontweight="bold")
+        axes[0].text(i, value + 10, f"{value:.1f} ms", ha="center", fontweight="bold")
+    save(figure, "k10-cpu", "k10-pipeline-cost")
+
+
+def chunk_summary() -> None:
+    base = "studies/k10-chunked/data/v2/"
+    full, chunk = read(base + "full-benchmark.json"), read(base + "chunked-benchmark.json")
+    figure, axes = canvas(
+        "K10 chunking: less memory with similar latency",
+        2,
+        "Same 20 public tracks · one CPU core · separate fresh full/chunked processes · 20 repetitions per track\n"
+        "Cached-feature inference only. Median paired latency change +1.91%; all 376 validation keys agree. Native application cost is unmeasured.",
+    )
+    latencies = [
+        full["median_track_median_seconds"] * 1000,
+        chunk["median_track_median_seconds"] * 1000,
+    ]
+    axes[0].bar(["Full track", "Chunked"], latencies, color=[BLUE, ORANGE], width=0.55)
+    axes[0].set(title="Median per-track median latency", ylabel="Milliseconds", ylim=(0, 46))
+    for i, value in enumerate(latencies):
+        axes[0].text(i, value + 1, f"{value:.2f} ms", ha="center", fontweight="bold")
     peaks = [full["peak_process_rss_kib"] / 1024, chunk["peak_process_rss_kib"] / 1024]
     axes[1].bar(["Full track", "Chunked"], peaks, color=[BLUE, ORANGE], width=0.55)
     axes[1].set(
@@ -120,11 +148,11 @@ def pipeline() -> None:
     )
     for i, value in enumerate(peaks):
         axes[1].text(i, value + 20, f"{value:.0f} MiB", ha="center", fontweight="bold")
-    save(figure, "k10-pipeline-cost")
+    save(figure, "k10-chunked", "k10-chunked-summary")
 
 
 def multidomain() -> None:
-    report = read("plot-data/k10-multidomain-summary.json")
+    report = read("studies/k10-multidomain/data/summary.json")
     figure, axes = canvas(
         "More fitting data helped, but missed the confirmation gate",
         2,
@@ -167,11 +195,11 @@ def multidomain() -> None:
             fontsize=9,
             color="#475569",
         )
-    save(figure, "k10-multidomain")
+    save(figure, "k10-multidomain", "k10-multidomain")
 
 
 def ema() -> None:
-    report = read("ema-k10-2026-11-11/ema-result.json")
+    report = read("studies/k10-ema/data/ema-result.json")
     if not report["raw_reproduced"] or report["method_gate"]["qualifies_for_confirmation"]:
         raise ValueError("Figure expects the exactly reproduced, rejected EMA pilot")
     figure, axes = canvas(
@@ -205,7 +233,7 @@ def ema() -> None:
             xlim=(-0.25, 2.25),
         )
         axis.legend(frameon=False, loc="lower left")
-    save(figure, "k10-ema")
+    save(figure, "k10-ema", "k10-ema")
 
 
 def main() -> None:
@@ -219,12 +247,13 @@ def main() -> None:
     )
     memory_curve()
     pipeline()
+    chunk_summary()
     multidomain()
     ema()
     INPUTS["_generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     INPUTS["_uv_lock_sha256"] = hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
     INPUTS["_matplotlib_version"] = matplotlib.__version__
-    (OUT / "research-inputs.json").write_text(json.dumps(INPUTS, indent=2, sort_keys=True) + "\n")
+    (STUDIES / "figure-inputs.json").write_text(json.dumps(INPUTS, indent=2, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ def validation_fixture(tmp_path: Path) -> argparse.Namespace:
     manifest.write_text("fixture manifest")
     model.write_text("fixture model")
     report = json.loads(
-        (root / "experiments/chunked-k10-2026-11-11/v2/validation.json").read_bytes()
+        (root / "experiments/studies/k10-chunked/data/v2/validation.json").read_bytes()
     )
     for key, path in (
         ("manifest_sha256", manifest),

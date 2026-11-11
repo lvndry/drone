@@ -1,0 +1,11 @@
+{
+  "_generator_sha256": "4b77b87aa58a4fdc939ed05912076bfe9acab2b78f7f7cdc0a43a32e9616f9f0",
+  "_matplotlib_version": "3.11.2",
+  "_uv_lock_sha256": "ce41bd7cca36cb705a18b90877ecff6a0955707c61232f8858ababb7d4f545f9",
+  "studies/k10-chunked/data/memory-curve.json": "dd4ff5b19ea57cd26c9e352ef36111b5d755c6ea9cb4c3d7a98fdad35fe8f2c5",
+  "studies/k10-chunked/data/v2/chunked-benchmark.json": "a8ac28910f885b2b76405df4a2dafb26cad540d9276f74e76cb3195b4750fa10",
+  "studies/k10-chunked/data/v2/full-benchmark.json": "0db8ccdedc0a0d8837bee9c2d906c33b472a677e890781423981d3a05095a1a2",
+  "studies/k10-cpu/data/pipeline.json": "9967e7d982fe22b13463c7c7edb94f34bd47c574e704c52ced07ea5aefd31317",
+  "studies/k10-ema/data/ema-result.json": "cea1d50c4f16a39b59b7b1ee9c57edc39d5cd35b9e16009b3f64e1c2eb2a7784",
+  "studies/k10-multidomain/data/summary.json": "b3c3952731fa7072205285d19d1280232c284652f88b1af1023bc5f85f246d3a"
+}

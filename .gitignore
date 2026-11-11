@@ -1,5 +1,10 @@
 # Dev-time data and intermediate artifacts
 data/
+# Study evidence is small JSON, not audio or training artifacts.
+!experiments/studies/*/data/
+experiments/studies/*/data/**
+!experiments/studies/*/data/**/
+!experiments/studies/*/data/**/*.json
 features/
 runs/
 __pycache__/

@@ -26,7 +26,9 @@ VERSION = "k10-ema-final-bn-v1"
 DECAY = 0.99
 SCHEDULE_SEED = 20261111
 BUDGET_SECONDS = 1200
-PROTOCOL = Path(__file__).with_name("EMA_PROTOCOL.md")
+STUDY = Path(__file__).parent / "studies" / "k10-ema"
+PROTOCOL = STUDY / "PROTOCOL.md"
+REVIEWED = STUDY / "data" / "reviewed-sources.json"
 
 
 @contextmanager
@@ -278,9 +280,7 @@ class EmaProbe:
         )
         protocol_path = args.output / "EMA_PROTOCOL.md"
         protocol_path.write_bytes(PROTOCOL.read_bytes())
-        (args.output / "ema-reviewed-sources.json").write_bytes(
-            Path(__file__).with_name("ema-reviewed-sources.json").read_bytes()
-        )
+        (args.output / "ema-reviewed-sources.json").write_bytes(REVIEWED.read_bytes())
         self.identity = dict(
             artifact_version=VERSION,
             decay=DECAY,
@@ -302,9 +302,7 @@ class EmaProbe:
                 )
                 if self.reference["source_sha256"].get(name) != record["source_sha256"].get(name)
             },
-            reviewed_sources_sha256=audio_digest(
-                Path(__file__).with_name("ema-reviewed-sources.json")
-            ),
+            reviewed_sources_sha256=audio_digest(REVIEWED),
             source_sha256=record["source_sha256"],
             seed=args.seed,
             feature_manifest_sha256=record["feature_manifest_sha256"],
@@ -330,7 +328,7 @@ class EmaProbe:
         bp_ids = [self.rows[i]["id"] for i in fitting if self.rows[i]["domain"] == "beatport"]
         if bp_ids != self.bp["fit_ids"]:
             raise ValueError("Archived BP fitting identities differ")
-        reviewed = json.loads(Path(__file__).with_name("ema-reviewed-sources.json").read_bytes())
+        reviewed = json.loads(REVIEWED.read_bytes())
         if self.reference["source_sha256"] != reviewed["archived"]:
             raise ValueError("Reference source is not the frozen archived commit673")
         for name, digest in reviewed["reviewed_base"].items():

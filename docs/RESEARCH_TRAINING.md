@@ -6,7 +6,7 @@ This is the technical record of the small-model research completed on 11 Novembe
 2026: how data became training examples, how candidates were selected, what the
 experiments established, and how to reproduce the workflow. It is intended for
 someone maintaining Drone or integrating a future validated model into Euphoria.
-The [results report](../experiments/RESULTS-2026-11-11.md) contains the detailed
+The [results report](../experiments/studies/compact-models/REPORT.md) contains the detailed
 measurements; the protocols linked below record decisions made before each stage.
 
 The completed research snapshot is commit `36382c3` (the compact-model
@@ -229,7 +229,7 @@ positions while pooling time: 347,064 parameters. Keeping some absolute pitch
 location is a plausible key-classification bias; whether it helps is established
 by the controlled comparison, not by parameter count alone.
 
-The [small-model protocol](../experiments/README.md) fixed eight recipes before
+The [small-model protocol](../experiments/studies/compact-models/PROTOCOL.md) fixed eight recipes before
 screening: control, control without augmentation, frequency head, frequency head
 without augmentation, without smoothing, with dropout 0.1, with learning rate
 `3e-4`, and a mode-balanced control. All used the repaired split. The default recipe
@@ -261,7 +261,7 @@ inventing larger model tiers.
 
 ## Joint-data adaptation
 
-The [adaptation protocol](../experiments/ADAPTATION_PROTOCOL.md) kept the winning
+The [adaptation protocol](../experiments/studies/compact-models/ADAPTATION_PROTOCOL.md) kept the winning
 347,064-parameter architecture and recipe fixed, trained from scratch on the
 2,206 fitting rows, and selected checkpoints on the 376 validation rows. Combined
 MIREX weights recordings equally, so the 250 FMAK rows contribute more than the
@@ -282,7 +282,7 @@ No adapted-model GiantSteps score was used to guide the next architecture.
 
 ## The octave-aware CQT candidate
 
-The next [predeclared pilot](../experiments/OCTAVE_PROTOCOL.md) changed the pitch
+The next [predeclared pilot](../experiments/studies/compact-models/OCTAVE_PROTOCOL.md) changed the pitch
 representation and architectural bias together. It is an independently trained,
 **supervised**, S-KEY/ChromaNet-inspired candidate. It does not reproduce S-KEY's
 self-supervised objectives, use its large unlabeled corpus, or load pretrained
@@ -401,7 +401,7 @@ the old representation.
 
 ## Calibration and frozen evaluation
 
-The [final protocol](../experiments/FINAL_EVALUATION_PROTOCOL.md) fixed selected
+The [final protocol](../experiments/studies/compact-models/FINAL_PROTOCOL.md) fixed selected
 weights, inference rule, data identities and evaluation rules before calibration.
 A positive temperature was then fitted on the 159 calibration rows by
 minimizing NLL over 401 logarithmically spaced values from 0.25 to 4. The selected
@@ -618,8 +618,8 @@ then `--mode fmak-final`, then `--mode giantsteps`, using the same selection,
 partition, groups and output identity. It rejects ineligible candidates and
 inconsistent freezes. The historical final artifacts already exist; inspect them
 instead of repeatedly using those corpora as a selection loop. Native driver and
-comparison tooling are documented in the [experiment README](../experiments/README.md)
-and [final protocol](../experiments/FINAL_EVALUATION_PROTOCOL.md).
+comparison tooling are documented in the [experiment README](../experiments/studies/compact-models/PROTOCOL.md)
+and [final protocol](../experiments/studies/compact-models/FINAL_PROTOCOL.md).
 
 ## Artifact layout
 
@@ -709,13 +709,13 @@ was earned. The run and original source snapshot are retained at
 did not translate into an improvement from this one fusion recipe.
 
 The current bounded accuracy experiment is the
-[controlled K10 multi-domain comparison](../experiments/K10_MULTIDOMAIN_PROTOCOL.md).
+[controlled K10 multi-domain comparison](../experiments/studies/k10-multidomain/PROTOCOL.md).
 It preserves the same development identities, fixes duplicate-audio leakage and
 padding-dependent evaluation, then compares Beatport-only against joint fitting.
 That comparison is now complete: across the three paired seeds, BP MIREX gained
 2.38 points and FMAK 1.60 points. It missed the predeclared 2-point mean FMAK gain,
 so no replacement weights or external freeze were earned. See
-[the full K10 comparison results](../experiments/K10_MULTIDOMAIN_RESULTS.md).
+[the full K10 comparison results](../experiments/studies/k10-multidomain/REPORT.md).
 Existing exposed final sets must not become its optimization target. Broader
 classifiers, liquid-language models, decision-model
 ideas, additional model tiers and extra song attributes remain possibilities to
@@ -723,12 +723,12 @@ evaluate against concrete needs, not methods demonstrated by this training recor
 
 ## Evidence and references
 
-* [Full dated measurements](../experiments/RESULTS-2026-11-11.md),
-  [controlled-screen workflow](../experiments/README.md),
-  [FMAK partition protocol](../experiments/FMAK_PROTOCOL.md),
-  [adaptation protocol](../experiments/ADAPTATION_PROTOCOL.md),
-  [octave protocol](../experiments/OCTAVE_PROTOCOL.md), and
-  [final evaluation protocol](../experiments/FINAL_EVALUATION_PROTOCOL.md).
+* [Full dated measurements](../experiments/studies/compact-models/REPORT.md),
+  [controlled-screen workflow](../experiments/studies/compact-models/PROTOCOL.md),
+  [FMAK partition protocol](../experiments/studies/data-split/PROTOCOL.md),
+  [adaptation protocol](../experiments/studies/compact-models/ADAPTATION_PROTOCOL.md),
+  [octave protocol](../experiments/studies/compact-models/OCTAVE_PROTOCOL.md), and
+  [final evaluation protocol](../experiments/studies/compact-models/FINAL_PROTOCOL.md).
 * [Shared feature contract](../experiments/reference/features.py), [label/scoring contract](../drone/keys.py),
   [checkpoint validation](../experiments/reference/checkpoints.py), [controlled runner](../experiments/small.py),
   [adaptation runner](../experiments/adapt.py), [octave runner](../experiments/octave.py),

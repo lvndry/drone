@@ -9,10 +9,10 @@ small CPU/decision models and evaluation, followed by cross-critique.
 ## Current evidence
 
 The shipped K10 model remains the release candidate. The completed
-[multi-domain comparison](../experiments/K10_MULTIDOMAIN_RESULTS.md) gained 2.38
+[multi-domain comparison](../experiments/studies/k10-multidomain/REPORT.md) gained 2.38
 Beatport / 1.60 FMAK MIREX points over its corrected control, but missed its fixed
 two-point FMAK gate. Neither a promising pilot nor a newer paper overrides that
-decision. The [CPU baseline](../experiments/K10_CPU_RESULTS.md) also shows that
+decision. The [CPU baseline](../experiments/studies/k10-cpu/REPORT.md) also shows that
 frontend work and long-track activation memory need attention, not just weights.
 
 ## Methods and transfer limits
