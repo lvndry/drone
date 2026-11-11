@@ -6,7 +6,7 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from train import load_prepared
+from experiments.reference.train import load_prepared
 
 
 def partition(meta, excluded_audio=(), holdout_size=1000):

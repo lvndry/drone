@@ -12,8 +12,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from drone.checkpoints import load_checkpoint
-from drone.datasets import Track, prepare
+from experiments.reference.checkpoints import load_checkpoint
+from experiments.reference.datasets import Track, prepare
 
 
 def cpu_seconds():

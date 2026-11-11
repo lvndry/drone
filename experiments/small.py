@@ -18,11 +18,17 @@ import numpy as np
 import torch
 from torch import nn
 
-from drone.checkpoints import load_checkpoint, save_checkpoint
-from drone.features import FEATURE_SPEC
 from drone.keys import score_breakdown, score_mirex
-from drone.model import KeyCNN, params_count
-from train import SEED, augment_batch, evaluate_set, load_prepared, validation_split
+from experiments.reference.checkpoints import load_checkpoint, save_checkpoint
+from experiments.reference.features import FEATURE_SPEC
+from experiments.reference.model import KeyCNN, params_count
+from experiments.reference.train import (
+    SEED,
+    augment_batch,
+    evaluate_set,
+    load_prepared,
+    validation_split,
+)
 
 
 @dataclass(frozen=True)
@@ -61,7 +67,7 @@ def source_manifest(root=None):
     root = Path(root or Path(__file__).resolve().parents[1])
     paths = [root / "train.py", root / "pyproject.toml", root / "uv.lock"]
     for directory in ("drone", "experiments"):
-        paths += sorted((root / directory).glob("*.py"))
+        paths += sorted((root / directory).rglob("*.py"))
     return {
         str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in paths

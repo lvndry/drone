@@ -11,14 +11,14 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from drone.datasets import load_giantsteps
-from drone.features import audio_digest
 from drone.keys import score_breakdown, score_mirex
 from experiments.adapt import development_split
 from experiments.octave import decode, device_setup, probabilities
 from experiments.octave_model import FEATURE_SPEC, OctaveNet, compress
+from experiments.reference.datasets import load_giantsteps
+from experiments.reference.features import audio_digest
+from experiments.reference.train import load_prepared
 from experiments.small import atomic_json, signature
-from train import load_prepared
 
 
 def calibrated(probability, temperature):

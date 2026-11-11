@@ -12,8 +12,8 @@ import zipfile
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from drone.datasets import Track, prepare
 from drone.download import download
+from experiments.reference.datasets import Track, prepare
 
 ARCHIVE_URL = "https://zenodo.org/api/records/10719860/files/110-124.zip/content"
 ARCHIVE_MD5 = "88d7dbcca82189ed75b7baa5aa132fc1"

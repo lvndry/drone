@@ -7,9 +7,9 @@ from pathlib import Path
 
 import torch
 
-from drone.checkpoints import load_checkpoint
+from experiments.reference.checkpoints import load_checkpoint
+from experiments.reference.train import load_prepared
 from experiments.small import development_metrics
-from train import load_prepared
 
 
 def main():

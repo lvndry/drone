@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from drone.keys import WEIGHTS, key_relation
-from train import load_prepared
+from experiments.reference.train import load_prepared
 
 
 def weights(predictions, refs, symmetric=True):

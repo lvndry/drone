@@ -17,11 +17,11 @@ from pathlib import Path
 
 import numpy as np
 
-from drone.datasets import Track, prepare
 from drone.download import download
-from drone.features import FEATURE_SPEC, audio_digest
 from drone.keys import LABEL_SCHEMA, encode_key
-from train import prepared_path
+from experiments.reference.datasets import Track, prepare
+from experiments.reference.features import FEATURE_SPEC, audio_digest
+from experiments.reference.train import prepared_path
 
 ANNOTATION_URL = "https://zenodo.org/api/records/12759100/files/fmakv2.csv/content"
 ANNOTATION_MD5 = "3b2d16784ffbda850c8ddf0519478bfd"

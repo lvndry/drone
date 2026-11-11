@@ -3,7 +3,9 @@
 This is a validation-only experiment, not a release or architecture promotion.
 The reviewed control is the 331,704-parameter CNN. The frequency-preserving head
 has 347,064 parameters, still below the 2 MiB FP32 weight budget. Global pooling
-remains the default until experiments and deployment measurements justify changing it.
+was the historical control for this tranche. Production now uses the K10 model;
+these older controls live in `experiments/reference/`, with their original feature
+and checkpoint contracts. See [the research guide](../docs/RESEARCH_TRAINING.md).
 
 ## Fixed protocol
 

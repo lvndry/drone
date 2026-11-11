@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from train import load_prepared
+from experiments.reference.train import load_prepared
 
 
 def main():

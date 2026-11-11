@@ -8,7 +8,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from drone.checkpoints import load_checkpoint
+from experiments.reference.checkpoints import load_checkpoint
+from experiments.reference.train import load_prepared
 from experiments.small import (
     Recipe,
     atomic_json,
@@ -18,7 +19,6 @@ from experiments.small import (
     signature,
     snapshot_sources,
 )
-from train import load_prepared
 
 POLICY = "fmak-artist-album-audio-purged-70-20-10-hash-v1"
 

@@ -4,9 +4,23 @@ import numpy as np
 import pytest
 import torch
 
-from drone.checkpoints import load_checkpoint, save_checkpoint
-from drone.model import KeyCNN, params_count
+from experiments.reference.checkpoints import load_checkpoint, save_checkpoint
+from experiments.reference.model import KeyCNN, params_count
 from experiments.small import RECIPES, Recipe, confirmation_recipes, load_development, run_recipe
+
+
+def test_research_and_production_checkpoints_reject_each_other(tmp_path):
+    from drone.checkpoints import load_checkpoint as load_production
+    from drone.checkpoints import save_checkpoint as save_production
+    from drone.model import KeyCNN as ProductionModel
+
+    research, production = tmp_path / "research.pt", tmp_path / "production.pt"
+    save_checkpoint(research, KeyCNN())
+    save_production(production, ProductionModel())
+    with pytest.raises(ValueError, match="Incompatible"):
+        load_production(research)
+    with pytest.raises(ValueError, match="Incompatible"):
+        load_checkpoint(production)
 
 
 def test_frequency_position_is_preserved_in_small_model_and_checkpoint(tmp_path):

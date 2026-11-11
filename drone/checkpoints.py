@@ -1,21 +1,21 @@
-"""Versioned checkpoints; legacy weights cannot describe the corrected features."""
+"""Versioned checkpoints; legacy weights cannot describe the K10 features."""
 
 from pathlib import Path
 
 import torch
 
-from drone.features import FEATURE_SPEC
+from drone.features import CROP_FRAMES, FEATURE_SPEC
 from drone.keys import LABEL_SCHEMA
 from drone.model import KeyCNN
 
 
-def save_checkpoint(path, model, *, frames=300, **metadata):
+def save_checkpoint(path, model, *, width=1.0, **metadata):
     payload = {
-        "format_version": 1,
+        "format_version": 2,
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
-        "frames": frames,
-        "model_config": model.config,
+        "crop": CROP_FRAMES,
+        "model_config": {"width": width},
         "state_dict": model.state_dict(),
         "metadata": metadata,
     }
@@ -34,15 +34,13 @@ def load_checkpoint(path, device="cpu"):
     payload = torch.load(path, map_location=device, weights_only=True)
     if (
         not isinstance(payload, dict)
-        or payload.get("format_version") != 1
+        or payload.get("format_version") != 2
         or payload.get("feature_spec") != FEATURE_SPEC
         or payload.get("label_schema") != LABEL_SCHEMA
     ):
         raise ValueError(
             "Incompatible checkpoint. Regenerate features and retrain with this version."
         )
-    if not isinstance(payload.get("frames"), int) or payload["frames"] < 148:
-        raise ValueError("Invalid checkpoint frame count")
     model = KeyCNN(**payload.get("model_config", {})).to(device)
     model.load_state_dict(payload["state_dict"])
     model.eval()

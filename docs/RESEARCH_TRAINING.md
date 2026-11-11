@@ -10,14 +10,16 @@ The [results report](../experiments/RESULTS-2026-11-11.md) contains the detailed
 measurements; the protocols linked below record decisions made before each stage.
 
 The completed research snapshot is [PR #3](https://github.com/lvndry/drone/pull/3),
-targeting `fix/reference-run`. The subsequent DSP-guided experiment is a hypothesis,
+targeting `main` after the K10 merge. The subsequent DSP-guided experiment is a hypothesis,
 not a completed result. The separate [K10 architecture PR #2](https://github.com/lvndry/drone/pull/2)
 has not been measured under this protocol. Its architecture and published-paper
 results must not be substituted for the measurements here.
 
 Subsequent evidence from that separate K10 run is now available: seed 13 scored
 **74.83% symmetric-fifth MIREX / 68.54% exact** on the 604 GiantSteps recordings,
-versus native Euphoria's 69.35% / 60.60%. This is a stronger observed point estimate
+versus native Euphoria's 69.35% / 60.60%. The subsequent three-seed K10 mean is
+**73.58% MIREX**; its weights shipped through [PR #4](https://github.com/lvndry/drone/pull/4).
+This is a stronger observed point estimate
 than this document's octave candidate. It is a Beatport-only recipe, not a
 controlled comparison on the fixed joint Beatport/FMAK training split below;
 confirmation, split auditing and broader-domain evidence remain necessary.
@@ -43,12 +45,20 @@ controls, not a commitment to ship three tiers. A larger candidate must earn its
 cost through measured accuracy gains. Additional song attributes are deferred;
 they are not auxiliary training targets in these experiments.
 
-The selected research candidate has **47,284 parameters** and observed final MIREX
+This research tranche selected a candidate with **47,284 parameters** and observed final MIREX
 scores of **68.99% on FMAK** and **70.40% on GiantSteps**, versus native Euphoria's
 67.82% and 69.35%. Both paired confidence intervals include zero. These results
 justify more research, **not a state-of-the-art claim or replacement of the default
 detector**. The model is not yet integrated into Euphoria, and the ordinary Drone
 predictor intentionally rejects this experimental checkpoint format.
+
+Production now uses K10. The earlier 33-band baseline, checkpoints, preparation and
+training helpers live in `experiments/reference/` to reproduce this research
+without reverting the production CQT contract. Use
+`uv run python -m experiments.reference.train` for that baseline, not the
+production `train.py`. Historical source hashes and original server artifacts
+remain unchanged; rerunning relocated code records new hashes. The package is
+research-only and is excluded from the production wheel.
 
 ## Data, labels and provenance
 
@@ -203,7 +213,7 @@ Before comparing architectures, the reference implementation needed corrections:
 | Dependency and verification setup was difficult to reproduce | Move to `pyproject.toml`, `uv.lock`, Python 3.12, CI and explicit export/parity checks. |
 
 The legacy feature contract is version 2 in
-[drone/features.py](../drone/features.py): mono 22,050 Hz, 4,096-sample Hann FFT,
+[experiments/reference/features.py](../experiments/reference/features.py): mono 22,050 Hz, 4,096-sample Hann FFT,
 512-sample hop, 33 semitone bands starting at 55 Hz (A1 through F4), then 300 time
 positions. It groups STFT energy into logarithmic frequency bands; despite the
 historical `build_cqt` function name, this is **not a true constant-Q transform**.
@@ -513,7 +523,7 @@ requirements still to verify, not observed behavior of an integrated neural mode
 
 ## Reproducing the work
 
-Run from a research branch/worktree, never `main`. Keep each experiment's output
+Commit and push research work on a branch and submit a PR targeting `main`. Keep each experiment's output
 separate. The commands below explain the workflow; they do not make exposed data
 fresh again. Use a new protocol and new independent final data for future tuning.
 
@@ -703,8 +713,8 @@ evaluate against concrete needs, not methods demonstrated by this training recor
   [adaptation protocol](../experiments/ADAPTATION_PROTOCOL.md),
   [octave protocol](../experiments/OCTAVE_PROTOCOL.md), and
   [final evaluation protocol](../experiments/FINAL_EVALUATION_PROTOCOL.md).
-* [Shared feature contract](../drone/features.py), [label/scoring contract](../drone/keys.py),
-  [checkpoint validation](../drone/checkpoints.py), [controlled runner](../experiments/small.py),
+* [Shared feature contract](../experiments/reference/features.py), [label/scoring contract](../drone/keys.py),
+  [checkpoint validation](../experiments/reference/checkpoints.py), [controlled runner](../experiments/small.py),
   [adaptation runner](../experiments/adapt.py), [octave runner](../experiments/octave.py),
   and [octave architecture](../experiments/octave_model.py).
 * [FMAK preparation](../tools/prepare_fmak.py),
