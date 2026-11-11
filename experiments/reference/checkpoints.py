@@ -1,6 +1,9 @@
 """Versioned checkpoints; legacy weights cannot describe the corrected features."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
 import torch
 
@@ -9,7 +12,9 @@ from experiments.reference.features import FEATURE_SPEC
 from experiments.reference.model import KeyCNN
 
 
-def save_checkpoint(path, model, *, frames=300, **metadata):
+def save_checkpoint(
+    path: str | Path, model: KeyCNN, *, frames: int = 300, **metadata: object
+) -> None:
     payload = {
         "format_version": 1,
         "feature_spec": FEATURE_SPEC,
@@ -24,7 +29,7 @@ def save_checkpoint(path, model, *, frames=300, **metadata):
     torch.save(payload, path)
 
 
-def load_checkpoint(path, device="cpu"):
+def load_checkpoint(path: str | Path, device: str = "cpu") -> tuple[KeyCNN, dict[str, Any]]:
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(

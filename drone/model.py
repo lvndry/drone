@@ -3,6 +3,9 @@
 Input: (B, N_CORE, T) — 192 core CQT bins, T frames.
 """
 
+from __future__ import annotations
+
+import torch
 import torch.nn as nn
 
 from drone.features import N_CORE
@@ -11,7 +14,7 @@ C1, C2, C3 = 16, 32, 64
 
 
 def _block(cin: int, cout: int, pool: bool) -> list[nn.Module]:
-    layers = [
+    layers: list[nn.Module] = [
         nn.Conv2d(cin, cout, 3, padding=1),
         nn.BatchNorm2d(cout),
         nn.ELU(),
@@ -25,7 +28,7 @@ def _block(cin: int, cout: int, pool: bool) -> list[nn.Module]:
 
 
 class KeyCNN(nn.Module):
-    def __init__(self, width: float = 1.0):
+    def __init__(self, width: float = 1.0) -> None:
         super().__init__()
         c1, c2, c3 = int(C1 * width), int(C2 * width), int(C3 * width)
         # The head pools over TIME ONLY: key identity lives in absolute
@@ -39,7 +42,7 @@ class KeyCNN(nn.Module):
         )
         self.head = nn.Linear(c3 * (N_CORE // 8), 24)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (B, N_CORE, T) -> (B, 1, N_CORE, T)
         h = self.net(x.unsqueeze(1)).flatten(1)
         return self.head(h)

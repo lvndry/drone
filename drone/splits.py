@@ -1,11 +1,19 @@
 """Deterministic content-deduplicated training/validation identities."""
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+
 import numpy as np
+
+from drone.keys import KeyIndices
 
 SEED = 13
 
 
-def validation_split(refs, seed=SEED, audio_hashes=None):
+def validation_split(
+    refs: KeyIndices, seed: int = SEED, audio_hashes: Sequence[str] | None = None
+) -> tuple[list[int], list[int]]:
     """Fixed seeded, stratified split; training augmentation never touches validation."""
     rng = np.random.default_rng(seed)
     val = []

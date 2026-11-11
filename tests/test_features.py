@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -16,30 +20,48 @@ from drone.features import (
 )
 
 
-def _tone(hz, seconds=2):
+def test_wav_reader_rejects_audio_without_a_format_chunk(tmp_path: Path) -> None:
+    import struct
+
+    from drone.features import read_wav_mono
+
+    path = tmp_path / "missing-format.wav"
+    data = b"\0\0" * 4
+    path.write_bytes(
+        b"RIFF"
+        + struct.pack("<I", 12 + len(data))
+        + b"WAVEdata"
+        + struct.pack("<I", len(data))
+        + data
+    )
+    with pytest.raises(ValueError, match="fmt"):
+        read_wav_mono(path)
+
+
+def _tone(hz: float, seconds: float = 2) -> np.ndarray:
     t = np.arange(int(SR * seconds)) / SR
     return (np.sin(2 * np.pi * hz * t) * 0.5).astype(np.float32)
 
 
 @pytest.mark.parametrize("n", [4, 24, 96, 150, 204])
-def test_tone_lands_in_its_cqt_bin(n):
+def test_tone_lands_in_its_cqt_bin(n: int) -> None:
     freq = FMIN_HZ * 2 ** (n / 24)
     features = cqt(_tone(freq))
-    got = int(features.mean(axis=1).argmax())
+    got = int(features.mean(axis=1).argmax(axis=0))
     assert abs(got - n) <= 1, f"tone at bin {n} detected at column {got}"
 
 
-def test_tone_is_pitch_specific_not_octave_specific():
+def test_tone_is_pitch_specific_not_octave_specific() -> None:
     # 24 bins per octave: a tone one octave up must land 24 columns away.
     freq = FMIN_HZ * 2 ** (2.0 + PAD_SEMI / 12)  # C1 * 2 octaves = C3
     t = np.arange(int(SR * 2)) / SR
     features = cqt((np.sin(2 * np.pi * freq * t) * 0.5).astype(np.float32))
     profile = features.mean(axis=1)
-    got = int(profile.argmax())
+    got = int(profile.argmax(axis=0))
     assert abs(got - 56) <= 1, f"expected column ~56 (C3), got {got}"
 
 
-def test_window_slices_core_bins_and_shifts_exactly():
+def test_window_slices_core_bins_and_shifts_exactly() -> None:
     rng = np.random.default_rng(0)
     features = cqt((rng.standard_normal(SR * 4) * 0.05).astype(np.float32))
     core = window(features, 0)
@@ -57,24 +79,21 @@ def test_window_slices_core_bins_and_shifts_exactly():
         window(features, PAD_SEMI + 1)
 
 
-def test_prepare_pads_short_and_returns_track_key():
-    track = Track("1", "ignored", ("D", "major"))
-    # No file on disk: extract_cqt will fail; test the pad path via prepare on
-    # a temp dir with a synthetic cached array is overkill, so cover padding
-    # through the window/pad logic used by prepare with a stubbed extract.
+def test_prepare_pads_short_and_returns_track_key(monkeypatch: pytest.MonkeyPatch) -> None:
     import drone.features as feats
 
-    original = feats.extract_cqt
-    feats.extract_cqt = lambda mp3, track_dir: np.zeros((N_TOTAL, 10), dtype=np.float32)
-    try:
-        features, key = prepare(track, "/tmp", T=320)
-        assert features.shape == (N_CORE, 320)
-        assert key == ("D", "major")
-    finally:
-        feats.extract_cqt = original
+    def stub_extract(mp3: str | Path, track_dir: str | Path) -> np.ndarray:
+        return np.zeros((N_TOTAL, 10), dtype=np.float32)
+
+    # No audio file: prepare's pad path runs on the stubbed full-length CQT.
+    monkeypatch.setattr(feats, "extract_cqt", stub_extract)
+    track = Track("1", "ignored", ("D", "major"))
+    features, key = prepare(track, "/tmp", T=320)
+    assert features.shape == (N_CORE, 320)
+    assert key == ("D", "major")
 
 
-def test_extract_cqt_caches_by_content(tmp_path):
+def test_extract_cqt_caches_by_content(tmp_path: Path) -> None:
     import wave
 
     mp3 = tmp_path / "tone.mp3"
@@ -99,13 +118,13 @@ def test_extract_cqt_caches_by_content(tmp_path):
     assert len(cached) == 1
 
 
-def test_short_audio_does_not_crash():
+def test_short_audio_does_not_crash() -> None:
     features = cqt(np.ones(SR, dtype=np.float32))
     assert features.shape[0] == N_TOTAL
     assert np.isfinite(features).all()
 
 
-def test_tiny_audio_does_not_crash():
+def test_tiny_audio_does_not_crash() -> None:
     features = cqt(np.ones(100, dtype=np.float32))
     assert features.shape[0] == N_TOTAL
     assert np.isfinite(features).all()

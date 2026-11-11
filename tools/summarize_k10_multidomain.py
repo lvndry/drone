@@ -1,15 +1,18 @@
 """Summarize the predeclared three paired seeds without choosing a lucky seed."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 import statistics
 from pathlib import Path
+from typing import Any
 
 from tools.compare_k10_multidomain import compare
 
 
-def summarize(pairs):
+def summarize(pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]]) -> dict[str, Any]:
     if sorted(pairs) != [13, 37, 73]:
         raise ValueError("Need exactly the three declared paired seeds")
     reference = pairs[13][0]
@@ -46,7 +49,7 @@ def summarize(pairs):
     )
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, required=True)
     args = p.parse_args()

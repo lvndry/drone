@@ -14,7 +14,7 @@ from experiments.reference.datasets import Track, prepare
 from experiments.reference.model import KeyCNN
 
 
-def default_weights():
+def default_weights() -> Path:
     override = os.environ.get("DRONE_REFERENCE_WEIGHTS")
     if override:
         return Path(override)
@@ -32,12 +32,14 @@ class Predictor:
     Euphoria should use a bounded ONNX session with worker spinning disabled.
     """
 
-    def __init__(self, weights=None, *, device="cpu", workdir=None):
+    def __init__(
+        self, weights: str | Path | None = None, *, device: str = "cpu", workdir: str | None = None
+    ) -> None:
         self.model, self.checkpoint = load_checkpoint(weights or default_weights(), device)
         self.device = device
         self.workdir = workdir or os.path.join(tempfile.gettempdir(), "drone-cache")
 
-    def predict(self, audio_path):
+    def predict(self, audio_path: str) -> tuple[str, str, float]:
         features, _ = prepare(
             Track("track", audio_path, ("C", "major")),
             self.workdir,
@@ -55,7 +57,7 @@ def predict(
     workdir: str | None = None,
     *,
     weights: str | Path | None = None,
-    device="cpu",
+    device: str = "cpu",
 ) -> tuple[str, str, float]:
     """Return tonic, mode and uncalibrated softmax probability for one file.
 

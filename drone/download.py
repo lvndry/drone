@@ -3,6 +3,8 @@
 Uses curl for portable TLS/download retries. Preview audio is never packaged.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -14,7 +16,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-BEATPORT = {
+BEATPORT: dict[str, str] = {
     "audio.zip": "md5:f490ee6c23578482d6fcfa11b82636a1",
     "keys.zip": "md5:939abc05f36121badfac4087241ac172",
 }
@@ -26,14 +28,14 @@ AUDIO_BASES = (
 )
 
 
-def verify(path, checksum):
+def verify(path: str | Path, checksum: str) -> bool:
     algorithm, expected = checksum.split(":", 1)
     with open(path, "rb") as stream:
         actual = hashlib.file_digest(stream, algorithm).hexdigest()
     return actual == expected
 
 
-def download(url, target, checksum):
+def download(url: str, target: str | Path, checksum: str) -> None:
     """Keep only complete verified files; failed downloads never poison the next run."""
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -65,11 +67,11 @@ def download(url, target, checksum):
         os.replace(pending, target)
 
 
-def extract_zip(archive, target, suffix):
+def extract_zip(archive: str | Path, target: str | Path, suffix: str) -> int:
     """Flatten trusted dataset audio/labels, excluding macOS resource files."""
     target = Path(target)
     target.mkdir(parents=True, exist_ok=True)
-    seen = set()
+    seen: set[str] = set()
     with zipfile.ZipFile(archive) as bundle:
         for member in bundle.infolist():
             name = Path(member.filename).name
@@ -90,7 +92,7 @@ def extract_zip(archive, target, suffix):
     return len(seen)
 
 
-def extract_giantsteps(archive, target):
+def extract_giantsteps(archive: str | Path, target: str | Path) -> None:
     target = Path(target)
     count = 0
     with tarfile.open(archive) as bundle:
@@ -102,7 +104,10 @@ def extract_giantsteps(archive, target):
                 continue
             out = target / relative
             out.parent.mkdir(parents=True, exist_ok=True)
-            with bundle.extractfile(member) as source, out.open("wb") as dest:
+            source = bundle.extractfile(member)
+            if source is None:
+                continue
+            with source, out.open("wb") as dest:
                 shutil.copyfileobj(source, dest)
             if relative.suffix == ".key":
                 count += 1
@@ -110,7 +115,7 @@ def extract_giantsteps(archive, target):
         raise ValueError(f"Expected 604 GiantSteps key annotations, found {count}")
 
 
-def fetch_datasets(data, dataset="all"):
+def fetch_datasets(data: str | Path, dataset: str = "all") -> None:
     data = Path(data)
     downloads = data / "downloads"
     if dataset in ("all", "train"):
@@ -159,7 +164,7 @@ def fetch_datasets(data, dataset="all"):
     provenance_path.write_text(json.dumps(provenance, indent=2) + "\n")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=Path(os.environ.get("DRONE_DATA", "data")))
     parser.add_argument("--dataset", choices=("all", "train", "test"), default="all")

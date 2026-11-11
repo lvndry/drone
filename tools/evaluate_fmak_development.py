@@ -1,5 +1,7 @@
 """Score frozen checkpoints on FMAK development only; never score the final holdout."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -12,7 +14,7 @@ from experiments.reference.train import load_prepared
 from experiments.small import development_metrics
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--partition", type=Path, required=True)

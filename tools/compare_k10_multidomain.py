@@ -1,12 +1,15 @@
 """Apply the declared development gate only to a comparable completed pair."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 
-def compare(control, joint):
+def compare(control: dict[str, Any], joint: dict[str, Any]) -> dict[str, Any]:
     for run in (control, joint):
         if run["status"] != "complete":
             raise ValueError("Both arms must complete before comparison")
@@ -37,7 +40,7 @@ def compare(control, joint):
     }
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--control", type=Path, required=True)
     p.add_argument("--joint", type=Path, required=True)

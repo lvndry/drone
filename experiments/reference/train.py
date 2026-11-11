@@ -1,5 +1,15 @@
 """Prepare features, train on Beatport, and evaluate once on held-out GiantSteps."""
 
+from __future__ import annotations
+
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
+
+from drone.keys import KeyIndices
+
+if TYPE_CHECKING:
+    from experiments.reference.datasets import Track
+
 import argparse
 import hashlib
 import json
@@ -33,7 +43,9 @@ BATCH = 64
 LR = 1e-3
 
 
-def evaluate_set(model, feats, refs, device, batch=128):
+def evaluate_set(
+    model: nn.Module, feats: np.ndarray, refs: KeyIndices, device: str, batch: int = 128
+) -> tuple[np.ndarray, float, float]:
     if not len(refs) or len(feats) != len(refs) or batch < 1:
         raise ValueError(
             "Evaluation needs matching nonempty features/references and a positive batch"
@@ -49,11 +61,18 @@ def evaluate_set(model, feats, refs, device, batch=128):
     return pred, exact, mirex
 
 
-def prepared_path(data, tag):
+def prepared_path(data: str | Path, tag: str) -> Path:
     return Path(data) / "features" / FEATURE_ID / f"{tag}.npz"
 
 
-def prepare_dir(tag, tracks, track_dir, *, data=DATA, frames=T):
+def prepare_dir(
+    tag: str,
+    tracks: list[Track],
+    track_dir: str | Path,
+    *,
+    data: str | Path = DATA,
+    frames: int = T,
+) -> tuple[np.ndarray, dict[str, Any]]:
     if not tracks:
         raise ValueError(f"No tracks for {tag}; download the datasets with bash fetch.sh")
     manifest = [
@@ -92,7 +111,7 @@ def prepare_dir(tag, tracks, track_dir, *, data=DATA, frames=T):
     return features, metadata
 
 
-def load_prepared(data, tag):
+def load_prepared(data: str | Path, tag: str) -> tuple[np.ndarray, dict[str, Any]]:
     path = prepared_path(data, tag)
     if not path.is_file():
         raise FileNotFoundError(
@@ -120,13 +139,15 @@ def load_prepared(data, tag):
     return feats, metadata
 
 
-def assert_disjoint(train_ids, test_ids):
+def assert_disjoint(train_ids: Sequence[str], test_ids: Sequence[str]) -> None:
     overlap = set(train_ids) & set(test_ids)
     if overlap:
         raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
 
 
-def augment_batch(feats, refs, shifts):
+def augment_batch(
+    feats: np.ndarray, refs: KeyIndices, shifts: KeyIndices
+) -> tuple[np.ndarray, np.ndarray]:
     if not len(refs) or len(feats) != len(refs) or len(shifts) != len(refs):
         raise ValueError("Augmentation requires matching nonempty features, labels, and shifts")
     return (
@@ -137,7 +158,7 @@ def augment_batch(feats, refs, shifts):
     )
 
 
-def git_revision():
+def git_revision() -> str:
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
@@ -150,18 +171,18 @@ def git_revision():
 
 
 def train_model(
-    data,
-    device,
+    data: str | Path,
+    device: str,
     *,
-    epochs=EPOCHS,
-    batch=BATCH,
-    seed=SEED,
-    lr=LR,
-    model_size="small",
-    dropout=0.3,
-    weight_decay=1e-4,
-    label_smoothing=0.0,
-):
+    epochs: int = EPOCHS,
+    batch: int = BATCH,
+    seed: int = SEED,
+    lr: float = LR,
+    model_size: str = "small",
+    dropout: float = 0.3,
+    weight_decay: float = 1e-4,
+    label_smoothing: float = 0.0,
+) -> Path:
     feats, meta = load_prepared(data, "train")
     # Refuse leaked data before starting training; do not score the test set here.
     _, test_meta = load_prepared(data, "test")
@@ -282,7 +303,7 @@ def train_model(
     return checkpoint
 
 
-def evaluate_checkpoint(data, checkpoint, device):
+def evaluate_checkpoint(data: str | Path, checkpoint: str | Path, device: str) -> dict[str, Any]:
     feats, meta = load_prepared(data, "test")
     model, payload = load_checkpoint(checkpoint, device)
     if payload["frames"] != meta["frames"]:
@@ -318,7 +339,7 @@ def evaluate_checkpoint(data, checkpoint, device):
     return result
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("prepare", "train", "evaluate"))
     parser.add_argument("checkpoint", nargs="?")

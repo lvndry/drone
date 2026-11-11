@@ -1,5 +1,7 @@
 """Audit official artist/album groups against the frozen FMAK holdout; no scoring."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -9,7 +11,7 @@ from pathlib import Path
 from experiments.reference.train import load_prepared
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--partition", type=Path, required=True)
@@ -26,7 +28,7 @@ def main():
     )
     parents = {}
 
-    def root(node):
+    def root(node: str) -> str:
         parents.setdefault(node, node)
         if parents[node] != node:
             parents[node] = root(parents[node])

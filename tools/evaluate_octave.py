@@ -1,5 +1,7 @@
 """Calibrate a frozen eligible octave candidate, then evaluate sealed datasets once."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -7,6 +9,7 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -21,13 +24,13 @@ from experiments.reference.train import load_prepared
 from experiments.small import atomic_json, signature
 
 
-def calibrated(probability, temperature):
+def calibrated(probability: np.ndarray, temperature: float) -> np.ndarray:
     logits = np.log(np.maximum(probability, 1e-12)) / temperature
     p = np.exp(logits - logits.max(1, keepdims=True))
     return p / p.sum(1, keepdims=True)
 
 
-def uncertainty(probability, refs):
+def uncertainty(probability: np.ndarray, refs: np.ndarray) -> dict[str, float]:
     confidence, prediction = probability.max(1), probability.argmax(1)
     correct = prediction == refs
     ece = 0.0
@@ -43,7 +46,7 @@ def uncertainty(probability, refs):
     }
 
 
-def evaluation_decode(row):
+def evaluation_decode(row: dict[str, Any]) -> tuple[np.ndarray, dict[str, Any] | None]:
     """Recover broken MP3 seeking/duration metadata without changing valid inputs."""
     try:
         return decode(row), None
@@ -88,7 +91,9 @@ def evaluation_decode(row):
         }
 
 
-def rows_for(args, selection):
+def rows_for(
+    args: argparse.Namespace, selection: dict[str, Any]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     _, meta = load_prepared(args.fmak, "fmak")
     partition_bytes, group_bytes = args.partition.read_bytes(), args.groups.read_bytes()
     partition, audit = json.loads(partition_bytes), json.loads(group_bytes)
@@ -134,7 +139,9 @@ def rows_for(args, selection):
     }
 
 
-def features_for(rows, cache, device):
+def features_for(
+    rows: list[dict[str, Any]], cache: Path, device: str
+) -> tuple[np.ndarray, list[dict[str, Any]]]:
     from nnAudio.features import VQT
 
     cache = cache / signature(FEATURE_SPEC)[:16]
@@ -181,7 +188,7 @@ def features_for(rows, cache, device):
     return array, [fallbacks[row["id"]] for row in rows if row["id"] in fallbacks]
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("calibrate", "fmak-final", "giantsteps"), required=True)
     for name in ("selection", "fmak", "beatport", "partition", "groups", "output"):
@@ -286,6 +293,7 @@ def main():
         else:
             atomic_json(freeze_path, freeze)
     else:
+        assert freeze is not None
         probability = calibrated(raw, freeze["temperature"])
         pred = probability.argmax(1)
         assert np.array_equal(pred, raw.argmax(1))

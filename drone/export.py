@@ -1,9 +1,12 @@
 """Export a checkpoint to ONNX and verify CPU output parity."""
 
+from __future__ import annotations
+
 import argparse
 import copy
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -11,13 +14,16 @@ import torch
 from drone.checkpoints import load_checkpoint
 from drone.features import CROP_FRAMES, N_CORE
 
+if TYPE_CHECKING:
+    import onnxruntime as ort
+
 
 class _TimeMean(torch.nn.Module):
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x.mean(dim=-1, keepdim=True)
 
 
-def cpu_session(path, threads=1):
+def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
     import onnxruntime as ort
 
     if threads < 1:
@@ -31,7 +37,7 @@ def cpu_session(path, threads=1):
     return ort.InferenceSession(str(path), sess_options=options, providers=["CPUExecutionProvider"])
 
 
-def export_checkpoint(checkpoint, output):
+def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     model, payload = load_checkpoint(checkpoint)
     # Three frequency pools leave 24 bins, so the final (24, 1) adaptive
     # pool only averages time. An explicit reduction prevents the exporter
@@ -57,12 +63,12 @@ def export_checkpoint(checkpoint, output):
         external_data=False,
     )
     session = cpu_session(output)
-    errors = []
+    errors: list[float] = []
     for batch, frames in ((1, 8), (2, 56), (3, 319), (1, CROP_FRAMES), (2, 645)):
         x = torch.randn(batch, N_CORE, frames, generator=generator)
         with torch.inference_mode():
             expected = model(x).numpy()
-        actual = session.run(["logits"], {"features": x.numpy()})[0]
+        actual = np.asarray(session.run(["logits"], {"features": x.numpy()})[0], dtype=np.float32)
         np.testing.assert_allclose(actual, expected, rtol=1e-4, atol=1e-5)
         errors.append(float(np.max(np.abs(actual - expected))))
     metadata = {k: v for k, v in payload.items() if k != "state_dict"}
@@ -78,7 +84,7 @@ def export_checkpoint(checkpoint, output):
     return metadata
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
     parser.add_argument("output", type=Path)

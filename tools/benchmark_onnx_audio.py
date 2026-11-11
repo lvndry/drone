@@ -5,6 +5,8 @@ training package's eager torch import. This is a measurement tool, not the nativ
 Euphoria integration or a replacement public inference API.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import importlib.util
@@ -21,13 +23,13 @@ import numpy as np
 import onnxruntime as ort
 
 
-def cpu_seconds():
+def cpu_seconds() -> float:
     own = resource.getrusage(resource.RUSAGE_SELF)
     children = resource.getrusage(resource.RUSAGE_CHILDREN)
     return own.ru_utime + own.ru_stime + children.ru_utime + children.ru_stime
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", type=Path, required=True)
     parser.add_argument("--feature-source", type=Path, required=True)
@@ -39,6 +41,8 @@ def main():
         parser.error("--limit must be positive")
     rss_scale = 1 / 1024 if sys.platform == "darwin" else 1
     spec = importlib.util.spec_from_file_location("isolated_features", args.feature_source)
+    if spec is None or spec.loader is None:
+        raise ValueError(f"Cannot load feature source: {args.feature_source}")
     features = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(features)
     metadata = json.loads(args.model.with_suffix(".json").read_text())

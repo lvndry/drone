@@ -1,5 +1,7 @@
 """Inventory a local evaluation library's formats/durations/key tags, without decoding."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -7,12 +9,13 @@ import subprocess
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Any
 
 AUDIO = {".mp3", ".m4a", ".flac", ".wav", ".aif", ".aiff", ".ogg", ".opus", ".mp4"}
 KEY_TAGS = {"key", "initialkey", "initial_key", "tkey", "----:com.apple.itunes:initialkey"}
 
 
-def inspect(arguments):
+def inspect(arguments: tuple[Path, Path]) -> dict[str, Any]:
     root, path = arguments
     row = {"path": str(path.relative_to(root)), "bytes": path.stat().st_size}
     result = subprocess.run(
@@ -42,7 +45,7 @@ def inspect(arguments):
     return row
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)

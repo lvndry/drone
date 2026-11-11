@@ -4,6 +4,10 @@ A small neural classifier for the musical key of an audio track, intended for
 [Euphoria](https://github.com/lvndry/euphoria). It predicts 24 classes: 12 tonics,
 each in major or minor.
 
+**Model card:** [lvndry/drone on Hugging Face](https://huggingface.co/lvndry/drone).
+The bundled artifacts and their provenance are documented in
+[weights/README.md](weights/README.md).
+
 **Status:** the K10 (MIREX 2026) architecture is trained and confirmed. The
 `drone-v1` weights (109,128 parameters) score a **73.58% MIREX three-seed mean**
 on the held-out GiantSteps 604 (66.8% exact), versus 69.35% for the native
@@ -71,7 +75,7 @@ scoring conventions.
 ## Features
 
 Audio is decoded to mono 22.05 kHz PCM and transformed with a constant-Q
-transform (24 bins per octave, 208 bins from two semitones below C1, 4096-sample
+transform (24 bins per octave, 208 bins from four semitones below C1, 4096-sample
 hop, log1p amplitude). The 192 core bins cover C1 through the top of the
 eighth octave; the 16 outer bins are the +/-4 semitone shift pad. A pitch shift
 is therefore an exact re-slice of this grid — no resampling, no interpolation
@@ -136,6 +140,7 @@ uv sync --locked --all-extras
 uv run --extra export pytest
 uv run ruff check .
 uv run ruff format --check .
+uv run ty check .
 uv build
 ```
 
@@ -143,5 +148,9 @@ Tests cover all key encodings and relationships, CQT tone placement and octave
 specificity, the shift re-slice contract, content-cache invalidation, checkpoint
 versions, ONNX parity, and a synthetic prepare/train/evaluate/predict run.
 They validate pipeline correctness, not real-world musical-key accuracy.
+See [docs/TYPING.md](docs/TYPING.md) for the type-checking scope and research extra.
+All Python functions, including research scripts and tests, have parameter and
+return annotations. CI enforces their presence with Ruff's `ANN` rules and checks
+compatibility with `ty`.
 
 Code: MIT. Dataset provenance and audio-use notes: [DATA.md](DATA.md).

@@ -1,15 +1,21 @@
 """Create a label-independent, exact-audio-grouped FMAK final holdout."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 from collections import defaultdict
+from collections.abc import Collection
 from pathlib import Path
+from typing import Any
 
 from experiments.reference.train import load_prepared
 
 
-def partition(meta, excluded_audio=(), holdout_size=1000):
+def partition(
+    meta: dict[str, Any], excluded_audio: Collection[str] = (), holdout_size: int = 1000
+) -> dict[str, Any]:
     excluded_audio = set(excluded_audio)
     grouped = defaultdict(list)
     excluded = []
@@ -46,7 +52,7 @@ def partition(meta, excluded_audio=(), holdout_size=1000):
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--beatport-data", type=Path, required=True)

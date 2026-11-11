@@ -1,5 +1,7 @@
 """Fetch pinned official FMA metadata; audit artist overlap without model scoring."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -14,7 +16,7 @@ URL = "https://os.unil.cloud.switch.ch/fma/fma_metadata.zip"
 CHECKSUM = "sha1:f0df49ffe5f2a6008d7dc83c6915b31835dfe733"
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()

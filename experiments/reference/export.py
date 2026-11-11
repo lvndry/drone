@@ -1,8 +1,11 @@
 """Export a checkpoint to ONNX and verify CPU output parity."""
 
+from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -10,8 +13,11 @@ import torch
 from experiments.reference.checkpoints import load_checkpoint
 from experiments.reference.features import N_SEM
 
+if TYPE_CHECKING:
+    import onnxruntime as ort
 
-def cpu_session(path, threads=1):
+
+def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
     import onnxruntime as ort
 
     if threads < 1:
@@ -25,7 +31,7 @@ def cpu_session(path, threads=1):
     return ort.InferenceSession(str(path), sess_options=options, providers=["CPUExecutionProvider"])
 
 
-def export_checkpoint(checkpoint, output):
+def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, Any]:
     model, payload = load_checkpoint(checkpoint)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -49,7 +55,7 @@ def export_checkpoint(checkpoint, output):
         x = torch.randn(batch, N_SEM, payload["frames"], generator=generator)
         with torch.inference_mode():
             expected = model(x).numpy()
-        actual = session.run(["logits"], {"features": x.numpy()})[0]
+        actual = np.asarray(session.run(["logits"], {"features": x.numpy()})[0], dtype=np.float32)
         np.testing.assert_allclose(actual, expected, rtol=1e-4, atol=1e-5)
         errors.append(float(np.max(np.abs(actual - expected))))
     metadata = {k: v for k, v in payload.items() if k != "state_dict"}
@@ -64,7 +70,7 @@ def export_checkpoint(checkpoint, output):
     return metadata
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
     parser.add_argument("output", type=Path)

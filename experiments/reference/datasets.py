@@ -4,22 +4,33 @@ A track is (id, path to mp3, parsed key label). The log-frequency spectrogram is
 and cached; bounded frequency shifting reuses the cache.
 """
 
+from __future__ import annotations
+
 import glob
 import os
 import re
+from collections.abc import Callable
+from pathlib import Path
 
-from drone.keys import encode_key, parse_key, transpose_key
+import numpy as np
+
+from drone.keys import Key, encode_key, parse_key, transpose_key
 from experiments.reference.features import extract, normalize, resample_time, shift_features
 
 
 class Track:
-    def __init__(self, track_id, mp3, key):
+    def __init__(self, track_id: str, mp3: str | Path, key: Key) -> None:
         self.id = track_id
         self.mp3 = mp3
         self.key = key  # (tonic, mode)
 
 
-def load_dir(track_dir, mp3_glob, label_fn, recursive=False):
+def load_dir(
+    track_dir: str | Path,
+    mp3_glob: str,
+    label_fn: Callable[[str, str], Key | None],
+    recursive: bool = False,
+) -> list[Track]:
     """Load tracks from a dataset directory.
 
     mp3_glob: glob relative to track_dir matching audio files.
@@ -44,7 +55,7 @@ def load_dir(track_dir, mp3_glob, label_fn, recursive=False):
     return tracks
 
 
-def load_beatport(data_dir, label_dir):
+def load_beatport(data_dir: str | Path, label_dir: str | Path) -> list[Track]:
     """Beatport 1486 set: audio under data/audio, labels are one key per file."""
     labels = {}
     if not os.path.isdir(label_dir):
@@ -70,10 +81,10 @@ def load_beatport(data_dir, label_dir):
     return tracks
 
 
-def load_giantsteps(data_dir):
+def load_giantsteps(data_dir: str | Path) -> list[Track]:
     """GiantSteps 604 set (the test set): bench/data/key layout."""
 
-    def label_fn(track_id, name):
+    def label_fn(track_id: str, name: str) -> Key | None:
         # audio is <id>.LOFI.mp3, label is <id>.LOFI.key
         path = os.path.join(data_dir, "annotations", "key", name[: -len(".mp3")] + ".key")
         if not os.path.exists(path):
@@ -88,7 +99,9 @@ def load_giantsteps(data_dir):
     return tracks
 
 
-def prepare(track, track_dir, T=300, augment=0):
+def prepare(
+    track: Track, track_dir: str | Path, T: int = 300, augment: int = 0
+) -> tuple[np.ndarray, int]:
     """Log-frequency features, resampled in time to T frames, optional bounded shift.
 
     augment: semitones to shift up (negative = down), applied on spectrogram

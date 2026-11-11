@@ -5,6 +5,8 @@ Training follows the K10 (MIREX 2026, MIT) protocol: 192 core CQT bins,
 padded spectrogram, plain cross-entropy, AdamW 1e-3, cosine schedule.
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
@@ -12,14 +14,16 @@ import os
 import subprocess
 import tempfile
 import time
+from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
 from torch import nn
 
 from drone.checkpoints import load_checkpoint, save_checkpoint
-from drone.datasets import load_beatport, load_giantsteps, prepare, sample_features
+from drone.datasets import Track, load_beatport, load_giantsteps, prepare, sample_features
 from drone.features import CROP_FRAMES, FEATURE_ID, FEATURE_SPEC, N_CORE, audio_digest
 from drone.keys import LABEL_SCHEMA, encode_key, score_breakdown, score_mirex
 from drone.model import KeyCNN, params_count
@@ -32,7 +36,9 @@ BATCH = 32
 LR = 1e-3
 
 
-def evaluate_features(model, features, device, batch=16):
+def evaluate_features(
+    model: nn.Module, features: Sequence[np.ndarray], device: str, batch: int = 16
+) -> np.ndarray:
     """Classify variable-length arrays at true length with bounded batching."""
     if not len(features) or batch < 1:
         raise ValueError("Evaluation needs nonempty features and a positive batch")
@@ -50,7 +56,9 @@ def evaluate_features(model, features, device, batch=16):
     return pred
 
 
-def evaluate_tracks(model, tracks, track_dir, device, batch=16):
+def evaluate_tracks(
+    model: nn.Module, tracks: list[Track], track_dir: str | Path, device: str, batch: int = 16
+) -> np.ndarray:
     """Evaluate full tracks without making predictions depend on padded peers."""
     if not len(tracks) or batch < 1:
         raise ValueError("Evaluation needs nonempty tracks and a positive batch")
@@ -61,11 +69,13 @@ def evaluate_tracks(model, tracks, track_dir, device, batch=16):
     return np.concatenate(pred)
 
 
-def prepared_path(data, tag):
+def prepared_path(data: str | Path, tag: str) -> Path:
     return Path(data) / "features" / FEATURE_ID / f"{tag}.json"
 
 
-def prepare_dir(tag, tracks, track_dir, *, data=DATA):
+def prepare_dir(
+    tag: str, tracks: list[Track], track_dir: str | Path, *, data: str | Path = DATA
+) -> dict[str, Any]:
     """Warm the content-addressed CQT cache and write the track manifest."""
     if not tracks:
         raise ValueError(f"No tracks for {tag}; download the datasets with bash fetch.sh")
@@ -108,7 +118,7 @@ def prepare_dir(tag, tracks, track_dir, *, data=DATA):
     return metadata
 
 
-def load_manifest(data, tag):
+def load_manifest(data: str | Path, tag: str) -> dict[str, Any]:
     path = prepared_path(data, tag)
     if not path.is_file():
         raise FileNotFoundError(f"Missing {tag} manifest. Run uv run train.py prepare.")
@@ -123,13 +133,13 @@ def load_manifest(data, tag):
     return metadata
 
 
-def assert_disjoint(train_ids, test_ids):
+def assert_disjoint(train_ids: Sequence[str], test_ids: Sequence[str]) -> None:
     overlap = set(train_ids) & set(test_ids)
     if overlap:
         raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
 
 
-def git_revision():
+def git_revision() -> str:
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
@@ -142,17 +152,17 @@ def git_revision():
 
 
 def train_model(
-    data,
-    device,
+    data: str | Path,
+    device: str,
     *,
-    epochs=EPOCHS,
-    batch=BATCH,
-    seed=SEED,
-    lr=LR,
-    width=1.0,
-    weight_decay=1e-4,
-    label_smoothing=0.0,
-):
+    epochs: int = EPOCHS,
+    batch: int = BATCH,
+    seed: int = SEED,
+    lr: float = LR,
+    width: float = 1.0,
+    weight_decay: float = 1e-4,
+    label_smoothing: float = 0.0,
+) -> Path:
     data = Path(data)
     meta = load_manifest(data, "train")
     test_meta = load_manifest(data, "test")
@@ -160,7 +170,6 @@ def train_model(
     assert_disjoint(
         [t["sha256"] for t in meta["tracks"]], [t["sha256"] for t in test_meta["tracks"]]
     )
-    from drone.datasets import Track
 
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     refs = meta["refs"]
@@ -199,7 +208,7 @@ def train_model(
         str(p.relative_to(Path(__file__).parent)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in source_files
     }
-    record = {
+    record: dict[str, Any] = {
         "source_sha256": source_hashes,
         "config": config,
         "feature_spec": FEATURE_SPEC,
@@ -246,7 +255,7 @@ def train_model(
             loss_sum += loss.item() * len(idx)
         scheduler.step()
         val_pred = evaluate_tracks(model, val_tracks, data, device)
-        exact, mirex = score_mirex(val_pred, [refs[i] for i in val_idx])
+        exact, mirex = score_mirex([int(c) for c in val_pred], [refs[i] for i in val_idx])
         record["history"].append(
             {
                 "epoch": epoch,
@@ -284,7 +293,7 @@ def train_model(
     return checkpoint
 
 
-def evaluate_checkpoint(data, checkpoint, device):
+def evaluate_checkpoint(data: str | Path, checkpoint: str | Path, device: str) -> dict[str, Any]:
     data = Path(data)
     meta = load_manifest(data, "test")
     model, payload = load_checkpoint(checkpoint, device)
@@ -295,21 +304,21 @@ def evaluate_checkpoint(data, checkpoint, device):
         payload.get("metadata", {}).get("training_audio_sha256", []),
         [t["sha256"] for t in meta["tracks"]],
     )
-    from drone.datasets import Track
 
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     pred = evaluate_tracks(model, ordered, data, device)
-    exact, mirex = score_mirex(pred, meta["refs"])
-    cats = score_breakdown(pred, meta["refs"])
-    result = {
+    classes = [int(c) for c in pred]
+    exact, mirex = score_mirex(classes, meta["refs"])
+    cats = score_breakdown(classes, meta["refs"])
+    result: dict[str, Any] = {
         "tracks": len(pred),
         "exact": exact,
         "mirex": mirex,
-        "mirex_asymmetric": score_mirex(pred, meta["refs"], symmetric=False)[1],
+        "mirex_asymmetric": score_mirex(classes, meta["refs"], symmetric=False)[1],
         "counts": dict(cats),
         "feature_spec": FEATURE_SPEC,
         "test_manifest": meta,
-        "predictions": pred.tolist(),
+        "predictions": classes,
         "checkpoint_sha256": hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest(),
     }
     print(
@@ -323,7 +332,7 @@ def evaluate_checkpoint(data, checkpoint, device):
     return result
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("prepare", "train", "evaluate"))
     parser.add_argument("checkpoint", nargs="?")

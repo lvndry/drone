@@ -1,6 +1,9 @@
 """Versioned checkpoints; legacy weights cannot describe the K10 features."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any
 
 import torch
 
@@ -9,8 +12,10 @@ from drone.keys import LABEL_SCHEMA
 from drone.model import KeyCNN
 
 
-def save_checkpoint(path, model, *, width=1.0, **metadata):
-    payload = {
+def save_checkpoint(
+    path: str | Path, model: KeyCNN, *, width: float = 1.0, **metadata: object
+) -> None:
+    payload: dict[str, Any] = {
         "format_version": 2,
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
@@ -24,7 +29,7 @@ def save_checkpoint(path, model, *, width=1.0, **metadata):
     torch.save(payload, path)
 
 
-def load_checkpoint(path, device="cpu"):
+def load_checkpoint(path: str | Path, device: str = "cpu") -> tuple[KeyCNN, dict[str, Any]]:
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(

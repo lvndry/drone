@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import json
 import shutil
+from collections.abc import Iterator
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -24,14 +28,14 @@ from experiments.reference.train import (
 
 
 @pytest.fixture(autouse=True)
-def one_cpu_thread():
+def one_cpu_thread() -> Iterator[None]:
     old = torch.get_num_threads()
     torch.set_num_threads(1)
     yield
     torch.set_num_threads(old)
 
 
-def test_checkpoint_round_trip_and_version_rejection(tmp_path):
+def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
     torch.manual_seed(13)
     model = KeyCNN().eval()
     path = tmp_path / "model.pt"
@@ -54,14 +58,16 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path):
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
-def test_inference_decodes_interleaved_classes(tmp_path):
+def test_inference_decodes_interleaved_classes(tmp_path: Path) -> None:
     audio = tmp_path / "audio.wav"
     write_tone(audio, 110)
     model = KeyCNN()
     with torch.no_grad():
         for parameter in model.parameters():
             parameter.zero_()
-        model.head[-1].bias[1] = 10
+        head = model.head[-1]
+        assert isinstance(head, torch.nn.Linear) and head.bias is not None
+        head.bias[1] = 10
     weights = tmp_path / "weights.pt"
     save_checkpoint(weights, model)
     tonic, mode, confidence = predict(str(audio), str(tmp_path / "cache"), weights=weights)
@@ -69,7 +75,7 @@ def test_inference_decodes_interleaved_classes(tmp_path):
     assert confidence > 0.99
 
 
-def test_split_and_overlap_guards():
+def test_split_and_overlap_guards() -> None:
     refs = [key for key in range(24) for _ in range(10)]
     train, val = validation_split(refs)
     assert validation_split(refs) == (train, val)
@@ -82,7 +88,7 @@ def test_split_and_overlap_guards():
         validation_split([0, 1])
 
 
-def test_loaders_fail_for_missing_data(tmp_path):
+def test_loaders_fail_for_missing_data(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="labels"):
         load_beatport(tmp_path, tmp_path / "labels")
     with pytest.raises(ValueError, match="Missing GiantSteps"):
@@ -92,7 +98,7 @@ def test_loaders_fail_for_missing_data(tmp_path):
 
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
-def test_prepare_train_evaluate_and_infer(tmp_path):
+def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
     tracks = []
     for i in range(8):
         audio = tmp_path / f"{i}.wav"
@@ -136,7 +142,7 @@ def test_prepare_train_evaluate_and_infer(tmp_path):
         evaluate_checkpoint(tmp_path, checkpoint, "cpu")
 
 
-def test_small_batch_can_overfit():
+def test_small_batch_can_overfit() -> None:
     torch.manual_seed(13)
     model = KeyCNN()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -156,7 +162,7 @@ def test_small_batch_can_overfit():
 
 
 @pytest.mark.parametrize("size", ["small", "medium", "large"])
-def test_model_size_profiles_and_checkpoint_config(tmp_path, size):
+def test_model_size_profiles_and_checkpoint_config(tmp_path: Path, size: str) -> None:
     from experiments.reference.model import params_count
 
     counts = {"small": 331704, "medium": 1318744, "large": 5258904}
@@ -171,7 +177,9 @@ def test_model_size_profiles_and_checkpoint_config(tmp_path, size):
     assert metadata["model_config"] == restored.config
 
 
-def test_training_cli_forwards_model_and_recipe_options(monkeypatch, tmp_path):
+def test_training_cli_forwards_model_and_recipe_options(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     import sys
 
     from experiments.reference import train
@@ -206,7 +214,7 @@ def test_training_cli_forwards_model_and_recipe_options(monkeypatch, tmp_path):
     assert received["weight_decay"] == 0.001
 
 
-def test_benchmark_reports_explicit_cpu_budget(tmp_path):
+def test_benchmark_reports_explicit_cpu_budget(tmp_path: Path) -> None:
     from experiments.reference.benchmark import benchmark
 
     path = tmp_path / "model.pt"

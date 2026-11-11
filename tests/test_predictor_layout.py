@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from pathlib import Path
+
 import numpy as np
 import pytest
 import torch
@@ -8,7 +12,9 @@ from drone.keys import decode_key
 from drone.model import KeyCNN
 
 
-def test_predictor_matches_direct_k10_call_at_full_length(monkeypatch, tmp_path):
+def test_predictor_matches_direct_k10_call_at_full_length(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     torch.set_num_threads(1)
     torch.manual_seed(13)
     model = KeyCNN().eval()

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib.util
 from pathlib import Path
 
@@ -14,7 +16,7 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.mark.parametrize("width", [0.5, 0.7, 1.0])
-def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path, width):
+def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path: Path, width: float) -> None:
     from drone.export import cpu_session, export_checkpoint
 
     torch.set_num_threads(1)
@@ -40,7 +42,7 @@ def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path, width):
     assert options.get_session_config_entry("session.intra_op.allow_spinning") == "0"
 
 
-def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths():
+def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths() -> None:
     from drone.export import cpu_session
 
     weights = Path(__file__).resolve().parents[1] / "weights"

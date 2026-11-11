@@ -1,11 +1,15 @@
 """Measure checkpoint CPU latency with an explicit thread budget (no accuracy claims)."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import platform
 import tempfile
 import time
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -16,7 +20,7 @@ from drone.features import CROP_FRAMES, N_CORE
 from drone.model import params_count
 
 
-def timed(call, iterations):
+def timed(call: Callable[[], object], iterations: int) -> dict[str, Any]:
     elapsed = []
     cpu_start = time.process_time()
     for _ in range(iterations):
@@ -31,7 +35,14 @@ def timed(call, iterations):
     }
 
 
-def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
+def benchmark(
+    checkpoint: str | Path,
+    *,
+    threads: int = 1,
+    iterations: int = 100,
+    audio: str | None = None,
+    onnx: str | Path | None = None,
+) -> dict[str, Any]:
     if threads < 1 or iterations < 1:
         raise ValueError("threads and iterations must be positive")
     torch.set_num_threads(threads)
@@ -42,7 +53,7 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
     with torch.inference_mode():
         for _ in range(5):
             model(x)
-        result = {
+        result: dict[str, Any] = {
             "hardware": platform.platform(),
             "machine": platform.machine(),
             "torch": str(torch.__version__),
@@ -70,20 +81,18 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
                 track = Track("benchmark", audio, ("C", "major"))
                 start = time.perf_counter()
                 features, _ = prepare(track, scratch)
-                model(torch.from_numpy(features[None]).transpose(1, 2))
+                model(torch.from_numpy(features[None]))
                 result["cold_audio_decode_features_forward_ms"] = 1000 * (
                     time.perf_counter() - start
                 )
                 result["warm_feature_cache_plus_forward"] = timed(
-                    lambda: model(
-                        torch.from_numpy(prepare(track, scratch)[0][None]).transpose(1, 2)
-                    ),
+                    lambda: model(torch.from_numpy(prepare(track, scratch)[0][None])),
                     min(10, iterations),
                 )
     return result
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
     parser.add_argument("--threads", type=int, default=1)

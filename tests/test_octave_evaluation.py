@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import json
 import subprocess
 import sys
+from pathlib import Path
+from typing import Any, Never
 
 import numpy as np
 import pytest
@@ -9,7 +13,7 @@ import tools.evaluate_octave as evaluation
 from tools.evaluate_octave import calibrated, evaluation_decode, main, uncertainty
 
 
-def test_temperature_preserves_class_decisions_and_probability_mass():
+def test_temperature_preserves_class_decisions_and_probability_mass() -> None:
     p = np.random.default_rng(13).random((20, 24))
     p /= p.sum(1, keepdims=True)
     for temperature in (0.25, 1, 4):
@@ -21,7 +25,9 @@ def test_temperature_preserves_class_decisions_and_probability_mass():
     assert result == {"nll": 0.0, "brier": 0.0, "ece_15_equal_width": 0.0}
 
 
-def test_final_evaluation_rejects_ineligible_candidate_before_opening_corpus(tmp_path, monkeypatch):
+def test_final_evaluation_rejects_ineligible_candidate_before_opening_corpus(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     selection = tmp_path / "selection.json"
     selection.write_text(json.dumps({"eligible_for_final_evaluation": False}))
     args = ["evaluate", "--mode", "fmak-final", "--selection", str(selection)]
@@ -32,8 +38,8 @@ def test_final_evaluation_rejects_ineligible_candidate_before_opening_corpus(tmp
         main()
 
 
-def test_broken_seek_falls_back_to_actual_decoded_duration(monkeypatch):
-    def broken_seek(row):
+def test_broken_seek_falls_back_to_actual_decoded_duration(monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken_seek(row: dict[str, Any]) -> Never:
         raise subprocess.CalledProcessError(69, ["ffmpeg"])
 
     full = np.linspace(-1, 1, 64 * 22050, dtype=np.float32)
@@ -48,11 +54,12 @@ def test_broken_seek_falls_back_to_actual_decoded_duration(monkeypatch):
     segments, diagnostic = evaluation_decode({"id": "broken-mp3", "path": "audio.mp3"})
     np.testing.assert_array_equal(segments[0], full[: 32 * 22050])
     np.testing.assert_array_equal(segments[1], full[32 * 22050 :])
+    assert diagnostic is not None
     assert diagnostic["actual_duration_seconds"] == 64
     assert diagnostic["route"] == "full-decode-actual-duration"
 
 
-def test_valid_fast_decode_is_preserved(monkeypatch):
+def test_valid_fast_decode_is_preserved(monkeypatch: pytest.MonkeyPatch) -> None:
     segments = np.ones((2, 705600), dtype=np.float32)
     monkeypatch.setattr(evaluation, "decode", lambda row: segments)
     result, diagnostic = evaluation_decode({"id": "valid"})
