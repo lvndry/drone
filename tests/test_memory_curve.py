@@ -10,6 +10,8 @@ import pytest
 
 from experiments.chunked import sha256
 from tools.benchmark_k10_memory_curve import check_validation
+from tools.research.evidence import source_provenance
+from tools.research.measurements import runtime_environment
 
 
 def validation_fixture(tmp_path: Path) -> argparse.Namespace:
@@ -24,6 +26,8 @@ def validation_fixture(tmp_path: Path) -> argparse.Namespace:
     report = json.loads(
         (root / "experiments/studies/k10-chunked/data/v2/validation.json").read_bytes()
     )
+    report.update(source_provenance())
+    report.update(runtime_environment())
     for key, path in (
         ("manifest_sha256", manifest),
         ("full_model_sha256", model),

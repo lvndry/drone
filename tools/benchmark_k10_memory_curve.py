@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import platform
-import resource
 import subprocess
 import sys
 import time
@@ -14,43 +11,34 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import onnxruntime as ort
 
 from experiments.chunked import ATOL, RTOL, ChunkedK10, cpu_session, sha256
-from tools.evaluate_chunked import load_features, load_rows, selected_rows
+from tools.research.contracts import (
+    load_cached_features,
+    load_validation_tracks,
+    select_performance_tracks,
+)
+from tools.research.evidence import ArtifactSet, source_provenance
+from tools.research.measurements import (
+    peak_rss_mib,
+    runtime_environment,
+    time_prediction,
+)
 
 
 def rss_mib() -> float:
-    divisor = 1024**2 if sys.platform == "darwin" else 1024
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / divisor
+    """Compatibility alias; process-unit conversion lives with other measurements."""
+    return peak_rss_mib()
 
 
 def check_validation(args: argparse.Namespace) -> None:
-    report = json.loads(args.validation_report.read_bytes())
-    root = Path(__file__).parents[1]
-    expected = {
-        "mode": "validate",
-        "passed": True,
-        "tracks": 376,
-        "core_outputs": 64,
-        "atol": ATOL,
-        "rtol": RTOL,
-        "manifest_sha256": sha256(args.manifest),
-        "full_model_sha256": sha256(args.full_model),
-        "contract_sha256": sha256(args.bundle / "contract.json"),
-        "prefix_sha256": sha256(args.bundle / "prefix.onnx"),
-        "head_sha256": sha256(args.bundle / "head.onnx"),
-        "runtime_source_sha256": sha256(root / "experiments/chunked.py"),
-        "evaluator_source_sha256": sha256(root / "tools/evaluate_chunked.py"),
-    }
-    if any(report.get(key) != value for key, value in expected.items()):
-        raise ValueError(
-            "A passing validation report for these exact artifacts/sources is required"
-        )
+    ArtifactSet(args.manifest, args.bundle, args.full_model).require_validation(
+        args.validation_report
+    )
 
 
 def measure(args: argparse.Namespace) -> dict[str, Any]:
-    chosen = selected_rows(load_rows(args.manifest), args.selection)
+    chosen = select_performance_tracks(load_validation_tracks(args.manifest), args.selection)
     row = chosen[args.index]
     before = rss_mib()
     if args.mode == "full":
@@ -63,30 +51,25 @@ def measure(args: argparse.Namespace) -> dict[str, Any]:
         runtime = ChunkedK10(args.bundle, 64)
         predict = runtime.predict
     loaded = rss_mib()
-    x = load_features(args.manifest, row)
+    x = load_cached_features(args.manifest, row)
     features_loaded = rss_mib()
-    predict(x)
-    elapsed = []
-    for _ in range(20):
-        start = time.perf_counter()
-        logits = predict(x)
-        elapsed.append(time.perf_counter() - start)
+    timing = time_prediction(predict, x)
     if "torch" in sys.modules:
         raise RuntimeError("Torch entered the isolated process")
     return dict(
-        id=row["id"],
-        sha256=row["sha256"],
-        cache_sha256=row["cache_sha256"],
-        frames=row["frames"],
-        duration_proxy_seconds=row["frames"] * 4096 / 22050,
+        id=row.id,
+        sha256=row.sha256,
+        cache_sha256=row.cache_sha256,
+        frames=row.frames,
+        duration_proxy_seconds=row.frames * 4096 / 22050,
         mode=args.mode,
         before_session_peak_mib=before,
         loaded_session_peak_mib=loaded,
         loaded_features_peak_mib=features_loaded,
         process_peak_mib=rss_mib(),
-        median_seconds=float(np.median(elapsed)),
-        seconds=elapsed,
-        logits=logits.tolist(),
+        median_seconds=timing.median_seconds,
+        seconds=timing.seconds,
+        logits=timing.logits.tolist(),
         torch_imported=False,
     )
 
@@ -148,19 +131,8 @@ def main() -> None:
         repetitions=20,
         warmups_per_track=1,
         paired_parity_passed=bool(parity),
-        platform=platform.platform(),
-        numpy=np.__version__,
-        onnxruntime=ort.__version__,
-        cpu_affinity=sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else None,
-        thread_environment={
-            k: os.environ.get(k)
-            for k in (
-                "OMP_NUM_THREADS",
-                "MKL_NUM_THREADS",
-                "OPENBLAS_NUM_THREADS",
-                "NUMEXPR_NUM_THREADS",
-            )
-        },
+        **runtime_environment(),
+        implementation=source_provenance(),
         source_sha256=sha256(Path(__file__)),
         runtime_sha256=sha256(Path(__file__).parents[1] / "experiments/chunked.py"),
         validation_report_sha256=sha256(args.validation_report),
