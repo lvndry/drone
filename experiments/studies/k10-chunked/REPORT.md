@@ -106,3 +106,17 @@ uv run --extra plots python -m tools.plot_research
 
 Checked-in JSON supplies all figures. [Figure inputs](../figure-inputs.json)
 record data/generator/lockfile hashes and the plotting-library version.
+
+### Tool refactor regression check
+
+The typed input/evidence helpers were validated again on all 376 inputs before
+native fixture export. [The new report](data/v3/validation.json) records zero
+numerical/key failures and the same maximum logit error, 1.90735e-6. It binds every
+support module and the execution environment, so an unchanged CLI entry point
+cannot reuse parity evidence after its implementation changes.
+
+[Fixture-export provenance](data/v3/native-fixture-export.json) records 376
+completed FP32 inputs, exactly 20 performance selections and a 13.16-second
+export. Source `857a60372d37c7892fb3aafb5e09281bbd3495a6` is frozen on the server;
+raw inputs stay there. This checks implementation integrity, not accuracy gains
+or native performance. Historical v1/v2 reports remain unchanged.

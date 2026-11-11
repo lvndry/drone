@@ -1,0 +1,57 @@
+{
+  "format": "k10-core-f32le-v1",
+  "complete": true,
+  "feature_spec": "cqt24-8oct-c1-pad4-hop4096-v2",
+  "label_schema": "tonic-times-two-plus-minor-v1",
+  "layout": "bands,time",
+  "dtype": "float32-le",
+  "bands": 192,
+  "full_model_sha256": "35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613",
+  "checkpoint_sha256": "dcf8a7a292b7c12076ffff63c8c6550cb09a6c41ce4d000fd7949fc6bb4b452c",
+  "reference_onnxruntime": "1.31.1",
+  "validation_report_sha256": "a14d33aa81c4f6fe55b2cc136a8b216e8dc3a4a9010676c7419550efaddf1ed4",
+  "export_tool_sha256": "819d7e5c8f5c136aa49ea228b8015a36a88aec15e0c7b287ffc0e3ecca6ee2b4",
+  "support_source_sha256": {
+    "tools/research/__init__.py": "c134b7d141dadc4832d519c4570e6e153eb45ffc0e8298fa7892cee05db57f08",
+    "tools/research/contracts.py": "2f647777979fdecf32b950123b918177d10c4f058cd1849b8c5c4d5a65f717a0",
+    "tools/research/evidence.py": "c805357e983b2d155a28fda613e01d004dd3639eb43ca991987a5556225d10fd",
+    "tools/research/measurements.py": "4815020da2f904346e3cd6f37353cbef1547e2acf3adfdefb7f07af65788dc59"
+  },
+  "source_provenance": {
+    "runtime_source_sha256": "9af51310d5fc2532ec0d6d1974e583b7bcd57ce3647da7e29d94f3af9752decf",
+    "evaluator_source_sha256": "e009e299d235b494d7264ed5a0f29891eee24e6120677597050501cceb5de84a",
+    "support_source_sha256": {
+      "tools/research/__init__.py": "c134b7d141dadc4832d519c4570e6e153eb45ffc0e8298fa7892cee05db57f08",
+      "tools/research/contracts.py": "2f647777979fdecf32b950123b918177d10c4f058cd1849b8c5c4d5a65f717a0",
+      "tools/research/evidence.py": "c805357e983b2d155a28fda613e01d004dd3639eb43ca991987a5556225d10fd",
+      "tools/research/measurements.py": "4815020da2f904346e3cd6f37353cbef1547e2acf3adfdefb7f07af65788dc59"
+    }
+  },
+  "feature_manifest_sha256": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5",
+  "selection_sha256": "5b52266fe630ce52d606e4150c7aa0ff06c15e467cd3666a53d4b4e75d2ceeed",
+  "environment": {
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "onnxruntime": "1.31.1",
+    "numpy": "2.5.4",
+    "cpu_affinity": [
+      0
+    ],
+    "thread_environment": {
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1"
+    }
+  },
+  "cpu_wall_budget_seconds": 600,
+  "accuracy_scored": false,
+  "source_sha256_definition": "Each row source_sha256 is the original padded FP16 cache hash; raw-file sha256 identifies its widened core.",
+  "elapsed_seconds": 13.159450653009117,
+  "tracks": 376,
+  "selected_tracks": 20,
+  "torch_imported": false,
+  "fixture_manifest_sha256": "de2149a4f0020248f03958c82787e7cf8b115862c3b1327f92d9557c8e3010af",
+  "source_commit": "857a60372d37c7892fb3aafb5e09281bbd3495a6",
+  "server_root": "/home/lysk-admin/drone-experiments/k10-native-fixtures-20261111-v1",
+  "source_archive_sha256": "d492c1854cfee9e4c07ac4d0900f057fa2cac444588f0fb6464eb65675ac5854"
+}
