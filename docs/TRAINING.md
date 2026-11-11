@@ -15,6 +15,21 @@ not a completed result. The separate [K10 architecture PR #2](https://github.com
 has not been measured under this protocol. Its architecture and published-paper
 results must not be substituted for the measurements here.
 
+Subsequent evidence from that separate K10 run is now available: seed 13 scored
+**74.83% symmetric-fifth MIREX / 68.54% exact** on the 604 GiantSteps recordings,
+versus native Euphoria's 69.35% / 60.60%. This is a stronger observed point estimate
+than this document's octave candidate. It is a Beatport-only recipe, not a
+controlled comparison on the fixed joint Beatport/FMAK training split below;
+confirmation, split auditing and broader-domain evidence remain necessary.
+GiantSteps was already exposed at the program level, so this is not a fresh final
+test. The artifact is `~/drone-experiments/k10-arch-giantsteps.json` on lysk-server;
+its checkpoint SHA-256 is
+`ea74ec9604738e1e63fd10e334fda8be2d3a3b8e71422fb473ffde0f6bab2b33`.
+The matching run, `~/key-cnn/data/runs/w1.0-seed13-20261111-185528-lr7fvv4k/run.json`,
+records 298.47 seconds, best epoch 39, AdamW LR 0.001, decay 0.0001, batch 32,
+no label smoothing and a 120-epoch horizon. These are measured run facts, not
+evidence that the published paper's full protocol or result has been reproduced.
+
 ## Product goal and current decision
 
 Drone estimates a recording's musical key: one of 12 tonics in major or minor mode.
