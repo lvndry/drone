@@ -23,6 +23,7 @@ from drone.datasets import load_beatport, load_giantsteps, prepare, sample_featu
 from drone.features import CROP_FRAMES, FEATURE_ID, FEATURE_SPEC, N_CORE, audio_digest
 from drone.keys import LABEL_SCHEMA, encode_key, score_breakdown, score_mirex
 from drone.model import KeyCNN, params_count
+from drone.splits import validation_split
 
 DATA = Path(os.environ.get("DRONE_DATA", Path(__file__).resolve().parent / "data"))
 SEED = 13
@@ -31,21 +32,32 @@ BATCH = 32
 LR = 1e-3
 
 
-def evaluate_tracks(model, tracks, track_dir, device, batch=16):
-    """Per-track evaluation at full length (K10 does not pad at inference)."""
+def evaluate_features(model, features, device, batch=16):
+    """Classify variable-length arrays at true length with bounded batching."""
+    if not len(features) or batch < 1:
+        raise ValueError("Evaluation needs nonempty features and a positive batch")
     model.eval()
+    pred = np.empty(len(features), dtype=np.int64)
+    for i in range(0, len(features), batch):
+        groups = {}
+        for j, feature in enumerate(features[i : i + batch], start=i):
+            groups.setdefault(feature.shape[1], []).append((j, feature))
+        for entries in groups.values():
+            indices, arrays = zip(*entries, strict=True)
+            x = torch.from_numpy(np.stack(arrays)).to(device)
+            with torch.inference_mode():
+                pred[list(indices)] = model(x).argmax(1).cpu().numpy()
+    return pred
+
+
+def evaluate_tracks(model, tracks, track_dir, device, batch=16):
+    """Evaluate full tracks without making predictions depend on padded peers."""
+    if not len(tracks) or batch < 1:
+        raise ValueError("Evaluation needs nonempty tracks and a positive batch")
     pred = []
     for i in range(0, len(tracks), batch):
-        xs = []
-        for track in tracks[i : i + batch]:
-            features, _ = prepare(track, track_dir)
-            xs.append(features)
-        T = max(x.shape[1] for x in xs)
-        x = torch.zeros(len(xs), N_CORE, T)
-        for j, feat in enumerate(xs):
-            x[j, :, : feat.shape[1]] = torch.from_numpy(feat)
-        with torch.inference_mode():
-            pred.append(model(x.to(device)).argmax(1).cpu().numpy())
+        features = [prepare(t, track_dir)[0] for t in tracks[i : i + batch]]
+        pred.append(evaluate_features(model, features, device, batch))
     return np.concatenate(pred)
 
 
@@ -117,23 +129,6 @@ def assert_disjoint(train_ids, test_ids):
         raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
 
 
-def validation_split(refs, seed=SEED):
-    """Fixed seeded, stratified split; training augmentation never touches validation."""
-    rng = np.random.default_rng(seed)
-    val = []
-    for key in sorted(set(refs)):
-        indices = np.flatnonzero(np.asarray(refs) == key)
-        rng.shuffle(indices)
-        if len(indices) > 1:
-            val.extend(indices[: max(1, len(indices) // 10)].tolist())
-    val = sorted(val)
-    chosen = set(val)
-    train = [i for i in range(len(refs)) if i not in chosen]
-    if not train or not val:
-        raise ValueError("Need at least two examples in a class for a training/validation split")
-    return train, val
-
-
 def git_revision():
     try:
         return subprocess.check_output(
@@ -169,7 +164,7 @@ def train_model(
 
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     refs = meta["refs"]
-    tr_idx, val_idx = validation_split(refs, SEED)
+    tr_idx, val_idx = validation_split(refs, SEED, [t["sha256"] for t in meta["tracks"]])
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     if epochs < 1 or batch < 1 or lr <= 0 or weight_decay < 0 or not 0 <= label_smoothing < 1:

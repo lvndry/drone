@@ -10,8 +10,8 @@ The [results report](../experiments/RESULTS-2026-11-11.md) contains the detailed
 measurements; the protocols linked below record decisions made before each stage.
 
 The completed research snapshot is [PR #3](https://github.com/lvndry/drone/pull/3),
-targeting `main` after the K10 merge. The subsequent DSP-guided experiment is a hypothesis,
-not a completed result. The separate [K10 architecture PR #2](https://github.com/lvndry/drone/pull/2)
+targeting `main` after the K10 merge. The subsequent DSP-guided pilot completed
+and failed its development gate; the later update below records it. The separate [K10 architecture PR #2](https://github.com/lvndry/drone/pull/2)
 has not been measured under this protocol. Its architecture and published-paper
 results must not be substituted for the measurements here.
 
@@ -688,7 +688,7 @@ does not establish broad genre coverage, robust tuning behavior for the neural
 frontend, streaming prediction quality, or Rust runtime performance. It also lacks
 fresh final data for another unconstrained tuning cycle.
 
-The next hypothesis is **DSP-guided residual prediction**. Native Euphoria has
+The next hypothesis was **DSP-guided residual prediction**. Native Euphoria has
 useful whole-track harmonic evidence that the two-segment neural candidate may
 miss. The proposed experiment will export the existing tuned detector's 24-key
 scores from an isolated adapter at Euphoria `cde6db9`, first verify exact prediction
@@ -697,11 +697,24 @@ residual prior alongside OctaveNet using only the existing 2,206/376 fitting and
 validation rows. A residual should learn corrections to a strong prior rather
 than relearn the full decision from scratch.
 
-This work is beginning. No residual model has a completed accuracy result, no new
-gain is established, and the existing exposed final sets must not become its
-optimization target. Keep source snapshots and an explicit experiment budget,
-predeclare its selection rule, and require independent evidence before replacing
-the product detector. Broader classifiers, liquid-language models, decision-model
+That pilot subsequently completed in 312.02 seconds (47,332 parameters, best
+epoch 18, stop at epoch 43). Beatport validation MIREX was 73.49% (+0.56 points)
+and FMAK 67.32% (-1.44 points), relative to the frozen octave seed-13 reference.
+It failed the predeclared FMAK gain requirement; no confirmation or final scoring
+was earned. The run and original source snapshot are retained at
+`~/drone-experiments/dsp-guided-20261111-v1/` on lysk-server. Complementary errors
+did not translate into an improvement from this one fusion recipe.
+
+The current bounded accuracy experiment is the
+[controlled K10 multi-domain comparison](../experiments/K10_MULTIDOMAIN_PROTOCOL.md).
+It preserves the same development identities, fixes duplicate-audio leakage and
+padding-dependent evaluation, then compares Beatport-only against joint fitting.
+That comparison is now complete: across the three paired seeds, BP MIREX gained
+2.38 points and FMAK 1.60 points. It missed the predeclared 2-point mean FMAK gain,
+so no replacement weights or external freeze were earned. See
+[the full K10 comparison results](../experiments/K10_MULTIDOMAIN_RESULTS.md).
+Existing exposed final sets must not become its optimization target. Broader
+classifiers, liquid-language models, decision-model
 ideas, additional model tiers and extra song attributes remain possibilities to
 evaluate against concrete needs, not methods demonstrated by this training record.
 
