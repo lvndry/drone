@@ -1,0 +1,33 @@
+{
+  "mode": "benchmark",
+  "atol": 1e-05,
+  "rtol": 1e-05,
+  "core_outputs": 64,
+  "manifest_sha256": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5",
+  "full_model_sha256": "35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613",
+  "contract_sha256": "7df6f614fd5a84f72e2c26d521d4e9478162ca14633bd2ae1f2f4bf0e7c4dd40",
+  "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "cpu_budget_seconds": 600,
+  "threads": 1,
+  "onnxruntime": "1.31.1",
+  "numpy": "2.5.4",
+  "cpu_affinity": [
+    0
+  ],
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "checkpoint_sha256": "dcf8a7a292b7c12076ffff63c8c6550cb09a6c41ce4d000fd7949fc6bb4b452c",
+  "prefix_sha256": "61fa16b909865c1eb490581e2452790f921e39deb835181f430ec62d38fd0f9c",
+  "head_sha256": "9a04ea48929564f3cbbeca4d68c74fae202162e0588335c55e43c751c3c6eff5",
+  "runtime_source_sha256": "9af51310d5fc2532ec0d6d1974e583b7bcd57ce3647da7e29d94f3af9752decf",
+  "evaluator_source_sha256": "dbca00f32c09dd3d4a6baef2aea96fd107613c0cce011e3e350fe8a047303ce7",
+  "labels_scored": false,
+  "promotion": false,
+  "passed": false,
+  "error": "KeyError: 'sha'",
+  "cpu_seconds": 0.007963762999999999
+}
