@@ -20,6 +20,24 @@ from drone.features import (
 )
 
 
+def test_wav_reader_rejects_audio_without_a_format_chunk(tmp_path: Path) -> None:
+    import struct
+
+    from drone.features import read_wav_mono
+
+    path = tmp_path / "missing-format.wav"
+    data = b"\0\0" * 4
+    path.write_bytes(
+        b"RIFF"
+        + struct.pack("<I", 12 + len(data))
+        + b"WAVEdata"
+        + struct.pack("<I", len(data))
+        + data
+    )
+    with pytest.raises(ValueError, match="fmt"):
+        read_wav_mono(path)
+
+
 def _tone(hz: float, seconds: float = 2) -> np.ndarray:
     t = np.arange(int(SR * seconds)) / SR
     return (np.sin(2 * np.pi * hz * t) * 0.5).astype(np.float32)

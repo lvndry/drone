@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 import pytest
 
 from drone.keys import (
@@ -8,9 +9,17 @@ from drone.keys import (
     encode_key,
     key_relation,
     parse_key,
+    score_breakdown,
     score_mirex,
     transpose_key,
 )
+
+
+def test_scoring_accepts_numpy_integer_arrays() -> None:
+    pred = np.array([0, 1], dtype=np.int64)
+    ref = np.array([0, 1], dtype=np.int64)
+    assert score_mirex(pred, ref) == (1.0, 1.0)
+    assert score_breakdown(pred, ref)["exact"] == 2
 
 
 @pytest.mark.parametrize("class_id", range(24))

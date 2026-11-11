@@ -1,17 +1,24 @@
 # Weights
 
-No pretrained weights are included yet. Train a corrected model with:
+`drone-v1` — the K10 (MIREX 2026) port, confirmed by the 3-seed gate.
 
-```bash
-uv run train.py train --model-size small
-```
+| file | contents |
+| --- | --- |
+| `drone-v1.pt` | PyTorch checkpoint, `format_version: 2`, feature contract `cqt24-8oct-c1-pad4-hop4096-v2`, 109,128 parameters, run `w1.0-seed13-20261111-185528-lr7fvv4k` (seed 13) |
+| `drone-v1.onnx` | ONNX export of the same weights, opset 18, dynamic batch; CPU parity verified at export time |
 
-The selected checkpoint is written to `data/runs/<run>/drone.pt`; its run record
-is alongside it in `run.json`. Pass that path to `drone.Predictor` or set
-`DRONE_WEIGHTS`. For a default artifact, place a verified compatible checkpoint at
-`weights/drone-v1.pt`. Wheel builds include this directory as `drone/weights`.
+Held-out GiantSteps (604 tracks, single evaluation per seed):
 
-Small, medium, and large artifacts must each be trained and evaluated independently.
-Do not distribute old unversioned checkpoints: they do not describe the corrected
-feature or label contracts. ONNX exports and their metadata can be generated with
-`uv run --extra export python -m drone.export <checkpoint> <output.onnx>`.
+| seed | exact | MIREX |
+| --- | --- | --- |
+| 13 | 68.5% | 74.8% |
+| 37 | 66.1% | 73.0% |
+| 73 | 65.7% | 72.9% |
+| **mean** | **66.8%** | **73.58%** |
+
+Reference: native libkeyfinder scores 69.35% MIREX on the same files.
+
+Use the default resolution (packaged `drone/weights/drone-v1.pt`, then the
+checkout's `weights/drone-v1.pt`) or point `DRONE_WEIGHTS` at your own
+checkpoint. Do not distribute old unversioned checkpoints: they do not describe
+the current feature or label contracts.
