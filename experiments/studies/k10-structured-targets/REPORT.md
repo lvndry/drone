@@ -61,6 +61,8 @@ followed. Existing release weights remain unchanged.
 
 ## Reproduction and evidence
 
+The actual fitting source is preserved by the [`research/k10-structured-targets-v1`](https://github.com/lvndry/drone/tree/research/k10-structured-targets-v1) tag.
+
 Actual fitting source: `36d9e4164dcffc1192c2aebb60aa6d80dc2a24d1`, based on
 `40afede7ca6af96d740086eab2616f9ec98d3321`; archived control source `673e280`.
 Use that frozen source/archive for fitting replay: the published combined runner

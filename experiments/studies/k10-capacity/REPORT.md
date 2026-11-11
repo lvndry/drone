@@ -72,6 +72,8 @@ No calibration/final/SWD/private predictions or distillation followed.
 
 ## Reproduction and evidence
 
+The actual fitting source is preserved by the [`research/k10-capacity-v1`](https://github.com/lvndry/drone/tree/research/k10-capacity-v1) tag.
+
 Actual fit source: `679b7fdb021af64cb2816c8b61d571a5d3ac773c`, based on
 `a1abac9ddad927830b0409f80d6908502eeab2cd`. Replay fitting from the frozen source,
 not an evolving combined runner. [Candidate result](data/candidate-result.json)
