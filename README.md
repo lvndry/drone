@@ -133,6 +133,17 @@ inference. The CPU session helper uses sequential execution, one intra-op thread
 and disabled worker spinning by default. Euphoria must bound total concurrency
 across analysis workers as well.
 
+For a native host that runs the network itself rather than through an ONNX
+runtime, export the tensors as safetensors:
+
+```bash
+uv run python -m drone.safetensors weights/drone-v1.pt data/drone-v1.safetensors
+```
+
+It stores every learned parameter and BatchNorm running statistic in float32
+under its PyTorch name, with the feature spec, label schema and the checkpoint's
+SHA-256 in the header metadata. It needs only PyTorch, not the export extra.
+
 Benchmarks separate model loading, warm forward latency, cold decoding/features/
 forward time, and warm feature-cache time. They report parameter and artifact size,
 thread count, and hardware. Parent-process CPU timing excludes ffmpeg; it is not a
