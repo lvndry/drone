@@ -56,6 +56,20 @@ FMAK improvement versus the corrected Beatport control remains required before
 further qualification. The small historical data-only gain is not reclassified
 as a pass. Canonical seed 13 is fixed in advance; no decay/seed/ensemble sweep.
 
+The [completed EMA pilot](https://github.com/lvndry/drone/pull/8) reproduced RAW
+exactly but failed: EMA plus recalibration lost 1.84 FMAK MIREX points against
+ordinary weights with identical recalibration. Recalibration also hurt ordinary
+weights. No other seeds were run and no release weights changed.
+
+The next proposed accuracy experiment changes only the existing K10 loss:
+structured smoothing with 0.8 on the true class and 0.2 divided among harmonic
+neighbours using the existing relation weights. This is an unproven hypothesis,
+not direct expected-MIREX optimization. Keep the same data, seed, augmentation,
+optimizer and inference. A seed-13 improvement of at least one FMAK MIREX point
+with no MIREX or exact decline in either domain earns confirmation on 37/73;
+three-seed means must retain the separate two-point original control hurdle.
+No smoothing sweep, architecture change, curriculum or teacher is bundled in.
+
 ## Selected performance experiment
 
 K10's six temporal 3-wide convolutions and three stride-two pools give output
@@ -96,6 +110,16 @@ CVPR FGVC13 2026, studies compatibility across teachers, students and datasets.
 This supports testing teacher suitability instead of choosing solely by size.
 Its image-domain selection metric is a hypothesis for music, not an established
 key-classification recipe.
+
+[Layer-wise music representation analysis](https://arxiv.org/abs/2608.14819),
+ISMIR 2026, finds standard intrinsic quality metrics fail on tonal tasks and
+introduces pitch-transposition equivariance as a tonal diagnostic. This makes
+teacher/layer compatibility worth checking explicitly before any distillation.
+
+[MT²](https://arxiv.org/html/2507.12996v1) is relevant to future multitask work,
+but Table 1 reports 73.3 key MIREX for its monotask equivariant ViT-CQT versus
+71.3 for averaged multitask tokens. Broad transfer gains do not imply the best
+key classifier. Later capabilities remain separate from the current release.
 
 ## Evaluation constraints
 
