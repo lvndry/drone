@@ -16,6 +16,7 @@ from torch import nn
 from drone.checkpoints import load_checkpoint, save_checkpoint
 from drone.features import audio_digest
 from drone.model import KeyCNN, params_count
+from experiments import capacity
 from experiments.capacity import PROTOCOL, REVIEWED, VERSION, CapacityProbe, memory_guard
 from experiments.ema import evaluate_logits
 from experiments.paired import compare, ema_evidence_math, summarize, training_math, verify_control
@@ -58,11 +59,13 @@ def test_memory_guard_requires12gib_before_raising_cap(monkeypatch: pytest.Monke
     assert memory["allocator_cap_bytes"] == int(96 * 1024**3 * 0.08)
 
 
-def test_math_audit_matches_all_frozen_controls_and_detects_recipe_changes() -> None:
+def test_frozen_audits_remain_consistent_and_current_audit_detects_recipe_changes() -> None:
     source = Path("experiments/k10_multidomain.py").read_text()
     audit = training_math(source)
     reviewed = json.loads(REVIEWED.read_bytes())
-    assert all(audit == value["training_math"] for value in reviewed.values())
+    # Preserve historical evidence; current typing/refactoring is not retroactive replay.
+    historical = reviewed["archived"]["training_math"]
+    assert all(historical == value["training_math"] for value in reviewed.values())
     for before, after in (
         ("lr=0.001", "lr=0.002"),
         ("range(1, 121)", "range(1, 61)"),
@@ -80,8 +83,37 @@ def metrics(fmak: float = 0.5) -> dict[str, Any]:
     }
 
 
-def fixture_control(tmp_path: Path) -> tuple[Namespace, dict[str, Any], dict[str, Any]]:
-    reviewed = json.loads(REVIEWED.read_bytes())
+@pytest.fixture
+def synthetic_reviewed_context(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> dict[str, Any]:
+    """Unit-only current context; never re-label the actual frozen study maps."""
+    current_math = training_math(Path("experiments/k10_multidomain.py").read_text())
+    reviewed = {
+        "archived": {"sources": {"synthetic-archive.py": "a" * 64}, "training_math": current_math},
+        "reusable_control": {
+            "sources": {"synthetic-control.py": "b" * 64},
+            "training_math": current_math,
+        },
+        "base": {
+            "sources": source_manifest(),
+            "training_math": current_math,
+            "ema_evidence_math": ema_evidence_math(Path("experiments/ema.py").read_text()),
+        },
+    }
+    path = tmp_path / "synthetic-reviewed-sources.json"
+    path.write_text(json.dumps(reviewed))
+    monkeypatch.setattr(capacity, "REVIEWED", path)
+    return reviewed
+
+
+def fixture_control(
+    tmp_path: Path,
+    reviewed: dict[str, Any] | None = None,
+) -> tuple[Namespace, dict[str, Any], dict[str, Any]]:
+    if reviewed is None:
+        reviewed = json.loads(REVIEWED.read_bytes())
     archive, control_dir, output = (
         tmp_path / "archive",
         tmp_path / "control13",
@@ -151,8 +183,11 @@ def fixture_control(tmp_path: Path) -> tuple[Namespace, dict[str, Any], dict[str
     return args, candidate, control
 
 
-def test_reuse_reverifies_actual_history_state_hash_and_completed_proof(tmp_path: Path) -> None:
-    args, record, control = fixture_control(tmp_path)
+def test_reuse_reverifies_actual_history_state_hash_and_completed_proof(
+    tmp_path: Path,
+    synthetic_reviewed_context: dict[str, Any],
+) -> None:
+    args, record, control = fixture_control(tmp_path, synthetic_reviewed_context)
     probe = CapacityProbe(args, record, memory_guard("cpu"))
     assert probe.seconds == 2700 and probe.width == 2
     assert probe.control_proof["exact_history_predictions_state"]
@@ -169,6 +204,14 @@ def test_reuse_reverifies_actual_history_state_hash_and_completed_proof(tmp_path
     proof_path.write_text(json.dumps(proof))
     with pytest.raises(ValueError, match="completed exact-replay proof"):
         CapacityProbe(args, record, memory_guard("cpu"))
+
+
+def test_combined_runner_rejects_actual_frozen_capacity_context(tmp_path: Path) -> None:
+    args, record, _ = fixture_control(tmp_path)
+    frozen_bytes = REVIEWED.read_bytes()
+    with pytest.raises(ValueError, match="Source differs from reviewed base"):
+        CapacityProbe(args, record, memory_guard("cpu"))
+    assert REVIEWED.read_bytes() == frozen_bytes
 
 
 def test_control_checkpoint_metadata_corruption_is_rejected(tmp_path: Path) -> None:
@@ -226,8 +269,11 @@ def test_capacity_gate_preserves_original_hurdle_and_never_buys_weighted_gain_wi
         summarize(candidates, VERSION)
 
 
-def test_candidate_budget_failure_is_inconclusive_and_cannot_qualify(tmp_path: Path) -> None:
-    args, record, _ = fixture_control(tmp_path)
+def test_candidate_budget_failure_is_inconclusive_and_cannot_qualify(
+    tmp_path: Path,
+    synthetic_reviewed_context: dict[str, Any],
+) -> None:
+    args, record, _ = fixture_control(tmp_path, synthetic_reviewed_context)
     probe = CapacityProbe(args, record, memory_guard("cpu"))
     failure = probe.failure(record, time.monotonic(), "time budget", budget=True)
     assert failure["status"] == "budget_inconclusive"
