@@ -1,5 +1,7 @@
 """Score Euphoria's native predictions on precisely the frozen FMAK development set."""
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -8,11 +10,11 @@ from pathlib import Path
 
 import numpy as np
 
-from drone.keys import WEIGHTS, key_relation
+from drone.keys import WEIGHTS, KeyIndices, key_relation
 from experiments.reference.train import load_prepared
 
 
-def weights(predictions, refs, symmetric=True):
+def weights(predictions: KeyIndices, refs: KeyIndices, symmetric: bool = True) -> np.ndarray:
     return np.array(
         [
             WEIGHTS[key_relation(int(p), int(r), symmetric=symmetric)] if p >= 0 else 0
@@ -21,7 +23,7 @@ def weights(predictions, refs, symmetric=True):
     )
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--partition", type=Path, required=True)

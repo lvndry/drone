@@ -1,0 +1,29 @@
+{
+  "source_v1": "0fd31faaa6bc199e1705588eea756ade7e2fb22b",
+  "source_v2": "8663145914cfa370a9d1170e05f8a05b2455badc",
+  "source_archives": {
+    "drone-k10-chunked-0fd31fa.tar.gz": "9172558298af8df8ed34d352323d9da800fcc2a9e203d010942f5657ba8ef958",
+    "drone-k10-chunked-8663145.tar.gz": "f88fa5cc5c3aa2017b4c031f240d86b21ec40e56a670922de556c0937ddcedc4"
+  },
+  "base": "c52255761412ef48f2f9af814df67c3d3214ef4f",
+  "bundle_export_source": "0fd31faaa6bc199e1705588eea756ade7e2fb22b",
+  "v2_change": "Read canonical selection rows[].sha256; runtime, exporter and bundle unchanged. Validation rerun to bind revised evaluator source.",
+  "v1_benchmark": "Failed before measurement with KeyError sha; retained evidence. This was a selection schema bug, not a parity failure.",
+  "server_roots": [
+    "/home/lysk-admin/drone-experiments/k10-chunked-20261111-v1",
+    "/home/lysk-admin/drone-experiments/k10-chunked-20261111-v2"
+  ],
+  "files": {
+    "contract.json": "7df6f614fd5a84f72e2c26d521d4e9478162ca14633bd2ae1f2f4bf0e7c4dd40",
+    "v1/diagnostics.json": "9a8be4a8ba7233b2240227a09f1c81c661158e90ddf7adcc3732cfe4ab520575",
+    "v1/full-benchmark.json": "d447b070ed8f714d68d314f276cfceeb44ea6b21f6dd89945d7cf12f872573a4",
+    "v1/validation.json": "6ffa25b664fbc0a9d45d327b0a9433ef31f72ea89a07822ece9c23dbb4ce67b9",
+    "v2/chunked-benchmark.json": "a8ac28910f885b2b76405df4a2dafb26cad540d9276f74e76cb3195b4750fa10",
+    "v2/full-benchmark.json": "0db8ccdedc0a0d8837bee9c2d906c33b472a677e890781423981d3a05095a1a2",
+    "v2/validation.json": "7d98e69c109d66744ae337859726f03fcaf2d154326165fccc50bd47c1619d1d"
+  },
+  "weights_promoted": false,
+  "labels_scored": false,
+  "private_audio_used": false,
+  "limitations": "Server cached-feature Python/NumPy/ORT CPU only; does not measure Rust application, frontend cost or prove universal floating-point decision equivalence."
+}

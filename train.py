@@ -37,10 +37,7 @@ LR = 1e-3
 
 
 def evaluate_features(
-    model: nn.Module,
-    features: Sequence[np.ndarray],
-    device: str,
-    batch: int = 16,
+    model: nn.Module, features: Sequence[np.ndarray], device: str, batch: int = 16
 ) -> np.ndarray:
     """Classify variable-length arrays at true length with bounded batching."""
     if not len(features) or batch < 1:
@@ -48,9 +45,9 @@ def evaluate_features(
     model.eval()
     pred = np.empty(len(features), dtype=np.int64)
     for i in range(0, len(features), batch):
-        groups: dict[int, list[tuple[int, np.ndarray]]] = {}
+        groups = {}
         for j, feature in enumerate(features[i : i + batch], start=i):
-            groups.setdefault(int(feature.shape[1]), []).append((j, feature))
+            groups.setdefault(feature.shape[1], []).append((j, feature))
         for entries in groups.values():
             indices, arrays = zip(*entries, strict=True)
             x = torch.from_numpy(np.stack(arrays)).to(device)
@@ -60,16 +57,12 @@ def evaluate_features(
 
 
 def evaluate_tracks(
-    model: nn.Module,
-    tracks: Sequence[Track],
-    track_dir: str | Path,
-    device: str,
-    batch: int = 16,
+    model: nn.Module, tracks: list[Track], track_dir: str | Path, device: str, batch: int = 16
 ) -> np.ndarray:
     """Evaluate full tracks without making predictions depend on padded peers."""
     if not len(tracks) or batch < 1:
         raise ValueError("Evaluation needs nonempty tracks and a positive batch")
-    pred: list[np.ndarray] = []
+    pred = []
     for i in range(0, len(tracks), batch):
         features = [prepare(t, track_dir)[0] for t in tracks[i : i + batch]]
         pred.append(evaluate_features(model, features, device, batch))
@@ -81,12 +74,12 @@ def prepared_path(data: str | Path, tag: str) -> Path:
 
 
 def prepare_dir(
-    tag: str, tracks: Sequence[Track], track_dir: str | Path, *, data: str | Path = DATA
+    tag: str, tracks: list[Track], track_dir: str | Path, *, data: str | Path = DATA
 ) -> dict[str, Any]:
     """Warm the content-addressed CQT cache and write the track manifest."""
     if not tracks:
         raise ValueError(f"No tracks for {tag}; download the datasets with bash fetch.sh")
-    metadata: dict[str, Any] = {
+    metadata = {
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
         "crop": CROP_FRAMES,
@@ -129,7 +122,7 @@ def load_manifest(data: str | Path, tag: str) -> dict[str, Any]:
     path = prepared_path(data, tag)
     if not path.is_file():
         raise FileNotFoundError(f"Missing {tag} manifest. Run uv run train.py prepare.")
-    metadata: dict[str, Any] = json.loads(path.read_text())
+    metadata = json.loads(path.read_text())
     if (
         metadata.get("feature_spec") != FEATURE_SPEC
         or metadata.get("label_schema") != LABEL_SCHEMA
@@ -177,6 +170,7 @@ def train_model(
     assert_disjoint(
         [t["sha256"] for t in meta["tracks"]], [t["sha256"] for t in test_meta["tracks"]]
     )
+
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     refs = meta["refs"]
     tr_idx, val_idx = validation_split(refs, SEED, [t["sha256"] for t in meta["tracks"]])
@@ -210,7 +204,7 @@ def train_model(
         "label_smoothing": label_smoothing,
     }
     source_files = [Path(__file__), *sorted((Path(__file__).parent / "drone").glob("*.py"))]
-    source_hashes: dict[str, str] = {
+    source_hashes = {
         str(p.relative_to(Path(__file__).parent)): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in source_files
     }
@@ -240,8 +234,7 @@ def train_model(
         loss_sum = 0.0
         for i in range(0, len(order), batch):
             idx = order[i : i + batch]
-            feats: list[np.ndarray] = []
-            y: list[int] = []
+            feats, y = [], []
             for j in idx:
                 feat, cls = sample_features(ordered[j], data, rng, T=CROP_FRAMES)
                 feats.append(feat)
@@ -311,6 +304,7 @@ def evaluate_checkpoint(data: str | Path, checkpoint: str | Path, device: str) -
         payload.get("metadata", {}).get("training_audio_sha256", []),
         [t["sha256"] for t in meta["tracks"]],
     )
+
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     pred = evaluate_tracks(model, ordered, data, device)
     classes = [int(c) for c in pred]

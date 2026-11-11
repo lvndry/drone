@@ -4,6 +4,8 @@ Uses official FMAK audio archives and FMAKv2 annotations. Verified downloaded
 archives are removed after successful extraction unless --keep-archives is set.
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import hashlib
@@ -18,7 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from drone.download import download
-from drone.keys import LABEL_SCHEMA, encode_key
+from drone.keys import LABEL_SCHEMA, Key, encode_key
 from experiments.reference.datasets import Track, prepare
 from experiments.reference.features import FEATURE_SPEC, audio_digest
 from experiments.reference.train import prepared_path
@@ -27,20 +29,20 @@ ANNOTATION_URL = "https://zenodo.org/api/records/12759100/files/fmakv2.csv/conte
 ANNOTATION_MD5 = "3b2d16784ffbda850c8ddf0519478bfd"
 
 
-def prep_one(arguments):
+def prep_one(arguments: tuple[str, str, Path, Key]) -> tuple[str, np.ndarray, int, str, float]:
     identity, path, cache, key = arguments
     start = time.monotonic()
     features, ref = prepare(Track(identity, path, key), cache)
     return identity, features, ref, audio_digest(path), time.monotonic() - start
 
 
-def write_json(path, value):
+def write_json(path: Path, value: object) -> None:
     pending = path.with_suffix(".pending")
     pending.write_text(json.dumps(value, indent=2) + "\n")
     os.replace(pending, path)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--audio-metadata", type=Path, required=True)

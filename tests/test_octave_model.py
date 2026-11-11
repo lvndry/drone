@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 import torch
-from torch import nn
 
 from experiments.octave_model import OctaveNet, compress
 
@@ -28,9 +27,9 @@ def test_octave_network_outputs_logits_and_propagates_supervised_gradients() -> 
     logits = model(torch.rand(2, 84, 256))
     assert logits.shape == (2, 24) and torch.isfinite(logits).all()
     torch.nn.functional.cross_entropy(logits, torch.tensor([0, 19])).backward()
-    down0 = model.down[0]
-    assert isinstance(down0, nn.Conv2d)
-    grad = down0.weight.grad
-    assert grad is not None and grad.abs().sum() > 0
+    convolution = model.down[0]
+    assert isinstance(convolution, torch.nn.Conv2d)
+    gradient = convolution.weight.grad
+    assert gradient is not None and gradient.abs().sum() > 0
     with pytest.raises(ValueError):
         model(torch.rand(2, 33, 256))

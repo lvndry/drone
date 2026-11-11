@@ -81,14 +81,12 @@ def benchmark(
                 track = Track("benchmark", audio, ("C", "major"))
                 start = time.perf_counter()
                 features, _ = prepare(track, scratch)
-                model(torch.from_numpy(features[None]).transpose(1, 2))
+                model(torch.from_numpy(features[None]))
                 result["cold_audio_decode_features_forward_ms"] = 1000 * (
                     time.perf_counter() - start
                 )
                 result["warm_feature_cache_plus_forward"] = timed(
-                    lambda: model(
-                        torch.from_numpy(prepare(track, scratch)[0][None]).transpose(1, 2)
-                    ),
+                    lambda: model(torch.from_numpy(prepare(track, scratch)[0][None])),
                     min(10, iterations),
                 )
     return result

@@ -52,7 +52,7 @@ def validate_rows(rows: list[dict[str, Any]]) -> None:
         raise ValueError("Identical audio crosses fitting and validation")
     if len(fit) != sum(r["role"] == "train" for r in rows):
         raise ValueError("Fitting audio must be unique")
-    labels: dict[str, int] = {}
+    labels = {}
     for r in rows:
         if r["sha256"] in labels and labels[r["sha256"]] != r["ref"]:
             raise ValueError("Conflicting labels on identical audio")
@@ -63,8 +63,8 @@ def prepare_one(task: tuple[dict[str, Any], Path, Path]) -> dict[str, Any]:
     row, output, existing = task
     if audio_digest(row["path"]) != row["sha256"]:
         raise ValueError(f"Audio content changed: {row['id']}")
-    destination = Path(cqt_path(str(output), row["sha256"]))
-    original = Path(cqt_path(str(existing), row["sha256"]))
+    destination = Path(cqt_path(output, row["sha256"]))
+    original = Path(cqt_path(existing, row["sha256"]))
     reused = False
     if not destination.exists() and original.is_file():
         cached = np.load(original, allow_pickle=False)
@@ -84,14 +84,13 @@ def prepare_one(task: tuple[dict[str, Any], Path, Path]) -> dict[str, Any]:
     array = extract_cqt(row["path"], output)
     if array.shape[1] < 8 or not np.isfinite(array).all():
         raise ValueError(f"Invalid CQT: {row['id']}")
-    result: dict[str, Any] = dict(
+    return dict(
         row,
         cache=str(destination.relative_to(output)),
         frames=array.shape[1],
         cache_sha256=audio_digest(destination),
         reused_cache=reused,
     )
-    return result
 
 
 def prepare(args: argparse.Namespace) -> None:
@@ -100,7 +99,7 @@ def prepare(args: argparse.Namespace) -> None:
         raise ValueError("The frozen development manifest differs")
     rows = json.loads(raw)["rows"]
     validate_rows(rows)
-    counts: dict[str, int] = {
+    counts = {
         f"{domain}_{role}": sum(r["domain"] == domain and r["role"] == role for r in rows)
         for domain in ("beatport", "fmak")
         for role in ("train", "validation")
@@ -112,11 +111,9 @@ def prepare(args: argparse.Namespace) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     start = time.monotonic()
-    completed: list[dict[str, Any]] = []
+    completed = []
     with ProcessPoolExecutor(max_workers=8) as pool:
-        tasks: list[tuple[dict[str, Any], Path, Path]] = [
-            (r, args.output, args.existing_cache) for r in rows
-        ]
+        tasks = [(r, args.output, args.existing_cache) for r in rows]
         for row in pool.map(prepare_one, tasks):
             completed.append(row)
             if len(completed) % 50 == 0:
@@ -152,7 +149,7 @@ def load_data(data: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[np
         raise ValueError("Different development identities")
     rows = manifest["rows"]
     validate_rows(rows)
-    arrays: list[np.ndarray] = []
+    arrays = []
     for r in rows:
         path = data / r["cache"]
         if audio_digest(path) != r["cache_sha256"]:
@@ -166,19 +163,17 @@ def load_data(data: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[np
 
 def domain_metrics(
     pred: np.ndarray, refs: np.ndarray, rows: list[dict[str, Any]]
-) -> dict[str, Any]:
-    result: dict[str, Any] = {}
+) -> dict[str, dict[str, Any]]:
+    result = {}
     for domain in ("beatport", "fmak"):
         indices = [i for i, r in enumerate(rows) if r["domain"] == domain]
         p, y = pred[indices], refs[indices]
-        exact, mirex = score_mirex([int(c) for c in p], [int(c) for c in y])
+        exact, mirex = score_mirex(p, y)
         result[domain] = {
             "tracks": len(indices),
             "exact": exact,
             "mirex": mirex,
-            "mirex_asymmetric": score_mirex(
-                [int(c) for c in p], [int(c) for c in y], symmetric=False
-            )[1],
+            "mirex_asymmetric": score_mirex(p, y, symmetric=False)[1],
             "mode_accuracy": float(np.mean(p % 2 == y % 2)),
             "predictions": p.tolist(),
             "ids": [rows[i]["id"] for i in indices],
@@ -207,7 +202,7 @@ def train(args: argparse.Namespace) -> None:
     model = KeyCNN().to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 120)
-    record: dict[str, Any] = {
+    record = {
         "status": "running",
         "arm": args.arm,
         "seed": args.seed,
@@ -229,15 +224,19 @@ def train(args: argparse.Namespace) -> None:
         "calibration_used": False,
         "final_holdout_used": False,
     }
-    best, best_epoch, start = -1.0, 0, time.monotonic()
+    probe = None
+    if getattr(args, "ema_probe", False):
+        from experiments.ema import EmaProbe
+
+        probe = EmaProbe(args, record, model, rows, arrays, fitting)
+    best, best_epoch, start = -1, 0, time.monotonic()
     for epoch in range(1, 121):
         model.train()
         order = rng.permutation(fitting)
         loss_sum = 0.0
         for offset in range(0, len(order), 32):
             idx = order[offset : offset + 32]
-            xs: list[np.ndarray] = []
-            ys: list[int] = []
+            xs, ys = [], []
             for i in idx:
                 shift = int(rng.integers(-4, 5))
                 feature = window(arrays[i], shift).astype(np.float32)
@@ -255,14 +254,18 @@ def train(args: argparse.Namespace) -> None:
                 raise RuntimeError("Nonfinite training loss")
             loss.backward()
             optimizer.step()
+            if probe is not None:
+                probe.step(model)
             loss_sum += float(loss.detach()) * len(idx)
             if time.monotonic() - start > 1200:
                 record.update(status="budget_exhausted", elapsed_seconds=time.monotonic() - start)
                 atomic_json(args.output / "run.json", record)
+                if probe is not None:
+                    probe.budget_exhausted(start)
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
-        _, score = score_mirex([int(c) for c in pred], [int(c) for c in val_refs])
+        _, score = score_mirex(pred, val_refs)
         record["history"].append(dict(epoch=epoch, loss=loss_sum / len(order), mirex=score))
         if score > best:
             best, best_epoch = score, epoch
@@ -278,6 +281,8 @@ def train(args: argparse.Namespace) -> None:
             atomic_json(
                 args.output / "best-validation.json", domain_metrics(pred, val_refs, val_rows)
             )
+            if probe is not None:
+                probe.save_best(model)
         record.update(best_epoch=best_epoch, elapsed_seconds=time.monotonic() - start)
         atomic_json(args.output / "run.json", record)
         print(
@@ -293,6 +298,8 @@ def train(args: argparse.Namespace) -> None:
         checkpoint_sha256=audio_digest(args.output / "best.pt"),
     )
     atomic_json(args.output / "run.json", record)
+    if probe is not None:
+        probe.finish(record, val_features, val_refs, val_rows, start)
 
 
 def diagnose(args: argparse.Namespace) -> None:
@@ -304,7 +311,7 @@ def diagnose(args: argparse.Namespace) -> None:
     refs = np.array([r["ref"] for r in val_rows])
     model, _ = load_checkpoint(args.checkpoint, args.device)
     corrected = evaluate_features(model, features, args.device, batch=4)
-    padded: list[int] = []
+    padded = []
     for offset in range(0, len(features), 4):
         chunk = features[offset : offset + 4]
         x = np.zeros((len(chunk), 192, max(f.shape[1] for f in chunk)), dtype=np.float32)
@@ -338,7 +345,19 @@ def main() -> None:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--arm", choices=("control", "joint"))
     p.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
+    p.add_argument("--ema-probe", action="store_true")
+    p.add_argument("--reference-run", type=Path)
+    p.add_argument("--reference-bp", type=Path)
+    p.add_argument("--reference-checkpoint", type=Path)
+    p.add_argument("--pilot-run", type=Path)
     args = p.parse_args()
+    if args.ema_probe and (
+        args.command != "train"
+        or args.arm != "joint"
+        or args.reference_run is None
+        or args.reference_bp is None
+    ):
+        p.error("--ema-probe requires train --arm joint --reference-run and --reference-bp")
     {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
 
 

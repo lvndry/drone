@@ -6,12 +6,16 @@ from collections import Counter
 from collections.abc import Sequence
 from numbers import Integral
 
+import numpy as np
+from numpy.typing import NDArray
+
 TONICS = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
 FLATS = {"Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
 LABEL_SCHEMA = "tonic-times-two-plus-minor-v1"
 WEIGHTS = {"exact": 1.0, "fifth": 0.5, "relative": 0.3, "parallel": 0.2, "other": 0.0}
 
 Key = tuple[str, str]
+KeyIndices = Sequence[int] | NDArray[np.integer]
 
 
 def encode_key(tonic: str, mode: str) -> int:
@@ -60,16 +64,14 @@ def key_relation(pred: int, ref: int, *, symmetric: bool = True) -> str:
     return "other"
 
 
-def score_breakdown(
-    pred: Sequence[int], ref: Sequence[int], *, symmetric: bool = True
-) -> Counter[str]:
+def score_breakdown(pred: KeyIndices, ref: KeyIndices, *, symmetric: bool = True) -> Counter[str]:
     if len(pred) != len(ref) or not len(ref):
         raise ValueError("Scoring requires equally sized, nonempty predictions and references")
     return Counter(key_relation(p, r, symmetric=symmetric) for p, r in zip(pred, ref, strict=True))
 
 
 def score_mirex(
-    pred: Sequence[int], ref: Sequence[int], *, symmetric: bool = True
+    pred: KeyIndices, ref: KeyIndices, *, symmetric: bool = True
 ) -> tuple[float, float]:
     """Return (exact fraction, weighted MIREX fraction)."""
     counts = score_breakdown(pred, ref, symmetric=symmetric)

@@ -13,7 +13,7 @@ from drone.model import KeyCNN
 
 
 def save_checkpoint(
-    path: str | Path, model: KeyCNN, *, width: float = 1.0, **metadata: Any
+    path: str | Path, model: KeyCNN, *, width: float = 1.0, **metadata: object
 ) -> None:
     payload: dict[str, Any] = {
         "format_version": 2,

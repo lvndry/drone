@@ -1,4 +1,4 @@
-""" "Verify and summarize the fixed three-seed adaptation confirmation."""
+"""Verify and summarize the fixed three-seed adaptation confirmation."""
 
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ def main() -> None:
             "mirex_mean": statistics.mean(values),
             "mirex_sample_sd": statistics.stdev(values),
             "exact_mean": statistics.mean(row["metrics"][name]["exact"] for row in results),
-            "delta_mirex_mean": float(statistics.mean(values) - baseline[name]["mirex"]),
+            "delta_mirex_mean": statistics.mean(values) - baseline[name]["mirex"],
         }
     canonical = args.root / "seed13/seed13/best.pt"
     result = {

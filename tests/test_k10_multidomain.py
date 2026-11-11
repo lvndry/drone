@@ -79,7 +79,7 @@ def test_gate_rejects_changed_validation_identities() -> None:
 
 
 def test_confirmation_gate_does_not_promote_a_lucky_pilot_seed() -> None:
-    pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]] = {}
+    pairs = {}
     for seed, gain in ((13, 0.0352), (37, 0.0012), (73, 0.01)):
         control, joint = paired_runs()
         control["seed"] = joint["seed"] = seed

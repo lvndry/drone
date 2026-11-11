@@ -20,17 +20,17 @@ def compare(control: dict[str, Any], joint: dict[str, Any]) -> dict[str, Any]:
     for key in ("seed", "config", "source_sha256", "feature_manifest_sha256", "validation_ids"):
         if control[key] != joint[key]:
             raise ValueError(f"Arms differ in {key}, beyond their fitting data")
-    control_fit, joint_fit = set(map(str, control["fit_ids"])), set(map(str, joint["fit_ids"]))
+    control_fit, joint_fit = set(control["fit_ids"]), set(joint["fit_ids"])
     if not control_fit < joint_fit or not all(i.startswith("beatport:") for i in control_fit):
         raise ValueError("The control must fit the same Beatport subset only")
     if not all(i.startswith("fmak:") for i in joint_fit - control_fit):
         raise ValueError("The candidate may add only FMAK fitting rows")
-    delta: dict[str, float] = {}
+    delta = {}
     for domain in ("beatport", "fmak"):
         a, b = control["domain_metrics"][domain], joint["domain_metrics"][domain]
         if a["ids"] != b["ids"] or a["tracks"] != b["tracks"]:
             raise ValueError("Domain validation identities differ")
-        delta[domain] = float(b["mirex"]) - float(a["mirex"])
+        delta[domain] = b["mirex"] - a["mirex"]
     return {
         "seed": control["seed"],
         "delta_mirex": delta,

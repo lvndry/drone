@@ -24,7 +24,7 @@ from drone.keys import TONICS, Key, encode_key, transpose_key
 
 
 class Track:
-    def __init__(self, track_id: str, audio: str, key: Key):
+    def __init__(self, track_id: str, audio: str, key: Key) -> None:
         self.id = track_id
         self.audio = audio
         self.key: Key = key  # (tonic, mode)

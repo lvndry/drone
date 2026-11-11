@@ -42,7 +42,7 @@ def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path: Path, width: flo
     assert options.get_session_config_entry("session.intra_op.allow_spinning") == "0"
 
 
-def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths():
+def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths() -> None:
     from drone.export import cpu_session
 
     weights = Path(__file__).resolve().parents[1] / "weights"

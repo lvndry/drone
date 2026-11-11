@@ -24,13 +24,13 @@ from experiments.reference.train import load_prepared
 from experiments.small import atomic_json, signature
 
 
-def calibrated(probability, temperature):
+def calibrated(probability: np.ndarray, temperature: float) -> np.ndarray:
     logits = np.log(np.maximum(probability, 1e-12)) / temperature
     p = np.exp(logits - logits.max(1, keepdims=True))
     return p / p.sum(1, keepdims=True)
 
 
-def uncertainty(probability, refs):
+def uncertainty(probability: np.ndarray, refs: np.ndarray) -> dict[str, float]:
     confidence, prediction = probability.max(1), probability.argmax(1)
     correct = prediction == refs
     ece = 0.0
@@ -46,7 +46,7 @@ def uncertainty(probability, refs):
     }
 
 
-def evaluation_decode(row):
+def evaluation_decode(row: dict[str, Any]) -> tuple[np.ndarray, dict[str, Any] | None]:
     """Recover broken MP3 seeking/duration metadata without changing valid inputs."""
     try:
         return decode(row), None
@@ -91,7 +91,9 @@ def evaluation_decode(row):
         }
 
 
-def rows_for(args, selection):
+def rows_for(
+    args: argparse.Namespace, selection: dict[str, Any]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     _, meta = load_prepared(args.fmak, "fmak")
     partition_bytes, group_bytes = args.partition.read_bytes(), args.groups.read_bytes()
     partition, audit = json.loads(partition_bytes), json.loads(group_bytes)
@@ -137,8 +139,10 @@ def rows_for(args, selection):
     }
 
 
-def features_for(rows, cache, device):
-    from nnAudio.features import VQT  # ty: ignore -- optional experiment dependency, not in uv.lock
+def features_for(
+    rows: list[dict[str, Any]], cache: Path, device: str
+) -> tuple[np.ndarray, list[dict[str, Any]]]:
+    from nnAudio.features import VQT
 
     cache = cache / signature(FEATURE_SPEC)[:16]
     cache.mkdir(parents=True, exist_ok=True)
@@ -184,7 +188,7 @@ def features_for(rows, cache, device):
     return array, [fallbacks[row["id"]] for row in rows if row["id"] in fallbacks]
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("calibrate", "fmak-final", "giantsteps"), required=True)
     for name in ("selection", "fmak", "beatport", "partition", "groups", "output"):
@@ -204,7 +208,7 @@ def main():
         print(f"Already evaluated: {target}; refusing repeated scoring", flush=True)
         return
     freeze_path = args.output / "freeze.json"
-    freeze: dict[str, Any] | None = None
+    freeze = None
     if args.mode != "calibrate":
         freeze = json.loads(freeze_path.read_bytes())
         assert freeze["selection_sha256"] == hashlib.sha256(selection_bytes).hexdigest()
@@ -246,7 +250,7 @@ def main():
     ]
     raw = np.mean(predictions, axis=0)
     refs = np.array([row["ref"] for row in rows])
-    result: dict[str, Any] = {
+    result = {
         "selection_sha256": hashlib.sha256(selection_bytes).hexdigest(),
         "identities_sha256": signature(identities),
         "tracks": len(rows),
@@ -271,7 +275,7 @@ def main():
             fitted_uncertainty=uncertainty(calibrated_prob, refs),
             accuracy_used_for_selection=False,
         )
-        freeze: dict[str, Any] = {
+        freeze = {
             "selection_sha256": result["selection_sha256"],
             "feature_spec": FEATURE_SPEC,
             "selected_checkpoints": selection["selected_checkpoints"],
@@ -293,19 +297,17 @@ def main():
         probability = calibrated(raw, freeze["temperature"])
         pred = probability.argmax(1)
         assert np.array_equal(pred, raw.argmax(1))
-        classes = [int(c) for c in pred]
-        refs_int = [int(r) for r in refs]
-        exact, mirex = score_mirex(classes, refs_int)
+        exact, mirex = score_mirex(pred, refs)
         matrix = np.zeros((24, 24), dtype=int)
         np.add.at(matrix, (refs, pred), 1)
         result.update(
             freeze_sha256=hashlib.sha256(freeze_path.read_bytes()).hexdigest(),
             exact=exact,
             mirex=mirex,
-            mirex_asymmetric=score_mirex(classes, refs_int, symmetric=False)[1],
+            mirex_asymmetric=score_mirex(pred, refs, symmetric=False)[1],
             mode_accuracy=float(np.mean(pred % 2 == refs % 2)),
             uncertainty=uncertainty(probability, refs),
-            counts=dict(score_breakdown(classes, refs_int)),
+            counts=dict(score_breakdown(pred, refs)),
             confusion_matrix=matrix.tolist(),
             predictions=pred.tolist(),
             ids=[row["id"] for row in rows],

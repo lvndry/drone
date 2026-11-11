@@ -42,7 +42,7 @@ class Predictor:
         *,
         device: str = "cpu",
         workdir: str | None = None,
-    ):
+    ) -> None:
         self.model, self.checkpoint = load_checkpoint(weights or default_weights(), device)
         self.device = device
         self.workdir = workdir or os.path.join(tempfile.gettempdir(), "drone-cache")

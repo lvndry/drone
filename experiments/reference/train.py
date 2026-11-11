@@ -2,16 +2,21 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
+
+from drone.keys import KeyIndices
+
+if TYPE_CHECKING:
+    from experiments.reference.datasets import Track
+
 import argparse
 import hashlib
 import json
 import os
 import subprocess
-import tempfile
 import time
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import torch
@@ -20,7 +25,7 @@ from torch import nn
 from drone.keys import LABEL_SCHEMA, encode_key, score_breakdown, score_mirex, transpose_key
 from drone.splits import validation_split
 from experiments.reference.checkpoints import load_checkpoint, save_checkpoint
-from experiments.reference.datasets import Track, load_beatport, load_giantsteps, prepare
+from experiments.reference.datasets import load_beatport, load_giantsteps, prepare
 from experiments.reference.features import (
     FEATURE_ID,
     FEATURE_SPEC,
@@ -39,7 +44,7 @@ LR = 1e-3
 
 
 def evaluate_set(
-    model: KeyCNN, feats: np.ndarray, refs: Sequence[int], device: str, batch: int = 128
+    model: nn.Module, feats: np.ndarray, refs: KeyIndices, device: str, batch: int = 128
 ) -> tuple[np.ndarray, float, float]:
     if not len(refs) or len(feats) != len(refs) or batch < 1:
         raise ValueError(
@@ -52,7 +57,7 @@ def evaluate_set(
             x = torch.from_numpy(feats[i : i + batch]).to(device)
             pred.append(model(x.transpose(1, 2)).argmax(1).cpu().numpy())
     pred = np.concatenate(pred)
-    exact, mirex = score_mirex([int(c) for c in pred], [int(r) for r in refs])
+    exact, mirex = score_mirex(pred, refs)
     return pred, exact, mirex
 
 
@@ -62,7 +67,7 @@ def prepared_path(data: str | Path, tag: str) -> Path:
 
 def prepare_dir(
     tag: str,
-    tracks: Sequence[Track],
+    tracks: list[Track],
     track_dir: str | Path,
     *,
     data: str | Path = DATA,
@@ -74,7 +79,7 @@ def prepare_dir(
         {"id": track.id, "sha256": audio_digest(track.mp3), "key": list(track.key)}
         for track in tracks
     ]
-    metadata: dict[str, Any] = {
+    metadata = {
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
         "frames": frames,
@@ -97,6 +102,8 @@ def prepare_dir(
     features = np.stack(features)
     out.parent.mkdir(parents=True, exist_ok=True)
     # Replace only after the complete bundle has been written.
+    import tempfile
+
     with tempfile.TemporaryDirectory(dir=out.parent) as scratch:
         pending = Path(scratch) / "features.npz"
         np.savez(pending, features=features, metadata=json.dumps(metadata))
@@ -116,7 +123,7 @@ def load_prepared(data: str | Path, tag: str) -> tuple[np.ndarray, dict[str, Any
         raise ValueError(
             "Stale feature cache; run uv run python -m experiments.reference.train prepare"
         )
-    refs = [int(r) for r in metadata["refs"]]
+    refs = metadata["refs"]
     if (
         not refs
         or feats.shape != (len(refs), metadata["frames"], N_SEM)
@@ -139,7 +146,7 @@ def assert_disjoint(train_ids: Sequence[str], test_ids: Sequence[str]) -> None:
 
 
 def augment_batch(
-    feats: np.ndarray, refs: Sequence[int], shifts: np.ndarray
+    feats: np.ndarray, refs: KeyIndices, shifts: KeyIndices
 ) -> tuple[np.ndarray, np.ndarray]:
     if not len(refs) or len(feats) != len(refs) or len(shifts) != len(refs):
         raise ValueError("Augmentation requires matching nonempty features, labels, and shifts")
@@ -181,8 +188,7 @@ def train_model(
     _, test_meta = load_prepared(data, "test")
     assert_disjoint(meta["ids"], test_meta["ids"])
     assert_disjoint(
-        [str(t["sha256"]) for t in meta["tracks"]],
-        [str(t["sha256"]) for t in test_meta["tracks"]],
+        [t["sha256"] for t in meta["tracks"]], [t["sha256"] for t in test_meta["tracks"]]
     )
     tr_idx, val_idx = validation_split(meta["refs"], SEED, [t["sha256"] for t in meta["tracks"]])
     torch.manual_seed(seed)
@@ -196,7 +202,7 @@ def train_model(
     run = Path(data) / "runs" / time.strftime("%Y%m%d-%H%M%S")
     run.mkdir(parents=True, exist_ok=False)
     checkpoint = run / "drone.pt"
-    config: dict[str, Any] = {
+    config = {
         "epochs": epochs,
         "batch": batch,
         "seed": seed,
@@ -215,10 +221,10 @@ def train_model(
         root / "drone" / "download.py",
         root / "drone" / "splits.py",
     ]
-    source_hashes: dict[str, str] = {
+    source_hashes = {
         str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files
     }
-    record: dict[str, Any] = {
+    record = {
         "source_sha256": source_hashes,
         "config": config,
         "feature_spec": FEATURE_SPEC,
@@ -227,8 +233,8 @@ def train_model(
         "torch": str(torch.__version__),
         "numpy": np.__version__,
         "training_manifest": meta,
-        "train_ids": [str(meta["ids"][i]) for i in tr_idx],
-        "validation_ids": [str(meta["ids"][i]) for i in val_idx],
+        "train_ids": [meta["ids"][i] for i in tr_idx],
+        "validation_ids": [meta["ids"][i] for i in val_idx],
         "held_out_ids": test_meta["ids"],
         "history": [],
     }
@@ -257,9 +263,7 @@ def train_model(
             optimizer.step()
             loss_sum += loss.item() * len(idx)
         scheduler.step()
-        _, exact, mirex = evaluate_set(
-            model, feats[val_idx], [int(refs[i]) for i in val_idx], device
-        )
+        _, exact, mirex = evaluate_set(model, feats[val_idx], [refs[i] for i in val_idx], device)
         record["history"].append(
             {
                 "epoch": epoch,
@@ -282,7 +286,7 @@ def train_model(
                 train_ids=record["train_ids"],
                 validation_ids=record["validation_ids"],
                 source_sha256=source_hashes,
-                training_audio_sha256=[str(t["sha256"]) for t in meta["tracks"]],
+                training_audio_sha256=[t["sha256"] for t in meta["tracks"]],
             )
         record["elapsed_seconds"] = time.monotonic() - start
         (run / "run.json").write_text(json.dumps(record, indent=2) + "\n")
@@ -312,13 +316,12 @@ def evaluate_checkpoint(data: str | Path, checkpoint: str | Path, device: str) -
         [t["sha256"] for t in meta["tracks"]],
     )
     pred, exact, mirex = evaluate_set(model, feats, meta["refs"], device)
-    classes = [int(c) for c in pred]
-    cats = score_breakdown(classes, meta["refs"])
-    result: dict[str, Any] = {
+    cats = score_breakdown(pred, meta["refs"])
+    result = {
         "tracks": len(pred),
         "exact": exact,
         "mirex": mirex,
-        "mirex_asymmetric": score_mirex(classes, meta["refs"], symmetric=False)[1],
+        "mirex_asymmetric": score_mirex(pred, meta["refs"], symmetric=False)[1],
         "counts": dict(cats),
         "feature_spec": FEATURE_SPEC,
         "test_manifest": meta,

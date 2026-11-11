@@ -8,12 +8,14 @@ import json
 import os
 import subprocess
 import time
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import torch
+from torch import nn
 
 from drone.keys import LABEL_SCHEMA, score_mirex
 from experiments.adapt import development_split
@@ -23,7 +25,7 @@ from experiments.reference.train import load_prepared
 from experiments.small import atomic_json, load_development, signature, snapshot_sources
 
 
-def device_setup(device):
+def device_setup(device: str) -> None:
     torch.set_num_threads(4)
     if device.startswith("cuda"):
         torch.cuda.set_device(device)
@@ -37,7 +39,7 @@ def device_setup(device):
         torch.backends.cuda.matmul.allow_tf32 = False
 
 
-def selected_rows(args):
+def selected_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
     _, bm, btr, bval = load_development(args.beatport)
     _, fm = load_prepared(args.fmak, "fmak")
     partition, audit = json.loads(args.partition.read_bytes()), json.loads(args.groups.read_bytes())
@@ -75,7 +77,7 @@ def selected_rows(args):
     return rows
 
 
-def decode(row):
+def decode(row: dict[str, Any]) -> np.ndarray:
     assert audio_digest(row["path"]) == row["sha256"]
     duration = float(
         subprocess.check_output(
@@ -128,10 +130,10 @@ def decode(row):
     return np.stack(segments)
 
 
-def prepare(args):
+def prepare(args: argparse.Namespace) -> None:
     from importlib.metadata import distribution, version
 
-    from nnAudio.features import VQT  # ty: ignore -- optional experiment dependency, not in uv.lock
+    from nnAudio.features import VQT
 
     args.output.mkdir(parents=True, exist_ok=True)
     snapshot_sources(args.output)
@@ -208,7 +210,9 @@ def prepare(args):
                 )
 
 
-def probabilities(model, array, indices, device, batch=16):
+def probabilities(
+    model: nn.Module, array: np.ndarray, indices: Sequence[int], device: str, batch: int = 16
+) -> np.ndarray:
     model.eval()
     output = []
     with torch.inference_mode():
@@ -225,17 +229,16 @@ def probabilities(model, array, indices, device, batch=16):
 
 def metrics(prob: np.ndarray, refs: np.ndarray) -> dict[str, Any]:
     pred = prob.argmax(1)
-    classes = [int(c) for c in pred]
-    exact, mirex = score_mirex(classes, [int(r) for r in refs])
+    exact, mirex = score_mirex(pred, refs)
     return {
         "exact": exact,
         "mirex": mirex,
         "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
-        "predictions": classes,
+        "predictions": pred.tolist(),
     }
 
 
-def train(args):
+def train(args: argparse.Namespace) -> None:
     args.output.mkdir(parents=True, exist_ok=True)
     sources = snapshot_sources(args.output)
     device_setup(args.device)
@@ -301,7 +304,7 @@ def train(args):
         for offset in range(0, len(order), 16):
             if prior + time.monotonic() - start > 900:
                 record.update(
-                    status="budget-stopped", elapsed_seconds=float(prior + time.monotonic() - start)
+                    status="budget-stopped", elapsed_seconds=prior + time.monotonic() - start
                 )
                 atomic_json(args.output / "run.json", record)
                 raise TimeoutError(
@@ -352,12 +355,12 @@ def train(args):
                 },
                 args.output / "best.pt",
             )
-            domain_metrics: dict[str, dict[str, Any]] = {}
+            domain_metrics = {}
             for domain in ("beatport", "fmak"):
                 positions = [j for j, i in enumerate(val) if rows[i]["domain"] == domain]
                 domain_metrics[domain] = metrics(prob[positions], refs[np.array(val)[positions]])
             atomic_json(args.output / "best-validation.json", domain_metrics)
-        record["elapsed_seconds"] = float(prior + time.monotonic() - start)
+        record["elapsed_seconds"] = prior + time.monotonic() - start
         atomic_json(args.output / "run.json", record)
         pending = last.with_suffix(".pending")
         torch.save(
@@ -386,9 +389,8 @@ def train(args):
             record["early_stopped"] = True
             break
     domain_metrics = json.loads((args.output / "best-validation.json").read_bytes())
-    delta: dict[str, float] = {
-        domain: float(domain_metrics[domain]["mirex"])
-        - float(reference["metrics"][domain]["mirex"])
+    delta = {
+        domain: domain_metrics[domain]["mirex"] - reference["metrics"][domain]["mirex"]
         for domain in domain_metrics
     }
     record.update(
@@ -402,7 +404,7 @@ def train(args):
     atomic_json(args.output / "run.json", record)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("prepare", "train"))
     parser.add_argument("--device", default="cpu")

@@ -11,10 +11,10 @@ from typing import Any
 
 import numpy as np
 
-from drone.keys import WEIGHTS, key_relation
+from drone.keys import WEIGHTS, KeyIndices, key_relation
 
 
-def scores(pred, ref, symmetric=True):
+def scores(pred: KeyIndices, ref: KeyIndices, symmetric: bool = True) -> np.ndarray:
     return np.array(
         [
             WEIGHTS[key_relation(int(p), int(r), symmetric=symmetric)] if p >= 0 else 0
@@ -23,7 +23,7 @@ def scores(pred, ref, symmetric=True):
     )
 
 
-def compare(neural: dict[str, Any], native_pred) -> dict[str, Any]:
+def compare(neural: dict[str, Any], native_pred: KeyIndices) -> dict[str, Any]:
     refs = np.array(neural["references"])
     pred = np.array(neural["predictions"])
     native = np.array(native_pred)
@@ -67,7 +67,7 @@ def compare(neural: dict[str, Any], native_pred) -> dict[str, Any]:
     }
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in (
         "fmak",
@@ -101,7 +101,7 @@ def main():
         "limitations": "Our artist-purged FMAK partition is not directly comparable to published all-FMAK/different-holdout results. GiantSteps was exposed earlier in this research program; its intervals use track hashes, not artist groups. Confidence intervals do not remove annotation ambiguity or unrecognized remix overlap.",
     }
     result["meets_observed_quality_gate"] = all(
-        float(result[name]["paired"][metric]["delta"]) >= 0
+        result[name]["paired"][metric]["delta"] >= 0
         for name in ("fmak_final", "giantsteps")
         for metric in ("mirex", "exact")
     )

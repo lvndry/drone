@@ -1,0 +1,545 @@
+{
+  "source_commit": "cpu-audit-v1",
+  "tool_sha256": "ca99a424cb2e09f0a5dc344c41e8ed99134b822044325ea2bac42bd1654a4b4f",
+  "selection_sha256": "5b52266fe630ce52d606e4150c7aa0ff06c15e467cd3666a53d4b4e75d2ceeed",
+  "checkpoint_sha256": "dcf8a7a292b7c12076ffff63c8c6550cb09a6c41ce4d000fd7949fc6bb4b452c",
+  "onnx_sha256": "35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613",
+  "parameters": 109128,
+  "hardware": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+  "cpu_affinity": [
+    0
+  ],
+  "torch": "2.15.0+cu132",
+  "numpy": "2.5.4",
+  "model_threads": 1,
+  "iterations": 10,
+  "pytorch_load_seconds": 0.007945701945573092,
+  "onnx_load_seconds": 0.05006097978912294,
+  "accuracy_scored": false,
+  "private_audio_used": false,
+  "records": [
+    {
+      "id": "fmak:110544",
+      "frames": 217,
+      "duration_proxy_seconds": 40.30984126984127,
+      "frontend_seconds": 0.9296409580856562,
+      "frontend_parent_plus_child_cpu_seconds": 0.8157499999999999,
+      "first_frontend_call": true,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.010612323530949652,
+        "p95_seconds": 0.011841566034127027,
+        "parent_plus_child_cpu_seconds": 0.10866800000000021
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.0063175695249810815,
+        "p95_seconds": 0.006972614570986479,
+        "parent_plus_child_cpu_seconds": 0.06450100000000014
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.007284439983777702,
+        "p95_seconds": 0.007576826226431876,
+        "parent_plus_child_cpu_seconds": 0.07346000000000008
+      },
+      "parity_max_abs_error": 1.430511474609375e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 770.875
+    },
+    {
+      "id": "fmak:000805",
+      "frames": 597,
+      "duration_proxy_seconds": 110.89850340136054,
+      "frontend_seconds": 0.19671920500695705,
+      "frontend_parent_plus_child_cpu_seconds": 0.19555700000000042,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.029896929976530373,
+        "p95_seconds": 0.03253141188761219,
+        "parent_plus_child_cpu_seconds": 0.3007200000000001
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.015606987988576293,
+        "p95_seconds": 0.019023321801796556,
+        "parent_plus_child_cpu_seconds": 0.16333399999999987
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.01797398051712662,
+        "p95_seconds": 0.018905101844575254,
+        "parent_plus_child_cpu_seconds": 0.1812459999999998
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 821.55859375
+    },
+    {
+      "id": "fmak:048621",
+      "frames": 775,
+      "duration_proxy_seconds": 143.9637188208617,
+      "frontend_seconds": 0.2170836590230465,
+      "frontend_parent_plus_child_cpu_seconds": 0.21654699999999982,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.03292388247791678,
+        "p95_seconds": 0.034369319339748475,
+        "parent_plus_child_cpu_seconds": 0.3330169999999999
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.020610315492376685,
+        "p95_seconds": 0.021664468583185225,
+        "parent_plus_child_cpu_seconds": 0.20759700000000025
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.023167105042375624,
+        "p95_seconds": 0.023369869915768504,
+        "parent_plus_child_cpu_seconds": 0.23187300000000022
+      },
+      "parity_max_abs_error": 1.6689300537109375e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 845.87109375
+    },
+    {
+      "id": "fmak:091709",
+      "frames": 843,
+      "duration_proxy_seconds": 156.59537414965988,
+      "frontend_seconds": 0.2295210079755634,
+      "frontend_parent_plus_child_cpu_seconds": 0.22889899999999974,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.03871956595685333,
+        "p95_seconds": 0.04053286600392312,
+        "parent_plus_child_cpu_seconds": 0.3892889999999998
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.02284387603867799,
+        "p95_seconds": 0.023364596522878856,
+        "parent_plus_child_cpu_seconds": 0.22782899999999984
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.026127637596800923,
+        "p95_seconds": 0.02629779246635735,
+        "parent_plus_child_cpu_seconds": 0.26031399999999927
+      },
+      "parity_max_abs_error": 1.430511474609375e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 861.3125
+    },
+    {
+      "id": "fmak:085942",
+      "frames": 913,
+      "duration_proxy_seconds": 169.59854875283446,
+      "frontend_seconds": 0.2525853330735117,
+      "frontend_parent_plus_child_cpu_seconds": 0.2519340000000003,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.04328873101621866,
+        "p95_seconds": 0.04473279796075076,
+        "parent_plus_child_cpu_seconds": 0.43542099999999984
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.024994845618493855,
+        "p95_seconds": 0.0286667771753855,
+        "parent_plus_child_cpu_seconds": 0.2555039999999993
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.028106447076424956,
+        "p95_seconds": 0.028321630402933805,
+        "parent_plus_child_cpu_seconds": 0.2808109999999999
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 874.74609375
+    },
+    {
+      "id": "fmak:109897",
+      "frames": 988,
+      "duration_proxy_seconds": 183.53052154195012,
+      "frontend_seconds": 0.25842013605870306,
+      "frontend_parent_plus_child_cpu_seconds": 0.2573239999999988,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.04281597398221493,
+        "p95_seconds": 0.04491842930437997,
+        "parent_plus_child_cpu_seconds": 0.4323269999999999
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.026802459498867393,
+        "p95_seconds": 0.02743219055701047,
+        "parent_plus_child_cpu_seconds": 0.26931199999999933
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.02986845758277923,
+        "p95_seconds": 0.030286625621374696,
+        "parent_plus_child_cpu_seconds": 0.2986070000000005
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 905.76171875
+    },
+    {
+      "id": "fmak:015124",
+      "frames": 1040,
+      "duration_proxy_seconds": 193.19002267573697,
+      "frontend_seconds": 0.2806769779417664,
+      "frontend_parent_plus_child_cpu_seconds": 0.27999600000000147,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.04608400200959295,
+        "p95_seconds": 0.04708405421115458,
+        "parent_plus_child_cpu_seconds": 0.4626659999999996
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.028345703380182385,
+        "p95_seconds": 0.02932694819755852,
+        "parent_plus_child_cpu_seconds": 0.2854309999999991
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.036897600046359,
+        "p95_seconds": 0.04190099153202027,
+        "parent_plus_child_cpu_seconds": 0.3631630000000001
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 905.76171875
+    },
+    {
+      "id": "fmak:107350",
+      "frames": 1090,
+      "duration_proxy_seconds": 202.4780045351474,
+      "frontend_seconds": 0.3107970249839127,
+      "frontend_parent_plus_child_cpu_seconds": 0.3099910000000001,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.0525364006171003,
+        "p95_seconds": 0.054121459915768354,
+        "parent_plus_child_cpu_seconds": 0.5251490000000008
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.03199688752647489,
+        "p95_seconds": 0.033887836546637115,
+        "parent_plus_child_cpu_seconds": 0.31977999999999973
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.03501139651052654,
+        "p95_seconds": 0.037421908625401554,
+        "parent_plus_child_cpu_seconds": 0.35464300000000115
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 922.9609375
+    },
+    {
+      "id": "fmak:087562",
+      "frames": 1149,
+      "duration_proxy_seconds": 213.4378231292517,
+      "frontend_seconds": 0.3027297989465296,
+      "frontend_parent_plus_child_cpu_seconds": 0.3019419999999986,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.05539989098906517,
+        "p95_seconds": 0.06536628439789638,
+        "parent_plus_child_cpu_seconds": 0.5728470000000012
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.03294657147489488,
+        "p95_seconds": 0.03351846270961687,
+        "parent_plus_child_cpu_seconds": 0.3267319999999998
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.0341841874178499,
+        "p95_seconds": 0.034519629436545074,
+        "parent_plus_child_cpu_seconds": 0.3423429999999996
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 929.65234375
+    },
+    {
+      "id": "fmak:101394",
+      "frames": 1254,
+      "duration_proxy_seconds": 232.9425850340136,
+      "frontend_seconds": 0.33545902092009783,
+      "frontend_parent_plus_child_cpu_seconds": 0.3348229999999983,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.0584510350599885,
+        "p95_seconds": 0.06163103904109448,
+        "parent_plus_child_cpu_seconds": 0.5925600000000024
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.03445960010867566,
+        "p95_seconds": 0.036202415719162676,
+        "parent_plus_child_cpu_seconds": 0.34811499999999995
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.03955169743858278,
+        "p95_seconds": 0.04001618043985218,
+        "parent_plus_child_cpu_seconds": 0.39496999999999893
+      },
+      "parity_max_abs_error": 1.0728836059570312e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 939.3203125
+    },
+    {
+      "id": "fmak:107354",
+      "frames": 1295,
+      "duration_proxy_seconds": 240.55873015873016,
+      "frontend_seconds": 0.362937455996871,
+      "frontend_parent_plus_child_cpu_seconds": 0.36206100000000063,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.06088808295316994,
+        "p95_seconds": 0.06205518317874521,
+        "parent_plus_child_cpu_seconds": 0.610695999999999
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.03673201391939074,
+        "p95_seconds": 0.03858920120401308,
+        "parent_plus_child_cpu_seconds": 0.3689750000000007
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.04183501738589257,
+        "p95_seconds": 0.04257821919163689,
+        "parent_plus_child_cpu_seconds": 0.41927500000000073
+      },
+      "parity_max_abs_error": 3.814697265625e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 946.765625
+    },
+    {
+      "id": "fmak:097288",
+      "frames": 1321,
+      "duration_proxy_seconds": 245.3884807256236,
+      "frontend_seconds": 0.36052344809286296,
+      "frontend_parent_plus_child_cpu_seconds": 0.35971599999999704,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.06510797841474414,
+        "p95_seconds": 0.06655042333295569,
+        "parent_plus_child_cpu_seconds": 0.6541110000000003
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.03701818233821541,
+        "p95_seconds": 0.03848310526227578,
+        "parent_plus_child_cpu_seconds": 0.3720979999999976
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.0475385719910264,
+        "p95_seconds": 0.04864810854196548,
+        "parent_plus_child_cpu_seconds": 0.4756179999999972
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 952.23828125
+    },
+    {
+      "id": "fmak:107222",
+      "frames": 1373,
+      "duration_proxy_seconds": 255.04798185941044,
+      "frontend_seconds": 0.3455220120958984,
+      "frontend_parent_plus_child_cpu_seconds": 0.3445090000000022,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.0645463929977268,
+        "p95_seconds": 0.0668950142688118,
+        "parent_plus_child_cpu_seconds": 0.647593999999998
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.042753890505991876,
+        "p95_seconds": 0.0517962212790735,
+        "parent_plus_child_cpu_seconds": 0.44043200000000127
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.0420345354359597,
+        "p95_seconds": 0.04219371703220531,
+        "parent_plus_child_cpu_seconds": 0.4201820000000005
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 956.57421875
+    },
+    {
+      "id": "fmak:020230",
+      "frames": 1437,
+      "duration_proxy_seconds": 266.9365986394558,
+      "frontend_seconds": 0.3722502598538995,
+      "frontend_parent_plus_child_cpu_seconds": 0.3709579999999981,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.06845453544519842,
+        "p95_seconds": 0.07449840733315796,
+        "parent_plus_child_cpu_seconds": 0.6935590000000005
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.04106832109391689,
+        "p95_seconds": 0.0429728778777644,
+        "parent_plus_child_cpu_seconds": 0.413020999999997
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.04561128607019782,
+        "p95_seconds": 0.0462269991170615,
+        "parent_plus_child_cpu_seconds": 0.45637600000000234
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 963.203125
+    },
+    {
+      "id": "fmak:063227",
+      "frames": 1512,
+      "duration_proxy_seconds": 280.86857142857144,
+      "frontend_seconds": 0.3837018960621208,
+      "frontend_parent_plus_child_cpu_seconds": 0.3828909999999972,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.07270389492623508,
+        "p95_seconds": 0.07642847187817096,
+        "parent_plus_child_cpu_seconds": 0.7322990000000011
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.0428308870177716,
+        "p95_seconds": 0.04440757647389546,
+        "parent_plus_child_cpu_seconds": 0.43207999999999913
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.04738625593017787,
+        "p95_seconds": 0.04801035716664046,
+        "parent_plus_child_cpu_seconds": 0.4729779999999977
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 968.6484375
+    },
+    {
+      "id": "fmak:083349",
+      "frames": 1604,
+      "duration_proxy_seconds": 297.95845804988664,
+      "frontend_seconds": 0.43136629299260676,
+      "frontend_parent_plus_child_cpu_seconds": 0.4307529999999993,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.07961589097976685,
+        "p95_seconds": 0.08209765370702371,
+        "parent_plus_child_cpu_seconds": 0.7987389999999976
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.04537060100119561,
+        "p95_seconds": 0.04758035878185183,
+        "parent_plus_child_cpu_seconds": 0.4572509999999994
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.05539021117147058,
+        "p95_seconds": 0.06049693925306201,
+        "parent_plus_child_cpu_seconds": 0.554628000000001
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 977.7578125
+    },
+    {
+      "id": "fmak:048616",
+      "frames": 1708,
+      "duration_proxy_seconds": 317.27746031746034,
+      "frontend_seconds": 0.4397052410058677,
+      "frontend_parent_plus_child_cpu_seconds": 0.43889300000000375,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.08076539298053831,
+        "p95_seconds": 0.081901957152877,
+        "parent_plus_child_cpu_seconds": 0.8098519999999994
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.04864378657657653,
+        "p95_seconds": 0.04973728219047189,
+        "parent_plus_child_cpu_seconds": 0.4878229999999988
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.0545531224925071,
+        "p95_seconds": 0.05594511715462431,
+        "parent_plus_child_cpu_seconds": 0.5482259999999997
+      },
+      "parity_max_abs_error": 1.9073486328125e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 987.2421875
+    },
+    {
+      "id": "fmak:086561",
+      "frames": 1911,
+      "duration_proxy_seconds": 354.9866666666667,
+      "frontend_seconds": 0.49959253217093647,
+      "frontend_parent_plus_child_cpu_seconds": 0.49866400000000155,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.0923500545322895,
+        "p95_seconds": 0.09562809109920636,
+        "parent_plus_child_cpu_seconds": 0.9233180000000019
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.054907024023123085,
+        "p95_seconds": 0.06287139776395632,
+        "parent_plus_child_cpu_seconds": 0.5637169999999969
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.060198292951099575,
+        "p95_seconds": 0.06070147885475308,
+        "parent_plus_child_cpu_seconds": 0.6023880000000013
+      },
+      "parity_max_abs_error": 9.5367431640625e-07,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 1019.625
+    },
+    {
+      "id": "fmak:091359",
+      "frames": 2367,
+      "duration_proxy_seconds": 439.6930612244898,
+      "frontend_seconds": 0.6013598239514977,
+      "frontend_parent_plus_child_cpu_seconds": 0.6003699999999945,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.1291555054485798,
+        "p95_seconds": 0.13417346512433143,
+        "parent_plus_child_cpu_seconds": 1.2977130000000017
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.06889807805418968,
+        "p95_seconds": 0.07132059668656439,
+        "parent_plus_child_cpu_seconds": 0.693641999999997
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.07937668857630342,
+        "p95_seconds": 0.08084535854868591,
+        "parent_plus_child_cpu_seconds": 0.7959059999999951
+      },
+      "parity_max_abs_error": 1.430511474609375e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 1104.43359375
+    },
+    {
+      "id": "fmak:087373",
+      "frames": 9057,
+      "duration_proxy_seconds": 1682.4250340136055,
+      "frontend_seconds": 2.3757681301794946,
+      "frontend_parent_plus_child_cpu_seconds": 2.373559,
+      "first_frontend_call": false,
+      "pytorch_full_forward": {
+        "p50_seconds": 0.646184373064898,
+        "p95_seconds": 0.6941045194165781,
+        "parent_plus_child_cpu_seconds": 6.5414499999999975
+      },
+      "onnx_full_forward": {
+        "p50_seconds": 0.27830894803628325,
+        "p95_seconds": 0.3104403896373696,
+        "parent_plus_child_cpu_seconds": 2.835557999999999
+      },
+      "warm_feature_cache_plus_onnx": {
+        "p50_seconds": 0.31562779599335045,
+        "p95_seconds": 0.3514906607335433,
+        "parent_plus_child_cpu_seconds": 3.2283470000000065
+      },
+      "parity_max_abs_error": 2.86102294921875e-06,
+      "parity_key_agrees": true,
+      "process_peak_rss_mib": 1614.1796875
+    }
+  ],
+  "status": "complete",
+  "limitations": "Python reference implementation on server hardware, not Rust/Euphoria or target laptop. Cold means empty feature cache, not cold OS pages. First frontend timing includes library/JIT initialization. Warm-cache timings rerun inference, not a cached key-result lookup. Peak RSS includes both runtimes and scientific libraries. No ground-truth keys read or scored.",
+  "elapsed_seconds": 50.70110086398199
+}

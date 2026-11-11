@@ -28,7 +28,7 @@ def _block(cin: int, cout: int, pool: bool) -> list[nn.Module]:
 
 
 class KeyCNN(nn.Module):
-    def __init__(self, width: float = 1.0):
+    def __init__(self, width: float = 1.0) -> None:
         super().__init__()
         c1, c2, c3 = int(C1 * width), int(C2 * width), int(C3 * width)
         # The head pools over TIME ONLY: key identity lives in absolute

@@ -1,24 +1,27 @@
 """Audit fixed octave confirmation and select only preregistered inference candidates."""
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 import statistics
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
-from drone.keys import WEIGHTS, key_relation
+from drone.keys import WEIGHTS, KeyIndices, key_relation
 from experiments.octave import device_setup, metrics, probabilities
 from experiments.octave_model import FEATURE_SPEC, OctaveNet
 from experiments.small import signature
 
 
-def read(path):
+def read(path: Path) -> dict[str, Any]:
     return json.loads(path.read_bytes())
 
 
-def main():
+def main() -> None:
     import torch
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -112,7 +115,7 @@ def main():
         cnn = evaluated[choice][name]["predictions"]
         dsp = native[name]["predictions"]
 
-        def scores(pred):
+        def scores(pred: KeyIndices) -> np.ndarray:
             return np.array(
                 [
                     WEIGHTS[key_relation(int(p), int(r))] if p >= 0 else 0
