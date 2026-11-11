@@ -126,8 +126,8 @@ def test_every_batch_holds_the_same_share_of_corrections() -> None:
     base_seen = np.concatenate([base for base, _ in batches])
     assert sorted(base_seen.tolist()) == list(range(100))
     corrections_seen = np.concatenate([corrections for _, corrections in batches])
-    counts = np.bincount(corrections_seen, minlength=7)
-    assert counts.max() - counts.min() <= 1
+    counts = np.bincount(corrections_seen, minlength=7).tolist()
+    assert max(counts) - min(counts) <= 1
     with pytest.raises(ValueError, match="room for base"):
         correction_batches(10, 5, 2, 0.75, rng)
 
