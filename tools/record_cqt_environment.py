@@ -27,7 +27,7 @@ def record(root: Path, output: Path) -> dict[str, Any]:
     loaded.soxr_version.restype = ctypes.c_char_p
     version: bytes = loaded.soxr_version()
     binaries = {}
-    for module_name in ("soxr.soxr_ext", "scipy.fft._pocketfft.pypocketfft"):
+    for module_name in ("soxr.soxr_ext", "numpy.fft._pocketfft_umath"):
         module = importlib.import_module(module_name)
         if module.__file__ is None:
             raise ValueError("Binary module has no file")
