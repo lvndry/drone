@@ -1,16 +1,15 @@
 """Track loading for the key detection CNN.
 
-A track is (id, path to mp3, parsed key label). The CQT is extracted once
-and cached; pitch shifting is applied on the CQT, which reuses the cache.
+A track is (id, path to mp3, parsed key label). The log-frequency spectrogram is extracted once
+and cached; bounded frequency shifting reuses the cache.
 """
 
 import glob
 import os
 import re
 
-import numpy as np
-
-from drone.features import TONICS, extract, parse_key
+from drone.features import extract, normalize, resample_time, shift_features
+from drone.keys import encode_key, parse_key, transpose_key
 
 
 class Track:
@@ -39,13 +38,18 @@ def load_dir(track_dir, mp3_glob, label_fn, recursive=False):
         if key is None:
             continue
         tracks.append(Track(track_id, path, key))
+    ids = [track.id for track in tracks]
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"Duplicate track IDs in {track_dir}")
     return tracks
 
 
 def load_beatport(data_dir, label_dir):
     """Beatport 1486 set: audio under data/audio, labels are one key per file."""
     labels = {}
-    for path in os.listdir(label_dir):
+    if not os.path.isdir(label_dir):
+        raise FileNotFoundError(f"Missing Beatport labels: {label_dir}. Run bash fetch.sh.")
+    for path in sorted(os.listdir(label_dir)):
         if not path.endswith(".txt"):
             continue
         m = re.match(r"(\d+)", path)
@@ -58,11 +62,17 @@ def load_beatport(data_dir, label_dir):
             labels[m.group(1)] = key
     audio = os.path.join(data_dir, "audio")
     tracks = load_dir(audio, "**/*.mp3", lambda tid, name: labels.get(tid), recursive=True)
+    if not tracks:
+        raise ValueError("No labelled Beatport audio found. Run bash fetch.sh.")
+    missing = set(labels) - {track.id for track in tracks}
+    if missing:
+        raise ValueError(f"Missing {len(missing)} labelled Beatport previews. Run bash fetch.sh.")
     return tracks
 
 
 def load_giantsteps(data_dir):
     """GiantSteps 604 set (the test set): bench/data/key layout."""
+
     def label_fn(track_id, name):
         # audio is <id>.LOFI.mp3, label is <id>.LOFI.key
         path = os.path.join(data_dir, "annotations", "key", name[: -len(".mp3")] + ".key")
@@ -71,28 +81,21 @@ def load_giantsteps(data_dir):
         with open(path) as f:
             return parse_key(f.read())
 
-    return load_dir(data_dir, "audio/*.mp3", label_fn)
+    tracks = load_dir(data_dir, "audio/*.mp3", label_fn)
+    expected = glob.glob(os.path.join(data_dir, "annotations", "key", "*.key"))
+    if not expected or len(tracks) != len(expected):
+        raise ValueError("Missing GiantSteps audio or labels. Run bash fetch.sh.")
+    return tracks
 
 
 def prepare(track, track_dir, T=300, augment=0):
-    """CQT for a track, resampled in time to T frames, optional pitch shift.
+    """Log-frequency features, resampled in time to T frames, optional bounded shift.
 
-    augment: semitones to shift up (negative = down), applied on the CQT
-    columns; the class follows the shift. Returns (features (33, T) float32, class_id).
+    augment: semitones to shift up (negative = down), applied on spectrogram
+    columns; the class follows the shift. Returns (features (T, 33) float32, class_id).
     """
-    cqt = extract(track.id, track.mp3, track_dir)  # (n_frames, 33)
-    if cqt.shape[0] < 2 * T:
-        cqt = np.pad(cqt, ((0, 2 * T - cqt.shape[0]), (0, 0)))
-    flat = np.linspace(0.0, cqt.shape[0] * cqt.shape[1] - 1, T * cqt.shape[1])
-    i = np.floor(flat).astype(np.int64)
-    frac = (flat - i).astype(np.float64)
-    i = np.clip(i, 0, cqt.shape[0] * cqt.shape[1] - 2)
-    flat_x = cqt.reshape(-1).astype(np.float64)
-    cqt = (flat_x[i] * (1.0 - frac) + flat_x[i + 1] * frac).reshape(T, cqt.shape[1])
+    features = resample_time(extract(track.id, track.mp3, track_dir), T)
+    features = normalize(features)
     if augment:
-        cqt = np.roll(cqt, augment, axis=1)
-    tonic_idx = TONICS.index(track.key[0])
-    class_id = ((tonic_idx + augment) % 12) * 2 + (1 if track.key[1] == "minor" else 0)
-    mu, sigma = cqt.mean(), cqt.std()
-    features = ((cqt - mu) / (sigma + 1e-6)).astype(np.float32)
-    return features, class_id
+        features = shift_features(features, augment)
+    return features, transpose_key(encode_key(*track.key), augment)
