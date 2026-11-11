@@ -1,5 +1,7 @@
 # Full-track K10 CPU baseline
 
+[Graphs and interpretation](VISUAL_RESULTS.md#frontend-time-and-repeated-run-memory).
+
 Measured on 11 November 2026, after the K10 layout and variable-length export
 fixes. This is a reference for CPU optimization, not an application performance
 guarantee or another key-accuracy evaluation.

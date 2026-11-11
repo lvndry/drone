@@ -1,0 +1,10 @@
+{
+  "memory_probe_source_commit": "ef69ecbedb6453d0e3b00e585920a426b5ffb218",
+  "memory_probe_source_archive_sha256": "c84689f5fc93cd0206d972d827b7461a06f3e56804308c6ed4d6011820be3b0c",
+  "memory_probe_server_root": "/home/lysk-admin/drone-experiments/k10-memory-curve-20261111-v1",
+  "memory_report_sha256": "dd4ff5b19ea57cd26c9e352ef36111b5d755c6ea9cb4c3d7a98fdad35fe8f2c5",
+  "multidomain_summary_server_path": "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/confirmation-summary.json",
+  "multidomain_summary_sha256": "b3c3952731fa7072205285d19d1280232c284652f88b1af1023bc5f85f246d3a",
+  "private_audio_used": false,
+  "accuracy_labels_scored_for_memory": false
+}

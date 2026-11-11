@@ -1,0 +1,231 @@
+"""Regenerate research PNG/SVG figures solely from checked-in measurement JSON."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+
+ROOT = Path(__file__).resolve().parents[1]
+EXP = ROOT / "experiments"
+OUT = EXP / "figures"
+BLUE, ORANGE, RED = "#2563eb", "#c2410c", "#b91c1c"
+INPUTS: dict[str, str] = {}
+
+
+def read(relative: str) -> dict[str, Any]:
+    path = EXP / relative
+    INPUTS[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return json.loads(path.read_bytes())
+
+
+def canvas(title: str, columns: int, note: str) -> tuple[Figure, list[Axes]]:
+    figure = plt.figure(figsize=(12, 5.4), facecolor="white")
+    axes = [figure.add_subplot(1, columns, i + 1) for i in range(columns)]
+    figure.suptitle(title, x=0.07, y=0.96, ha="left", fontsize=17, fontweight="bold")
+    figure.subplots_adjust(left=0.075, right=0.96, bottom=0.24, top=0.79, wspace=0.32)
+    figure.text(0.075, 0.065, note, fontsize=9, color="#475569", linespacing=1.6)
+    for axis in axes:
+        axis.spines[["top", "right"]].set_visible(False)
+        axis.grid(axis="y", alpha=0.18)
+        axis.set_axisbelow(True)
+    return figure, axes
+
+
+def save(figure: Figure, name: str) -> None:
+    OUT.mkdir(exist_ok=True)
+    figure.savefig(OUT / f"{name}.png", dpi=170, metadata={"Software": "Drone research"})
+    figure.savefig(OUT / f"{name}.svg", metadata={"Date": None, "Creator": "Drone research"})
+    plt.close(figure)
+
+
+def memory_curve() -> None:
+    report = read("plot-data/k10-memory-curve.json")
+    if report["status"] != "complete" or not report["paired_parity_passed"]:
+        raise ValueError("Incomplete or non-parity memory experiment")
+    figure, axes = canvas(
+        "K10 memory growth with track length",
+        2,
+        "20 public validation tracks · one CPU core · fresh process for each track/runtime · cached features only\n"
+        "RSS includes Python, ONNX Runtime and input features. Duration is a CQT-frame proxy. No decoding/CQT or native app measurement.",
+    )
+    for mode, label, color in (("full", "Full track", BLUE), ("chunked", "Chunked", ORANGE)):
+        rows = sorted(
+            (r for r in report["records"] if r["mode"] == mode), key=lambda r: r["frames"]
+        )
+        minutes = [r["duration_proxy_seconds"] / 60 for r in rows]
+        axes[0].plot(
+            minutes, [r["process_peak_mib"] for r in rows], "o-", color=color, label=label, ms=4
+        )
+        axes[1].plot(
+            minutes,
+            [r["median_seconds"] * 1000 for r in rows],
+            "o-",
+            color=color,
+            label=label,
+            ms=4,
+        )
+    for axis, title, unit in zip(
+        axes,
+        ("Peak process memory", "Median inference latency"),
+        ("MiB", "Milliseconds"),
+        strict=True,
+    ):
+        axis.set(title=title, xlabel="Track duration (minutes)", ylabel=unit, ylim=(0, None))
+        axis.legend(frameon=False)
+    save(figure, "k10-memory-length")
+
+
+def pipeline() -> None:
+    raw = read("cpu-k10-2026-11-11/pipeline.json")
+    base = "chunked-k10-2026-11-11/v2/"
+    full, chunk = read(base + "full-benchmark.json"), read(base + "chunked-benchmark.json")
+    figure, axes = canvas(
+        "Where CPU time and memory go",
+        2,
+        "Server CPU, one core · cached-feature inference excludes decoding/CQT · RSS is process high-water\n"
+        "Left: median across 20 cases; medians are not additive. Right: separate fresh processes, each running all 20 cases with 20 repetitions.",
+    )
+    times = [
+        float(np.median([r["frontend_seconds"] for r in raw["records"]])) * 1000,
+        float(np.median([r["onnx_full_forward"]["p50_seconds"] for r in raw["records"]])) * 1000,
+    ]
+    axes[0].bar(
+        ["Decode + CQT\n(empty feature cache)", "Full ONNX\n(cached features)"],
+        times,
+        color=["#64748b", BLUE],
+    )
+    axes[0].set(
+        title="Frontend cost dominates inference",
+        ylabel="Milliseconds",
+        ylim=(0, max(times) * 1.23),
+    )
+    for i, value in enumerate(times):
+        axes[0].text(i, value + 10, f"{value:.0f} ms", ha="center", fontweight="bold")
+    peaks = [full["peak_process_rss_kib"] / 1024, chunk["peak_process_rss_kib"] / 1024]
+    axes[1].bar(["Full track", "Chunked"], peaks, color=[BLUE, ORANGE], width=0.55)
+    axes[1].set(
+        title="Paired repeated-run memory",
+        ylabel="Peak process RSS (MiB)",
+        ylim=(0, max(peaks) * 1.22),
+    )
+    for i, value in enumerate(peaks):
+        axes[1].text(i, value + 20, f"{value:.0f} MiB", ha="center", fontweight="bold")
+    save(figure, "k10-pipeline-cost")
+
+
+def multidomain() -> None:
+    report = read("plot-data/k10-multidomain-summary.json")
+    figure, axes = canvas(
+        "More fitting data helped, but missed the confirmation gate",
+        2,
+        "K10 development validation · symmetric-fifth MIREX · 3 training seeds · identical recipes except fitting data\n"
+        "FMAK mean gain +1.60 points, below the predeclared +2.00-point gate. These seeds do not measure uncertainty on unseen recordings.",
+    )
+    for axis, domain, title in zip(
+        axes,
+        ("beatport", "fmak"),
+        ("Beatport validation (126 tracks)", "FMAK validation (250 tracks)"),
+        strict=True,
+    ):
+        summary = report["mirex"]
+        means = [summary[arm][domain]["mean"] * 100 for arm in ("control", "joint")]
+        deviations = [summary[arm][domain]["sample_std"] * 100 for arm in ("control", "joint")]
+        axis.errorbar([0, 1], means, yerr=deviations, fmt="o-", color=BLUE, capsize=6, linewidth=2)
+        axis.set(
+            xticks=[0, 1],
+            xticklabels=["Beatport-only fit", "Joint fit"],
+            ylabel="MIREX (%)",
+            title=title,
+            xlim=(-0.4, 1.4),
+            ylim=(68, 80),
+        )
+        for i, value in enumerate(means):
+            axis.annotate(
+                f"{value:.2f}%",
+                (i, value + deviations[i]),
+                xytext=(0, 8),
+                textcoords="offset points",
+                ha="center",
+                fontweight="bold",
+            )
+        axis.text(
+            0.5,
+            0.04,
+            "Error bars: sample SD across seeds",
+            transform=axis.transAxes,
+            ha="center",
+            fontsize=9,
+            color="#475569",
+        )
+    save(figure, "k10-multidomain")
+
+
+def ema() -> None:
+    report = read("ema-k10-2026-11-11/ema-result.json")
+    if not report["raw_reproduced"] or report["method_gate"]["qualifies_for_confirmation"]:
+        raise ValueError("Figure expects the exactly reproduced, rejected EMA pilot")
+    figure, axes = canvas(
+        "EMA pilot: both recalibration and averaging hurt this recipe",
+        2,
+        "Seed 13 only · fixed checkpoint policy · identical fitting-only BN recalibration · no release-weight change\n"
+        "EMA versus RAW + BN: FMAK MIREX −1.84 points, exact −2.00 points. Pilot failed; confirmation seeds were not run.",
+    )
+    names = ("raw", "raw_bn", "ema_bn")
+    for axis, domain, title in zip(
+        axes, ("beatport", "fmak"), ("Beatport validation", "FMAK validation"), strict=True
+    ):
+        for metric, label, color in (("mirex", "MIREX", BLUE), ("exact", "Exact accuracy", ORANGE)):
+            values = [report["outputs"][n]["metrics"][domain][metric] * 100 for n in names]
+            axis.plot(range(3), values, "o-", color=color, label=label, linewidth=2)
+            for i, value in enumerate(values):
+                axis.annotate(
+                    f"{value:.2f}",
+                    (i, value),
+                    xytext=(0, 9),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=9,
+                )
+        axis.set(
+            xticks=range(3),
+            xticklabels=["RAW", "RAW + BN", "EMA + BN"],
+            title=title,
+            ylabel="Score (%)",
+            ylim=(59, 81),
+            xlim=(-0.25, 2.25),
+        )
+        axis.legend(frameon=False, loc="lower left")
+    save(figure, "k10-ema")
+
+
+def main() -> None:
+    plt.rcParams.update(
+        {
+            "font.family": "DejaVu Sans",
+            "font.size": 10,
+            "axes.titlepad": 16,
+            "svg.hashsalt": "drone-research-v1",
+        }
+    )
+    memory_curve()
+    pipeline()
+    multidomain()
+    ema()
+    INPUTS["_generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    INPUTS["_uv_lock_sha256"] = hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
+    INPUTS["_matplotlib_version"] = matplotlib.__version__
+    (OUT / "research-inputs.json").write_text(json.dumps(INPUTS, indent=2, sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()
