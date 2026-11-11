@@ -38,7 +38,9 @@ def load_checkpoint(path, device="cpu"):
         or payload.get("feature_spec") != FEATURE_SPEC
         or payload.get("label_schema") != LABEL_SCHEMA
     ):
-        raise ValueError("Incompatible checkpoint. Regenerate features and retrain with this version.")
+        raise ValueError(
+            "Incompatible checkpoint. Regenerate features and retrain with this version."
+        )
     model = KeyCNN(**payload.get("model_config", {})).to(device)
     model.load_state_dict(payload["state_dict"])
     model.eval()

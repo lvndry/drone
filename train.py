@@ -36,7 +36,7 @@ def evaluate_tracks(model, tracks, track_dir, device, batch=16):
     model.eval()
     pred = []
     for i in range(0, len(tracks), batch):
-        xs, ys = [], []
+        xs = []
         for track in tracks[i : i + batch]:
             features, _ = prepare(track, track_dir)
             xs.append(features)
@@ -62,7 +62,12 @@ def prepare_dir(tag, tracks, track_dir, *, data=DATA):
         "label_schema": LABEL_SCHEMA,
         "crop": CROP_FRAMES,
         "tracks": [
-            {"id": track.id, "path": str(track.mp3), "sha256": audio_digest(track.mp3), "key": list(track.key)}
+            {
+                "id": track.id,
+                "path": str(track.mp3),
+                "sha256": audio_digest(track.mp3),
+                "key": list(track.key),
+            }
             for track in tracks
         ],
         "refs": [encode_key(*track.key) for track in tracks],
@@ -176,7 +181,11 @@ def train_model(
 
     run_root = data / "runs"
     run_root.mkdir(parents=True, exist_ok=True)
-    run = Path(tempfile.mkdtemp(prefix=f"w{width}-seed{seed}-{time.strftime('%Y%m%d-%H%M%S')}-", dir=run_root))
+    run = Path(
+        tempfile.mkdtemp(
+            prefix=f"w{width}-seed{seed}-{time.strftime('%Y%m%d-%H%M%S')}-", dir=run_root
+        )
+    )
     checkpoint = run / "drone.pt"
     config = {
         "epochs": epochs,
@@ -244,7 +253,12 @@ def train_model(
         val_pred = evaluate_tracks(model, val_tracks, data, device)
         exact, mirex = score_mirex(val_pred, [refs[i] for i in val_idx])
         record["history"].append(
-            {"epoch": epoch, "loss": loss_sum / len(order), "validation_exact": exact, "validation_mirex": mirex}
+            {
+                "epoch": epoch,
+                "loss": loss_sum / len(order),
+                "validation_exact": exact,
+                "validation_mirex": mirex,
+            }
         )
         if mirex > best_val:
             best_val = mirex
@@ -327,7 +341,9 @@ def main():
     parser.add_argument("--lr", type=float, default=LR)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--label-smoothing", type=float, default=0.0)
-    parser.add_argument("--threads", type=int, default=1, help="CPU intra-op threads (process-wide)")
+    parser.add_argument(
+        "--threads", type=int, default=1, help="CPU intra-op threads (process-wide)"
+    )
     parser.add_argument("--output", type=Path, help="Write evaluation JSON to this path")
     args = parser.parse_args()
     if args.epochs < 1 or args.batch_size < 1:

@@ -76,9 +76,7 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
                 )
                 result["warm_feature_cache_plus_forward"] = timed(
                     lambda: model(
-                        torch.from_numpy(
-                            prepare(track, scratch)[0][None]
-                        ).transpose(1, 2)
+                        torch.from_numpy(prepare(track, scratch)[0][None]).transpose(1, 2)
                     ),
                     min(10, iterations),
                 )

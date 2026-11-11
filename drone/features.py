@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import os
 import struct
 import subprocess
@@ -51,7 +50,9 @@ FEATURE_ID = hashlib.sha256(
 
 def _note_to_hz(name: str) -> float:
     """C1 = 32.703199..., one semitone = twelfth root of two."""
-    semis_from_c0 = 12 * int(name[-1]) + {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}[name[0]]
+    semis_from_c0 = (
+        12 * int(name[-1]) + {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}[name[0]]
+    )
     return 16.351597933828117 * 2.0 ** (semis_from_c0 / 12)
 
 
@@ -166,7 +167,14 @@ def extract_cqt(mp3: str, track_dir) -> np.ndarray:
     return features.astype(np.float32)
 
 
-def prepare(track, track_dir, *, shift: int = 0, T: int | None = None, rng: np.random.Generator | None = None):
+def prepare(
+    track,
+    track_dir,
+    *,
+    shift: int = 0,
+    T: int | None = None,
+    rng: np.random.Generator | None = None,
+):
     """Core-bins feature for one track: (N_CORE, T) or (N_CORE, frames).
 
     With T set: shorter tracks are zero-padded, longer ones random-cropped

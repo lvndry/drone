@@ -11,10 +11,7 @@ import re
 import numpy as np
 
 from drone.features import (
-    BINS_PER_SEMI,
     CROP_FRAMES,
-    N_CORE,
-    N_TOTAL,
     extract_cqt,
     window,
 )

@@ -14,7 +14,6 @@ from drone.features import (
     FEATURE_SPEC,
     N_CORE,
     SR,
-    extract_cqt,
     window,
 )
 from drone.keys import decode_key, encode_key
@@ -59,7 +58,6 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path):
     torch.save(model.state_dict(), path)
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
-    payload = torch.load(path, weights_only=True)
     save_checkpoint(tmp_path / "good.pt", model)
     good = torch.load(tmp_path / "good.pt", weights_only=True)
     good["feature_spec"] = "stft-33bands-a1-f4-zscore-v1"

@@ -1,16 +1,14 @@
-from pathlib import Path
-
 import numpy as np
 import pytest
 
 from drone.datasets import Track
 from drone.features import (
     BINS_PER_SEMI,
+    FMIN_HZ,
     N_CORE,
     N_TOTAL,
     PAD_SEMI,
     SR,
-    FMIN_HZ,
     cqt,
     extract_cqt,
     prepare,
@@ -46,12 +44,15 @@ def test_window_slices_core_bins_and_shifts_exactly():
     features = cqt((rng.standard_normal(SR * 4) * 0.05).astype(np.float32))
     core = window(features, 0)
     assert core.shape == (N_CORE, features.shape[1])
-    assert np.array_equal(core, features[PAD_SEMI * BINS_PER_SEMI : (PAD_SEMI * BINS_PER_SEMI) + N_CORE, :])
+    assert np.array_equal(
+        core, features[PAD_SEMI * BINS_PER_SEMI : (PAD_SEMI * BINS_PER_SEMI) + N_CORE, :]
+    )
     # +1 semitone shift moves the window 2 columns down (content sounds lower)
     shifted = window(features, 1)
-    assert np.array_equal(shifted, features[
-        (PAD_SEMI + 1) * BINS_PER_SEMI : (PAD_SEMI + 1) * BINS_PER_SEMI + N_CORE, :
-    ])
+    assert np.array_equal(
+        shifted,
+        features[(PAD_SEMI + 1) * BINS_PER_SEMI : (PAD_SEMI + 1) * BINS_PER_SEMI + N_CORE, :],
+    )
     with pytest.raises(ValueError):
         window(features, PAD_SEMI + 1)
 
@@ -88,9 +89,7 @@ def test_extract_cqt_caches_by_content(tmp_path):
     # wrapper: extract_cqt takes any ffmpeg-decodable file.
     import subprocess
 
-    subprocess.run(
-        ["ffmpeg", "-loglevel", "error", "-y", "-i", str(wav), str(mp3)], check=True
-    )
+    subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(wav), str(mp3)], check=True)
     first = extract_cqt(str(mp3), tmp_path / "cqt")
     # Second call must hit the content-hash cache and be byte-identical.
     second = extract_cqt(str(mp3), tmp_path / "cqt")
