@@ -16,7 +16,7 @@ from drone.checkpoints import save_checkpoint
 from drone.model import KeyCNN
 from experiments.chunked import ATOL, RTOL, ChunkedK10, compare_logits, core_windows
 from experiments.chunked import sha256 as file_hash
-from tools.evaluate_chunked import benchmark, source_provenance
+from tools.evaluate_chunked import benchmark, selected_rows, source_provenance
 from tools.export_chunked import HiddenPrefix, export_bundle
 
 pytestmark = pytest.mark.skipif(
@@ -220,3 +220,42 @@ def test_benchmark_rejects_code_changed_after_validation(
     )
     with pytest.raises(ValueError, match="Validation report does not pass"):
         benchmark(args, [])
+
+
+def test_existing_public_selection_uses_canonical_sha256(tmp_path: Path) -> None:
+    rows = [
+        {"id": str(i), "domain": "fmak", "frames": 320 + i, "sha256": f"{i:064x}"}
+        for i in range(20)
+    ]
+    selection = tmp_path / "selection.json"
+    selection.write_text(
+        json.dumps(
+            {
+                "rows": [
+                    {
+                        "id": r["id"],
+                        "frames": r["frames"],
+                        "sha256": r["sha256"],
+                        "path": f"/public/fmak/{r['id']}.mp3",
+                    }
+                    for r in rows
+                ]
+            }
+        )
+    )
+    assert selected_rows(rows, selection) == rows
+    # Matching must be unique within the permitted public validation domain.
+    with pytest.raises(ValueError, match="uniquely match"):
+        selected_rows([*rows, dict(rows[0], id="duplicate")], selection)
+    duplicated_selection = {"rows": [dict(rows[0]) for _ in range(20)]}
+    selection.write_text(json.dumps(duplicated_selection))
+    with pytest.raises(ValueError, match="duplicate audio"):
+        selected_rows(rows, selection)
+    # Do not silently accept a different identity schema.
+    selection.write_text(
+        json.dumps(
+            {"rows": [{"id": r["id"], "frames": r["frames"], "sha": r["sha256"]} for r in rows]}
+        )
+    )
+    with pytest.raises(KeyError, match="sha256"):
+        selected_rows(rows, selection)

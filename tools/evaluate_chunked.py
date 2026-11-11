@@ -87,7 +87,7 @@ def selected_rows(rows: list[dict[str, Any]], selection: Path) -> list[dict[str,
         raise ValueError("Expected exactly 20 existing selected public tracks")
     matched = []
     for item in chosen:
-        matches = [r for r in rows if r["sha256"] == item["sha"] and r["domain"] == "fmak"]
+        matches = [r for r in rows if r["sha256"] == item["sha256"] and r["domain"] == "fmak"]
         if len(matches) != 1 or matches[0]["frames"] != item["frames"]:
             raise ValueError("Selection does not uniquely match public FMAK validation cache")
         matched.append(matches[0])
