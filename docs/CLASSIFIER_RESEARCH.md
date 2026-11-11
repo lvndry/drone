@@ -75,6 +75,28 @@ label-blind parity on the existing public validation inputs must pass, including
 zero key disagreements. Measured logit tolerances are engineering checks, not
 universal error bounds for future near-ties. No quantization or input truncation.
 
+## Additional source review
+
+[Key lime](https://arxiv.org/abs/2611.02408), submitted 2 November 2026,
+is a directly relevant candidate: a 21,528-parameter transformer combines a chroma
+sequence with DSP scores. Its reported 0.32 ms is added model inference, excluding
+roughly 486 ms DSP analysis. Its FMAK split uses track disjointness; our stricter
+audio/artist/album separation and different fitting pool prevent direct score
+comparison. A future reproduction must preserve our split. Our failed DSP-prior
+pilot does not test this sequence architecture; neither result settles the other.
+
+[USAD 2.0](https://arxiv.org/abs/2606.06444), Interspeech 2026, weights teacher
+losses by input domain and includes a music expert. Its smallest reported encoder
+is 25M parameters, so it is a possible training-time representation source rather
+than a justified replacement for the CPU default. Key-specific transfer, pitch
+preservation and training-data overlap would need auditing before use.
+
+[Teacher selection for fine-grained recognition](https://arxiv.org/abs/2605.15689),
+CVPR FGVC13 2026, studies compatibility across teachers, students and datasets.
+This supports testing teacher suitability instead of choosing solely by size.
+Its image-domain selection metric is a hypothesis for music, not an established
+key-classification recipe.
+
 ## Evaluation constraints
 
 Repeated validation use remains adaptive. Seeds measure training variability,
