@@ -1,10 +1,12 @@
 import json
+import subprocess
 import sys
 
 import numpy as np
 import pytest
 
-from tools.evaluate_octave import calibrated, main, uncertainty
+import tools.evaluate_octave as evaluation
+from tools.evaluate_octave import calibrated, evaluation_decode, main, uncertainty
 
 
 def test_temperature_preserves_class_decisions_and_probability_mass():
@@ -28,3 +30,30 @@ def test_final_evaluation_rejects_ineligible_candidate_before_opening_corpus(tmp
     monkeypatch.setattr(sys, "argv", args)
     with pytest.raises(ValueError, match="development gate"):
         main()
+
+
+def test_broken_seek_falls_back_to_actual_decoded_duration(monkeypatch):
+    def broken_seek(row):
+        raise subprocess.CalledProcessError(69, ["ffmpeg"])
+
+    full = np.linspace(-1, 1, 64 * 22050, dtype=np.float32)
+    monkeypatch.setattr(evaluation, "decode", broken_seek)
+    monkeypatch.setattr(
+        evaluation.subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            [], 0, stdout=full.tobytes(), stderr=b""
+        ),
+    )
+    segments, diagnostic = evaluation_decode({"id": "broken-mp3", "path": "audio.mp3"})
+    np.testing.assert_array_equal(segments[0], full[: 32 * 22050])
+    np.testing.assert_array_equal(segments[1], full[32 * 22050 :])
+    assert diagnostic["actual_duration_seconds"] == 64
+    assert diagnostic["route"] == "full-decode-actual-duration"
+
+
+def test_valid_fast_decode_is_preserved(monkeypatch):
+    segments = np.ones((2, 705600), dtype=np.float32)
+    monkeypatch.setattr(evaluation, "decode", lambda row: segments)
+    result, diagnostic = evaluation_decode({"id": "valid"})
+    assert result is segments and diagnostic is None

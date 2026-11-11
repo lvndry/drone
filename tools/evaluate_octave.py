@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -40,6 +41,51 @@ def uncertainty(probability, refs):
         "brier": float(np.square(probability - one_hot).sum(1).mean()),
         "ece_15_equal_width": float(ece),
     }
+
+
+def evaluation_decode(row):
+    """Recover broken MP3 seeking/duration metadata without changing valid inputs."""
+    try:
+        return decode(row), None
+    except (subprocess.CalledProcessError, ValueError) as error:
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-nostdin",
+                "-v",
+                "error",
+                "-i",
+                row["path"],
+                "-threads",
+                "1",
+                "-ac",
+                "1",
+                "-ar",
+                "22050",
+                "-f",
+                "f32le",
+                "pipe:1",
+            ],
+            capture_output=True,
+            check=True,
+            timeout=120,
+        )
+        waveform = np.frombuffer(result.stdout, dtype="<f4")
+        if not len(waveform) or not np.isfinite(waveform).all():
+            raise ValueError(f"Full decode also failed: {row['id']}") from error
+        duration = len(waveform) / 22050
+        segments = []
+        for fraction in (0.25, 0.75):
+            start = max(0, min(duration - 32, duration * fraction - 16))
+            first = round(start * 22050)
+            segment = waveform[first : first + 705600]
+            segments.append(np.pad(segment, (0, 705600 - len(segment))))
+        return np.stack(segments), {
+            "id": row["id"],
+            "route": "full-decode-actual-duration",
+            "fast_error": type(error).__name__,
+            "actual_duration_seconds": duration,
+        }
 
 
 def rows_for(args, selection):
@@ -93,6 +139,8 @@ def features_for(rows, cache, device):
 
     cache = cache / signature(FEATURE_SPEC)[:16]
     cache.mkdir(parents=True, exist_ok=True)
+    fallback_path = cache / "decode-fallbacks.json"
+    fallbacks = json.loads(fallback_path.read_bytes()) if fallback_path.exists() else {}
     transform = VQT(
         sr=22050,
         hop_length=512,
@@ -110,8 +158,10 @@ def features_for(rows, cache, device):
             if time.monotonic() - start > 600:
                 raise TimeoutError("Ten-minute frozen-evaluation feature cap reached")
             batch = missing[offset : offset + 8]
-            waves = list(pool.map(decode, batch))
-            for row, wave in zip(batch, waves, strict=True):
+            waves = list(pool.map(evaluation_decode, batch))
+            for row, (wave, fallback) in zip(batch, waves, strict=True):
+                if fallback is not None:
+                    fallbacks[row["id"]] = fallback
                 result = compress(transform(torch.from_numpy(wave).to(device))).cpu().numpy()
                 assert result.shape == (2, 99, 1379) and np.isfinite(result).all()
                 path = cache / (row["sha256"] + ".npy")
@@ -119,6 +169,7 @@ def features_for(rows, cache, device):
                 with pending.open("wb") as stream:
                     np.save(stream, result)
                 pending.replace(path)
+            atomic_json(fallback_path, fallbacks)
             if (offset + len(batch)) % 80 == 0 or offset + len(batch) == len(missing):
                 print(
                     f"Frozen {len(rows)}-row evaluation: prepared {offset + len(batch)}/{len(missing)} new features",
@@ -127,7 +178,7 @@ def features_for(rows, cache, device):
     array = np.stack(
         [np.load(cache / (row["sha256"] + ".npy"), allow_pickle=False) for row in rows]
     )
-    return array
+    return array, [fallbacks[row["id"]] for row in rows if row["id"] in fallbacks]
 
 
 def main():
@@ -186,7 +237,7 @@ def main():
         assert json.loads(evaluation_ids.read_bytes()) == identities
     else:
         atomic_json(evaluation_ids, identities)
-    array = features_for(rows, args.output / "features", args.device)
+    array, fallbacks = features_for(rows, args.output / "features", args.device)
     predictions = [
         probabilities(model, array, list(range(len(rows))), args.device) for model in models
     ]
@@ -199,6 +250,7 @@ def main():
         "mode": args.mode,
         "feature_spec": FEATURE_SPEC,
         "model_choice": selection["choice"],
+        "decode_fallbacks": fallbacks,
         "tool_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         **provenance,
     }
