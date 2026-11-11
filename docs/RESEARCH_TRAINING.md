@@ -709,6 +709,10 @@ The current bounded accuracy experiment is the
 [controlled K10 multi-domain comparison](../experiments/K10_MULTIDOMAIN_PROTOCOL.md).
 It preserves the same development identities, fixes duplicate-audio leakage and
 padding-dependent evaluation, then compares Beatport-only against joint fitting.
+That comparison is now complete: across the three paired seeds, BP MIREX gained
+2.38 points and FMAK 1.60 points. It missed the predeclared 2-point mean FMAK gain,
+so no replacement weights or external freeze were earned. See
+[the full K10 comparison results](../experiments/K10_MULTIDOMAIN_RESULTS.md).
 Existing exposed final sets must not become its optimization target. Broader
 classifiers, liquid-language models, decision-model
 ideas, additional model tiers and extra song attributes remain possibilities to

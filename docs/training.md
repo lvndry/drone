@@ -8,8 +8,14 @@ only equal-length inputs and preserves each track's actual length. Historical
 scores below describe the original runs and have not been silently recomputed.
 See [the controlled multi-domain protocol](../experiments/K10_MULTIDOMAIN_PROTOCOL.md)
 for a fresh comparison of fitting data under both corrected contracts. These
-findings do not establish contamination of the GiantSteps test set, and do not
-change the shipped weights or single-track predictor.
+findings do not establish contamination of the GiantSteps test set.
+
+The inference audit also corrected `Predictor`'s old feature transpose: K10 expects
+`(batch, 192 bins, time)`. ONNX now has dynamic time as well as batch dimensions,
+with CPU parity checked against the unchanged PyTorch model at multiple lengths.
+The original PyTorch weights remain the release candidate; the controlled
+multi-domain comparison and its gate decision are recorded in
+[the results](../experiments/K10_MULTIDOMAIN_RESULTS.md).
 
 How the drone key classifier is trained, the strategies behind each choice, and what
 we learned getting here. Audience: a competent engineer who has never seen this repo.

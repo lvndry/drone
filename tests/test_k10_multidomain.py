@@ -4,6 +4,7 @@ import pytest
 
 from experiments.k10_multidomain import validate_rows
 from tools.compare_k10_multidomain import compare
+from tools.summarize_k10_multidomain import summarize
 
 
 def rows():
@@ -72,3 +73,21 @@ def test_gate_rejects_changed_validation_identities():
     joint["validation_ids"].reverse()
     with pytest.raises(ValueError, match="validation_ids"):
         compare(control, joint)
+
+
+def test_confirmation_gate_does_not_promote_a_lucky_pilot_seed():
+    pairs = {}
+    for seed, gain in ((13, 0.0352), (37, 0.0012), (73, 0.01)):
+        control, joint = paired_runs()
+        control["seed"] = joint["seed"] = seed
+        joint["domain_metrics"]["fmak"]["mirex"] = 0.5 + gain
+        pairs[seed] = (control, joint)
+    assert compare(*pairs[13])["qualifies_for_confirmation"]
+    result = summarize(pairs)
+    assert not result["qualifies_for_external_freeze"]
+    assert result["canonical_seed"] is None
+    pairs[73][1]["domain_metrics"]["fmak"]["mirex"] = 0.54
+    assert summarize(pairs)["canonical_seed"] == 13
+    del pairs[73]
+    with pytest.raises(ValueError, match="three declared"):
+        summarize(pairs)
