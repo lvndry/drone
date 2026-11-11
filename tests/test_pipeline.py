@@ -125,7 +125,7 @@ def test_prepare_train_evaluate_and_infer(tmp_path):
     tracks = []
     for i in range(8):
         audio = tmp_path / f"{i}.wav"
-        write_tone(audio, 110 if i < 4 else 220)
+        write_tone(audio, (110 if i < 4 else 220) + i)
         tracks.append(Track(str(i), str(audio), ("A", "major" if i < 4 else "minor")))
     (tmp_path / "labels").mkdir()
     # write label files for the loader used by prepare_dir

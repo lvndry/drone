@@ -1,5 +1,16 @@
 # Training documentation: drone
 
+Audit update after release: the original K10 fitting/validation split contained
+two identical-audio crossings (seven duplicate groups overall). Future training
+uses the shared content-deduplicated split. The old variable-length evaluation
+also padded shorter tracks to their batch peers; corrected evaluation batches
+only equal-length inputs and preserves each track's actual length. Historical
+scores below describe the original runs and have not been silently recomputed.
+See [the controlled multi-domain protocol](../experiments/K10_MULTIDOMAIN_PROTOCOL.md)
+for a fresh comparison of fitting data under both corrected contracts. These
+findings do not establish contamination of the GiantSteps test set, and do not
+change the shipped weights or single-track predictor.
+
 How the drone key classifier is trained, the strategies behind each choice, and what
 we learned getting here. Audience: a competent engineer who has never seen this repo.
 Every code reference below is `file:line` against the `k10-arch` branch.
