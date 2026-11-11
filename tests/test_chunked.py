@@ -18,6 +18,7 @@ from experiments.chunked import ATOL, RTOL, ChunkedK10, compare_logits, core_win
 from experiments.chunked import sha256 as file_hash
 from tools.evaluate_chunked import benchmark, selected_rows, source_provenance
 from tools.export_chunked import HiddenPrefix, export_bundle
+from tools.research.measurements import runtime_environment
 
 pytestmark = pytest.mark.skipif(
     any(importlib.util.find_spec(name) is None for name in ("onnx", "onnxscript", "onnxruntime")),
@@ -202,10 +203,13 @@ def test_benchmark_rejects_code_changed_after_validation(
         "manifest_sha256": file_hash(manifest),
         "full_model_sha256": file_hash(full_model),
         "contract_sha256": file_hash(path / "contract.json"),
+        "prefix_sha256": file_hash(path / "prefix.onnx"),
+        "head_sha256": file_hash(path / "head.onnx"),
         "core_outputs": 64,
         "atol": ATOL,
         "rtol": RTOL,
         **source_provenance(),
+        **runtime_environment(),
     }
     report[source] = "previous-code-hash"
     validation_report = tmp_path / "validation.json"
