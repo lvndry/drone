@@ -1,31 +1,58 @@
-"""Track loading for the key detection CNN.
+"""Track loading for key detection.
 
-A track is (id, path to mp3, parsed key label). The log-frequency spectrogram is extracted once
-and cached; bounded frequency shifting reuses the cache.
+A track is (id, path to audio, parsed key label). The CQT is computed once
+and cached by content hash; pitch-shift augmentation is a re-slice of the
+core bins, which reuses the cache.
 """
 
-import glob
 import os
 import re
 
-from drone.features import extract, normalize, resample_time, shift_features
-from drone.keys import encode_key, parse_key, transpose_key
+import numpy as np
+
+from drone.features import (
+    BINS_PER_SEMI,
+    CROP_FRAMES,
+    N_CORE,
+    N_TOTAL,
+    extract_cqt,
+    window,
+)
+from drone.keys import TONICS, encode_key, transpose_key
 
 
 class Track:
-    def __init__(self, track_id, mp3, key):
+    def __init__(self, track_id, audio, key):
         self.id = track_id
-        self.mp3 = mp3
+        self.audio = audio
+        self.mp3 = audio  # compatibility alias
         self.key = key  # (tonic, mode)
+        self.class_id = encode_key(*key)
 
 
-def load_dir(track_dir, mp3_glob, label_fn, recursive=False):
-    """Load tracks from a dataset directory.
+def parse_key(text):
+    """'D# minor | E major' -> ('D#', 'minor'); None when unparseable.
 
-    mp3_glob: glob relative to track_dir matching audio files.
-    label_fn: fn(id, filename) -> (tonic, mode) or None.
+    Flats are normalized to sharps so both datasets share the same 24 classes.
     """
-    pattern = os.path.join(track_dir, mp3_glob)
+    first = text.split("|")[0].strip()
+    parts = first.split()
+    if len(parts) != 2:
+        return None
+    tonic, mode = parts
+    if mode not in ("major", "minor"):
+        return None
+    if tonic not in TONICS:
+        tonic = {"Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"}.get(tonic)
+        if tonic is None:
+            return None
+    return tonic, mode
+
+
+def _load_dir(base_dir, audio_glob, label_fn, recursive=False):
+    import glob
+
+    pattern = os.path.join(base_dir, audio_glob)
     paths = glob.glob(pattern, recursive=recursive) if recursive else glob.glob(pattern)
     tracks = []
     for path in sorted(paths):
@@ -38,40 +65,31 @@ def load_dir(track_dir, mp3_glob, label_fn, recursive=False):
         if key is None:
             continue
         tracks.append(Track(track_id, path, key))
-    ids = [track.id for track in tracks]
-    if len(ids) != len(set(ids)):
-        raise ValueError(f"Duplicate track IDs in {track_dir}")
     return tracks
 
 
 def load_beatport(data_dir, label_dir):
-    """Beatport 1486 set: audio under data/audio, labels are one key per file."""
+    """Beatport EDM Key Dataset: audio under data/audio, one label per file."""
     labels = {}
-    if not os.path.isdir(label_dir):
-        raise FileNotFoundError(f"Missing Beatport labels: {label_dir}. Run bash fetch.sh.")
-    for path in sorted(os.listdir(label_dir)):
+    for path in os.listdir(label_dir):
         if not path.endswith(".txt"):
             continue
         m = re.match(r"(\d+)", path)
         if not m:
             continue
         with open(os.path.join(label_dir, path)) as f:
-            text = f.read().strip()
-        key = parse_key(text)
+            key = parse_key(f.read())
         if key is not None:
             labels[m.group(1)] = key
     audio = os.path.join(data_dir, "audio")
-    tracks = load_dir(audio, "**/*.mp3", lambda tid, name: labels.get(tid), recursive=True)
+    tracks = _load_dir(audio, "**/*.mp3", lambda tid, name: labels.get(tid), recursive=True)
     if not tracks:
-        raise ValueError("No labelled Beatport audio found. Run bash fetch.sh.")
-    missing = set(labels) - {track.id for track in tracks}
-    if missing:
-        raise ValueError(f"Missing {len(missing)} labelled Beatport previews. Run bash fetch.sh.")
+        raise ValueError(f"No tracks found under {audio}")
     return tracks
 
 
 def load_giantsteps(data_dir):
-    """GiantSteps 604 set (the test set): bench/data/key layout."""
+    """GiantSteps Key Dataset (the held-out test set): bench/data/key layout."""
 
     def label_fn(track_id, name):
         # audio is <id>.LOFI.mp3, label is <id>.LOFI.key
@@ -81,21 +99,31 @@ def load_giantsteps(data_dir):
         with open(path) as f:
             return parse_key(f.read())
 
-    tracks = load_dir(data_dir, "audio/*.mp3", label_fn)
-    expected = glob.glob(os.path.join(data_dir, "annotations", "key", "*.key"))
-    if not expected or len(tracks) != len(expected):
-        raise ValueError("Missing GiantSteps audio or labels. Run bash fetch.sh.")
+    tracks = _load_dir(data_dir, "audio/*.mp3", label_fn)
+    if not tracks:
+        raise ValueError(f"Missing GiantSteps audio/annotations under {data_dir}")
     return tracks
 
 
-def prepare(track, track_dir, T=300, augment=0):
-    """Log-frequency features, resampled in time to T frames, optional bounded shift.
+def sample_features(track, track_dir, rng, *, shift=None, T=CROP_FRAMES):
+    """One training sample: (N_CORE, T) with an augmented class id.
 
-    augment: semitones to shift up (negative = down), applied on spectrogram
-    columns; the class follows the shift. Returns (features (T, 33) float32, class_id).
+    shift: semitones to raise the audio (None = uniform in +/-4 for rng).
+    The label transposes by -shift, matching how window() moves the slice.
     """
-    features = resample_time(extract(track.id, track.mp3, track_dir), T)
-    features = normalize(features)
-    if augment:
-        features = shift_features(features, augment)
-    return features, transpose_key(encode_key(*track.key), augment)
+    if shift is None:
+        shift = int(rng.integers(-4, 5))
+    cqt = extract_cqt(track.mp3, track_dir)
+    features = window(cqt, shift)
+    if T is not None:
+        if features.shape[1] < T:
+            features = np.pad(features, ((0, 0), (0, T - features.shape[1])))
+        else:
+            start = int(rng.integers(0, features.shape[1] - T + 1))
+            features = features[:, start : start + T]
+    return features, transpose_key(track.class_id, -shift)
+
+
+def prepare(track, track_dir, *, T=None):
+    """Inference feature for one track: (N_CORE, frames), no augmentation."""
+    return window(extract_cqt(track.mp3, track_dir)), track.key

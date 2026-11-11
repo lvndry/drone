@@ -1,41 +1,49 @@
-"""Small CNN for 24-class key detection. Input: (B, 33, T) CQT."""
+"""Key detection CNN matching the K10 (MIREX 2026, MIT) architecture.
+
+Input: (B, N_CORE, T) — 192 core CQT bins, T frames.
+"""
 
 import torch.nn as nn
 
-MODEL_SIZES = {"small": 1, "medium": 2, "large": 4}
+from drone.features import N_CORE
+
+C1, C2, C3 = 16, 32, 64
+
+
+def _block(cin: int, cout: int, pool: bool) -> list[nn.Module]:
+    layers = [
+        nn.Conv2d(cin, cout, 3, padding=1),
+        nn.BatchNorm2d(cout),
+        nn.ELU(),
+        nn.Conv2d(cout, cout, 3, padding=1),
+        nn.BatchNorm2d(cout),
+        nn.ELU(),
+    ]
+    if pool:
+        layers.append(nn.MaxPool2d(2))
+    return layers
 
 
 class KeyCNN(nn.Module):
-    def __init__(self, size="small", dropout=0.3):
+    def __init__(self, width: float = 1.0):
         super().__init__()
-        if size not in MODEL_SIZES:
-            raise ValueError(f"Unknown model size: {size}")
-        if not 0 <= dropout < 1:
-            raise ValueError("dropout must be between 0 and 1")
-        self.config = {"size": size, "dropout": dropout}
-        a, b, c = (n * MODEL_SIZES[size] for n in (32, 64, 128))
+        c1, c2, c3 = int(C1 * width), int(C2 * width), int(C3 * width)
+        # The head pools over TIME ONLY: key identity lives in absolute
+        # frequency position, so frequency structure must reach the readout
+        # (a full 2-D global pool made the net transposition-invariant and
+        # pinned training at chance).
         self.net = nn.Sequential(
-            nn.Conv2d(1, a, kernel_size=(1, 8), stride=(1, 4)),
-            nn.BatchNorm2d(a),
-            nn.ReLU(),
-            nn.Conv2d(a, b, kernel_size=(4, 8), stride=(2, 4)),
-            nn.BatchNorm2d(b),
-            nn.ReLU(),
-            nn.Conv2d(b, c, kernel_size=(4, 8), stride=(2, 4)),
-            nn.BatchNorm2d(c),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d(1),
+            *(_block(1, c1, True) + _block(c1, c2, True) + _block(c2, c3, True)),
+            nn.Dropout2d(0.2),
+            nn.AdaptiveAvgPool2d((N_CORE // 8, 1)),  # 192 -> 24 after 3 halvings
         )
-        self.head = nn.Sequential(
-            nn.Flatten(),
-            nn.Dropout(dropout),
-            nn.Linear(c, 24),
-        )
+        self.head = nn.Linear(c3 * (N_CORE // 8), 24)
 
     def forward(self, x):
-        # x: (B, n_sem, T) -> (B, 1, n_sem, T)
-        return self.head(self.net(x.unsqueeze(1)))
+        # x: (B, N_CORE, T) -> (B, 1, N_CORE, T)
+        h = self.net(x.unsqueeze(1)).flatten(1)
+        return self.head(h)
 
 
-def params_count(model):
+def params_count(model: nn.Module) -> int:
     return sum(p.numel() for p in model.parameters())

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 
 from drone.checkpoints import load_checkpoint
-from drone.features import N_SEM
+from drone.features import CROP_FRAMES, N_CORE
 
 
 def cpu_session(path, threads=1):
@@ -31,7 +31,7 @@ def export_checkpoint(checkpoint, output):
     output.parent.mkdir(parents=True, exist_ok=True)
     generator = torch.Generator().manual_seed(13)
     # Export with batch >1 so the batch dimension remains symbolic.
-    example = torch.randn(2, N_SEM, payload["frames"], generator=generator)
+    example = torch.randn(2, N_CORE, CROP_FRAMES, generator=generator)
     torch.onnx.export(
         model,
         (example,),
@@ -46,7 +46,7 @@ def export_checkpoint(checkpoint, output):
     session = cpu_session(output)
     errors = []
     for batch in (1, 2, 3):
-        x = torch.randn(batch, N_SEM, payload["frames"], generator=generator)
+        x = torch.randn(batch, N_CORE, CROP_FRAMES, generator=generator)
         with torch.inference_mode():
             expected = model(x).numpy()
         actual = session.run(["logits"], {"features": x.numpy()})[0]

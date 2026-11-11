@@ -12,7 +12,7 @@ import torch
 
 from drone.checkpoints import load_checkpoint
 from drone.datasets import Track, prepare
-from drone.features import N_SEM
+from drone.features import CROP_FRAMES, N_CORE
 from drone.model import params_count
 
 
@@ -38,7 +38,7 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
     start = time.perf_counter()
     model, payload = load_checkpoint(checkpoint)
     load_ms = 1000 * (time.perf_counter() - start)
-    x = torch.zeros(1, N_SEM, payload["frames"])
+    x = torch.zeros(1, N_CORE, CROP_FRAMES)
     with torch.inference_mode():
         for _ in range(5):
             model(x)
@@ -46,12 +46,12 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
             "hardware": platform.platform(),
             "machine": platform.machine(),
             "torch": str(torch.__version__),
-            "model_config": model.config,
+            "model_config": payload.get("model_config"),
             "parameters": params_count(model),
             "checkpoint_bytes": Path(checkpoint).stat().st_size,
             "threads": threads,
             "batch_size": 1,
-            "feature_frames": payload["frames"],
+            "feature_crop": payload.get("crop"),
             "model_load_ms": load_ms,
             "pytorch_forward": timed(lambda: model(x), iterations),
             "note": "Synthetic tensor latency; no accuracy measurement. Parent CPU timing excludes ffmpeg.",
@@ -69,7 +69,7 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
             with tempfile.TemporaryDirectory() as scratch:
                 track = Track("benchmark", audio, ("C", "major"))
                 start = time.perf_counter()
-                features, _ = prepare(track, scratch, T=payload["frames"])
+                features, _ = prepare(track, scratch)
                 model(torch.from_numpy(features[None]).transpose(1, 2))
                 result["cold_audio_decode_features_forward_ms"] = 1000 * (
                     time.perf_counter() - start
@@ -77,7 +77,7 @@ def benchmark(checkpoint, *, threads=1, iterations=100, audio=None, onnx=None):
                 result["warm_feature_cache_plus_forward"] = timed(
                     lambda: model(
                         torch.from_numpy(
-                            prepare(track, scratch, T=payload["frames"])[0][None]
+                            prepare(track, scratch)[0][None]
                         ).transpose(1, 2)
                     ),
                     min(10, iterations),

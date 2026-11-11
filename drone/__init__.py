@@ -42,11 +42,8 @@ class Predictor:
         self.workdir = workdir or os.path.join(tempfile.gettempdir(), "drone-cache")
 
     def predict(self, audio_path):
-        features, _ = prepare(
-            Track("track", audio_path, ("C", "major")),
-            self.workdir,
-            T=self.checkpoint["frames"],
-        )
+        # Full-length feature; the net pools over time, so no fixed frame count.
+        features, _ = prepare(Track("track", audio_path, ("C", "major")), self.workdir)
         x = torch.from_numpy(features[None]).transpose(1, 2).to(self.device)
         with torch.inference_mode():
             prob = torch.softmax(self.model(x), 1).squeeze(0)
