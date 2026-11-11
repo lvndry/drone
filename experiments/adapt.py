@@ -70,6 +70,7 @@ def main():
     parser.add_argument("--groups", type=Path, required=True)
     parser.add_argument("--baseline", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
     args = parser.parse_args()
     torch.set_num_threads(16)
     args.output.mkdir(parents=True, exist_ok=True)
@@ -143,19 +144,19 @@ def main():
         tr,
         val,
         recipe,
-        seed=13,
-        output=args.output / "seed13",
+        seed=args.seed,
+        output=args.output / f"seed{args.seed}",
         max_seconds=600,
         split_policy=POLICY,
     )
-    model, _ = load_checkpoint(args.output / "seed13/best.pt")
+    model, _ = load_checkpoint(args.output / f"seed{args.seed}/best.pt")
     metrics = {
         name: development_metrics(model, features[indices], [metadata["refs"][i] for i in indices])
         for name, indices in domains.items()
     }
     delta = {name: metrics[name]["mirex"] - baseline_metrics[name]["mirex"] for name in domains}
     result = {
-        "seed": 13,
+        "seed": args.seed,
         "recipe": recipe.name,
         "metrics": metrics,
         "delta_mirex": delta,

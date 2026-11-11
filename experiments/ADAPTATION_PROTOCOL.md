@@ -34,3 +34,19 @@ gap. Test additional labels before increasing model capacity or changing feature
 This is development research. Known primary artist/album groups do not establish
 remix/cover independence, and Beatport lacks matched artist metadata. Report these
 limitations; do not claim a new cross-artist or SOTA benchmark from this pilot.
+
+## Confirmation gate opened after pilot
+
+The seed-13 pilot completed 120 epochs in approximately 146 seconds. On the same
+250 FMAK validation rows, MIREX increased from 56.00% to 63.96%; Beatport validation
+increased from 60.56% to 61.43%. This passes the predefined pilot gate.
+
+Confirm only this fixed recipe at seeds 13, 37 and 73, with unchanged splits and
+hyperparameters. The CLI now accepts a seed; rerun seed 13 under the same new
+source snapshot as 37/73 and verify histories/predictions against the original
+pilot. Cap each run at ten minutes, the sequential stage at 35 minutes. Select
+no new recipe from these results. Report per-domain means and sample SD. Treat
+the mean as qualifying only if FMAK gain >=2 points and Beatport loss <=2 points
+against the frozen seed-13 reference; disclose that this is one fixed reference
+artifact, not a three-seed paired comparison. Canonical artifact remains seed 13.
+No calibration, final holdout or additional GiantSteps neural scores.
