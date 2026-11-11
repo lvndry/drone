@@ -19,7 +19,7 @@ frontend work and long-track activation memory need attention, not just weights.
 
 | Direction | Primary evidence | Decision for Drone |
 |---|---|---|
-| Weight averaging | [EMA study](https://arxiv.org/abs/2411.18704), TMLR 2024 / arXiv November 2024 | Next bounded accuracy test: EMA on the same small model. The study's SGD evidence is not proof for our AdamW recipe. |
+| Weight averaging | [EMA study](https://arxiv.org/abs/2411.18704), TMLR 2024 / arXiv November 2024 | Fixed EMA pilot completed and rejected below. The study's SGD evidence did not establish transfer to our AdamW recipe. |
 | New optimizer geometry | [Spectral SAM + Muon](https://arxiv.org/abs/2607.26001), July 2026 | Its ImageNet ViT/ResNet results are interesting; changing perturbation geometry and optimizer together would obscure attribution here. Defer. |
 | Train large, deploy small | [EfficientAT](https://arxiv.org/abs/2211.04772), ICASSP 2023; [S-SONDO](https://arxiv.org/abs/2604.24933), ICASSP 2026 | Strong future direction once an independently stronger key teacher exists. Audio tagging/embedding results do not prove absolute-pitch/key transfer. |
 | Hardware-aware model design | [LFM2 report](https://arxiv.org/abs/2511.23404), November 2025 | Transfer the practice of measuring target hardware and using training-time distillation. Its language/speech workloads and 350M+ parameter family are a different scale and task from this 109k classifier. |
@@ -37,7 +37,7 @@ explicitly calls out BatchNorm statistics. Drone has six BatchNorm layers. A
 comparison of EMA plus recalibration against ordinary weights without equivalent
 recalibration would confound two interventions.
 
-## Selected accuracy experiment
+## Completed accuracy experiment
 
 Use one fixed EMA decay and unchanged training data, augmentation, optimizer,
 schedule and architecture. Ordinary weights alone select the training checkpoint
@@ -70,7 +70,7 @@ with no MIREX or exact decline in either domain earns confirmation on 37/73;
 three-seed means must retain the separate two-point original control hurdle.
 No smoothing sweep, architecture change, curriculum or teacher is bundled in.
 
-## Selected performance experiment
+## Completed performance experiment
 
 K10's six temporal 3-wide convolutions and three stride-two pools give output
 stride eight and receptive field 36. Align chunks to the pooling grid, preserve
@@ -88,6 +88,12 @@ full ONNX artifact remains the reference. Boundary/remainder/seam tests and
 label-blind parity on the existing public validation inputs must pass, including
 zero key disagreements. Measured logit tolerances are engineering checks, not
 universal error bounds for future near-ties. No quantization or input truncation.
+
+The [completed chunk test](https://github.com/lvndry/drone/pull/9) passed all 376
+validation inputs with zero changed keys. Paired cached-feature probes reduced
+peak process RSS from 865 MiB to 129 MiB with a 1.91% median paired latency
+increase. This passes the fixed development gate; native frontend/application
+measurements remain necessary before making an Euphoria performance claim.
 
 ## Additional source review
 
