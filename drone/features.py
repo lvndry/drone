@@ -122,7 +122,7 @@ def read_wav_mono(path: str | Path) -> tuple[np.ndarray, int]:
     with open(path, "rb") as f:
         data = f.read()
     pos = 12
-    sample_rate = None
+    sample_rate: int | None = None
     while pos + 8 <= len(data):
         chunk_id = data[pos : pos + 4]
         (chunk_size,) = struct.unpack("<I", data[pos + 4 : pos + 8])
@@ -132,9 +132,11 @@ def read_wav_mono(path: str | Path) -> tuple[np.ndarray, int]:
             if bits != 16:
                 raise ValueError(f"unexpected sample width {bits} for {path}")
         elif chunk_id == b"data":
+            if sample_rate is None:
+                raise ValueError(f"bad wav: data chunk before fmt chunk in {path}")
             raw = data[pos + 8 : pos + 8 + chunk_size]
             samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-            return samples, sample_rate  # type: ignore[return-value]  # None only if the fmt chunk is absent
+            return samples, sample_rate
         pos += 8 + chunk_size + (chunk_size & 1)
     raise ValueError(f"bad wav: {path}")
 

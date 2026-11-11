@@ -104,8 +104,10 @@ def extract_giantsteps(archive: str | Path, target: str | Path) -> None:
                 continue
             out = target / relative
             out.parent.mkdir(parents=True, exist_ok=True)
-            # extractfile() can only return None for non-file members, already filtered above.
-            with bundle.extractfile(member) as source, out.open("wb") as dest:  # type: ignore[union-attr]
+            source = bundle.extractfile(member)
+            if source is None:
+                continue
+            with source, out.open("wb") as dest:
                 shutil.copyfileobj(source, dest)
             if relative.suffix == ".key":
                 count += 1

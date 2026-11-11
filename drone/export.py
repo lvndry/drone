@@ -55,7 +55,7 @@ def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, A
         x = torch.randn(batch, N_CORE, CROP_FRAMES, generator=generator)
         with torch.inference_mode():
             expected = model(x).numpy()
-        actual = session.run(["logits"], {"features": x.numpy()})[0]
+        actual = np.asarray(session.run(["logits"], {"features": x.numpy()})[0], dtype=np.float32)
         np.testing.assert_allclose(actual, expected, rtol=1e-4, atol=1e-5)
         errors.append(float(np.max(np.abs(actual - expected))))
     metadata = {k: v for k, v in payload.items() if k != "state_dict"}

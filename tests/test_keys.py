@@ -47,7 +47,7 @@ def test_invalid_inputs_and_flat_labels() -> None:
     assert parse_key("not a key") is None
     for bad in [-1, 24, 1.5]:
         with pytest.raises(ValueError):
-            decode_key(bad)  # type: ignore[arg-type]  # the float must be rejected by the Integral guard
+            decode_key(bad)  # ty: ignore  # 1.5 proves the Integral guard rejects floats
 
     for pred, ref in [([], []), ([0], []), ([24], [0])]:
         with pytest.raises(ValueError):
