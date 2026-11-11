@@ -13,6 +13,7 @@ import torch
 from torch import nn
 
 from drone.keys import LABEL_SCHEMA, encode_key, score_breakdown, score_mirex, transpose_key
+from drone.splits import validation_split
 from experiments.reference.checkpoints import load_checkpoint, save_checkpoint
 from experiments.reference.datasets import load_beatport, load_giantsteps, prepare
 from experiments.reference.features import (
@@ -125,47 +126,6 @@ def assert_disjoint(train_ids, test_ids):
         raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
 
 
-def validation_split(refs, seed=SEED, audio_hashes=None):
-    """Fixed seeded, stratified split; training augmentation never touches validation."""
-    rng = np.random.default_rng(seed)
-    val = []
-    for key in sorted(set(refs)):
-        indices = np.flatnonzero(np.asarray(refs) == key)
-        rng.shuffle(indices)
-        if len(indices) > 1:
-            val.extend(indices[: max(1, len(indices) // 10)].tolist())
-    val = sorted(val)
-    chosen = set(val)
-    train = [i for i in range(len(refs)) if i not in chosen]
-    if audio_hashes is not None:
-        if len(audio_hashes) != len(refs):
-            raise ValueError("Audio identities must align with key labels")
-        labels_by_audio = {}
-        for digest, ref in zip(audio_hashes, refs, strict=True):
-            if digest in labels_by_audio and labels_by_audio[digest] != ref:
-                raise ValueError("Identical audio has conflicting labels; resolve before splitting")
-            labels_by_audio[digest] = ref
-        # Preserve the original validation identities. Quarantine training copies
-        # of validation audio, and count each remaining recording only once.
-        seen = set()
-        unique_val = []
-        for i in val:
-            if audio_hashes[i] not in seen:
-                unique_val.append(i)
-                seen.add(audio_hashes[i])
-        unique_train = []
-        for i in train:
-            if audio_hashes[i] not in seen:
-                unique_train.append(i)
-                seen.add(audio_hashes[i])
-        train, val = unique_train, unique_val
-    if not train or not val:
-        raise ValueError(
-            "Need at least two distinct examples in a class for a training/validation split"
-        )
-    return train, val
-
-
 def augment_batch(feats, refs, shifts):
     if not len(refs) or len(feats) != len(refs) or len(shifts) != len(refs):
         raise ValueError("Augmentation requires matching nonempty features, labels, and shifts")
@@ -238,6 +198,7 @@ def train_model(
         *sorted(Path(__file__).parent.glob("*.py")),
         root / "drone" / "keys.py",
         root / "drone" / "download.py",
+        root / "drone" / "splits.py",
     ]
     source_hashes = {
         str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files

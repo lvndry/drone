@@ -75,7 +75,7 @@ scoring conventions.
 ## Features
 
 Audio is decoded to mono 22.05 kHz PCM and transformed with a constant-Q
-transform (24 bins per octave, 208 bins from two semitones below C1, 4096-sample
+transform (24 bins per octave, 208 bins from four semitones below C1, 4096-sample
 hop, log1p amplitude). The 192 core bins cover C1 through the top of the
 eighth octave; the 16 outer bins are the +/-4 semitone shift pad. A pitch shift
 is therefore an exact re-slice of this grid — no resampling, no interpolation
