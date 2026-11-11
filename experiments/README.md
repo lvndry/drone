@@ -10,6 +10,8 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [K10 chunked inference](studies/k10-chunked/REPORT.md) | Bound activation memory without discarding evidence | All 376 keys agree; paired RSS 865 → 129 MiB, latency +1.91%. Proceed to native integration testing. |
 | [K10 multi-domain fitting](studies/k10-multidomain/REPORT.md) | Improve broader-domain accuracy with more fitting data | FMAK mean +1.60 points misses the fixed +2.00 gate. Keep release weights. |
 | [K10 EMA](studies/k10-ema/REPORT.md) | Improve accuracy through training-time averaging | Pilot loses accuracy; stop confirmation. Keep release weights. |
+| [Structured key targets](studies/k10-structured-targets/REPORT.md) | Use harmonic error structure in the training loss | Fixed pilot reduces MIREX and exact accuracy; no confirmation. |
+| [K10 capacity](studies/k10-capacity/REPORT.md) | Earn a stronger teacher through one wider model | Width 2 loses accuracy under the same recipe; no teacher or product tier earned. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,

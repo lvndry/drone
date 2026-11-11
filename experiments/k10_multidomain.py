@@ -408,7 +408,13 @@ def main() -> None:
     p.add_argument("--reference-checkpoint", type=Path)
     p.add_argument("--pilot-run", type=Path)
     args = p.parse_args()
-    selected = args.ema_probe or args.structured_control or args.structured_targets or args.capacity_probe or args.capacity_control
+    selected = (
+        args.ema_probe
+        or args.structured_control
+        or args.structured_targets
+        or args.capacity_probe
+        or args.capacity_control
+    )
     if args.command in ("train", "diagnose") and args.data is None:
         p.error("--data is required for train and diagnose")
     if selected and (
