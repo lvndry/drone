@@ -1,0 +1,13 @@
+# Dev-time data and intermediate artifacts
+data/
+features/
+runs/
+__pycache__/
+*.npy
+*.wav
+
+# weights are the product: they are tracked
+weights/*
+!weights/*.onnx
+!weights/*.pt
+!weights/README.md
