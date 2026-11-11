@@ -11,7 +11,7 @@ import shutil
 import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -31,6 +31,10 @@ from drone.model import KeyCNN, params_count
 from experiments.octave import device_setup
 from experiments.small import atomic_json, snapshot_sources
 from train import evaluate_features
+
+if TYPE_CHECKING:
+    from experiments.research_models import ResearchModelHooks
+
 
 FROZEN_SHA256 = "5f995f516430332a37f591ec299a36f9a46c16b2cd01cd887700837fd600bac9"
 
@@ -181,7 +185,7 @@ def domain_metrics(
     return result
 
 
-def train(args: argparse.Namespace) -> None:
+def train(args: argparse.Namespace, *, research: ResearchModelHooks | None = None) -> None:
     if (args.output / "run.json").exists():
         raise ValueError("Use a fresh run directory; this pilot does not silently restart")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -199,7 +203,10 @@ def train(args: argparse.Namespace) -> None:
     val_refs = np.array([rows[i]["ref"] for i in validation])
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
-    model = KeyCNN().to(args.device)
+    if research is None:
+        model = KeyCNN().to(args.device)
+    else:
+        model = research.factory().to(args.device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 120)
     record = {
@@ -229,7 +236,16 @@ def train(args: argparse.Namespace) -> None:
         from experiments.ema import EmaProbe
 
         probe = EmaProbe(args, record, model, rows, arrays, fitting)
+    research_probe = None
+    if getattr(args, "pitch_circle_probe", False):
+        from experiments.pitch_circle_fit import PitchCircleFit
+
+        if research is None or research.architecture != "pitch-circle-v1":
+            raise ValueError("Pitch-circle probe requires the explicit research hooks")
+        research_probe = PitchCircleFit(args, record, research)
     best, best_epoch, start = -1, 0, time.monotonic()
+    if research_probe is not None and args.device.startswith("cuda"):
+        torch.cuda.reset_peak_memory_stats()
     for epoch in range(1, 121):
         model.train()
         order = rng.permutation(fitting)
@@ -262,6 +278,10 @@ def train(args: argparse.Namespace) -> None:
                 atomic_json(args.output / "run.json", record)
                 if probe is not None:
                     probe.budget_exhausted(start)
+                if research_probe is not None:
+                    research_probe.failure(
+                        record, start, "Fixed 1200-second fitting budget exhausted", budget=True
+                    )
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
@@ -269,15 +289,30 @@ def train(args: argparse.Namespace) -> None:
         record["history"].append(dict(epoch=epoch, loss=loss_sum / len(order), mirex=score))
         if score > best:
             best, best_epoch = score, epoch
-            save_checkpoint(
-                args.output / "best.pt",
-                model,
-                epoch=epoch,
-                experiment="k10-multidomain-development-v1",
-                arm=args.arm,
-                seed=args.seed,
-                source_sha256=sources,
-            )
+            if research is None:
+                assert isinstance(model, KeyCNN)
+                save_checkpoint(
+                    args.output / "best.pt",
+                    model,
+                    epoch=epoch,
+                    experiment="k10-multidomain-development-v1",
+                    arm=args.arm,
+                    seed=args.seed,
+                    source_sha256=sources,
+                )
+            else:
+                research.writer(
+                    args.output / "best.pt",
+                    model,
+                    metadata=dict(
+                        epoch=epoch,
+                        experiment=research.experiment,
+                        arm=args.arm,
+                        seed=args.seed,
+                        source_sha256=sources,
+                        feature_manifest_sha256=record["feature_manifest_sha256"],
+                    ),
+                )
             atomic_json(
                 args.output / "best-validation.json", domain_metrics(pred, val_refs, val_rows)
             )
@@ -300,6 +335,10 @@ def train(args: argparse.Namespace) -> None:
     atomic_json(args.output / "run.json", record)
     if probe is not None:
         probe.finish(record, val_features, val_refs, val_rows, start)
+    if research_probe is not None:
+        result = research_probe.finish(record, val_features, val_refs, val_rows, start)
+        if result["status"] != "complete":
+            raise RuntimeError(f"Pitch-circle fit failed: {result.get('error', result['status'])}")
 
 
 def diagnose(args: argparse.Namespace) -> None:
@@ -345,7 +384,10 @@ def main() -> None:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--arm", choices=("control", "joint"))
     p.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
-    p.add_argument("--ema-probe", action="store_true")
+    probes = p.add_mutually_exclusive_group()
+    probes.add_argument("--ema-probe", action="store_true")
+    probes.add_argument("--pitch-circle-probe", action="store_true")
+    p.add_argument("--paired-control", type=Path)
     p.add_argument("--reference-run", type=Path)
     p.add_argument("--reference-bp", type=Path)
     p.add_argument("--reference-checkpoint", type=Path)
@@ -358,7 +400,28 @@ def main() -> None:
         or args.reference_bp is None
     ):
         p.error("--ema-probe requires train --arm joint --reference-run and --reference-bp")
-    {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
+    if args.pitch_circle_probe:
+        if (
+            args.command != "train"
+            or args.arm != "joint"
+            or args.reference_run is None
+            or args.reference_bp is None
+            or args.paired_control is None
+        ):
+            p.error("Pitch-circle needs joint training, archived references and --paired-control")
+        from experiments.research_models import pitch_circle_hooks
+
+        try:
+            train(args, research=pitch_circle_hooks())
+        except torch.OutOfMemoryError as exc:
+            from experiments.pitch_circle_fit import record_oom
+
+            record_oom(args, exc)
+            raise
+    else:
+        if args.paired_control is not None:
+            p.error("--paired-control requires --pitch-circle-probe")
+        {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
 
 
 if __name__ == "__main__":
