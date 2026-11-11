@@ -1,0 +1,86 @@
+# Classifier research decisions, 11 November 2026
+
+The product objective is higher musical-key accuracy with efficient CPU execution
+inside Euphoria. Novelty is not a success criterion. Training-only complexity can
+be useful if the deployed classifier remains small; every proposed transfer needs
+its own controlled result. Three specialist passes covered classifier training,
+small CPU/decision models and evaluation, followed by cross-critique.
+
+## Current evidence
+
+The shipped K10 model remains the release candidate. The completed
+[multi-domain comparison](../experiments/K10_MULTIDOMAIN_RESULTS.md) gained 2.38
+Beatport / 1.60 FMAK MIREX points over its corrected control, but missed its fixed
+two-point FMAK gate. Neither a promising pilot nor a newer paper overrides that
+decision. The [CPU baseline](../experiments/K10_CPU_RESULTS.md) also shows that
+frontend work and long-track activation memory need attention, not just weights.
+
+## Methods and transfer limits
+
+| Direction | Primary evidence | Decision for Drone |
+|---|---|---|
+| Weight averaging | [EMA study](https://arxiv.org/abs/2411.18704), TMLR 2024 / arXiv November 2024 | Next bounded accuracy test: EMA on the same small model. The study's SGD evidence is not proof for our AdamW recipe. |
+| New optimizer geometry | [Spectral SAM + Muon](https://arxiv.org/abs/2607.26001), July 2026 | Its ImageNet ViT/ResNet results are interesting; changing perturbation geometry and optimizer together would obscure attribution here. Defer. |
+| Train large, deploy small | [EfficientAT](https://arxiv.org/abs/2211.04772), ICASSP 2023; [S-SONDO](https://arxiv.org/abs/2604.24933), ICASSP 2026 | Strong future direction once an independently stronger key teacher exists. Audio tagging/embedding results do not prove absolute-pitch/key transfer. |
+| Hardware-aware model design | [LFM2 report](https://arxiv.org/abs/2511.23404), November 2025 | Transfer the practice of measuring target hardware and using training-time distillation. Its language/speech workloads and 350M+ parameter family are a different scale and task from this 109k classifier. |
+| Typed, calibrated decisions | [System One documentation](https://docs.typesafe.ai/concepts/system-one) | Retain explicit key classes and validated uncertainty. A structured output interface or calibrated group probabilities does not establish local acoustic accuracy or guarantee an individual result. |
+| Explicit edge constraints | [DCASE 2025 low-complexity results](https://dcase.community/challenge2025/task-low-complexity-acoustic-scene-classification-with-device-information-results) | Evaluate accuracy, memory and compute together. Scene/device classification results are not musical-key benchmarks. |
+
+S-SONDO's reported compression retains **up to 96%** of teacher performance; this
+is not evidence of lossless compression. Distilling a teacher that is not better
+at key detection can simply preserve its errors. General acoustic embeddings may
+emphasize timbre or invariance that loses the pitch information this task needs.
+
+The [EMA paper](https://arxiv.org/abs/2411.18704) supports a practical averaging
+hypothesis, while [PyTorch's averaging documentation](https://docs.pytorch.org/docs/main/generated/torch.optim.swa_utils.AveragedModel.html)
+explicitly calls out BatchNorm statistics. Drone has six BatchNorm layers. A
+comparison of EMA plus recalibration against ordinary weights without equivalent
+recalibration would confound two interventions.
+
+## Selected accuracy experiment
+
+Use one fixed EMA decay and unchanged training data, augmentation, optimizer,
+schedule and architecture. Ordinary weights alone select the training checkpoint
+and stopping epoch. Save the contemporaneous EMA, then recalibrate each saved
+copy once on an identical frozen fitting-only crop/batch schedule, with dropout
+disabled and only BatchNorm updating. Compare ordinary raw, ordinary recalibrated
+and EMA recalibrated results to separate the effects.
+
+The review rejected per-epoch recalibration and independent EMA checkpoint search:
+they add compute, can change the wall-clock horizon and introduce more validation
+selection. It also rejected distillation as the immediate next step because no
+independently stronger key teacher is currently established in our artifacts.
+
+The EMA increment has its own predeclared hurdle, while the original two-point
+FMAK improvement versus the corrected Beatport control remains required before
+further qualification. The small historical data-only gain is not reclassified
+as a pass. Canonical seed 13 is fixed in advance; no decay/seed/ensemble sweep.
+
+## Selected performance experiment
+
+K10's six temporal 3-wide convolutions and three stride-two pools give output
+stride eight and receptive field 36. Align chunks to the pooling grid, preserve
+the true final input tail, trim halo outputs and count every final temporal
+position exactly once. Sum hidden features, perform the original global average
+and apply the unchanged linear head once. This retains all track evidence.
+
+The review rejected averaging equal-weight crop predictions and applying the
+linear head independently at every temporal position. The latter can be
+mathematically valid but multiplies head computation unnecessarily. The prototype
+uses a separate small ONNX head to avoid introducing another BLAS implementation.
+
+Real-arithmetic equivalence does not imply bitwise FP32 equivalence. The unchanged
+full ONNX artifact remains the reference. Boundary/remainder/seam tests and
+label-blind parity on the existing public validation inputs must pass, including
+zero key disagreements. Measured logit tolerances are engineering checks, not
+universal error bounds for future near-ties. No quantization or input truncation.
+
+## Evaluation constraints
+
+Repeated validation use remains adaptive. Seeds measure training variability,
+not coverage over unseen recordings or artists. A passing development experiment
+only earns further frozen evaluation; it does not demonstrate state of the art
+or automatically replace release weights. The prior GiantSteps/FMAK finals are
+exposed. Prepared SWD is a 24-composition classical stress test, not broad
+deployment evidence. The private DJ library remains for final performance/manual
+review and supplies no trusted ground-truth labels.

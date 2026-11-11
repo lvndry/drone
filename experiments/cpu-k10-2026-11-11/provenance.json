@@ -1,0 +1,19 @@
+{
+  "source_commit": "5c551a3e4875f5649e737720f79be6db40d8b1de",
+  "base_commit": "c52255761412ef48f2f9af814df67c3d3214ef4f",
+  "invocation_source_label": "cpu-audit-v1",
+  "cpu": "AMD Ryzen Threadripper PRO 9955WX 16-Cores",
+  "archive_sha256": "3b261a2e4dab6b18c8795c56eece93be07e0fe4f6fb1533d72b7a662c2da0c19",
+  "pipeline_result_sha256": "9967e7d982fe22b13463c7c7edb94f34bd47c574e704c52ced07ea5aefd31317",
+  "memory_probe_sha256": "56492b51dd2cd41210648ff12b3b5e12a399f9bf885400408b29206d531da1ed",
+  "versions": {
+    "numpy": "2.5.4",
+    "torch": "2.15.0",
+    "onnxruntime": "1.31.1",
+    "librosa": "1.0.0",
+    "scipy": "1.18.1",
+    "numba": "0.68.1",
+    "soxr": "1.1.0"
+  },
+  "vllm_stopped": false
+}

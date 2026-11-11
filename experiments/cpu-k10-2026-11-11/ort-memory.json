@@ -1,0 +1,12 @@
+{
+  "tracks": 20,
+  "torch_imported": false,
+  "cpu_affinity": [
+    0
+  ],
+  "peak_before_session_mib": 53.234375,
+  "peak_after_session_mib": 61.765625,
+  "process_peak_rss_mib": 534.8828125,
+  "accuracy_scored": false,
+  "limitations": "Python/NumPy/ORT on cached features only; excludes audio decode/CQT and the Euphoria application. RSS values are process high-water marks."
+}
