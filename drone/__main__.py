@@ -1,5 +1,7 @@
 """Predict musical keys using a trained checkpoint."""
 
+from __future__ import annotations
+
 import argparse
 
 import torch
@@ -7,7 +9,7 @@ import torch
 from drone import Predictor
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("audio", nargs="+")
     parser.add_argument(

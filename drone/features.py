@@ -16,8 +16,12 @@ import struct
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from drone.datasets import Track
 
 SR = 22050
 FFT = 4096
@@ -94,11 +98,11 @@ def window(cqt: np.ndarray, shift: int = 0) -> np.ndarray:
     return cqt[lo : lo + N_CORE, :]
 
 
-def cqt_path(track_dir, name):
+def cqt_path(track_dir: str, name: str) -> str:
     return os.path.join(track_dir, "cqt", FEATURE_ID, f"{name}.npy")
 
 
-def audio_digest(path) -> str:
+def audio_digest(path: str | Path) -> str:
     digest = hashlib.sha256()
     with open(path, "rb") as handle:
         for block in iter(lambda: handle.read(1 << 20), b""):
@@ -106,14 +110,14 @@ def audio_digest(path) -> str:
     return digest.hexdigest()
 
 
-def decode_mp3(path, out_wav):
+def decode_mp3(path: str | Path, out_wav: str | Path) -> None:
     subprocess.run(
         ["ffmpeg", "-loglevel", "error", "-y", "-i", path, "-ac", "1", "-ar", str(SR), out_wav],
         check=True,
     )
 
 
-def read_wav_mono(path):
+def read_wav_mono(path: str | Path) -> tuple[np.ndarray, int]:
     """Read a 16-bit PCM wav. Returns (float32 samples in [-1, 1], sample_rate)."""
     with open(path, "rb") as f:
         data = f.read()
@@ -130,12 +134,12 @@ def read_wav_mono(path):
         elif chunk_id == b"data":
             raw = data[pos + 8 : pos + 8 + chunk_size]
             samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
-            return samples, sample_rate
+            return samples, sample_rate  # type: ignore[return-value]  # None only if the fmt chunk is absent
         pos += 8 + chunk_size + (chunk_size & 1)
     raise ValueError(f"bad wav: {path}")
 
 
-def resample_linear(x, from_rate, to_rate):
+def resample_linear(x: np.ndarray, from_rate: int, to_rate: int) -> np.ndarray:
     if from_rate == to_rate:
         return x
     n_out = int(len(x) * to_rate / from_rate)
@@ -146,10 +150,10 @@ def resample_linear(x, from_rate, to_rate):
     return x[i] * (1.0 - frac) + x[i + 1] * frac
 
 
-def extract_cqt(mp3: str, track_dir) -> np.ndarray:
+def extract_cqt(mp3: str | Path, track_dir: str | Path) -> np.ndarray:
     """Decode one audio file to its full (N_TOTAL, frames) CQT, cached by
     content hash. Cached arrays are float16; load as float32."""
-    out = Path(cqt_path(track_dir, audio_digest(mp3)))
+    out = Path(cqt_path(str(track_dir), audio_digest(mp3)))
     if out.is_file():
         features = np.load(out)
         if features.ndim == 2 and features.shape[0] == N_TOTAL and np.isfinite(features).all():
@@ -168,13 +172,13 @@ def extract_cqt(mp3: str, track_dir) -> np.ndarray:
 
 
 def prepare(
-    track,
-    track_dir,
+    track: Track,
+    track_dir: str | Path,
     *,
     shift: int = 0,
     T: int | None = None,
     rng: np.random.Generator | None = None,
-):
+) -> tuple[np.ndarray, tuple[str, str]]:
     """Core-bins feature for one track: (N_CORE, T) or (N_CORE, frames).
 
     With T set: shorter tracks are zero-padded, longer ones random-cropped
