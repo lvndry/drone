@@ -89,3 +89,15 @@ def test_nonfinite_waveform_cannot_become_ready(
     array.tofile(path)
     with pytest.raises(ValueError, match="Nonfinite"):
         current.digest(path, hashlib.sha256(array.tobytes()).hexdigest(), array.nbytes, True)
+
+
+def test_final_guard_failure_never_exposes_ready_manifest(tmp_path: Path) -> None:
+    from tools.prepare_musicfm_disk_cache import publish_ready
+
+    def failed() -> None:
+        raise RuntimeError("final reserve failure")
+
+    with pytest.raises(RuntimeError, match="reserve"):
+        publish_ready(tmp_path, {"complete": True, "rows": []}, failed)
+    assert not (tmp_path / "manifest.json").exists()
+    assert (tmp_path / "manifest.pending.json").exists()

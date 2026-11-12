@@ -8,6 +8,7 @@ import os
 import signal
 import threading
 import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
@@ -42,6 +43,8 @@ def config(canonical: Path, overlay: Path, reference: Path) -> dict[str, Any]:
     root = Path(__file__).resolve().parents[1]
     names = [
         "tools/prepare_musicfm_disk_cache.py",
+        "tools/run_musicfm_disk_cache.py",
+        "tools/run_musicfm_ram_cache.py",
         "tools/musicfm_source_contract.py",
         "tools/musicfm_crop_io.py",
         "tools/prepare_musicfm_waveforms.py",
@@ -182,6 +185,13 @@ class DiskPreparation(Preparation):
         self.validation_verified += 1
 
 
+def publish_ready(output: Path, payload: dict[str, Any], final_guard: Callable[[], None]) -> None:
+    pending = output / "manifest.pending.json"
+    save(pending, payload)
+    final_guard()  # Counts the complete pending payload before exposing readiness.
+    pending.rename(output / "manifest.json")
+
+
 def execute(config_path: Path, approval_path: Path, output: Path) -> None:
     value, approval = load(config_path), load(approval_path)
     if (
@@ -262,8 +272,8 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
         rows = [results[r["id"]] if r["role"] == "fit" else r for r in value["rows"]]
         if len(results) != 5262:
             raise ValueError("Incomplete fitting cache")
-        save(
-            output / "manifest.json",
+        publish_ready(
+            output,
             {
                 "complete": True,
                 "allow_training": False,
@@ -279,8 +289,8 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
                 "validation_reused": 376,
                 "no_seek_quantization_role_or_label_changes": True,
             },
+            lambda: stage.guard(True),
         )
-        stage.guard(True)
     except BaseException as error:
         stage.stop.set()
         pool.shutdown(wait=True, cancel_futures=True)
