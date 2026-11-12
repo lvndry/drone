@@ -264,3 +264,107 @@ prospective limit, not an observed fit duration. Multiplying the synthetic step
 times into a whole-fit promise would omit real input work and longer-run resource
 contention. No architecture accuracy result, CPU deployment footprint, serving-SLO
 guarantee, confirmation or release promotion follows from this qualification.
+
+### Completed matched accuracy pair: the finer grid did not qualify
+
+The synthetic qualification above was followed by one fresh, matched GPU1 pair.
+The question remained whether the finer frequency grid could improve key
+recognition at almost the same parameter budget. The result was negative:
+**FMA exact accuracy fell by 15 cases, while Beatport improved by one case.**
+The fixed architecture gate and the historical baseline guard both failed.
+No continuation, confirmation or release promotion followed.
+
+Both arms used the admitted 1,229 Beatport plus 4,033 FMA fitting recordings,
+the same actual crop starts, pitch draws and exposure streams, batch 32, 320-frame
+crops, hard CE and AdamW/cosine schedule. Both completed 8,280 updates and all 120
+full-song selection events, with no early stop. All 5,262 fitting IDs were sampled.
+The two models had fresh seed 13 initialization and the qualified canonical CUDA
+backend policy; seeded GPU training is not claimed bitwise reproducible. This
+comparison used a fresh GPU K10 control, not the concurrent CPU context arm.
+
+Selection was equal-domain exact first, symmetric-fifth MIREX second, earliest
+tie. The control selected update 5,796 and the candidate 3,795; both nevertheless
+finished the full horizon. Each selected checkpoint was strictly reloaded and
+re-evaluated on all 376 true-length inputs, with identical scores and zero
+prediction disagreements. The final and selected checkpoint hashes are preserved
+separately in the receipts; no checkpoint binaries are included here.
+
+| Selected model | BP exact | BP symmetric / asymmetric MIREX | FMA exact | FMA symmetric / asymmetric MIREX |
+|---|---:|---:|---:|---:|
+| Fresh ordinary K10 | 88/126 = 69.84% | 75.79 / 74.21% | 176/250 = 70.40% | 75.56 / 74.76% |
+| Finer-grid candidate | 89/126 = 70.63% | 75.48 / 74.68% | 161/250 = 64.40% | 72.44 / 70.24% |
+
+![Matched-pair learning curves and descriptive exact-accuracy changes](figures/resolution-pair-accuracy.png)
+
+*Figure 5. Both arms complete the same horizon; dashed lines mark their selected
+updates. Right: candidate minus fresh K10, with descriptive 95% metadata-cluster
+bootstrap intervals. The dashed +2-point marker is the FMA continuation hurdle,
+not a changed gate. One seed and repeatedly used selection data do not establish
+fresh-test or seed-variation uncertainty.*
+
+The exact changes were +0.79 percentage points on Beatport, with interval
+[−5.56, +7.14], and −6.00 points on FMA, with interval [−9.81, −2.42]. The frozen
+10,000-replicate bootstrap uses seed 20261112, 100 FMA metadata components and
+126 Beatport record proxies; Beatport artist independence is unknown. Resampling
+the selected predictions does not repeat training or checkpoint selection.
+FMA had 2 repairs and 17 new errors; Beatport had 9 repairs and 8 new errors.
+FMA symmetric and asymmetric changes were −3.12 and −4.52 points respectively;
+Beatport symmetric MIREX also declined despite its one-case exact improvement.
+
+The historical-control guard failed independently. The fresh baseline had one
+fewer correct Beatport case than the frozen historical GPU control, with weighted
+credit lower by 17/12 tenths on Beatport and 7/7 tenths on FMA. Its FMA exact count
+matched the historical control. The pair is internally matched, but it is not an
+exact historical-control reproduction; the cause of that difference is not
+established here. Neither this guard failure nor a favorable duration slice can
+rescue the candidate's failed primary comparison.
+
+Duration movements were uneven. On the 37 mixed-genre FMA selection tracks lasting
+5–10 minutes, exact count changed 27→28, while the 2 tracks over 10 minutes remained
+correct for both models. Below 5 minutes, FMA had 17 new errors and only one repair.
+These exploratory slices are too small and genre-mixed to establish long DJ-track
+or House acceptance, and cannot replace the fixed aggregate gate. Beatport inputs
+are approximately two-minute previews; their near-120-second duration boundary
+does not supply a panel of full-length commercial tracks.
+
+### Actual elapsed cost, monitoring scope and evidence
+
+The whole guarded pair took **767.72 seconds (12.80 minutes)**, including passive
+admission, setup/input verification, both arms, reloads and final metadata work.
+The recorded per-arm intervals were 359.46 and 358.70 seconds. Those start at the
+training loop and include its repeated evaluations, checkpoint writes and reload
+proof; they exclude earlier model/input setup. They are not pure optimizer time,
+and their sum is not the whole-run elapsed cost. The earlier 30-minute proposal
+was a cap, not a measured duration or a promise derived from the synthetic probe.
+
+Aggregate owned CPU was 879.78 seconds and combined sampled/reaped whole-tree host
+peak was 2.28 GB. Sampled owned GPU peak was 2,526 MiB; minimum GPU1 free memory
+was 6,977 MiB, above the 6,656 MiB early-abort threshold. GPU0 remained at least
+10,458 MiB free. These combined bounds are not independent per-arm RSS or a CPU
+deployment benchmark. Terminal checks confirmed both workers absent, owned GPU
+memory released and all eight protected start identities unchanged. Serving tail
+latency was not measured.
+
+The maximum guard interval across the entire run was 1.0927 seconds, with sensor
+completion gap 1.0888 seconds, **after the final candidate release**, when sampled
+owned GPU memory was zero. During worker launch-to-release intervals, maximum
+guard gaps were 0.15181/0.15178 seconds and sensor gaps 0.18800/0.17655 seconds
+for baseline/candidate. Reporting only the active maximum would hide the terminal
+gap; reporting 1.0927 seconds as an active-worker breach would also be incorrect.
+Neither sampling nor these checks form an allocation interlock or serving-SLO proof.
+
+The [original lossless terminal archive](data/resolution-pair-raw.tar.gz) retains
+the 24 hash-checked raw metadata files plus the post-run receipt, including full
+histories, selected predictions, config, controller and samples. It contains no
+audio, CQT arrays, weights or runtime-library binaries. The
+[terminal index](data/resolution-pair-terminal-index.json) binds its bytes and
+the executed source [72ac5650](https://github.com/lvndry/drone/commit/72ac56507ebfab8f3a2a4d1ce1e572ccfc5fd3bd).
+Run `uv run python -m tools.report_k10_resolution_pair` to verify the raw hashes,
+source/config and horizon/reload bindings, selection arithmetic, recorded scores,
+clustered intervals and active monitoring. Add `--plot` with the plots extra to
+regenerate Figure 5. This is metadata arithmetic only, not model inference.
+
+The tested allocation did not improve the fixed accuracy objective. Keep the
+released architecture and weights unchanged. This rejects one resolution/channel
+allocation under one recipe; it does not isolate a universal frequency-resolution
+effect or justify a new width, optimizer or duration-weighting search.
