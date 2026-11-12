@@ -1,0 +1,18 @@
+{
+  "archive_sha256": "b492bf9497147c891a516babae4559d439b4aa24803800ac2e61b8c24b0346c1",
+  "artifacts": {
+    "result/ensemble.json": "8959fdb2f7ad4518e43db0a5e635158d00b9dd7aa55c3339456785cda9630056",
+    "result/member-13.json": "4c4f23198b0fb1ea75a2c244d9b084a6156d69eba78824a6e14e3baf020fdaec",
+    "result/member-37.json": "716da4bf8ed9c0d2adf168734bdd546eba36c8308267ec28cc3379dfd18d9fbe",
+    "result/member-73.json": "fadd5c790e59babcc37638b1861a0194767c13eb73f4aa644d54b2bd969382f7",
+    "result/result.json": "3e96b06d26dd6bb5d06b2c5f645ab5d2d774b6d3f6d281b3bb0abbb284346808",
+    "stage.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "executed_source_commit": "c6b881ea365396ac53393de0dc945092714d626f",
+  "exit_receipts": {
+    "stage.exit": "0"
+  },
+  "launcher_sha256": "53b4a934080b171c28f5b3563ee59322ee55ef0a854d792f604afcfefaa5b733",
+  "runtime_provenance": "Torch/NumPy and allocator settings come from contemporaneous result identity; no current environment substituted",
+  "server_root": "/home/lysk-admin/drone-experiments/k10-ensemble-20261112-v1"
+}

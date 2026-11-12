@@ -1,0 +1,12 @@
+{
+  "ensemble_bp_hurdle": false,
+  "ensemble_teacher_gate": false,
+  "input_sha256": {
+    "experiments/studies/k10-ensemble/data/result.json": "3e96b06d26dd6bb5d06b2c5f645ab5d2d774b6d3f6d281b3bb0abbb284346808",
+    "experiments/studies/k10-sam/data/candidate-result.json": "2067a49eeb8ac447ee0bc0dab3aab6422a9926fc6d389ed4a5c346b331ebaffd"
+  },
+  "operations": "recorded-artifact arithmetic/provenance only; no fit/inference/scoring",
+  "paired_matrices_verified": 16,
+  "passed": true,
+  "sam_gate": false
+}

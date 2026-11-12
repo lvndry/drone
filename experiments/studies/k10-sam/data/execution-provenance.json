@@ -1,0 +1,21 @@
+{
+  "archive_sha256": "af491aec4014d1b4dbd5ded321c87e03e38c24cea74f54d7ade0adb30a560e0f",
+  "artifacts": {
+    "candidate-seed13/run.json": "8a9ac59d65aa49a7be9a21d8b0c3ab2b6b6e1dae5e2face681928203e9caea04",
+    "candidate-seed13/sam-result.json": "2067a49eeb8ac447ee0bc0dab3aab6422a9926fc6d389ed4a5c346b331ebaffd",
+    "candidate-seed13/validation.json": "42d0d510b9ff79eda5705d142ba885af6e3e621bc61c1a592d92f4a5c4c7adf8",
+    "candidate.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "control-seed13/run.json": "59ad5e4609b1b7ff8131915a65d26bd9f3fc2d2e6455024eb727062346f0cb5f",
+    "control-seed13/sam-result.json": "002cf60074b091929afa21487395ed86ca9d55f6ce960347c925171a8c72d6f3",
+    "control-seed13/validation.json": "a5b12da2a512e9ef18b308223fa096d3f8dc9a02b707fe717a3cb3265657429c",
+    "control.exit": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  },
+  "executed_source_commit": "f09febd2d658f82fe31ee18593a988ac59733e65",
+  "exit_receipts": {
+    "candidate.exit": "0",
+    "control.exit": "0"
+  },
+  "launcher_sha256": "b434f6daaa70538de2a0c90944aa23ab4114c432ba1ae6ff0d9a8e780ebbda7c",
+  "runtime_provenance": "Torch/NumPy and allocator settings come from contemporaneous result identity; no current environment substituted",
+  "server_root": "/home/lysk-admin/drone-experiments/k10-sam-20261112-v1"
+}
