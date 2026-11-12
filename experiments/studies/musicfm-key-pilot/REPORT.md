@@ -11,16 +11,16 @@ The original B1/B16 composed check **failed**: maximum absolute pooled-logit err
 **0.0012251087**, with five failing songs and zero changed keys. A proposed B1-only
 run was stopped before model setup completed when independent source review found
 that B1 itself could reuse BF16 rotary embeddings during FP32 evaluation. A new,
-prospectively approved wrapper revision then passed the same fixed complete-song
+wrapper revision then passed the same fixed complete-song
 gate: maximum error **3.230626e-7**, zero key changes, unchanged `1e-5` absolute
 limit. The original failure and controlled stop remain preserved.
 
 **This is a disposable cost/numerical study, not trained-key accuracy.** Each
 complete run performed only three optimizer updates with synthetic targets. No
-teacher weights were saved or reused. A real 8,280-update fit starts afresh from
-the original checkpoint and requires its own authorization, evaluation and
-continuation decision. This report does not authorize it or establish a stronger
-teacher, distillation benefit or CPU deployment footprint.
+teacher weights were saved or reused. A real 8,280-update fit is distinct: it starts afresh from the original checkpoint,
+binds its initial state to the probe, and includes complete-song evaluation and
+the fixed continuation comparison. No real-fit accuracy result, stronger teacher,
+distillation benefit or CPU deployment footprint is established here.
 
 ![Disposable update costs, full-song validation costs and retained numerical failure](cost-results.png)
 
@@ -76,8 +76,10 @@ checkpoint selection would not use. The fixed gate is finite24-way outputs,
 maximum absolute aggregated-logit error ≤`1e-5`, and zero changed argmax IDs.
 
 The host is the shared RTX PRO6000 Blackwell server. Main worker affinity is
-CPUs8–9; four bounded provider threads use10–13; numeric threads1. ORT is not used
-by this teacher probe. The per-process CUDA allocator cap is12GiB, with a global
+CPUs8–9. The executed CachedProvider uses one prefetch thread, inheriting that
+affinity; numeric threads1. Four decoder threads and FFmpeg affinity10–13 belong
+only to the explicit streaming fallback, not these disk-cache cost runs. ORT is
+not used by this teacher probe. The per-process CUDA allocator cap is12GiB, with a global
 8GiB free-memory reserve and all four protected vLLM parent/engine start identities
 checked by the guardian. This is instrumented work on a shared serving host;
 throughout-run foreign GPU utilization was not measured, so these are not isolated
@@ -122,8 +124,7 @@ estimate of **10.92h**. It is **not measured fit duration or an11h promise**: on
 two later updates informed steady timing, cache/locality and serving contention
 may vary, and progress/scoring/checkpoint writes and other long-run costs are not
 fully represented. No training horizon, full-song coverage or validation cadence
-may be shortened to fit that estimate. Any actual fit needs separately approved
-finite resources and a fresh window. The expensive per-draw full-decode projection
+may be shortened to fit that estimate. Actual full-fit resource use and duration remain separately measured outcomes. The expensive per-draw full-decode projection
 belongs to the explicit streaming fallback, not this ordinary-disk cache path.
 
 ## The failed gate and precision-cache repair
