@@ -1,0 +1,116 @@
+{
+  "tracks": 16,
+  "cases": 144,
+  "all_bit_exact": true,
+  "points": [
+    {
+      "id": "fmak:069068",
+      "duration_seconds": 149.5,
+      "full_wall_seconds": 0.20163602894172072,
+      "mean_crop_wall_seconds": 0.05070488271303475
+    },
+    {
+      "id": "fmak:030978",
+      "duration_seconds": 48.7445,
+      "full_wall_seconds": 0.10111578018404543,
+      "mean_crop_wall_seconds": 0.0793622793474545
+    },
+    {
+      "id": "fmak:081773",
+      "duration_seconds": 137.5,
+      "full_wall_seconds": 0.20201512286439538,
+      "mean_crop_wall_seconds": 0.05642113780292372
+    },
+    {
+      "id": "fmak:083159",
+      "duration_seconds": 152.241625,
+      "full_wall_seconds": 0.20217624702490866,
+      "mean_crop_wall_seconds": 0.0902708170728551
+    },
+    {
+      "id": "fmak:102153",
+      "duration_seconds": 150.52,
+      "full_wall_seconds": 0.2027494239155203,
+      "mean_crop_wall_seconds": 0.05104377100037204
+    },
+    {
+      "id": "fmak:081450",
+      "duration_seconds": 192.28733333333332,
+      "full_wall_seconds": 0.3051712019369006,
+      "mean_crop_wall_seconds": 0.10200054617598653
+    },
+    {
+      "id": "fmak:010388",
+      "duration_seconds": 255.73879166666666,
+      "full_wall_seconds": 0.30530376196838915,
+      "mean_crop_wall_seconds": 0.08524041956601043
+    },
+    {
+      "id": "fmak:108167",
+      "duration_seconds": 217.44,
+      "full_wall_seconds": 0.30549911805428565,
+      "mean_crop_wall_seconds": 0.06848527028018402
+    },
+    {
+      "id": "fmak:066314",
+      "duration_seconds": 240.419625,
+      "full_wall_seconds": 0.3067370809148997,
+      "mean_crop_wall_seconds": 0.09100028036886619
+    },
+    {
+      "id": "fmak:051421",
+      "duration_seconds": 281.92,
+      "full_wall_seconds": 0.3574753941502422,
+      "mean_crop_wall_seconds": 0.06850016476689941
+    },
+    {
+      "id": "fmak:011307",
+      "duration_seconds": 375.013875,
+      "full_wall_seconds": 0.4603361659683287,
+      "mean_crop_wall_seconds": 0.0858148590195924
+    },
+    {
+      "id": "fmak:082660",
+      "duration_seconds": 2155.127125,
+      "full_wall_seconds": 2.4605482399929315,
+      "mean_crop_wall_seconds": 0.1030890491221928
+    },
+    {
+      "id": "beatport:297268",
+      "duration_seconds": 120.0,
+      "full_wall_seconds": 0.1542684379965067,
+      "mean_crop_wall_seconds": 0.05178965889434847
+    },
+    {
+      "id": "beatport:3676879",
+      "duration_seconds": 120.0,
+      "full_wall_seconds": 0.154727814020589,
+      "mean_crop_wall_seconds": 0.05197190837417212
+    },
+    {
+      "id": "fmak:055121",
+      "duration_seconds": 218.117125,
+      "full_wall_seconds": 0.36447879602201283,
+      "mean_crop_wall_seconds": 0.07519901530920631
+    },
+    {
+      "id": "fmak:019718",
+      "duration_seconds": 165.59416666666667,
+      "full_wall_seconds": 0.2580679508391768,
+      "mean_crop_wall_seconds": 0.05190388522007399
+    }
+  ],
+  "stderr_files": 160,
+  "nonempty_stderr_files": 0,
+  "terminal": {
+    "exit": 0,
+    "reason": null,
+    "wall_seconds": 18.220365265849978,
+    "sampled_peak_worker_tree_rss_bytes": 102916096,
+    "sampled_worker_tree_cpu_seconds": 15.27,
+    "owned_bytes": 647091,
+    "completed_epoch": 1794481352.405855
+  },
+  "report_sha256": "9afddd0a07f3cb4ec0b97041059845ff4e01bc295a1e1da127b424c4e0e33a66",
+  "config_sha256": "30144ca9abf7a8258983856c13cad1be544acad4ad556269769039ec2033721b"
+}
