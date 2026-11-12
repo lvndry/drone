@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import time
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -186,7 +187,14 @@ def domain_metrics(
     return result
 
 
-def train(args: argparse.Namespace) -> None:
+def train(
+    args: argparse.Namespace,
+    *,
+    training_step: Callable[
+        [torch.nn.Module, torch.optim.Optimizer, torch.Tensor, torch.Tensor], torch.Tensor
+    ]
+    | None = None,
+) -> None:
     if (args.output / "run.json").exists():
         raise ValueError("Use a fresh run directory; this pilot does not silently restart")
     args.output.mkdir(parents=True, exist_ok=True)
@@ -202,6 +210,8 @@ def train(args: argparse.Namespace) -> None:
     elif capacity_active:
         capacity_memory = dict(allocator_fraction=0.04, required_free_bytes=8 * 1024**3)
     budget_seconds = 2700 if capacity_candidate else 1200
+    if getattr(args, "sam_study", False):
+        budget_seconds = 2400 if args.sam_candidate else 1200
     manifest, rows, arrays = load_data(args.data)
     fitting = [
         i
@@ -257,8 +267,15 @@ def train(args: argparse.Namespace) -> None:
         from experiments.capacity import CapacityProbe
 
         capacity = CapacityProbe(args, record, capacity_memory)
+    sam = None
+    if getattr(args, "sam_study", False):
+        from experiments.samstudy import SamStudy
+
+        sam = SamStudy(args, record, training_step is not None, val_rows, val_refs)
+    elif training_step is not None:
+        raise ValueError("Training-step hook requires the fixed SAM study driver")
     best, best_epoch, start = -1.0, 0, time.monotonic()
-    if capacity_active and args.device.startswith("cuda"):
+    if (capacity_active or sam is not None) and args.device.startswith("cuda"):
         torch.cuda.reset_peak_memory_stats()
     for epoch in range(1, 121):
         model.train()
@@ -278,20 +295,28 @@ def train(args: argparse.Namespace) -> None:
                     feature = feature[:, first : first + CROP_FRAMES]
                 xs.append(feature)
                 ys.append(transpose_key(rows[i]["ref"], -shift))
-            optimizer.zero_grad()
-            logits = model(torch.from_numpy(np.stack(xs)).to(args.device))
-            if targets is None:
-                loss = torch.nn.functional.cross_entropy(
-                    logits, torch.tensor(ys, device=args.device)
-                )
+            if training_step is None:
+                optimizer.zero_grad()
+                logits = model(torch.from_numpy(np.stack(xs)).to(args.device))
+                if targets is None:
+                    loss = torch.nn.functional.cross_entropy(
+                        logits, torch.tensor(ys, device=args.device)
+                    )
+                else:
+                    loss = torch.nn.functional.cross_entropy(
+                        logits, targets[torch.tensor(ys, device=args.device)]
+                    )
+                if not torch.isfinite(loss):
+                    raise RuntimeError("Nonfinite training loss")
+                loss.backward()
+                optimizer.step()
             else:
-                loss = torch.nn.functional.cross_entropy(
-                    logits, targets[torch.tensor(ys, device=args.device)]
+                loss = training_step(
+                    model,
+                    optimizer,
+                    torch.from_numpy(np.stack(xs)).to(args.device),
+                    torch.tensor(ys, device=args.device),
                 )
-            if not torch.isfinite(loss):
-                raise RuntimeError("Nonfinite training loss")
-            loss.backward()
-            optimizer.step()
             if probe is not None:
                 probe.step(model)
             loss_sum += float(loss.detach()) * len(idx)
@@ -304,6 +329,8 @@ def train(args: argparse.Namespace) -> None:
                     structured.budget_exhausted(start)
                 if capacity is not None:
                     capacity.failure(record, start, "Fixed fit budget exhausted", budget=True)
+                if sam is not None:
+                    sam.failure(record, start, "Fixed fit budget exhausted", budget=True)
                 return
         scheduler.step()
         pred = evaluate_features(model, val_features, args.device, batch=4)
@@ -351,6 +378,9 @@ def train(args: argparse.Namespace) -> None:
         result = capacity.finish(record, val_features, val_refs, val_rows, start)
         if result["status"] != "complete":
             raise RuntimeError(f"Capacity probe failed: {result.get('error', result['status'])}")
+
+    if sam is not None:
+        sam.finish(record, val_features, val_refs, val_rows, start)
 
 
 def diagnose(args: argparse.Namespace) -> None:
