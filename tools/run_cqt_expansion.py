@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import resource
 import shutil
 import signal
@@ -97,6 +98,9 @@ class Supervisor:
             XDG_CACHE_HOME=str(args.stage_root / "cache"),
         )
         (args.stage_root / "tmp").mkdir()
+        self.math_library_sha256 = (
+            sha256(args.math_library) if args.math_library is not None else None
+        )
         self.budget_storage = disk_bytes(args.budget_root)
         self.last_storage_check = 0.0
 
@@ -162,7 +166,9 @@ class Supervisor:
             raise RuntimeError(f"{label} failed with exit{code}; see {log}")
         return code
 
-    def native_command(self, manifest: Path, output: Path, single_case: bool) -> list[str]:
+    def native_command(
+        self, manifest: Path, output: Path, single_case: bool, arm: str = "candidate"
+    ) -> list[str]:
         command = [
             str(self.args.native),
             "--candidate",
@@ -178,6 +184,17 @@ class Supervisor:
             "--output",
             str(output),
         ]
+        if arm in ("fma", "fma-svml"):
+            command.append("--numpy-magnitude")
+        if self.args.math_library is not None and arm != "fma":
+            command.extend(
+                [
+                    "--math-library",
+                    str(self.args.math_library),
+                    "--math-library-sha256",
+                    str(self.math_library_sha256),
+                ]
+            )
         if single_case:
             command.extend(["--single-case", "--expect-manifest-sha256", sha256(manifest)])
         return command
@@ -192,6 +209,9 @@ def execute(args: argparse.Namespace) -> None:
     for name in ("logs", "cases"):
         (args.stage_root / name).mkdir()
     supervisor = Supervisor(args)
+    arms = ["fma", "fma-svml"] if args.arithmetic_ablation else ["candidate"]
+    if args.arithmetic_ablation and args.math_library is None:
+        raise ValueError("Fixed ablation requires the pinned SVML library")
     identity = dict(
         study_manifest_sha256=sha256(args.study),
         supervisor_source_sha256=sha256(Path(__file__)),
@@ -209,15 +229,36 @@ def execute(args: argparse.Namespace) -> None:
             total_experiment_storage_bytes=BYTE_LIMIT,
             deadline=args.deadline,
         ),
+        math_library_sha256=supervisor.math_library_sha256,
+        kernel_hardware=dict(
+            uname=list(platform.uname()),
+            cpu_identity=sorted(
+                {
+                    line.strip()
+                    for line in Path("/proc/cpuinfo").read_text().splitlines()
+                    if line.split(":", 1)[0].strip()
+                    in {
+                        "vendor_id",
+                        "cpu family",
+                        "model",
+                        "model name",
+                        "stepping",
+                        "microcode",
+                        "flags",
+                    }
+                }
+            ),
+        ),
         accuracy_scored=False,
     )
     progress: dict[str, Any] = dict(
-        format="k10-cqt-expansion-report-v1",
+        format="k10-cqt-expansion-report-v2",
+        arms=arms,
         complete=False,
         passed=False,
         identity=identity,
         cases=[],
-        first_failure=None,
+        first_failures={arm: None for arm in arms},
     )
 
     def checkpoint() -> None:
@@ -231,12 +272,26 @@ def execute(args: argparse.Namespace) -> None:
         write_json(args.stage_root / "progress.json", progress)
 
     try:
-        nine = args.stage_root / "nine-recheck.json"
-        supervisor.run(supervisor.native_command(args.goldens, nine, False), "nine-recheck")
-        recheck = json.loads(nine.read_text())
-        if recheck.get("passed") is not True or len(recheck["cases"]) != 9:
-            raise RuntimeError("New binary failed fixed-nine recheck")
-        progress["nine_recheck_sha256"] = sha256(nine)
+        nine_passed = {}
+        progress["nine_rechecks"] = {}
+        for arm in arms:
+            nine = args.stage_root / f"nine-recheck-{arm}.json"
+            code = supervisor.run(
+                supervisor.native_command(args.goldens, nine, False, arm),
+                f"nine-recheck-{arm}",
+                True,
+            )
+            recheck = json.loads(nine.read_text())
+            if (
+                len(recheck["cases"]) != 9
+                or code not in (0, 1)
+                or (code == 0) != (recheck.get("passed") is True)
+            ):
+                raise RuntimeError("Invalid fixed-nine recheck result")
+            nine_passed[arm] = recheck.get("passed") is True
+            progress["nine_rechecks"][arm] = dict(passed=nine_passed[arm], sha256=sha256(nine))
+        if not nine_passed["fma-svml" if args.arithmetic_ablation else "candidate"]:
+            raise RuntimeError("Primary candidate failed fixed-nine recheck")
         for index, row in enumerate(study["rows"]):
             supervisor.check()
             spool = args.stage_root / f"spool-{index:04d}"
@@ -268,14 +323,24 @@ def execute(args: argparse.Namespace) -> None:
                 raise ValueError("Reference study identity changed")
             preserved = args.stage_root / "cases" / f"{index:04d}-reference.json"
             write_json(preserved, reference)
-            result = args.stage_root / "cases" / f"{index:04d}-native.json"
-            code = supervisor.run(
-                supervisor.native_command(manifest, result, True), f"{index:04d}-native", True
-            )
-            actual = json.loads(result.read_text())
-            passed = actual.get("passed") is True
-            if code not in (0, 1) or (code == 0) != passed:
-                raise RuntimeError("Native exit/status mismatch")
+            arm_results = {}
+            for arm in arms:
+                result = args.stage_root / "cases" / f"{index:04d}-{arm}-native.json"
+                code = supervisor.run(
+                    supervisor.native_command(manifest, result, True, arm),
+                    f"{index:04d}-{arm}-native",
+                    True,
+                )
+                actual = json.loads(result.read_text())
+                passed = actual.get("passed") is True
+                if code not in (0, 1) or (code == 0) != passed:
+                    raise RuntimeError("Native exit/status mismatch")
+                arm_results[arm] = dict(
+                    passed=passed,
+                    native_report_sha256=sha256(result),
+                    comparison=actual["cases"][0]["comparison"],
+                    features=actual["cases"][0]["features"],
+                )
             entry = dict(
                 index=index,
                 id=row["id"],
@@ -284,22 +349,32 @@ def execute(args: argparse.Namespace) -> None:
                 cache_sha256=row["cache_sha256"],
                 pcm_sha256=reference["cases"][0]["pcm"]["sha256"],
                 frames=row["frames"],
-                passed=passed,
                 reference_sha256=sha256(preserved),
-                native_report_sha256=sha256(result),
-                comparison=actual["cases"][0]["comparison"],
-                features=actual["cases"][0]["features"],
+                passed=all(result["passed"] for result in arm_results.values()),
+                arms=arm_results,
             )
             progress["cases"].append(entry)
-            if not passed and progress["first_failure"] is None:
-                retained = args.stage_root / "first-failure-spool"
+            new_failures = [
+                arm
+                for arm in arms
+                if not arm_results[arm]["passed"] and progress["first_failures"][arm] is None
+            ]
+            if new_failures:
+                retained = args.stage_root / f"first-failure-{index:04d}"
                 spool.rename(retained)
-                progress["first_failure"] = dict(index=index, id=row["id"], spool=str(retained))
+                for arm in new_failures:
+                    progress["first_failures"][arm] = dict(
+                        index=index, id=row["id"], spool=str(retained)
+                    )
             else:
                 shutil.rmtree(spool)
             checkpoint()
             print(json.dumps(dict(event="case", **entry)), flush=True)
-        progress.update(complete=True, passed=all(case["passed"] for case in progress["cases"]))
+        arm_passed = {
+            arm: nine_passed[arm] and all(case["arms"][arm]["passed"] for case in progress["cases"])
+            for arm in arms
+        }
+        progress.update(complete=True, arm_passed=arm_passed, passed=all(arm_passed.values()))
         checkpoint()
         write_json(args.stage_root / "report.json", progress)
     except BaseException as error:
@@ -327,7 +402,9 @@ def main() -> None:
         "goldens",
     ):
         parser.add_argument(f"--{name}", type=Path, required=True)
-    parser.add_argument("--deadline", default="2026-11-12T00:45:00+00:00")
+    parser.add_argument("--math-library", type=Path)
+    parser.add_argument("--arithmetic-ablation", action="store_true")
+    parser.add_argument("--deadline", default="2026-11-12T06:00:00+00:00")
     args = parser.parse_args()
     execute(args)
 
