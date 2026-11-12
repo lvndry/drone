@@ -1,0 +1,35 @@
+{
+  "sha": "9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe",
+  "node_id": "C_kwDOAMX6KdoAKDllZjE1OTFmODFlZTJmNzgyMWM3Y2U0MWU3NzRlYTdhYzdmOTRjYmU",
+  "url": "https://api.github.com/repos/audiocontentanalysis/dataset-gtzan-key/git/commits/9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe",
+  "html_url": "https://github.com/audiocontentanalysis/dataset-gtzan-key/commit/9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe",
+  "author": {
+    "name": "Alexander Lerch",
+    "email": "alexander.lerch@gatech.edu",
+    "date": "2021-11-29T22:56:01Z"
+  },
+  "committer": {
+    "name": "GitHub",
+    "email": "noreply@github.com",
+    "date": "2021-11-29T22:56:01Z"
+  },
+  "tree": {
+    "sha": "59faf8174287d4a714f0875ee78ffb88e692533b",
+    "url": "https://api.github.com/repos/audiocontentanalysis/dataset-gtzan-key/git/trees/59faf8174287d4a714f0875ee78ffb88e692533b"
+  },
+  "message": "Update KeyEnumeration.txt\n\nfixed changed link",
+  "parents": [
+    {
+      "sha": "0a367332d8c37e655f3850acd7258cc909984d42",
+      "url": "https://api.github.com/repos/audiocontentanalysis/dataset-gtzan-key/git/commits/0a367332d8c37e655f3850acd7258cc909984d42",
+      "html_url": "https://github.com/audiocontentanalysis/dataset-gtzan-key/commit/0a367332d8c37e655f3850acd7258cc909984d42"
+    }
+  ],
+  "verification": {
+    "verified": true,
+    "reason": "valid",
+    "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsBcBAABCAAQBQJhpVqBCRBK7hj4Ov3rIwAAGecIAD3ZwVWOxTJq2ios//Cb+Njo\nda2bMI/Jtt/9S+w55hm6YMs9QeuNCq7DDryyPz7729ENL1hGpKda5ydut0nzlEDn\nySF2kTHdwa9lNEhwtqHhU96LA43ATpOBtl3PfvCIMcnWENq3G11MJz7xmX821Htc\n4oGEjjMTzaOj9q2wGptpTsPKWi1IZH4QA6+TY4g1E561P/icqBC2+qP66sniPhp+\nJ3JlEhJ29XHXu04N7u57Sa9Pxq3q6gD7mHNv1Zq6nrGO0FoiL+GlHYyNN32aWmYw\ndanOLfSgwZw1qx+jZJi2DD/MiP1sxGUtHDPISG8pIJlBmjM3nURsg+lhhQmBBNI=\n=an9c\n-----END PGP SIGNATURE-----\n",
+    "payload": "tree 59faf8174287d4a714f0875ee78ffb88e692533b\nparent 0a367332d8c37e655f3850acd7258cc909984d42\nauthor Alexander Lerch <alexander.lerch@gatech.edu> 1638226561 +0000\ncommitter GitHub <noreply@github.com> 1638226561 +0000\n\nUpdate KeyEnumeration.txt\n\nfixed changed link",
+    "verified_at": "2024-01-16T19:59:59Z"
+  }
+}

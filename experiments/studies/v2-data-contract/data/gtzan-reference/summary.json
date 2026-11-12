@@ -1,0 +1,90 @@
+{
+  "admitted": 0,
+  "counts_by_genre": {
+    "in_sturm_filtered_union": {
+      "blues": 100,
+      "classical": 99,
+      "country": 98,
+      "disco": 93,
+      "hiphop": 92,
+      "jazz": 87,
+      "metal": 91,
+      "pop": 84,
+      "reggae": 86,
+      "rock": 100
+    },
+    "metadata_eligible": {
+      "blues": 98,
+      "classical": 0,
+      "country": 97,
+      "disco": 91,
+      "hiphop": 73,
+      "jazz": 67,
+      "metal": 84,
+      "pop": 78,
+      "reggae": 83,
+      "rock": 98
+    },
+    "named_filtered_intersection": {
+      "blues": 98,
+      "classical": 0,
+      "country": 97,
+      "disco": 91,
+      "hiphop": 73,
+      "jazz": 67,
+      "metal": 84,
+      "pop": 78,
+      "reggae": 83,
+      "rock": 98
+    },
+    "raw_single_key_reference": {
+      "blues": 98,
+      "classical": 0,
+      "country": 99,
+      "disco": 98,
+      "hiphop": 81,
+      "jazz": 79,
+      "metal": 93,
+      "pop": 94,
+      "reggae": 97,
+      "rock": 98
+    }
+  },
+  "detector_outputs": false,
+  "eligibility_rule": "valid_0_to_23 AND nonclassical AND sturm_union AND not jazz.00054",
+  "filtered_partitions": {
+    "test": 290,
+    "train": 443,
+    "valid": 197
+  },
+  "ledger_decoded_sha256": "eeec3e4811dfd56200ac15fc517e2176c2ed371d87d1b3657a5aed205d57c2ef",
+  "license_scope": "MIT annotation notice only; no audio clearance inferred",
+  "retrieved_utc": "2026-11-12",
+  "schema": "gtzan-reference-metadata-v1",
+  "sources": {
+    "annotation": {
+      "archive_sha256": "2df9326b758c696d5097e80cb561b7baf172da392a4d42300c6dbb945baabe42",
+      "bytes": 325417,
+      "commit": "9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe",
+      "tree": "59faf8174287d4a714f0875ee78ffb88e692533b",
+      "url": "https://codeload.github.com/audiocontentanalysis/dataset-gtzan-key/zip/9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe"
+    },
+    "faults": {
+      "archive_sha256": "ea65dfdeb0e2f2944c077b402ce5b3318402dce686c9b65119c22df7a07c33f8",
+      "bytes": 25351,
+      "commit": "fedc781026cf1a20034830f8071c98d93a422016",
+      "tree": "35c4f075c4bd3c8a8dfe772fb08acbc6080d80e5",
+      "url": "https://codeload.github.com/boblsturm/GTZAN/zip/fedc781026cf1a20034830f8071c98d93a422016"
+    },
+    "recording_index": {
+      "decoded_bytes": 411882,
+      "decoded_sha256": "fd9655a35aebbdd09b120ec53d6bd36056b24f4b161ed21d9571364ecdc1f5ea",
+      "gzip_sha256": "f770e0b8e9200ab298c17f15c607470ece98467d5b34780507a535f589d2b8d6",
+      "publisher_md5": "533ca050855f22acf2feb283d9957fe3",
+      "url": "https://zenodo.org/records/13993311/files/gtzan_genre_index_1.0.json?download=1",
+      "version": "1.0"
+    }
+  },
+  "status": "PROPOSED_METADATA_ONLY_NOT_AUDIO_ADMITTED",
+  "total_ids": 1000
+}
