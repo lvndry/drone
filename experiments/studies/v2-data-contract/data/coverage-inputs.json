@@ -1,0 +1,57 @@
+{
+  "format": "dj-coverage-inputs-v1",
+  "fma": {
+    "exposure_ledger": {
+      "bytes": 26912,
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/v2-data-contract/data/exposure-ledger.csv.gz",
+      "sha256": "64fa2acbe2901ffb7ff0cf9fd723a7fcedba2da1fc716422377f6af69943d3ed"
+    },
+    "master_metadata": {
+      "bytes": 17265689,
+      "path": "/tmp/drone-fma-unlabeled-audit-20261111-v1/metadata.csv",
+      "sha256": "9686371b45620add5c1f598d00341d007bd93981d22506101a17d13ed7e7c0f3"
+    },
+    "plan": {
+      "bytes": 283961,
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/k10-v2-pilot/data/canonical-eligibility-v2/plan-v2.json.gz",
+      "sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373"
+    },
+    "sanitized_group_input": {
+      "bytes": 290271,
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/v2-data-contract/data/input.json.gz",
+      "sha256": "59eb32a50413f7fff1ef18c72e01cc679d2b1344bc6bac3be082030e388f1a89"
+    },
+    "taxonomy": {
+      "bytes": 3922,
+      "path": "/tmp/drone-fma-unlabeled-audit-20261111-v1/genres.csv",
+      "sha256": "cbd1d1b8f8922b2164f22ca0eacab23fe7107a283586026cf74dbc259b471da2"
+    }
+  },
+  "bp": {
+    "canonical_counts": {
+      "bytes": 9784081,
+      "path": "/tmp/musicfm-ram-result-d620f13/manifest.json",
+      "sha256": "7d56908dc5e84c165c7844d1e810ed678123ae7d0a93939c60a2e600b6402b4c"
+    },
+    "groups": {
+      "bytes": 30792,
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/k10-v2-pilot/data/canonical-eligibility-v2/uncertainty-groups-v2.csv.gz",
+      "sha256": "7505dcae2a91bf038537cee4a2f8e24f7929011c2bb56d8fe6649f6a1df8dcd7"
+    },
+    "plan": {
+      "bytes": 283961,
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/k10-v2-pilot/data/canonical-eligibility-v2/plan-v2.json.gz",
+      "sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373"
+    },
+    "store_json_zip": {
+      "bytes": 921083,
+      "path": "/tmp/drone-fitting-group-audit/bp-metadata/original_metadata.zip",
+      "sha256": "cd3d7c144dec0031581531315ebc7e340e8ac89161254f37a4167bea77ad13c3"
+    },
+    "workbook": {
+      "bytes": 148165,
+      "path": "/tmp/drone-fitting-group-audit/bp-metadata/Beatport-EDM-Key-Dataset.xlsx",
+      "sha256": "756ec8c9709a50c03c1c741cf051e2b0bb984df3dc914ec733933cd92cd584dc"
+    }
+  }
+}

@@ -1,8 +1,13 @@
-# PROPOSED v2 data contract: nested fitting with many evaluation groups
+# Internal v2 data contract and coverage provenance
 
-**Decision: reviewable proposal only. No roles are current, no training is authorized,
-and v1 data, weights and gates remain unchanged.** This study designs a component-first
-FMA campaign for a paired restricted-versus-expanded data experiment. It does not
+The assignment sections below retain their original proposal-time scope and counts.
+The [current coverage/provenance chapter](#current-genre-duration-and-reference-provenance)
+uses the later frozen eligibility amendment and metadata only. It changes no split,
+reference key, model outcome or running experiment.
+
+**Original proposal decision (historical): no new role assignment or training
+activation; v1 data, weights and gates remained unchanged.** The original study
+designed a component-first FMA campaign for a paired restricted-versus-expanded data experiment. It does not
 establish accuracy, a pristine final test or fully artist-independent Beatport.
 
 ## Problem and fixed method
@@ -169,7 +174,217 @@ quarantine across restricted/expanded membership with no feature member read.
 The checker reproduces proposal/ledgers, verifies the before-label/sanitization chain,
 source hashes, all-role overlay coverage, observed ID/SHA separation and counts.
 
-**Root decision remains required** on role retirement, narrow BP guarantees,
+**At that proposal review point, decisions remained** on role retirement, narrow BP guarantees,
 duplicate metric units, rare-class/genre coverage, clustered precision and prospective
 paired training budgets. No automatic release promotion, training-role activation,
 new seed/fold search or external panel scoring follows this metadata proposal.
+
+
+## Current genre, duration and reference provenance
+
+### Problem, method and result
+
+A broad DJ-key classifier needs evidence across hip-hop, contemporary Afrobeats,
+house/techno and other club styles, and across short and extended recordings.
+Counts alone establish neither accuracy nor representative independent testing.
+This metadata-only audit uses the current amended plan `c3e59ffb…`, frozen exposure
+ledger `64fa2acb…`, captured FMA master/taxonomy, and existing BP metadata. It reads
+no audio or private files, makes no model predictions, selects no reference-key
+fields, and changes no roles. Full source hashes are in
+[coverage-inputs.json](data/coverage-inputs.json).
+
+**BP genre coverage is stronger than an FMA-only inventory suggests:** all 1,229
+current BP fitting and 126 selection IDs have a workbook genre, including explicit
+Deep House/Tech House/Progressive House/Techno. Those inputs are roughly two-minute
+previews, not evidence on their full commercial versions. FMA supplies longer
+recordings, but specific current evaluation cells are sparse or unidentified.
+
+![Observed native-genre duration coverage in current selection](coverage-genre-duration.png)
+
+Figure: FMA cells are **tracks/frozen components** from published durations; BP
+cells are tracks from actual prepared-preview sample counts, with artist/album
+independence unverified. All 9 FMA House-tagged selection tracks are also Chill-out.
+**Afrobeat is not contemporary Afrobeats**; the latter cannot be identified by
+these tags. Zero matching tags do not prove the music is absent. BP's populated
+2–<5 min cells hug the 120 s boundary, not a spread of longer songs. Native taxonomies
+are kept separate; overlapping FMA tags are not additive. [SVG](coverage-genre-duration.svg).
+
+Duration bands are `<30 s`, `30 s–<2 min`, `2–<5 min`, `5–10 min`
+(including 600 s), and `>10 min`. FMA's publisher
+`track_duration` is not newly decoded support; metadata rounding and a clipped
+rendition can change the applicable band. BP uses the existing canonical 24 kHz
+sample-count metadata `7d56908d…`; no waveform was reopened. Neither source's genre tag is a
+verified listening judgment.
+
+### FMA coverage and missingness
+
+The master table has 106,574 records; 5,489 are in the FMAK exposure ledger. Current
+Expanded fitting has 4,033 records from 797 components; selection has 250 from
+100; unique reserved confirmation has 997 from 200; excluded calibration has 159
+from 60. Restricted fitting (976 records, 490 components) is nested inside expanded
+fitting. The raw partition also includes 49 inactive/quarantined
+former-fit IDs and 998 raw reserved records; those are not added back into fitting.
+
+All 163 taxonomy tags are inventoried in the aggregate. Every master tag count
+reproduced the taxonomy's published count. Below, each cell is tracks/components;
+artist/album counts for every role/tag/duration are retained in the aggregate.
+
+|Native FMA membership or explicit slice|Expanded fit|Inner selection|Reserved unique|Calibration excluded|
+|---|---:|---:|---:|---:|
+|Hip-Hop|269/50|16/8|41/13|16/6|
+|Rap|57/5|0/0|0/0|2/1|
+|Afrobeat|4/2|0/0|0/0|0/0|
+|House|71/14|9/4|9/3|5/2|
+|Chill-out|67/10|9/4|5/2|5/2|
+|House minus Chill-out|4/4|0/0|4/1|0/0|
+|Techno|17/11|6/3|11/3|2/1|
+|Named dance-tag union|184/57|40/15|60/18|9/4|
+
+`genres_all` includes ancestors, not only direct leaf tags. 86/94 House-taxonomy
+FMAK tracks also carry Chill-out; House minus Chill-out is a declared set difference,
+not a new genre. Its four reserved records occupy one component. Techno includes
+Bigbeat; no claim of complete house/techno subgenre coverage follows. No Deep House,
+Melodic House or contemporary Afrobeats tag exists in this FMA taxonomy. African
+or Afrobeat cannot silently fill the Afrobeats gap. Garage (85) belongs under Rock,
+so it is not counted as UK garage.
+
+The named dance-tag union is exactly House, Techno, Disco, Dance, Drum & Bass,
+Jungle, Dubstep, Breakbeat and Breakcore - Hard—not all music DJs play. It has 293
+FMAK records/94 components overall. Its selection support is 40/15: four <2 min,
+27 two–five-minute and 9 five–ten-minute tracks, and zero <30 s or >10 min. Current FMA
+Hip-Hop selection has 16 tracks/8 components, but none ≥5 min; Rap-specific selection
+and reserved support are both zero. Other named styles remain individually
+available in the aggregate rather than inferred from generic Electronic.
+
+FMAK has 3,065/5,489 missing top-level genre strings, but only 84 empty all-genre
+lists. Selection has 143/250 missing top genre and 16 empty all-genre lists. A
+coarse-genre-only analysis loses detail; empty tags must not become proof of
+nonmembership. Known artist/album counts are 942/1,200 in expanded fitting,
+118/118 in selection and 239/295 in reserved unique. Credits and aliases remain
+imperfect proxies for musical independence.
+
+### BP native genre and preview support
+
+Workbook extraction selects only A:id/F:genres, resolving shared strings only for
+those cells and rejecting formulas. G:M key/confidence/comment fields are not
+selected. Store JSON members are filtered by the current 1,355 IDs; only
+id/genres/sub_genres/duration are selected. Historical bare lowercase nan is safely
+read as null outside quoted strings. No store `key` is used as a reference label.
+
+|Native workbook genre, preserved verbatim|Current fit|Current selection|
+|---|---:|---:|
+|Big Room|2|0|
+|Breaks|77|10|
+|Deep House|63|12|
+|Drum & Bass|73|7|
+|Dubstep|80|5|
+|Electro House|77|11|
+|Electronica / Downtempo|159|11|
+|Funky / Groove / Jackin' House|9|0|
+|Hard Dance|81|8|
+|Hip-Hop / R&B|79|6|
+|House|66|9|
+|Minimal|69|3|
+|Progressive House|82|8|
+|Psy-Trance|83|9|
+|Tech House|74|6|
+|Techno|70|14|
+|Trance|84|7|
+|Trap / Future Bass|1|0|
+
+API JSON exists for 671/1,229 fit and 61/126 selection; 558/65 are missing. Missing
+JSON does not mean unknown workbook genre. API subgenres appear for only 15 fit and
+2 selection records. Workbook/API genre strings disagree on 41 fit + 2 selection records;
+both native descriptions are retained, with no forced FMA conversion or silent
+choice. `Hip-Hop / R&B` stays combined; `Minimal` is not automatically Techno.
+
+Actual preview support is 43.3–120.007583 s fitting and 119.2–120.000750 s selection.
+Strict bands put 35 fit + 5 selection below 120 s, 1,194 fit + 121 selection at/above 120 s; these
+values closely straddle the boundary. **None reaches 5 min.** Store durations carry
+explicit milliseconds and minutes text. Of 676 known values, 500 describe 5–10 min,
+but 673/676 differ by >1 s from the supplied preview. Those durations cannot turn
+preview evidence into full-track coverage.
+
+The current uncertainty file assigns all 1,355 BP entries record-unknown-artist
+singleton proxies. These are not 1,355 verified independent artists/albums. This
+narrow extraction does not inspect artist/release fields; earlier identity metadata
+exists, so the proxy does not imply the original source lacks artist information.
+BP improves known genre coverage, not the independence guarantee.
+
+### Exposure, larger-universe bridges and reference quality
+
+The active frozen FMA fit/selection/reserved/calibration sets share zero ledger
+components. A separate graph over all master artist/album credits yields two
+components connecting fit↔selection and two fit↔reserved via outside-cohort
+records. This wider-universe metadata diagnostic is **not proven acoustic
+leakage**, an audio-identity test or grounds to repair the frozen split after
+outcomes. It matters when choosing a future independent panel. Of 101,085 master
+rows outside FMAK, 53,624 remain unlinked to FMAK under this conservative graph;
+they are metadata candidates, not acquired audio or independently labelled data.
+The aggregate contains counts only, not source rows or credit-path exports.
+
+Reserved in the current split does not mean never exposed historically. The
+998 raw reserved IDs include 251 program-exposed historical-final and 78 adaptive-
+development entries; remaining exposure statuses are preserved in the ledger.
+Component separation cannot erase previous program use. Pretrained-teacher
+recording overlap also remains unknown rather than assumed absent.
+
+The [original FMAK release](https://zenodo.org/records/10719860) describes expert
+song-level references. [FMAKv2](https://zenodo.org/records/12759100), used by the
+prepared research corpus, changes around 200 annotations; its release explicitly
+says the original FMAK authors did not verify those modifications. **That does not
+establish that the revisions are wrong.** Describe this as references derived from
+expert-annotated FMAK, not 5,489 uniformly re-adjudicated expert labels. Internal
+“v 2 split” and the FMAKv2 annotation version are separate identifiers. The
+[author README](https://github.com/stellaywong/fma_keys) describes Spotify URI matches
+for analyzer comparison—not Spotify-generated ground truth. No reference CSV was
+re-extracted, compared, switched or corrected for this coverage audit.
+
+The [BP release](https://zenodo.org/records/1101082) credits human annotations,
+comments and confidence to Eduard Mas Marín, revised/expanded by Ángel Faraldo.
+These references are distinct from store metadata keys. Its single-key encoding
+can lose ambiguity; the audit does not certify all annotations equally certain.
+The [maintained loader](https://github.com/mir-dataset-loaders/mirdata/blob/master/mirdata/datasets/beatport_key.py)
+also documents the source and annotation terms. Metadata/annotation availability
+is not blanket rights to redistribute underlying recordings or a proof that a
+future public model has completed its provenance review. Pinned targets and all
+completed/predeclared comparisons remain intact.
+
+### Next independent-panel decision
+
+Keep the live fixed model comparison on its original terms. A separate small
+feasibility check could use four operational examples: contemporary Afrobeats,
+hip-hop, a 5–10 min house/deep-house/melodic-house extended version, and a separate-
+artist techno/club recording (prefer >10 min if a lawful exact version is available).
+These are workflow examples, **not a statistical sample-size or accuracy claim**.
+Select exact versions and access provenance before predictions; preserve rejected
+candidates/reasons. Do not use private corrections or DJ libraries for fitting.
+
+Two independent style-qualified annotators should be blind to models, vendor keys
+and each other's answers, cover the whole recording, and retain disagreements,
+multiple interpretations and no-stable-key cases. Measure access/annotation effort
+before setting the later panel's size/precision budget. Workflow examples become
+development-exposed and must not later masquerade as a sealed panel. A fresh panel
+needs its own exact-version, exposure, ambiguity and scoring rules before outcomes.
+No paid access, human annotation, contact or acquisition is started by this study.
+
+### Reproduction and limits
+
+Only the small [aggregate archive/index](data/coverage-index.json), input hash/path
+receipts and scripts are committed—no source CSV/XLSX/ZIP, raw source rows, audio
+or key-label export. Metadata readers use the standard library; the figure uses
+the repository's existing Matplotlib plotting environment, with no new dependency.
+Input paths may be relocated while retaining hashes; no downloader runs.
+
+```sh
+python -m tools.dj_coverage --inputs experiments/studies/v2-data-contract/data/coverage-inputs.json --output /tmp/coverage-fma-replay
+python -m tools.dj_coverage_bp --inputs experiments/studies/v2-data-contract/data/coverage-inputs.json --output /tmp/coverage-bp-replay
+python -m tools.dj_coverage_report --replay-fma /tmp/coverage-fma-replay/coverage.json --replay-bp /tmp/coverage-bp-replay/coverage-bp.json --plot
+python -m pytest -q tests/test_dj_coverage.py
+```
+
+The verifier checks compressed/decoded/aggregate hashes, current cohort identity,
+role and genre-band totals, native workbook completeness, preview/store separation
+and metadata-only scope. Reader regressions exercise column/field allowlists,
+quoted-nan preservation and formula rejection. These are metadata checks, not
+musical-key accuracy, sample-support equivalence or corpus-wide licence clearance.

@@ -495,6 +495,10 @@ Reproduction rules:
 
 - **EDM preview bias.** All 1,363 training tracks are two-minute EDM previews.
   The generalization test is **FMAKv2** (5,489 songs, 17 genres): prepared and
+  derived from expert-annotated FMAK. Its [release](https://zenodo.org/records/12759100)
+  reports around 200 revised references not verified by the original annotators;
+  this is not proof of incorrect revisions. Spotify matches are comparison IDs,
+  not reference-label provenance. The prepared targets remain pinned. It was
   frozen into a 4,489 development / 1,000 final-holdout partition with zero
   exact Beatport audio overlap. An adaptation pilot (artist/album/audio-
   quarantined, 976 FMAK fit rows joined with the 1,230 clean Beatport rows,
