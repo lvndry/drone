@@ -1,0 +1,334 @@
+{
+  "activation_blockers": [
+    "Root review of historical role retirement and balance",
+    "Root policy decision on shared BP exposure/proxy grouping;612 identities unknown",
+    "Separate class/conflicting-label support diagnostic",
+    "Feature/audio identity and cached overlap audit review"
+  ],
+  "all_fma": {
+    "album_id_missing_rows": 30,
+    "components": 1157,
+    "duration_missing_rows": 0,
+    "duration_seconds_metadata": 1197921.0,
+    "genre_top_counts": {
+      "Blues": 8,
+      "Classical": 53,
+      "Country": 18,
+      "Easy Listening": 1,
+      "Electronic": 634,
+      "Experimental": 44,
+      "Folk": 274,
+      "Hip-Hop": 152,
+      "Instrumental": 129,
+      "International": 35,
+      "Jazz": 25,
+      "MISSING": 3065,
+      "Old-Time / Historic": 16,
+      "Pop": 153,
+      "Rock": 872,
+      "Soul-RnB": 10
+    },
+    "genre_top_missing_rows": 3065,
+    "largest_component": 272,
+    "largest_component_row_share": 0.049553652760065584,
+    "primary_artist_ids": 1365,
+    "row_mass_concentration_equivalent": 124.7784155619334,
+    "rows": 5489,
+    "singleton_components": 502,
+    "unique_saved_audio_sha256": 5442
+  },
+  "assignment_uses_labels_or_scores": false,
+  "bp_entity_unknown_rows": 612,
+  "bp_new_inner_roles_assigned": false,
+  "class_support": "NOT_ACCESSED; separate label diagnostic required before activation",
+  "combined_prospective_unique_fit_rows": 5266,
+  "inputs": {
+    "bp_metadata_downloads": [
+      {
+        "bytes": 921083,
+        "deposit_md5": "bb3e3ac1fe5dee7600ef2814accdf8f8",
+        "name": "original_metadata.zip",
+        "requested_url": "https://zenodo.org/records/1101082/files/original_metadata.zip?download=1",
+        "resolved_url": "https://zenodo.org/records/1101082/files/original_metadata.zip?download=1",
+        "retrieved_utc": "2026-11-12T07:40:18.907133+00:00",
+        "sha256": "cd3d7c144dec0031581531315ebc7e340e8ac89161254f37a4167bea77ad13c3",
+        "status": 200,
+        "verified_md5": "bb3e3ac1fe5dee7600ef2814accdf8f8"
+      },
+      {
+        "bytes": 148165,
+        "deposit_md5": "fbd16ee3ff89b07db48267b8fe61554c",
+        "name": "Beatport-EDM-Key-Dataset.xlsx",
+        "requested_url": "https://zenodo.org/records/1101082/files/Beatport-EDM-Key-Dataset.xlsx?download=1",
+        "resolved_url": "https://zenodo.org/records/1101082/files/Beatport-EDM-Key-Dataset.xlsx?download=1",
+        "retrieved_utc": "2026-11-12T07:40:19.158163+00:00",
+        "sha256": "756ec8c9709a50c03c1c741cf051e2b0bb984df3dc914ec733933cd92cd584dc",
+        "status": 200,
+        "verified_md5": "fbd16ee3ff89b07db48267b8fe61554c"
+      }
+    ],
+    "captured_group_sources": {
+      "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/manifest.json": {
+        "bytes": 1380471,
+        "frozen_manifest_sha256": "5f995f516430332a37f591ec299a36f9a46c16b2cd01cd887700837fd600bac9",
+        "sha256": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5"
+      },
+      "/home/lysk-admin/drone-experiments/small-tranche-20261111-v2/fmak-groups.json": {
+        "bytes": 151730,
+        "sha256": "aab4f21da0da0880af548c5de5bff8417a6865afc3c9f6a1fc34f1fa09457cc6"
+      },
+      "/home/lysk-admin/drone-experiments/small-tranche-20261111-v2/fmak-partition.json": {
+        "bytes": 130954,
+        "sha256": "2701796e4d8b9137b0bdd63e914524fd141f5cc15c71ba14f3e3ac019dfcf78f"
+      }
+    },
+    "compressed_sha256": "59eb32a50413f7fff1ef18c72e01cc679d2b1344bc6bac3be082030e388f1a89",
+    "input_builder_sha256": "830c74f88a2a71cb10b9193242ea8882a0dd1368bf601c44a26c8b6a873cf2c5",
+    "metadata_csv": {
+      "path": "/tmp/drone-fma-unlabeled-audit-20261111-v1/metadata.csv",
+      "sha256": "9686371b45620add5c1f598d00341d007bd93981d22506101a17d13ed7e7c0f3"
+    },
+    "no_target_labels": true,
+    "old_calibration_derivation": "eligible indices minus observed976fit/250validation;159, consistent with savedv1 policy",
+    "server_metadata_sha256": "a3397cb205f76cfe2c40d3cf293c94b2364066bab43fecc9d2d263ebb73acc84"
+  },
+  "old_role_to_proposed_role": [
+    {
+      "old_role": "calibration",
+      "proposed_role": "calibration",
+      "rows": 17
+    },
+    {
+      "old_role": "calibration",
+      "proposed_role": "development_confirmation",
+      "rows": 49
+    },
+    {
+      "old_role": "calibration",
+      "proposed_role": "expanded_fit",
+      "rows": 64
+    },
+    {
+      "old_role": "calibration",
+      "proposed_role": "inner_selection",
+      "rows": 29
+    },
+    {
+      "old_role": "final",
+      "proposed_role": "calibration",
+      "rows": 46
+    },
+    {
+      "old_role": "final",
+      "proposed_role": "development_confirmation",
+      "rows": 251
+    },
+    {
+      "old_role": "final",
+      "proposed_role": "expanded_fit",
+      "rows": 631
+    },
+    {
+      "old_role": "final",
+      "proposed_role": "inner_selection",
+      "rows": 72
+    },
+    {
+      "old_role": "fit",
+      "proposed_role": "expanded_fit",
+      "rows": 976
+    },
+    {
+      "old_role": "quarantined_development",
+      "proposed_role": "calibration",
+      "rows": 67
+    },
+    {
+      "old_role": "quarantined_development",
+      "proposed_role": "development_confirmation",
+      "rows": 620
+    },
+    {
+      "old_role": "quarantined_development",
+      "proposed_role": "expanded_fit",
+      "rows": 2317
+    },
+    {
+      "old_role": "quarantined_development",
+      "proposed_role": "inner_selection",
+      "rows": 100
+    },
+    {
+      "old_role": "validation",
+      "proposed_role": "calibration",
+      "rows": 29
+    },
+    {
+      "old_role": "validation",
+      "proposed_role": "development_confirmation",
+      "rows": 78
+    },
+    {
+      "old_role": "validation",
+      "proposed_role": "expanded_fit",
+      "rows": 94
+    },
+    {
+      "old_role": "validation",
+      "proposed_role": "inner_selection",
+      "rows": 49
+    }
+  ],
+  "proposed_panels": {
+    "calibration": {
+      "album_id_missing_rows": 0,
+      "components": 60,
+      "duration_missing_rows": 0,
+      "duration_seconds_metadata": 34320.0,
+      "genre_top_counts": {
+        "Electronic": 18,
+        "Folk": 8,
+        "Hip-Hop": 5,
+        "Instrumental": 4,
+        "Jazz": 2,
+        "MISSING": 92,
+        "Pop": 5,
+        "Rock": 25
+      },
+      "genre_top_missing_rows": 92,
+      "largest_component": 4,
+      "largest_component_row_share": 0.025157232704402517,
+      "primary_artist_ids": 66,
+      "row_mass_concentration_equivalent": 56.811235955056176,
+      "rows": 159,
+      "singleton_components": 0,
+      "unique_saved_audio_sha256": 159
+    },
+    "development_confirmation": {
+      "album_id_missing_rows": 10,
+      "components": 200,
+      "duration_missing_rows": 0,
+      "duration_seconds_metadata": 215523.0,
+      "genre_top_counts": {
+        "Blues": 4,
+        "Classical": 12,
+        "Country": 9,
+        "Electronic": 99,
+        "Experimental": 15,
+        "Folk": 44,
+        "Hip-Hop": 18,
+        "Instrumental": 27,
+        "International": 4,
+        "Jazz": 10,
+        "MISSING": 573,
+        "Old-Time / Historic": 5,
+        "Pop": 31,
+        "Rock": 147
+      },
+      "genre_top_missing_rows": 573,
+      "largest_component": 12,
+      "largest_component_row_share": 0.012024048096192385,
+      "primary_artist_ids": 239,
+      "row_mass_concentration_equivalent": 154.41922480620156,
+      "rows": 998,
+      "singleton_components": 25,
+      "unique_saved_audio_sha256": 997
+    },
+    "expanded_fit": {
+      "album_id_missing_rows": 20,
+      "components": 797,
+      "duration_missing_rows": 0,
+      "duration_seconds_metadata": 894106.0,
+      "genre_top_counts": {
+        "Blues": 4,
+        "Classical": 41,
+        "Country": 9,
+        "Easy Listening": 1,
+        "Electronic": 489,
+        "Experimental": 27,
+        "Folk": 207,
+        "Hip-Hop": 123,
+        "Instrumental": 95,
+        "International": 31,
+        "Jazz": 10,
+        "MISSING": 2257,
+        "Old-Time / Historic": 9,
+        "Pop": 107,
+        "Rock": 662,
+        "Soul-RnB": 10
+      },
+      "genre_top_missing_rows": 2257,
+      "largest_component": 272,
+      "largest_component_row_share": 0.06663400293973543,
+      "primary_artist_ids": 942,
+      "row_mass_concentration_equivalent": 71.26425907551237,
+      "rows": 4082,
+      "singleton_components": 459,
+      "unique_saved_audio_sha256": 4036
+    },
+    "inner_selection": {
+      "album_id_missing_rows": 0,
+      "components": 100,
+      "duration_missing_rows": 0,
+      "duration_seconds_metadata": 53972.0,
+      "genre_top_counts": {
+        "Electronic": 28,
+        "Experimental": 2,
+        "Folk": 15,
+        "Hip-Hop": 6,
+        "Instrumental": 3,
+        "Jazz": 3,
+        "MISSING": 143,
+        "Old-Time / Historic": 2,
+        "Pop": 10,
+        "Rock": 38
+      },
+      "genre_top_missing_rows": 143,
+      "largest_component": 5,
+      "largest_component_row_share": 0.02,
+      "primary_artist_ids": 118,
+      "row_mass_concentration_equivalent": 83.33333333333333,
+      "rows": 250,
+      "singleton_components": 18,
+      "unique_saved_audio_sha256": 250
+    }
+  },
+  "prospective_unique_fma_fit_rows": 4036,
+  "restricted_fma_fit": {
+    "album_id_missing_rows": 14,
+    "components": 490,
+    "duration_missing_rows": 0,
+    "duration_seconds_metadata": 223585.0,
+    "genre_top_counts": {
+      "Blues": 2,
+      "Classical": 5,
+      "Country": 8,
+      "Electronic": 128,
+      "Experimental": 7,
+      "Folk": 54,
+      "Hip-Hop": 18,
+      "Instrumental": 13,
+      "International": 7,
+      "Jazz": 6,
+      "MISSING": 439,
+      "Old-Time / Historic": 5,
+      "Pop": 27,
+      "Rock": 256,
+      "Soul-RnB": 1
+    },
+    "genre_top_missing_rows": 439,
+    "largest_component": 12,
+    "largest_component_row_share": 0.012295081967213115,
+    "primary_artist_ids": 524,
+    "row_mass_concentration_equivalent": 281.49408983451536,
+    "rows": 976,
+    "singleton_components": 299,
+    "unique_saved_audio_sha256": 976
+  },
+  "seed": 20261112,
+  "shared_bp_fitting_pool_rows": 1230,
+  "source_sha256": "a493477402049f0faa7b8531959992485b3edf4aeec96cc67b0057e78d36f2c9",
+  "status": "PROPOSED_NOT_ACTIVATED",
+  "training_authorized": false,
+  "version": "fmak-v2-proposal-20261112-v1"
+}
