@@ -183,7 +183,7 @@ def plot(root: Path, result: dict[str, Any]) -> None:
         result["steady_step_median_seconds"] * 1000,
         color="#254754",
         linestyle="--",
-        label="Steady median 51.0 ms",
+        label=f"Steady median {result['steady_step_median_seconds'] * 1000:.1f} ms",
     )
     axes[0].set_ylabel("Instrumented update duration (ms)")
     axes[0].set_xlabel("Update 0 = first AdamW state allocation; 1–20 = steady")
@@ -201,7 +201,7 @@ def plot(root: Path, result: dict[str, Any]) -> None:
         )
     axes[1].axhline(
         result["maximum_sampled_worker_nvml_mib"] / 1024,
-        label="Sampled NVML maximum 6.50 GiB",
+        label=f"Sampled NVML maximum {result['maximum_sampled_worker_nvml_mib'] / 1024:.2f} GiB",
         linestyle="--",
         color="#5d5676",
     )
