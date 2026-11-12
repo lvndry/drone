@@ -1,0 +1,8 @@
+{
+  "generator_sha256": "8e496cd1fe8e2e2efcf3a589d2ff53c9ef3b552f657db529e43ceed982f00fe7",
+  "archive_sha256": "966eb60d4ad82e0ba9e9aa8478c75e7e3d1cbd6cd9376160ced86576c9fad47d",
+  "source_commit": "72ac56507ebfab8f3a2a4d1ce1e572ccfc5fd3bd",
+  "shared_helpers_sha256": "ccd3a536001095fd9af9b029da3a9a09afe378fb373e3ba0a5b388837cf03e5a",
+  "figure_png_sha256": "f6dcd2c5d0f166822342ca3b2c1165cde1c9636c95a399be2ee2ff85242b3afd",
+  "figure_svg_sha256": "5bde93f1521ac61e08059d4e383d9dd82d0394ead8b34aacab2f12108632cf7a"
+}

@@ -1,0 +1,46 @@
+{
+  "archive_bytes": 2940087,
+  "config_sha256": "e8c03fff868d55cbbc28e9d971a4f9abab22a5a7667896630cda3dad1a3bfbad",
+  "controller": {
+    "cleanup_error": null,
+    "complete": true,
+    "config_sha256": "e8c03fff868d55cbbc28e9d971a4f9abab22a5a7667896630cda3dad1a3bfbad",
+    "error": null,
+    "peaks": {
+      "cpu_seconds": 879.78,
+      "max_poll_gap_seconds": 1.0926660380791873,
+      "min_gpu0_free_bytes": 10966007808,
+      "min_gpu1_free_bytes": 7315914752,
+      "owned_gpu_bytes": 2648702976,
+      "rss_bytes": 2283765760
+    },
+    "polling_is_not_allocation_interlock": true,
+    "task_fit": true,
+    "wall_seconds": 767.7187635709997
+  },
+  "gpu": {
+    "epoch": 1794521962.8748796,
+    "free_bytes": 9969860608,
+    "gpu0_free_bytes": 10966007808,
+    "owned_bytes": 0,
+    "query_seconds": 0.05545099079608917,
+    "total_bytes": 34190917632
+  },
+  "guardian_absent": true,
+  "paired_traces": {
+    "BP_augmented_trace_matches_historical": true,
+    "actual_frames": true,
+    "bp_augmented_sha256": true,
+    "common_draw_pitch_sha256": true,
+    "coverage": true,
+    "temporal_sha256": true
+  },
+  "post_run_receipt_sha256": "8447d5a64a589fd2b3e6db60b76eb39bde9cfee0807e6c3f0fca1dd18705d0ff",
+  "protected": true,
+  "source_commit": "72ac56507ebfab8f3a2a4d1ce1e572ccfc5fd3bd",
+  "terminal_metadata_archive_sha256": "966eb60d4ad82e0ba9e9aa8478c75e7e3d1cbd6cd9376160ced86576c9fad47d",
+  "workers_absent": {
+    "baseline": true,
+    "candidate": true
+  }
+}

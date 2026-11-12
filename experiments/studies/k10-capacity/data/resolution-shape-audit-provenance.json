@@ -1,0 +1,10 @@
+{
+  "kind": "historical-synthetic-shape-audit-only",
+  "source_sha256": "e4b86eaa863a6177b482f910aa6a3b8b29e42e2d3140df862cfd390c9cf594b9",
+  "source_gzip_sha256": "abee1b7f40876cdcaa32e3723c4b8607af10d5415b31a62581b54f3fbad59c56",
+  "result_sha256": "671c4ec6cc401abe05376beea0191d8c7fdb573ebf101a7850e7a32016663be9",
+  "source_original_path": "/tmp/drone-resolution-shape-audit.py",
+  "result_original_path": "/tmp/drone-resolution-shape-audit.json",
+  "command": "OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=1 /Users/lvndry/github/jazz-worktrees/drone-musicfm-teacher-driver/.venv/bin/python /tmp/drone-resolution-shape-audit.py > /tmp/drone-resolution-shape-audit.json",
+  "limits": "One warmup and three alternating timed CPU forwards per model/shape. Not isolated latency/RSS or accuracy evidence. Shared process peak includes both models and Torch. The transient standalone model source is retained byte-for-byte; it is not the new imported implementation."
+}

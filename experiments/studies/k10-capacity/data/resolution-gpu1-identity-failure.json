@@ -1,0 +1,25 @@
+{
+  "kind": "failed-device-identity-admission-cause-v1",
+  "attempt1_source_commit": "c4dbda8c2cd0af09d3d68cb4ddd378e67002e9e7",
+  "attempt1_config_sha256": "6162bbf8bdf4b1e447dafa7f43f783e0e947234ba65c2329825832c04ab016f2",
+  "attempt1_archive_sha256": "594e35f54950fbb8d583f353c4a93741c0e47a240be4eeaecb08bf1dc745eaf2",
+  "controller_sha256": "a4a8aefc1b12469e73974e3ad72cee588ec5d4e50aba57d77ecfc174b78f18dd",
+  "baseline_log_sha256": "e9bc40416bddbc3eeb014912fe2c1c70f68910c64b3161f04b508baeaf0e4da9",
+  "terminal_receipt_sha256": "c251c736501ddd33c68c32f0d29638d4f71f34478545fb3323681a91f5f340af",
+  "failure": "False-negative device-identity predicate before allocator setup/model creation; not a hardware mismatch or memory qualification.",
+  "root_reported_separate_identity_diagnostic": {
+    "epoch": 1794518000.915,
+    "torch_version": "2.15.0+cu132",
+    "device_count": 1,
+    "uuid_type": "_CUuuid",
+    "uuid_str": "9c2004f9-0d41-d7c7-7075-863335543ee8",
+    "expected_nvml_uuid": "GPU-9c2004f9-0d41-d7c7-7075-863335543ee8",
+    "allocated_bytes": 0,
+    "reserved_bytes": 0,
+    "models_or_tensors_created": false,
+    "provenance_limit": "Values reported by root from its separate read-only call; original command/source/raw output were not retained at this receipt creation. No duplicate query performed."
+  },
+  "correction": "Compare optional GPU-prefix representations as stdlib uuid.UUID 128-bit values; require count one and exact expected identity.",
+  "attempt1_preserved": true,
+  "same_attempt_retry": false
+}
