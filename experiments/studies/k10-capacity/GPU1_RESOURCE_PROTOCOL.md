@@ -70,3 +70,30 @@ nice19 governs CPU scheduling, not GPU priority. Existing passive health metrics
 may be observed if available, without issuing inference/load-test requests. Success
 means feasibility under observed load only. A later task pair needs its own source
 review, complete-cost projection, fixed accuracy gates and sealed authorization.
+
+## Prospective compatibility amendment before task fitting
+
+Two preserved qualifications completed without any optimizer commit. The first
+(c4dbda8c) falsely rejected Torch's unprefixed device UUID; a1b6cc3 corrected the
+comparison without changing the physical-device requirement. The second reached
+backward but failed because global strict deterministic enforcement rejects CUDA
+AdaptiveAvgPool2d backward. Neither outcome establishes a memory failure or
+qualifies either architecture. Keep their source, logs and cleanup receipts.
+
+The qualification had unnecessarily added global enforcement beyond the historical
+K10 CUDA recipe. The next separately reviewed source restores that recipe for BOTH
+models: `torch.use_deterministic_algorithms(False)`, cuDNN determinism enabled,
+cuDNN benchmarking disabled, TF32 disabled and FP32 arithmetic. Record the actual
+flags. No operator, batch size, precision, allocator/memory reserve, accuracy gate
+or already-running experiment changes. Do not silently substitute warn-only mode
+or introduce custom gradients merely to satisfy this added constraint.
+
+PyTorch explicitly documents this operator restriction and distinguishes global
+algorithm enforcement from cuDNN flags: [algorithm documentation](https://docs.pytorch.org/docs/2.15/generated/torch.use_deterministic_algorithms.html),
+[reproducibility notes](https://docs.pytorch.org/docs/2.15/notes/randomness.html).
+This does not prove that this particular shape produces variable gradients.
+Describe the actual training policy as **seeded, without guaranteed bitwise GPU
+training replay**. Initial tensor/data-trace identity and strict selected-file
+prediction replay remain required. This amendment precedes any candidate accuracy
+outcome; no old gate is reopened. Only a fresh, source-bound qualification with
+the unchanged resource limits can authorize preparing a later task-fit proposal.
