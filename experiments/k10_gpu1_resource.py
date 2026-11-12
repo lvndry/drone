@@ -27,6 +27,16 @@ INITIAL = {
     "candidate": "4fc58182dc884d7e9e9b948e72737742628be6b6a0685472b42808b0aed715d4",
 }
 PREFIX = "54d0c895089289238293d49d211a4a8ce26bfe4b79e3d47419a2fc73a51d5b4a"
+BACKEND_POLICY = dict(
+    global_deterministic_algorithms=False,
+    deterministic_warn_only=False,
+    cudnn_deterministic=True,
+    cudnn_benchmark=False,
+    cudnn_allow_tf32=False,
+    matmul_allow_tf32=False,
+    default_dtype="torch.float32",
+    autocast_enabled=False,
+)
 POLICY: dict[str, Any] = dict(
     cpus=[10, 11],
     batch=32,
@@ -77,6 +87,33 @@ def validate_device_identity(count: int, actual: object) -> dict[str, Any]:
     return observation
 
 
+def configure_backend() -> dict[str, Any]:
+    """Match canonical CUDA setup; seeded, bitwise GPU training not guaranteed.
+
+    This configures flags only. It does not create a model, tensor or CUDA context.
+    """
+    import torch
+
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(False)
+    observed = dict(
+        global_deterministic_algorithms=torch.are_deterministic_algorithms_enabled(),
+        deterministic_warn_only=torch.is_deterministic_algorithms_warn_only_enabled(),
+        cudnn_deterministic=torch.backends.cudnn.deterministic,
+        cudnn_benchmark=torch.backends.cudnn.benchmark,
+        cudnn_allow_tf32=torch.backends.cudnn.allow_tf32,
+        matmul_allow_tf32=torch.backends.cuda.matmul.allow_tf32,
+        default_dtype=str(torch.get_default_dtype()),
+        autocast_enabled=torch.is_autocast_enabled(),
+    )
+    if observed != BACKEND_POLICY:
+        raise ValueError("Effective canonical backend differs: " + json.dumps(observed))
+    return observed
+
+
 def sources() -> dict[str, str]:
     names = [str(p.relative_to(ROOT)) for p in (ROOT / "drone").glob("*.py")]
     names += [
@@ -93,6 +130,7 @@ def contract(value: dict[str, Any]) -> None:
     rows = value["selection"]
     if (
         value["policy"] != POLICY
+        or value["backend_policy"] != BACKEND_POLICY
         or value["gpu_uuid"] != GPU1
         or value["gpu0_uuid"] != GPU0
         or value["allow_task_fit"] is not False
@@ -118,6 +156,7 @@ def seal(
     runtime_value = load(runtime)
     value = dict(
         policy=POLICY.copy(),
+        backend_policy=BACKEND_POLICY.copy(),
         gpu_uuid=GPU1,
         gpu0_uuid=GPU0,
         allow_task_fit=False,
@@ -218,11 +257,7 @@ def worker(config: Path, approval: Path, output: Path, model_name: str, guardian
     watch()
     torch.set_num_threads(2)
     torch.set_num_interop_threads(1)
-    torch.backends.cuda.matmul.allow_tf32 = False
-    torch.backends.cudnn.allow_tf32 = False
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
+    backend = configure_backend()
     count = torch.cuda.device_count()
     properties = torch.cuda.get_device_properties(0) if count == 1 else None
     device_identity = validate_device_identity(count, properties.uuid if properties else None)
@@ -257,6 +292,8 @@ def worker(config: Path, approval: Path, output: Path, model_name: str, guardian
             setup_seconds=setup_seconds,
             actual_total_device_bytes=total,
             device_identity=device_identity,
+            backend_policy=backend,
+            reproducibility="seeded; bitwise GPU training not guaranteed",
             allocator_bytes=POLICY["allocator_bytes"],
             task_fit=False,
         ),
@@ -366,6 +403,8 @@ def worker(config: Path, approval: Path, output: Path, model_name: str, guardian
             config_sha256=sha256(config),
             initial_state_sha256=initial.hexdigest(),
             first_two_blocks_sha256=prefix.hexdigest(),
+            backend_policy=backend,
+            reproducibility="seeded; bitwise GPU training not guaranteed",
             setup_seconds=setup_seconds,
             update_with_transition_seconds=times,
             evaluation=phases,
