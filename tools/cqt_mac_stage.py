@@ -26,7 +26,7 @@ def export(root: Path, feature_source: Path) -> None:
     import numpy as np
 
     from experiments.chunked import cpu_session
-    from tools.export_cqt_goldens import Trace, load_features_module
+    from tools.export_cqt_goldens import Trace, load_features_module, source_identity
 
     canonical = root / "canonical"
     source = json.loads((canonical / "manifest.json").read_bytes())
@@ -46,6 +46,7 @@ def export(root: Path, feature_source: Path) -> None:
         complete=False,
         cases=[],
         full_model_sha256=source["full_model_sha256"],
+        sources=source_identity(features),
     )
     for original in source["cases"]:
         pcm_path = canonical / original["pcm"]["path"]
