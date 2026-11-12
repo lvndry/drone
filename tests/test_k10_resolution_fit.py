@@ -64,12 +64,11 @@ def test_default_cpu_equals_explicit_factory_state_and_trajectory(
             ):
                 assert results[0][key] == result[key], key
     for checkpoint in ("best.pt", "final.pt"):
-        a, b = (
-            torch.load(tmp_path / n / checkpoint, weights_only=True)
-            for n in ("legacy90", "explicit")
-        )
-        assert a["format"] == b["format"] and a["provenance"] == b["provenance"]
-        assert all(torch.equal(v, b["state_dict"][k]) for k, v in a["state_dict"].items())
+        a = torch.load(tmp_path / "legacy90" / checkpoint, weights_only=True)
+        for name in ("default", "explicit"):
+            b = torch.load(tmp_path / name / checkpoint, weights_only=True)
+            assert a["format"] == b["format"] and a["provenance"] == b["provenance"]
+            assert all(torch.equal(v, b["state_dict"][k]) for k, v in a["state_dict"].items())
 
 
 def test_explicit_artifact_and_init_are_enforced(
