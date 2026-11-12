@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Iterable, Sequence
-from typing import TYPE_CHECKING
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Self
 
 import numpy as np
 import torch
@@ -41,6 +41,53 @@ class KeyTeacher(nn.Module):
             torch.random.default_generator.manual_seed(seed)
             self.head = nn.Linear(1024, 24, dtype=torch.float32, device="cpu")
 
+    def _rotary_position(self) -> nn.Module | None:
+        # Tiny synthetic backbones need no Conformer; the actual pinned model does.
+        conformer = getattr(self.backbone, "conformer", None)
+        if conformer is None:
+            return None
+        position = getattr(conformer, "embed_positions", None)
+        if (
+            not isinstance(position, nn.Module)
+            or type(position).__name__ != "Wav2Vec2ConformerRotaryPositionalEmbedding"
+            or not isinstance(getattr(position, "inv_freq", None), Tensor)
+        ):
+            raise ValueError("Expected the pinned Conformer rotary cache contract")
+        length = getattr(position, "cached_sequence_length", "missing")
+        cached = getattr(position, "cached_rotary_positional_embedding", "missing")
+        if length is None and cached is None:
+            return position
+        if (
+            type(length) is not int
+            or length <= 0
+            or not isinstance(cached, Tensor)
+            or cached.dtype not in (torch.float32, torch.bfloat16)
+            or cached.shape != (2, length, 1, 1, position.inv_freq.numel() * 2)
+        ):
+            raise ValueError("Malformed pinned Conformer rotary cache")
+        return position
+
+    def _clear_rotary_cache(self) -> None:
+        position = self._rotary_position()
+        if position is not None:
+            setattr(position, "cached_sequence_length", None)
+            setattr(position, "cached_rotary_positional_embedding", None)
+
+    def train(self, mode: bool = True) -> Self:
+        changed = self.training != mode
+        super().train(mode)
+        if changed:
+            # Upstream keys this dtype-dependent cache only by sequence length.
+            # eval() must also protect the direct B16 encoder path.
+            self._clear_rotary_cache()
+        return self
+
+    def _apply(self, fn: Callable[[Tensor], Tensor], recurse: bool = True) -> Self:
+        # These ordinary attributes are not buffers and nn.Module.to() cannot move them.
+        self._clear_rotary_cache()
+        super()._apply(fn, recurse=recurse)
+        return self
+
     def forward(self, waveform: Tensor) -> Tensor:
         if waveform.ndim != 2 or waveform.shape[1] <= 1024 or waveform.dtype != torch.float32:
             raise ValueError("Expected actual FP32 waveforms with more than 1024 samples")
@@ -48,6 +95,17 @@ class KeyTeacher(nn.Module):
             features = getattr(self.backbone, "normalize")(
                 getattr(self.backbone, "preprocessing")(waveform, ["melspec_2048"])
             )
+        position = self._rotary_position()
+        cached = getattr(position, "cached_rotary_positional_embedding", None)
+        expected_dtype = (
+            torch.get_autocast_dtype(waveform.device.type)
+            if torch.is_autocast_enabled(waveform.device.type)
+            else features["melspec_2048"].dtype
+        )
+        if isinstance(cached, Tensor) and (
+            cached.dtype != expected_dtype or cached.device != waveform.device
+        ):
+            self._clear_rotary_cache()
         _, hidden = getattr(self.backbone, "encoder")(features["melspec_2048"])
         embedding = hidden[12]
         if (
