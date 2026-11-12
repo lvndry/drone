@@ -88,6 +88,14 @@ def check() -> dict[str, Any]:
         return json.loads(files[name])
 
     audit = load("post-run-receipt.json")
+    index = json.loads((STUDY / "data/resolution-pair-terminal-index.json").read_bytes())
+    require(
+        index["terminal_metadata_archive_sha256"] == ARCHIVE
+        and index["source_commit"] == SOURCE
+        and index["config_sha256"] == CONFIG
+        and index["post_run_receipt_sha256"] == sha(files["post-run-receipt.json"]),
+        "Terminal index differs",
+    )
     for name, record in audit["raw_files"].items():
         require(
             sha(files[name]) == record["sha256"] and len(files[name]) == record["bytes"],
@@ -318,6 +326,13 @@ def plot(data: dict[str, Any]) -> None:
                 generator_sha256=sha(Path(__file__).read_bytes()),
                 archive_sha256=ARCHIVE,
                 source_commit=SOURCE,
+                shared_helpers_sha256=sha((ROOT / "tools/plot_research.py").read_bytes()),
+                figure_png_sha256=sha(
+                    (STUDY / "figures/resolution-pair-accuracy.png").read_bytes()
+                ),
+                figure_svg_sha256=sha(
+                    (STUDY / "figures/resolution-pair-accuracy.svg").read_bytes()
+                ),
             ),
             indent=2,
         )

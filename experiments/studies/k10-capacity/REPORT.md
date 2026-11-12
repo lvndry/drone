@@ -281,6 +281,8 @@ full-song selection events, with no early stop. All 5,262 fitting IDs were sampl
 The two models had fresh seed 13 initialization and the qualified canonical CUDA
 backend policy; seeded GPU training is not claimed bitwise reproducible. This
 comparison used a fresh GPU K10 control, not the concurrent CPU context arm.
+The separate CPU context comparison remained in flight at this report snapshot;
+its partial results are not controls here.
 
 Selection was equal-domain exact first, symmetric-fifth MIREX second, earliest
 tie. The control selected update 5,796 and the candidate 3,795; both nevertheless
@@ -312,9 +314,10 @@ FMA symmetric and asymmetric changes were −3.12 and −4.52 points respectivel
 Beatport symmetric MIREX also declined despite its one-case exact improvement.
 
 The historical-control guard failed independently. The fresh baseline had one
-fewer correct Beatport case than the frozen historical GPU control, with weighted
-credit lower by 17/12 tenths on Beatport and 7/7 tenths on FMA. Its FMA exact count
-matched the historical control. The pair is internally matched, but it is not an
+fewer correct Beatport case than the frozen historical GPU control, with symmetric/
+asymmetric MIREX lower by 1.35/0.95 percentage points on Beatport and 0.28/0.28
+points on FMA. Its FMA exact count matched the historical control. The pair is
+internally matched, but it is not an
 exact historical-control reproduction; the cause of that difference is not
 established here. Neither this guard failure nor a favorable duration slice can
 rescue the candidate's failed primary comparison.
@@ -337,9 +340,9 @@ proof; they exclude earlier model/input setup. They are not pure optimizer time,
 and their sum is not the whole-run elapsed cost. The earlier 30-minute proposal
 was a cap, not a measured duration or a promise derived from the synthetic probe.
 
-Aggregate owned CPU was 879.78 seconds and combined sampled/reaped whole-tree host
-peak was 2.28 GB. Sampled owned GPU peak was 2,526 MiB; minimum GPU1 free memory
-was 6,977 MiB, above the 6,656 MiB early-abort threshold. GPU0 remained at least
+Aggregate owned CPU was 879.78 seconds, including live and reaped children. Combined
+sampled whole-tree host RSS peak was 2.28 GB. Sampled owned GPU peak was 2,526 MiB;
+minimum GPU1 free memory was 6,977 MiB, above the 6,656 MiB early-abort threshold. GPU0 remained at least
 10,458 MiB free. These combined bounds are not independent per-arm RSS or a CPU
 deployment benchmark. Terminal checks confirmed both workers absent, owned GPU
 memory released and all eight protected start identities unchanged. Serving tail
