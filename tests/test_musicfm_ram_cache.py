@@ -140,7 +140,7 @@ def test_full_decode_profile_and_conflicting_identity_stop_without_seek(
         (cache.output / name).mkdir()
     source = tmp_path / "source"
     source.write_bytes(b"synthetic source witness")
-    values = np.arange(4, dtype="<f4")
+    values = np.arange(1025, dtype="<f4")
     config: dict[str, Any] = {
         "ffmpeg": "/frozen/ffmpeg",
         "caps": {"reference_bytes": 256 * 1024**2},
@@ -173,3 +173,89 @@ def test_full_decode_profile_and_conflicting_identity_stop_without_seek(
     assert (cache.output / "logs/0001-full.stderr").read_text() == "retained synthetic warning"
     assert stage.rows == []
     cache.cleanup()
+
+
+@pytest.mark.parametrize("samples, valid", [(0, False), (1024, False), (1025, True)])
+def test_reflected_stft_sample_boundary(samples: int, valid: bool) -> None:
+    if valid:
+        ram.validate_samples(samples)
+    else:
+        with pytest.raises(ValueError, match="1024"):
+            ram.validate_samples(samples)
+
+
+def test_handoff_requires_live_fresh_successor_before_ack(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import tools.run_musicfm_ram_cache as guardian
+    from tools.musicfm_crop_io import save
+
+    source = tmp_path / "guardian.py"
+    source.write_text("frozen future guardian")
+    ready = tmp_path / "ready.json"
+    approval = tmp_path / "approved.json"
+    config = {"_executed_config_sha256": "config-sha", "cache_token": "a" * 32}
+    save(
+        approval,
+        {
+            "authorized": True,
+            "config_sha256": "config-sha",
+            "cache_token": "a" * 32,
+            "guardian_source_path": str(source),
+            "guardian_source_sha256": ram.sha(source),
+            "guardian_pid": 123,
+            "guardian_start_ticks": 456,
+            "guardian_ready_path": str(ready),
+        },
+    )
+    monkeypatch.setattr(guardian, "alive", lambda pid, start: (pid, start) == (123, 456))
+    monkeypatch.setattr(guardian.time, "time", lambda: 100.0)
+
+    def write_ready(epoch: float) -> None:
+        if ready.exists():
+            ready.unlink()
+        save(
+            ready,
+            {
+                "ready": True,
+                "config_sha256": "config-sha",
+                "cache_token": "a" * 32,
+                "pid": 123,
+                "start_ticks": 456,
+                "last_guard_epoch": epoch,
+            },
+        )
+
+    write_ready(98.9)
+    with pytest.raises(RuntimeError, match="fresh"):
+        guardian.handoff(config, approval)
+    write_ready(99.5)
+    assert guardian.handoff(config, approval)["guardian_pid"] == 123
+    monkeypatch.setattr(guardian, "alive", lambda *_: False)
+    with pytest.raises(RuntimeError, match="live"):
+        guardian.handoff(config, approval)
+
+
+def test_stopped_worker_pid_is_never_rediscovered_or_killed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import subprocess
+    from typing import cast
+
+    import tools.run_musicfm_ram_cache as guardian
+
+    class Finished:
+        pid = 123
+
+        def poll(self) -> int:
+            return 0
+
+        def wait(self, timeout: float) -> int:
+            return 0
+
+    monkeypatch.setattr(
+        guardian, "descendants", lambda *_: pytest.fail("Do not inspect reused PID")
+    )
+    monkeypatch.setattr(guardian, "alive", lambda *_: False)
+    guardian.stop_and_wait(cast(subprocess.Popen[bytes], Finished()), {123: 456})

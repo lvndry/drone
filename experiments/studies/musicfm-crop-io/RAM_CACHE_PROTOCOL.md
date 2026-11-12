@@ -67,3 +67,28 @@ not just prep. Stop own training/workers, unmap, then witnessed cleanup on press
 No sampler/draw/order/domain-mass/window/selection change is implied by the cache.
 Read-only crop API alone is not a complete fit guardian. No fitting code is activated
 by this proposal.
+
+### Outer guardian and overlapping handoff
+
+`tools/run_musicfm_ram_cache.py` is source-bound in the config. It launches one
+preparation worker, tracks descendant PID start identities, enforces the same
+sampled capacities/cutoff independently, and retains launch/progress/controller
+receipts. It terminates and waits for own processes before witnessed cleanup on
+abnormal exit. It never rediscovers a finished worker PID, avoiding PID-reuse kills.
+On successful prep it **does not exit**: it enters HOLDING_CONTINUOUS_WATCH until
+the approved cutoff or a separately root-approved successor handoff. No idle
+unmonitored 99 GB cache is left behind.
+
+A successor must already be watching before handoff. Root's separate receipt binds
+config, cache nonce, successor PID/start, source-file SHA and readiness path; the
+successor readiness heartbeat must be at most one second old. Only then does the
+old guardian acknowledge and exit without cleanup. Future fitting may begin only
+after that acknowledgement and its own authorization. No successor/fitting
+implementation is supplied or activated here. Without a successor, cutoff stops
+and cleans the owned cache. An outer SIGKILL still requires root's retained task
+controller to call witnessed cleanup after all children have terminated.
+
+Decoded waveforms must exceed1,024 samples, matching the teacher reflected-STFT
+boundary; no padding/record drop repairs a short source in preparation. Hash/finite
+scans use4MiB blocks with guards between blocks. New synthetic tests cover1,024/
+1,025 boundaries, stale/dead successor receipts and finished-worker PID reuse.

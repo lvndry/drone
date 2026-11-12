@@ -144,6 +144,9 @@ def make_ram_config(plan: Path, labels: Path, manifest: Path, runtime: Path) -> 
     value["preparation_source_sha256"] = sha(
         Path(__file__).with_name("prepare_musicfm_waveforms.py")
     )
+    value["ram_supervisor_source_sha256"] = sha(
+        Path(__file__).with_name("run_musicfm_ram_cache.py")
+    )
     value["guard_source_sha256"] = sha(Path(__file__).with_name("run_k10_v2_pair.py"))
     value["cache_token"] = uuid.uuid4().hex
     value["ram_root"] = str(RAM_PARENT / ("drone-musicfm-fit-" + value["cache_token"]))
@@ -206,14 +209,15 @@ class RAMPreparation(Preparation):
         digest = hashlib.sha256()
         size = 0
         with target.open("rb") as stream:
-            for block in iter(lambda: stream.read(4 * 65536), b""):
+            for block in iter(lambda: stream.read(4 * 1024**2), b""):
                 self.guard()
                 if len(block) % 4 or not np.isfinite(np.frombuffer(block, dtype="<f4")).all():
                     raise ValueError("Nonfinite/misaligned full waveform")
                 digest.update(block)
                 size += len(block)
-        if size == 0 or file_identity(source) != initial:
-            raise ValueError("Empty waveform or unstable source")
+        validate_samples(size // 4)
+        if file_identity(source) != initial:
+            raise ValueError("Unstable source")
         record = {
             **row,
             "waveform_sha256": digest.hexdigest(),
@@ -251,6 +255,11 @@ def save_or_replace(path: Path, value: dict[str, Any]) -> None:
     temporary = path.with_suffix(".next")
     save(temporary, value)
     temporary.replace(path)
+
+
+def validate_samples(samples: int) -> None:
+    if samples <= 1024:
+        raise ValueError("Decoded waveform must exceed1024samples for reflected STFT")
 
 
 def read_crop(row: dict[str, Any], start: int, length: int, *, watch: Callable[[], None]) -> Any:  # noqa: ANN401
