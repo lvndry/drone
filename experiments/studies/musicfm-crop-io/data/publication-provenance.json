@@ -1,10 +1,21 @@
 {
+  "array_only_diagnostic_source_sha256": "0d4d0484b23914311a18307f2ac1582546ef0e48a57227e865525dde54dcb28c",
+  "executed_preparation_sha256": "8b71191d18f3f10aaf5c263c0a5cb6455df2ae25cefc6a7f811413ed7f0df04f",
+  "executed_wrapper_sha256": "fab76bb7c38f826aabc61a9ef91ff0d6603084505c05a56165a4708f8a9ab9b6",
+  "failure_evidence_report_commit": "b57df9933ba995d76f4d686597f516ddd40982e2",
+  "failure_index_decoded_sha256": "d851b9e2950d1b89401ae15c43d33131361fc3c39a74416bdd26d5cc9dda0d95",
   "frozen_source_refs": {
     "research/musicfm-crop-projection-20261112": "80d4574d2ffc1bcf9fa88096c4616fda1ca4007e",
-    "research/musicfm-crop-qualification-20261112": "6011bf7681f0831c4d354f9803797cc874103a9e"
+    "research/musicfm-crop-qualification-20261112": "6011bf7681f0831c4d354f9803797cc874103a9e",
+    "research/musicfm-preparation-executed-20261112": "9facd95438141cda3d81cadf7f1b9d85a2c16a2d",
+    "research/musicfm-preparation-initial-20261112": "598e746c563e74779c52508cb4ae24acacc7fa21"
   },
-  "limits": "Publication and metadata replay only; no audio, model, or ongoing preparation execution",
+  "limits": "Publication verifies preserved metadata only; no new audio, alignment, model, RAM cache allocation or numerical work.",
   "original_report_commit": "6d684291e9753253fb317d257b81385a03cc4dbc",
+  "preparation_source_commits": [
+    "598e746c563e74779c52508cb4ae24acacc7fa21",
+    "9facd95438141cda3d81cadf7f1b9d85a2c16a2d"
+  ],
   "projection_source_commit": "80d4574d2ffc1bcf9fa88096c4616fda1ca4007e",
   "publication_base": "437eac3b4713108598323bc45a6b17651ab85e0d",
   "qualification_source_commit": "6011bf7681f0831c4d354f9803797cc874103a9e",
@@ -12,11 +23,16 @@
     "329 archived metadata/text members revalidated, including160 stderr files",
     "144 exact crop cases reproduced from hashed evidence without decoding",
     "LRU projection replayed from frozen metadata/sampler; only original versus amended tool-source identity differs",
-    "Original qualification numerical code unchanged; ongoing waveform preparation excluded"
+    "Original qualification numerical code unchanged; ongoing waveform preparation excluded",
+    "Corpus failure:2289records,2288passes,3349unprocessed,0validation; no admission/retry",
+    "Original failed waveform arrays remain server-only; array-only diagnostic source separately bound",
+    "Corpus per-file hash index deterministically gzip-compressed with original decoded bytes unchanged"
   ],
   "source_sha256": {
+    "tools/musicfm_crop_failure_report.py": "95433e9903097e516a928311f2c2e42011ba4e89b04a7be8edd40f6ecd4da80b",
     "tools/musicfm_crop_io.py": "3efaf109c547acaf9479a40d23055680454234560eb17ffad762151a756114ac",
     "tools/musicfm_crop_io_report.py": "c8713dbb27790bd6850bc9fdf64ea790a53d96258c93d9d4e3e14b7f7313857a",
+    "tools/prepare_musicfm_waveforms.py": "8b71191d18f3f10aaf5c263c0a5cb6455df2ae25cefc6a7f811413ed7f0df04f",
     "tools/run_cqt_expansion.py": "3a0f25eb6a6349e75889cf8a3d40052e853448349b7d65823dada53fee8b5995"
   }
 }

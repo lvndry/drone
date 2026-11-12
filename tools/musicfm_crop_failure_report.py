@@ -128,7 +128,7 @@ def plot(result: dict[str, Any], study: Path) -> None:
     figure.text(
         0.02,
         -0.05,
-        "Both positions differ at all288,000 samples. Offset search is "
+        "Both positions differ at all 288,000 samples. Offset search is "
         "diagnostic only; no repaired crop was admitted.",
         fontsize=8,
     )
@@ -143,7 +143,7 @@ def main() -> None:
     parser.add_argument("--study", type=Path, required=True)
     args = parser.parse_args()
     packet = args.study / "data/corpus-failure-raw.json.gz"
-    index_path = args.study / "data/corpus-failure-index.json"
+    index_path = args.study / "data/corpus-failure-index.json.gz"
     if args.evidence is not None:
         files = {
             p.relative_to(args.evidence).as_posix(): p.read_text()
@@ -158,9 +158,11 @@ def main() -> None:
             "decoded_sha256": digest(raw),
             "files": {name: digest(value.encode()) for name, value in files.items()},
         }
-        index_path.write_text(json.dumps(index, indent=2, sort_keys=True) + "\n")
+        index_path.write_bytes(
+            gzip.compress((json.dumps(index, indent=2, sort_keys=True) + "\n").encode(), mtime=0)
+        )
     else:
-        index = json.loads(index_path.read_bytes())
+        index = json.loads(gzip.decompress(index_path.read_bytes()))
         raw = gzip.decompress(packet.read_bytes())
         if (
             digest(packet.read_bytes()) != index["compressed_sha256"]
