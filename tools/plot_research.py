@@ -323,6 +323,133 @@ def capacity_history() -> None:
     save(figure, "k10-capacity", "training-history")
 
 
+def sam_history() -> None:
+    report = read("studies/k10-sam/data/histories.json")
+    figure, axes = canvas(
+        "Fixed SAM: observed optimization and selection traces",
+        2,
+        "Seed 13 · hard first-pass CE shown for both arms · identical early-stop rule, different observed horizons\n"
+        "Selected epochs marked. Wall-time ratio is not a matched-work overhead estimate; these traces do not isolate a failure mechanism.",
+    )
+    for name, label, color in (
+        ("control", "Ordinary AdamW", BLUE),
+        ("candidate", "SAM + AdamW", ORANGE),
+    ):
+        run = report[name]
+        epochs = [r["epoch"] for r in run["history"]]
+        axes[0].plot(epochs, [r["loss"] for r in run["history"]], label=label, color=color)
+        axes[1].plot(epochs, [100 * r["mirex"] for r in run["history"]], label=label, color=color)
+        best = next(r for r in run["history"] if r["epoch"] == run["best_epoch"])
+        axes[1].plot(best["epoch"], best["mirex"] * 100, "o", color=color)
+        axes[1].annotate(
+            f"Epoch {best['epoch']}",
+            (best["epoch"], best["mirex"] * 100),
+            xytext=(0, 10),
+            textcoords="offset points",
+            ha="center",
+            color=color,
+        )
+    axes[0].set(
+        title="Fitting loss", xlabel="Epoch", ylabel="Mean first-pass hard CE", ylim=(0, None)
+    )
+    axes[1].set(
+        title="Combined validation criterion",
+        xlabel="Epoch",
+        ylabel="Symmetric-fifth MIREX (%)",
+        ylim=(0, 85),
+    )
+    for axis in axes:
+        axis.legend(frameon=False, loc="lower right")
+    save(figure, "k10-sam", "training-history")
+
+
+def ensemble_summary() -> None:
+    report = read("studies/k10-ensemble/data/result.json")
+    figure, axes = canvas(
+        "Fixed probability ensemble: Beatport gain, canonical FMAK regression",
+        2,
+        "One fixed ensemble of seeds 13/37/73 · equal probabilities at T=1 · symmetric-fifth MIREX and exact accuracy\n"
+        "Members are separate trained models, not ensemble replications. Reused checkpoint-selection validation; no ensemble standard error.",
+    )
+    arms = [report["member_metrics"][str(seed)] for seed in (13, 37, 73)] + [report["metrics"]]
+    for axis, domain, title in zip(
+        axes,
+        ("beatport", "fmak"),
+        ("Beatport validation (126)", "FMAK validation (250)"),
+        strict=True,
+    ):
+        for metric, label, color, offset in (
+            ("mirex", "MIREX", BLUE, -0.06),
+            ("exact", "Exact accuracy", ORANGE, 0.06),
+        ):
+            values = [100 * r[domain][metric] for r in arms]
+            positions = np.arange(4) + offset
+            axis.scatter(positions, values, color=color, label=label, zorder=3)
+            axis.axhline(values[0], color=color, alpha=0.25, linestyle=":")
+            for x, y in zip(positions, values, strict=True):
+                axis.annotate(
+                    f"{y:.2f}",
+                    (x, y),
+                    xytext=(0, 9),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=9,
+                )
+        axis.set(
+            title=title,
+            ylabel="Score (%)",
+            xticks=range(4),
+            xticklabels=["Seed 13\ncanonical", "Seed 37", "Seed 73", "Ensemble"],
+            xlim=(-0.4, 3.4),
+            ylim=(60, 82),
+        )
+        axis.legend(frameon=False, loc="lower left")
+    save(figure, "k10-ensemble", "accuracy")
+
+
+def exact_movements(study: str) -> None:
+    raw = read(
+        f"studies/{study}/data/"
+        + ("candidate-result.json" if study == "k10-sam" else "result.json")
+    )
+    rows = (
+        [("SAM", raw["confusion_movements"])]
+        if study == "k10-sam"
+        else [(f"vs seed {seed}", raw["confusion_movements"][str(seed)]) for seed in (13, 37, 73)]
+    )
+    figure, axes = canvas(
+        "Paired exact-error movements: promotions and demotions",
+        2,
+        "Same recordings paired by frozen ID · positive bars: wrong to exact · negative bars: exact to wrong\n"
+        "Exact transitions are identical under both fifth conventions; full exact/fifth/relative/parallel/other matrices remain in the result JSON.",
+    )
+    for axis, domain, title in zip(
+        axes,
+        ("beatport", "fmak"),
+        ("Beatport validation (126)", "FMAK validation (250)"),
+        strict=True,
+    ):
+        x = np.arange(len(rows))
+        promotions = [r[domain]["repo_symmetric_fifths"]["exact_promotions"] for _, r in rows]
+        demotions = [r[domain]["repo_symmetric_fifths"]["exact_demotions"] for _, r in rows]
+        axis.bar(x, promotions, color=BLUE, label="Wrong → exact", width=0.5)
+        axis.bar(x, [-n for n in demotions], color=ORANGE, label="Exact → wrong", width=0.5)
+        axis.axhline(0, color="#64748b", linewidth=0.8)
+        for i, (up, down) in enumerate(zip(promotions, demotions, strict=True)):
+            axis.text(i, up + 0.35, f"+{up}", ha="center")
+            axis.text(i, -down - 0.6, f"−{down}", ha="center", va="top")
+        limit = max(promotions + demotions) + 4
+        axis.set(
+            title=title,
+            ylabel="Tracks",
+            xticks=x,
+            xticklabels=[label for label, _ in rows],
+            ylim=(-limit, limit),
+        )
+        axis.legend(frameon=False, loc="upper right", fontsize=8)
+    save(figure, study, "paired-exact-movements")
+
+
 def temporal() -> None:
     base = "studies/k10-temporal/data/"
     report = read(base + "result13.json")
@@ -424,6 +551,9 @@ def main() -> None:
             "svg.hashsalt": "drone-research-v1",
         }
     )
+    from tools.check_optimizer_reports import check
+
+    check()
     memory_curve()
     pipeline()
     chunk_summary()
@@ -443,6 +573,14 @@ def main() -> None:
     paired_result(
         "pitch-circle", "Pitch-circle sharing: fixed pilot missed the accuracy gate", "Pitch-circle"
     )
+    paired_result("k10-sam", "Fixed SAM pilot: accuracy gate failed", "SAM + AdamW")
+    sam_history()
+    ensemble_summary()
+    exact_movements("k10-sam")
+    exact_movements("k10-ensemble")
+    INPUTS["_optimizer_checker_sha256"] = hashlib.sha256(
+        (ROOT / "tools/check_optimizer_reports.py").read_bytes()
+    ).hexdigest()
     INPUTS["_generator_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     INPUTS["_uv_lock_sha256"] = hashlib.sha256((ROOT / "uv.lock").read_bytes()).hexdigest()
     INPUTS["_matplotlib_version"] = matplotlib.__version__

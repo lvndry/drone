@@ -16,6 +16,8 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [Pitch-circle sharing](studies/pitch-circle/REPORT.md) | Retain octaves while sharing transposition patterns | Seed-13 pilot rejected; FMAK exact −0.40 points, no confirmation. |
 | [Tonal key ranker](studies/tonal-key-ranker/REPORT.md) | Test candidate-relative harmonic summaries with a small nonlinear scorer | Fixed descriptor/tree recipe loses substantially; stop this route. |
 | [Frozen temporal heads](studies/k10-temporal/REPORT.md) | Test whether full-track hidden features and order improve exact accuracy | Ordered head loses 5.60 FMAK exact points; candidate and mechanism gates fail. |
+| [Fixed SAM](studies/k10-sam/REPORT.md) | Improve accuracy through one sharpness-aware update recipe | Canonical pilot loses weighted and exact accuracy; no confirmation or rescue. |
+| [Fixed probability ensemble](studies/k10-ensemble/REPORT.md) | Qualify a stronger own-data teacher from joint seeds 13/37/73 | Beatport improves, canonical FMAK regresses; teacher and separate BP-reference gates fail. No distillation. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
