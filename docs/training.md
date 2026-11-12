@@ -586,3 +586,13 @@ missing means **unknown exposure**, not clean. Preserve checkpoint provenance wh
 fine-tuning repeatedly. Saved provenance keeps inherited fitting/validation IDs
 and training hashes and adds only actual filtered new base and correction-fit
 exposure, so excluded-but-unseen held-out files are not falsely marked trained.
+
+The [recorded integration smoke](../tests/evidence/corrections-integration-smoke.json)
+uses only the approved Beatport fitting pool, an internal SHA-based split, a fresh
+three-epoch baseline and 48 synthetic corrections, followed by the fixed ten-epoch
+fine-tuner. It verifies the complete data/model/report path and post-fit exposure
+guards without consuming reserved benchmarks or private audio. The software's
+legacy `giantsteps` report field denotes the supplied fitting-only inner holdout
+in this smoke; it is not an actual GiantSteps result. This is software validation,
+not evidence that personal corrections improve accuracy. The full driver, inputs
+and report remain at the recorded server root with their hashes.
