@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 from pathlib import Path
@@ -322,6 +323,98 @@ def capacity_history() -> None:
     save(figure, "k10-capacity", "training-history")
 
 
+def temporal() -> None:
+    base = "studies/k10-temporal/data/"
+    report = read(base + "result13.json")
+    provenance = read(base + "provenance.json")
+    names = ["Canonical", "M", "O", "S"]
+    figure, axes = canvas(
+        "Frozen temporal heads: fixed pilot reduced accuracy",
+        2,
+        "Seed 13 · Beatport 126 / FMAK 250 reused development recordings · full-track frozen features\n"
+        "M: permutation-invariant control; O: ordered head; S: shuffled head. Each head uses its selected epoch.",
+    )
+    x = np.arange(4)
+    for domain, label, offset, color in (
+        ("beatport", "Beatport", -0.18, BLUE),
+        ("fmak", "FMAK", 0.18, ORANGE),
+    ):
+        metrics = [report["canonical_metrics"][domain]] + [
+            report["arms"][arm]["metrics"][domain] for arm in "MOS"
+        ]
+        for axis, metric, title in zip(
+            axes, ("exact", "mirex"), ("Exact key accuracy", "Symmetric-fifth MIREX"), strict=True
+        ):
+            values = [m[metric] * 100 for m in metrics]
+            bars = axis.bar(x + offset, values, width=0.36, color=color, label=label)
+            axis.bar_label(bars, fmt="%.1f", fontsize=9, padding=3)
+            axis.set(xticks=x, xticklabels=names, ylabel="Percent", title=title, ylim=(0, 105))
+            axis.legend(frameon=False, loc="upper right")
+    save(figure, "k10-temporal", "selected-results")
+    figure, axes = canvas(
+        "Fitting improved while development cross entropy worsened",
+        3,
+        "Training CE weights fitting recordings equally; development CE weights the two domains equally.\n"
+        "Dashed line marks the exact-first selected epoch. Curves describe one fixed cohort, not independent replication.",
+    )
+    for axis, arm in zip(axes, "MOS", strict=True):
+        relative = base + f"history-{arm}.json.gz"
+        compressed = (EXP / relative).read_bytes()
+        INPUTS[relative] = hashlib.sha256(compressed).hexdigest()
+        record = provenance["artifacts"][f"history-{arm}.json.gz"]
+        decoded = gzip.decompress(compressed)
+        if (
+            INPUTS[relative] != record["sha256"]
+            or hashlib.sha256(decoded).hexdigest() != record["decoded_sha256"]
+        ):
+            raise ValueError("Temporal history identity mismatch")
+        history = json.loads(decoded)
+        epochs = [row["epoch"] for row in history]
+        axis.plot(epochs, [row["loss"] for row in history], color=BLUE, label="Fitting")
+        axis.plot(
+            epochs, [row["selection"]["ce"] for row in history], color=ORANGE, label="Development"
+        )
+        axis.axvline(
+            report["arms"][arm]["best_epoch"], color="#64748b", linestyle="--", linewidth=1
+        )
+        axis.set(
+            title={"M": "M: nonlinear mean", "O": "O: ordered", "S": "S: shuffled"}[arm],
+            xlabel="Epoch",
+            ylabel="Cross entropy",
+            ylim=(0, 2.4),
+        )
+        axis.legend(frameon=False, loc="upper left", fontsize=9)
+    save(figure, "k10-temporal", "learning-curves")
+    figure, axes = canvas(
+        "FMAK paired exact-accuracy movements",
+        1,
+        "2,000 paired track bootstrap resamples · descriptive 95% percentile intervals · one encoder/head cohort\n"
+        "Intervals omit artist dependence and selection bias; they are not seed uncertainty or evidence from an untouched test set.",
+    )
+    rows = [(f"{arm} − canonical", report["paired_uncertainty"][arm]["fmak"]) for arm in "MOS"]
+    rows += [
+        (f"O − {arm}", report["ordered_contrasts"][arm]["paired_uncertainty"]["fmak"])
+        for arm in "MS"
+    ]
+    for i, (_, row) in enumerate(rows):
+        stat = row["statistics"]["exact"]
+        value = stat["delta"] * 100
+        low, high = [v * 100 for v in stat["paired_track_bootstrap_95"]]
+        axes[0].plot([low, high], [i, i], color=BLUE, linewidth=2)
+        axes[0].plot(value, i, "o", color=BLUE)
+        axes[0].text(high + 0.3, i, f"{value:+.1f} pp", va="center", fontsize=9)
+    axes[0].axvline(0, color="#64748b", linewidth=1)
+    axes[0].set(
+        yticks=range(5),
+        yticklabels=[r[0] for r in rows],
+        xlabel="Exact accuracy difference (percentage points)",
+        xlim=(-12, 5),
+    )
+    axes[0].invert_yaxis()
+    figure.subplots_adjust(left=0.20)
+    save(figure, "k10-temporal", "paired-exact")
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -343,6 +436,7 @@ def main() -> None:
     )
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
+    temporal()
     paired_result(
         "tonal-key-ranker", "Tonal summaries and trees: fixed pilot rejected", "Tonal ranker"
     )

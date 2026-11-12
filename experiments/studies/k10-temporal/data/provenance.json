@@ -1,0 +1,98 @@
+{
+  "executed_source_commit": "0cbb93ecd40e55be9ae239687287ff9b9268064e",
+  "source_tag": "research/k10-temporal-v1",
+  "server_root": "/home/lysk-admin/drone-experiments/k10-temporal-20261112-v1",
+  "source_archive_sha256": "c097cd58e95d605f6e7bd8122b066586ca908bcd8fb3b8ca218b68d1f2f059bc",
+  "artifacts": {
+    "result13.json": {
+      "sha256": "b31fe60c57a699bbaf95b409910312b10aa661c587a87494916b6bd22ac5882e",
+      "bytes": 100852,
+      "format": "original JSON bytes"
+    },
+    "preflight.json": {
+      "sha256": "50582e7080e0cceff48802f7018dc2edda4e576afb78fb232d8e1cd37aa02cca",
+      "bytes": 824,
+      "format": "original JSON bytes"
+    },
+    "reconstruction.json": {
+      "sha256": "c8641e5da3f694996dad6bea4ce77eff8b680fcd7931c06f7c21711af2a83c0a",
+      "bytes": 895,
+      "format": "original JSON bytes"
+    },
+    "cache-identity.json": {
+      "sha256": "9b95fff12ea5655c2f31c4e3caa0374a759d6ec33516f04808cf54acb5dea639",
+      "bytes": 5124,
+      "format": "original JSON bytes"
+    },
+    "head-identity.json": {
+      "sha256": "ab7d588954c475f84baf6265d74e01167548b07959dce59c7024eed0ef45c905",
+      "bytes": 3123,
+      "format": "original JSON bytes"
+    },
+    "history-M.json.gz": {
+      "sha256": "5e57b60bab13e5215e191553d8ca21d11869e48f14e3c0eea3fc2dfbd1d6b373",
+      "bytes": 5672,
+      "decoded_sha256": "3a19836c9502c4b95aac67b3e34561a136661de546929804e952fed3aeb111c9",
+      "decoded_bytes": 204911,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "schedules-M.json.gz": {
+      "sha256": "0c851414eee2a880533ea86ba63d52c58ff6a81d2443d5f320a16d86a15db604",
+      "bytes": 684,
+      "decoded_sha256": "f9198addfd54befbc0b8ab31aaa694df991d2078bec5c8fafe3b7fa3f19af9ee",
+      "decoded_bytes": 2477,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "validation-M.json": {
+      "sha256": "e09fd7077434e89f0c3c846a8ba703a623d82c16c794ebdcb4452e73a915d9c9",
+      "bytes": 294478,
+      "format": "original JSON bytes"
+    },
+    "history-O.json.gz": {
+      "sha256": "749f8517842d39ff01b9ae3282ad0225e94b1e1597b4e615cad91ce3e3a0e32a",
+      "bytes": 9177,
+      "decoded_sha256": "0b252c8e10eee480077a530c8d7ccbb235da47fed81f3b82b429fef7f2686555",
+      "decoded_bytes": 362558,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "schedules-O.json.gz": {
+      "sha256": "6d908cb7f278fa3c18953065f62b5a1ca6968826f03bcd4ef91b39c6ed55ab5f",
+      "bytes": 1109,
+      "decoded_sha256": "ca3ac481234c3dcd12de1a5f4372381ad314f0e9dc73c435f77f7473c20e58ee",
+      "decoded_bytes": 4387,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "validation-O.json": {
+      "sha256": "7d5cbb0001d83d18c508b9cab063138b584af1ef991229f456fe191acf497351",
+      "bytes": 294054,
+      "format": "original JSON bytes"
+    },
+    "history-S.json.gz": {
+      "sha256": "e048b6f525bd4780cfc596fbcec66a64d2f11ba349edbb5f1cfb422d75b1bf71",
+      "bytes": 9708,
+      "decoded_sha256": "c0799aab7912891578c9d82c3578584bf8d0355ef9f540a1b9f20f558dac7ffb",
+      "decoded_bytes": 378314,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "schedules-S.json.gz": {
+      "sha256": "48ee17b19f3a16a9865a3f2107ac96ad381fad1e54716502599827ff267dbd13",
+      "bytes": 2710817,
+      "decoded_sha256": "c10fa444dd6207f69ea11df9531334b789552b39b228b75ccb18262488f526a4",
+      "decoded_bytes": 5665266,
+      "format": "gzip; decoded bytes identical to executed JSON"
+    },
+    "validation-S.json": {
+      "sha256": "8cd35297b353646ea74ba173fdc1c99345c8e4a94b6ae8a26ac6384a83373cf2",
+      "bytes": 294040,
+      "format": "original JSON bytes"
+    }
+  },
+  "executed_files_sha256": {
+    "experiments/temporal_model.py": "9e68b4c00d8e0dfc8bf99a7b44fa6390e12fce06d5ce9f871be96fa654c47e0a",
+    "experiments/temporal_cache.py": "66febd98ff8c68bdbed3ee01145d90f600886f16d1fff6bf2bebaa354e99f49a",
+    "experiments/temporal_study.py": "d5419920dc9593a075acd077352538211b71ce8bd442192b41b8bc390d61e6b1",
+    "experiments/temporal_cpu.py": "28a0849a9e4a05f9443f7e1d3abca52c516ddbd286cc2715c85d94988e741853",
+    "experiments/studies/k10-temporal/PROTOCOL.md": "2a0f0b07347f2310e2caccc140a4976bc02d10dbd24859b336a7eadf3961971f",
+    "tests/test_temporal.py": "41d302f469b6e051d0641ee1d424581f5664fa729a7d2005e015df1a9ff59a3d"
+  }
+}
