@@ -3,13 +3,20 @@
 from __future__ import annotations
 
 import copy
+import random
 
+import numpy as np
 import pytest
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
-from experiments.musicfm_teacher import KeyTeacher, accumulated_update, make_optimizer
+from experiments.musicfm_teacher import (
+    KeyTeacher,
+    accumulated_update,
+    make_optimizer,
+    seed_training,
+)
 
 
 class ToyBackbone(nn.Module):
@@ -30,7 +37,32 @@ class ToyBackbone(nn.Module):
 
 
 def examples() -> list[tuple[Tensor, int]]:
-    return [(torch.full((1, 1025), (i + 1) / 32), i % 24) for i in range(32)]
+    return [(torch.full((1, 1200), (i + 1) / 32), i % 24) for i in range(32)]
+
+
+def test_training_seed_is_reset_after_an_upstream_constructor_changes_it() -> None:
+    def draw() -> tuple[float, float, Tensor]:
+        return random.random(), float(np.random.random()), torch.rand(4)
+
+    seed_training()
+    expected = draw()
+    random.seed(142)
+    np.random.seed(142)
+    torch.manual_seed(142)
+    seed_training()
+    actual = draw()
+    assert actual[:2] == expected[:2]
+    assert torch.equal(actual[2], expected[2])
+
+
+def test_single_microbatch_rejects_one_encoded_position_before_update() -> None:
+    teacher = KeyTeacher(ToyBackbone())
+    optimizer = make_optimizer(teacher)
+    batch = examples()
+    batch[0] = (torch.zeros(1, 1199), 0)
+    with pytest.raises(ValueError, match="1200 samples"):
+        accumulated_update(teacher, optimizer, batch, amp=False)
+    assert not optimizer.state
 
 
 def test_head_is_reproducible_and_does_not_consume_global_rng() -> None:
@@ -80,7 +112,7 @@ def test_nonfinite_loss_aborts_before_optimizer_commit() -> None:
     optimizer = make_optimizer(teacher)
     before = copy.deepcopy(teacher.state_dict())
     batch = examples()
-    batch[17] = (torch.full((1, 1025), float("nan")), 3)
+    batch[17] = (torch.full((1, 1200), float("nan")), 3)
     with pytest.raises(ValueError, match="Nonfinite microbatch loss"):
         accumulated_update(teacher, optimizer, batch, amp=False)
     assert not optimizer.state

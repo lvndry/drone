@@ -37,6 +37,14 @@ nominal Beatport mass 1230/2206 and total 264,960 draws; freeze a deterministic
 within-update interleave and independent crop RNG before execution. Microbatch
 one is not batch 32 for BatchNorm.
 
+Upstream construction resets Torch and Python RNGs to 142. Explicitly reset
+Python, NumPy, Torch CPU and CUDA training RNGs to 13 **after** construction and
+strict checkpoint loading; the independently seeded head alone is insufficient.
+Training microbatches need at least 1,200 samples: five mel steps yield two
+subsampled positions for microbatch-one Conformer BatchNorm. This differs from
+the evaluation frontend's >1,024-sample minimum. The current cohort's shortest
+track is over 11 seconds, so this training constraint excludes no admitted track.
+
 FP32 parameters, frontend, gradients and Adam moments; BF16 encoder/head autocast,
 TF32 off, eager attention. AdamW backbone/head LR 1e-5/1e-4, weight decay 0.01,
 betas (0.9, 0.999), epsilon 1e-8, no fused/foreach. Cosine decay over 120 virtual

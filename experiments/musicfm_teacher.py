@@ -3,13 +3,25 @@
 from __future__ import annotations
 
 import math
+import random
 from collections.abc import Sequence
 
+import numpy as np
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
 ACCUMULATION = 32
+MIN_TRAIN_SAMPLES = 1200  # Five mel steps -> two positions for microbatch-one BatchNorm.
+
+
+def seed_training(seed: int = 13) -> None:
+    """Call AFTER upstream construction/strict load; its quantizer resets seed to 142."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_initialized():
+        torch.cuda.manual_seed_all(seed)
 
 
 class KeyTeacher(nn.Module):
@@ -73,10 +85,15 @@ def accumulated_update(
     if any(type(label) is not int or not 0 <= label < 24 for _, label in examples):
         raise ValueError("Targets must be integer Drone classes 0–23")
     if any(
-        wave.ndim != 2 or wave.shape[0] != 1 or wave.dtype != torch.float32 or wave.shape[1] <= 1024
+        wave.ndim != 2
+        or wave.shape[0] != 1
+        or wave.dtype != torch.float32
+        or wave.shape[1] < MIN_TRAIN_SAMPLES
         for wave, _ in examples
     ):
-        raise ValueError("Each microbatch needs one actual-length FP32 waveform")
+        raise ValueError(
+            "Each microbatch needs one actual-length FP32 waveform of at least 1200 samples"
+        )
     device = teacher.head.weight.device
     if amp and device.type != "cuda":
         raise ValueError("The prospective AMP recipe requires CUDA BF16")
