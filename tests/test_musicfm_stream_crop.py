@@ -104,3 +104,24 @@ def test_watchdog_stops_and_reaps_stalled_decoder(tmp_path: Path) -> None:
     with pytest.raises(ProcessLookupError):
         os.kill(int(pidfile.read_text()), 0)
     assert time.monotonic() - began < 5
+
+
+def test_watchdog_remains_active_after_stdout_eof(tmp_path: Path) -> None:
+    program = "import os,time;os.write(1,b'\\0'*4);os.close(1);time.sleep(30)"
+    began = time.monotonic()
+
+    def watch() -> None:
+        if time.monotonic() - began > 0.2:
+            raise RuntimeError("post-EOF watchdog")
+
+    with pytest.raises(RuntimeError, match="post-EOF watchdog"):
+        stream_crop(
+            [sys.executable, "-c", program],
+            samples=1,
+            waveform_sha256=hashlib.sha256(b"\0" * 4).hexdigest(),
+            start=0,
+            length=1,
+            stderr=tmp_path / "stderr",
+            watch=watch,
+        )
+    assert time.monotonic() - began < 2

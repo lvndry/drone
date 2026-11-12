@@ -34,7 +34,7 @@ def stream_crop(
 ) -> NDArray[np.float32]:
     """Return a copied exact F32LE crop only after hashing every decoded sample.
 
-    Watchdog calls are at most 50 ms apart while reading/waiting (sampled, not
+    Watchdog calls target a 50 ms cadence while reading/waiting (sampled, not
     an instantaneous allocation limit), and forced before/after the command.
     A crop is withheld on corruption anywhere, including AFTER its own end.
     Every stderr byte is preserved. Exceptions terminate only this process group.
@@ -81,7 +81,17 @@ def stream_crop(
                 if lo < hi:
                     crop.extend(block[lo - position : hi - position])
                 position = end
-            code = process.wait(timeout=5)
+            terminal_deadline = time.monotonic() + 5
+            while True:
+                watch()
+                remaining = terminal_deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError("Decoder did not exit after closing stdout")
+                try:
+                    code = process.wait(timeout=min(0.05, remaining))
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
             watch()
             if code != 0:
                 raise ValueError(f"Full decoder exit={code}; stderr retained")
