@@ -45,24 +45,12 @@ def configure_gpu() -> dict[str, Any]:
     validate_device_identity(torch.cuda.device_count(), torch.cuda.get_device_properties(0).uuid)
     torch.set_num_threads(2)
     torch.set_num_interop_threads(1)
-    torch.backends.cuda.matmul.allow_tf32 = False
-    torch.backends.cudnn.allow_tf32 = False
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(False)
+    from experiments.k10_gpu1_resource import configure_backend
+
+    backend = configure_backend()
     total = torch.cuda.get_device_properties(0).total_memory
     torch.cuda.set_per_process_memory_fraction(POLICY["allocator_bytes"] / total, 0)
-    return {
-        "global_deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
-        "cudnn_deterministic": torch.backends.cudnn.deterministic,
-        "cudnn_benchmark": torch.backends.cudnn.benchmark,
-        "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32,
-        "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
-        "dtype": "float32",
-        "device": "cuda:0",
-        "seed": 13,
-        "bitwise_training_guaranteed": False,
-    }
+    return backend
 
 
 def arm(

@@ -62,3 +62,30 @@ cluster bootstrap replicates (seed 20261112) and fixed duration strata. These ar
 one-seed, adaptive-development diagnostics; BP identity gaps and five inner
 5–10 minute House examples in three groups prevent primary long-house acceptance.
 No reserved calibration/confirmation, historical final or private DJ input is used.
+
+## Qualified execution amendment
+
+The corrected v3 resource qualification (source 57e0fac2b63a242e2d96d86f6fcc0be4d8831bc0,
+config 132978eae5395599d7e9ed0da0a12ef62ad7fd5f13646bb06d9147076577728c)
+completed three disposable optimizer commits and full 376-song finite-only selection
+plus four envelope inputs for each model. It establishes bounded resource
+feasibility, not accuracy. Earlier failed qualifications remain failed.
+
+The prospective whole pair has fixed caps of 1,800 wall seconds, 3,600 aggregate
+CPU seconds, 8 GiB whole-tree RSS and 512 MiB owned output. Warm update and selection
+costs project about 12 minutes for both arms before real CQT sampling, transfers,
+checkpointing and monitoring; the cap allows data/I/O overhead and contingency,
+not a completion promise. GPU thresholds and the 0.15-second parent sampling target
+remain the qualified policy. Worker heartbeat age is at most 0.6 seconds; its large
+config SHA is computed once. All qualified shared source bytes, runtime closure,
+protected identities, model initialization, historical control and uncertainty
+groups are checked before model construction. No launch follows this document:
+a separate root-reviewed source/config/UTC-bound permit is required.
+
+The guardian uses a new process for each model and verifies owned GPU allocation
+release between them. It conservatively stops if any protected active-job start
+disappears; it never signals those jobs or automatically retires their guards.
+If the second arm fails, retain the completed baseline and partial candidate without
+retry or continuation. Compute metadata-cluster intervals, paired movements and
+actual-duration strata only after both GPU workers have exited. These diagnostic
+analyses consume no additional model evaluations or reserved examples.
