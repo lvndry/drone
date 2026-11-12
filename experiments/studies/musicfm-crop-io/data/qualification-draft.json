@@ -1,0 +1,116 @@
+{
+  "affinity": [
+    8,
+    9
+  ],
+  "deadline_epoch": null,
+  "duration_manifest_sha256": "9f2db5efe4cbe2904508d8004f842acd29e90c6bc7f68612679c68993c439de0",
+  "ffmpeg": "/usr/bin/ffmpeg",
+  "ffmpeg_sha256": "ed16af623947494a72e284b6eb8ff225f2da22b38b5d5069c2fd4b4ba3384e41",
+  "first16_plan_sha256": "5fbbc3e28ef085356ad4c743a4a64d0fde6b6b67bf5e7b16c83e23728113ad82",
+  "not_before_epoch": null,
+  "plan_sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
+  "rows": [
+    {
+      "canonical_samples": 3296475,
+      "id": "fmak:069068",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/069068.mp3",
+      "sha256": "425268f852c487b8cf95c3fa52f645bdb83218d7cdce7dab4eca3a4ca1bf7f7d"
+    },
+    {
+      "canonical_samples": 1074816,
+      "id": "fmak:030978",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/030978.mp3",
+      "sha256": "817bf3aa468995866269bec54ab65d5aa381c634cf560b5ee9e5ebe8bb097dcf"
+    },
+    {
+      "canonical_samples": 3031875,
+      "id": "fmak:081773",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/081773.mp3",
+      "sha256": "427b138eda9dfc51267926d40fc66e174a7da34fbf3b4fa669b4d00d8cc6150d"
+    },
+    {
+      "canonical_samples": 3356928,
+      "id": "fmak:083159",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/083159.mp3",
+      "sha256": "8ff81a5058c54f4883f57f70fbb93b629528357a68dc2c9f9369838a33f66fa7"
+    },
+    {
+      "canonical_samples": 3318966,
+      "id": "fmak:102153",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/102153.mp3",
+      "sha256": "58ab720c11dd287f3295764af41ef153f892dde0f68508c1606ee43f2e7b3c32"
+    },
+    {
+      "canonical_samples": 4239936,
+      "id": "fmak:081450",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/081450.mp3",
+      "sha256": "7abeb181a4ec2b847741f9e2c818af00f1bea9ab67fb8fe8c18c78403a25cf92"
+    },
+    {
+      "canonical_samples": 5639040,
+      "id": "fmak:010388",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/010388.mp3",
+      "sha256": "98147d2e497a4a800d925574817847f02005a90da3f7deb296ff5c3356611fc7"
+    },
+    {
+      "canonical_samples": 4794552,
+      "id": "fmak:108167",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/108167.mp3",
+      "sha256": "ef8597fab31e8fd1a7ae760ae6169baf878aa8198228c350facf1e44478b3033"
+    },
+    {
+      "canonical_samples": 5301253,
+      "id": "fmak:066314",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/066314.mp3",
+      "sha256": "37ea6d935e4e9c0897a44835a16fa1e02877c60430453d32600639f4d6f43da0"
+    },
+    {
+      "canonical_samples": 6216336,
+      "id": "fmak:051421",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/051421.mp3",
+      "sha256": "db0398107c9c9059bb59479a354ce076e899bac4389bb75e9874776d3988e8b9"
+    },
+    {
+      "canonical_samples": 8269056,
+      "id": "fmak:011307",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/011307.mp3",
+      "sha256": "a26f6bafb49b9c8d0aefec940f594e8aff7a9514b1d1a2305cca1286a1c1b1b2"
+    },
+    {
+      "canonical_samples": 47520553,
+      "id": "fmak:082660",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/082660.mp3",
+      "sha256": "a2c72ef62fd1936b79beeb0027292e136de98b8bd6cfa2227148b9f2f72b70cb"
+    },
+    {
+      "canonical_samples": 2646000,
+      "id": "beatport:297268",
+      "path": "/home/lysk-admin/key-cnn/data/audio/audio/297268 Quantum - Power Chip (Original Mix).mp3",
+      "sha256": "2818f1fd0c7d67bed589863f7434356218673f64a883cee03bee2a83ff12711b"
+    },
+    {
+      "canonical_samples": 2646000,
+      "id": "beatport:3676879",
+      "path": "/home/lysk-admin/key-cnn/data/audio/audio/3676879 Hektik, Havok - Da Powa (Original Mix).mp3",
+      "sha256": "24bb6d4eb2a05d873a5f56701c39411b61e26c9e7359ba3462bcd926fcc0fa3f"
+    },
+    {
+      "canonical_samples": 4809483,
+      "id": "fmak:055121",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/055121.mp3",
+      "sha256": "3f7caacb175d0c7e58b01d13ffab0e352b9e46a73ae8e7b3f4a7572b00edfe16"
+    },
+    {
+      "canonical_samples": 3651351,
+      "id": "fmak:019718",
+      "path": "/home/lysk-admin/drone-data/fmakv2/audio/019718.mp3",
+      "sha256": "2097b9bdb7704a3b9c01e182cc0f79dcfb36b1aaf53aa7d63d354b7ccec22f46"
+    }
+  ],
+  "runtime_file_sha256": {},
+  "status": "prospective_requires_root_window_and_runtime_receipt",
+  "supervisor_source_sha256": "3a0f25eb6a6349e75889cf8a3d40052e853448349b7d65823dada53fee8b5995",
+  "threads": 1,
+  "tool_sha256": "ab819efdfa30d5bc8f58e65654e6c9f70d1e5b804f37035f216ee0528f76ca9e"
+}
