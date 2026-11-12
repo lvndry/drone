@@ -11,8 +11,9 @@ inner-selection panels, not an independent final test or a CPU performance resul
 
 Could recovering additional FMA fitting data improve this small classifier without
 changing its deployed architecture? The [component-first proposal](../v2-data-contract/REPORT.md)
-retired historical roles and fixed a new whole-component assignment **before label
-inspection**, using one deterministic seed. Its restricted fitting pool retains the
+retired historical roles and fixed a new whole-component assignment using a
+**label-independent metadata rule** and one deterministic seed. Its restricted
+fitting pool retains the
 old 976 FMA records; the expanded pool adds eligible records on the same new inner
 panels. Old final recordings can enter the new fitting pool: the exposure ledger is
 explicit, and the old benchmarks do not become pristine through repartitioning.
@@ -108,7 +109,8 @@ Exact gains/losses are **11/8 BP** and **12/8 FMA**. Full per-ID predictions, la
 error changes and both relation-transition matrices are retained in compressed
 supplementary evidence. The net four FMA gains do not meet the required five.
 The expanded arm sees each FMA identity only29–30 times, versus120–121 restricted;
-all identities are visited, but equal updates undertrain each expanded identity.
+all identities are visited, but expanded fitting receives fewer views per record.
+This does not establish underfitting or show that longer training would help.
 Both arms see the same147,733 BP draws; each sees117,227 FMA draws. This estimates
 expanded-data value at this matched update budget, not the best achievable larger-data
 accuracy after additional optimization. No extra seed, epoch or gate rescue was run.
