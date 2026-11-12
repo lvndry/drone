@@ -109,9 +109,16 @@ def test_disposable_probe_uses96synthetic_targets_and_no_task_scores(
     targets, evals = patch_training(monkeypatch)
     ids = [str(i) for i in range(16)]
     rows = {i: {"role": "fit", "samples": 288000, "target": 999} for i in ids}
-    result = pilot.probe(toy(), rows, ids, ["selection"] * 376, lambda: None, FakeProvider())  # type: ignore[arg-type]
+    result = pilot.probe(
+        toy(),
+        rows,
+        ids,
+        {"beatport": ["b"] * 126, "fmak": ["f"] * 250},
+        lambda: None,
+        FakeProvider(),
+    )  # type: ignore[arg-type]
     assert targets == [[((32 * u + i) % 24) for i in range(32)] for u in range(3)]
-    assert evals == [False]
+    assert evals == [False, False]
     assert result["synthetic_target_updates"] == 3
     assert not result["task_scores_computed"] and not result["weights_saved_or_reused"]
     assert "predictions" not in result["validation"]

@@ -204,6 +204,47 @@ def evaluate_panel(
     }
 
 
+def evaluate_selection_schedule(
+    teacher: KeyTeacher,
+    panels: dict[str, list[str]],
+    rows: dict[str, dict[str, Any]],
+    watch: Callable[[], None],
+    *,
+    collect_logits: bool,
+    batch_size: int = 1,
+) -> dict[str, Any]:
+    """Replay fit's separate BP/FMA calls, including each domain's partial batches."""
+    if set(panels) != {"beatport", "fmak"}:
+        raise ValueError("Explicit BP and FMA selection panels required")
+    measured = [
+        evaluate_panel(
+            teacher,
+            panels[domain],
+            rows,
+            watch,
+            collect_predictions=False,
+            collect_logits=collect_logits,
+            batch_size=batch_size,
+        )
+        for domain in ("beatport", "fmak")
+    ]
+    return {
+        "tracks": sum(panel["tracks"] for panel in measured),
+        "windows": sum(panel["windows"] for panel in measured),
+        "elapsed_seconds": sum(panel["elapsed_seconds"] for panel in measured),
+        "per_song": [row for panel in measured for row in panel["per_song"]],
+        "domain_schedule": [
+            {"domain": domain, "ids": panels[domain], "tracks": panel["tracks"]}
+            for domain, panel in zip(("beatport", "fmak"), measured, strict=True)
+        ],
+        **(
+            {"logits": [row for panel in measured for row in panel["logits"]]}
+            if collect_logits
+            else {}
+        ),
+    }
+
+
 def load_teacher(config: dict[str, Any], output: Path, watch: Callable[[], None]) -> KeyTeacher:
     watch()
     weights = Path(config["weights"])
@@ -278,7 +319,7 @@ def probe(
     teacher: KeyTeacher,
     rows: dict[str, dict[str, Any]],
     ids: list[str],
-    selection: list[str],
+    selection: dict[str, list[str]],
     watch: Callable[[], None],
     provider: BatchProvider,
     batch_size: int = 1,
@@ -311,19 +352,13 @@ def probe(
     training_elapsed = time.monotonic() - phase_began
     training_cpu = cpu_seconds() - cpu_began
     validation_cpu = cpu_seconds()
-    panel = evaluate_panel(
-        teacher, selection, rows, watch, collect_predictions=False, collect_logits=batch_size == 16
+    panel = evaluate_selection_schedule(
+        teacher, selection, rows, watch, collect_logits=batch_size == 16
     )
     proof = None
     if batch_size == 16:
-        fast = evaluate_panel(
-            teacher,
-            selection,
-            rows,
-            watch,
-            collect_predictions=False,
-            collect_logits=True,
-            batch_size=16,
+        fast = evaluate_selection_schedule(
+            teacher, selection, rows, watch, collect_logits=True, batch_size=16
         )
         proof = compare_panels(panel, fast)
         panel.pop("logits")
@@ -453,18 +488,9 @@ def fit(
             )["state_dict"],
             strict=True,
         )
-        ordered = plan["bp_selection_guard"] + plan["fma_inner_selection"]
-        reference = evaluate_panel(
-            teacher, ordered, rows, watch, collect_predictions=False, collect_logits=True
-        )
-        fast = evaluate_panel(
-            teacher,
-            ordered,
-            rows,
-            watch,
-            collect_predictions=False,
-            collect_logits=True,
-            batch_size=16,
+        reference = evaluate_selection_schedule(teacher, panels, rows, watch, collect_logits=True)
+        fast = evaluate_selection_schedule(
+            teacher, panels, rows, watch, collect_logits=True, batch_size=16
         )
         selected_proof = compare_panels(reference, fast)
     return {
@@ -842,7 +868,7 @@ def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: i
                 teacher,
                 rows,
                 config["probe_ids"],
-                plan["bp_selection_guard"] + plan["fma_inner_selection"],
+                {"beatport": plan["bp_selection_guard"], "fmak": plan["fma_inner_selection"]},
                 watch,
                 provider,
                 config["eval_batch_size"],

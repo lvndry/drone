@@ -37,7 +37,9 @@ Thread-safe global watches are throttled while the stream helper samples cheaply
 ## Disposable cost versus real fit
 
 Cost uses the original fitting16 (fixed batch hash5fbbc3e2), exactly3×32 synthetic
-target examples, original strict-loaded MSD weights and real Adam state. It times
+target examples, original strict-loaded MSD weights and real Adam state. Crops use
+uniform legal whole-song starts keyed by draw seeds 0–95; synthetic classes cycle
+as draw ordinal modulo 24. These are not midpoint crops or constant class 0. It times
 compute/H2D/optimizer AFTER inputs resolve, records provider waits separately, and
 then validates all376 complete songs without GT scores or saved/reused weights.
 The16 are duration-stratified and include a35-minute source: do not extrapolate
@@ -69,7 +71,11 @@ new frontend, changed context or dropped tail. Out-of-order shape buckets are
 reassembled in each song's original window order before FP64 duration aggregation.
 
 With B16 the cost stage performs full376 B1 versus B16 composed comparison after
-its synthetic updates. Require absolute logit error≤1e-5 and zero argmax differences,
+its synthetic updates. Both audits replay fitting's BP126 pass followed by its
+separate FMA250 pass, flushing every domain's partial batches before concatenating
+outputs for the 376-song comparison. The selected-checkpoint audit uses exactly
+the same domain-separated schedule; a single joined pass would change batches.
+Require absolute logit error≤1e-5 and zero argmax differences,
 without GT scores. Fit configuration refuses a failed proof. After the fixed fit,
 the selected saved checkpoint receives the same label-blind composed audit; these
 two extra passes are not checkpoint selection opportunities. Failure blocks

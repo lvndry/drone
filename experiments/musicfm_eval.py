@@ -103,6 +103,8 @@ def compare_panels(reference: dict[str, Any], candidate: dict[str, Any]) -> dict
         (r["id"], r["samples"], r["windows"]) for r in candidate["per_song"]
     ]:
         raise ValueError("Composed proof panel order/context differs")
+    if reference.get("domain_schedule") != candidate.get("domain_schedule"):
+        raise ValueError("Composed proof domain batching schedule differs")
     left, right = np.asarray(reference["logits"]), np.asarray(candidate["logits"])
     if (
         left.shape != (376, 24)
@@ -119,6 +121,7 @@ def compare_panels(reference: dict[str, Any], candidate: dict[str, Any]) -> dict
         "max_absolute_logit_error": error,
         "argmax_disagreements": disagreements,
         "passed": error <= 1e-5 and disagreements == 0,
+        "domain_schedule": reference.get("domain_schedule"),
         "label_blind": True,
         "task_scores_computed": False,
     }

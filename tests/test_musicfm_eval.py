@@ -124,3 +124,69 @@ def test_heartbeat_allows_slow_query_but_not_dead_or_stale_guardian(
     ticks[0] = 2.0
     with pytest.raises(RuntimeError, match="guardian"):
         watch()
+
+
+def test_audit_replays_fit_domain_flushes_with_batch_sensitive_encoder(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import experiments.musicfm_pilot as pilot
+
+    class BatchSensitive(ToyBackbone):
+        def encoder(self, feature: torch.Tensor) -> tuple[None, list[torch.Tensor]]:
+            _, hidden = super().encoder(feature)
+            changed = hidden[0].clone()
+            changed[:, :, 0] += feature.mean()
+            return None, [changed] * 13
+
+    teacher = KeyTeacher(BatchSensitive())
+    panels = {
+        "beatport": [f"b{i}" for i in range(126)],
+        "fmak": [f"f{i}" for i in range(250)],
+    }
+    ids = panels["beatport"] + panels["fmak"]
+    rows = {identity: {"samples": 1200, "value": float(i % 17)} for i, identity in enumerate(ids)}
+
+    def wave(
+        row: dict[str, Any], start: int, length: int, watch: Callable[[], None]
+    ) -> torch.Tensor:
+        return torch.full((1, length), row["value"], dtype=torch.float32)
+
+    monkeypatch.setattr(pilot, "wave", wave)
+    fit_domains = [
+        evaluate_panel(
+            teacher,
+            panels[domain],
+            rows,
+            lambda: None,
+            collect_predictions=False,
+            collect_logits=True,
+            batch_size=16,
+        )
+        for domain in ("beatport", "fmak")
+    ]
+    expected = [row for panel in fit_domains for row in panel["logits"]]
+    audit = pilot.evaluate_selection_schedule(
+        teacher,
+        panels,
+        rows,
+        lambda: None,
+        collect_logits=True,
+        batch_size=16,
+    )
+    np.testing.assert_array_equal(audit["logits"], expected)
+    assert [p["tracks"] for p in audit["domain_schedule"]] == [126, 250]
+    assert audit["tracks"] == audit["windows"] == 376
+    joined = evaluate_panel(
+        teacher,
+        ids,
+        rows,
+        lambda: None,
+        collect_predictions=False,
+        collect_logits=True,
+        batch_size=16,
+    )
+    # 126%16=14 and250%16=10: joining crosses a domain boundary and changes logits.
+    assert not np.array_equal(joined["logits"], expected)
+    wrong_schedule = {**audit, "domain_schedule": [{"domain": "joined", "ids": ids}]}
+    with pytest.raises(ValueError, match="domain batching schedule"):
+        compare_panels(audit, wrong_schedule)
