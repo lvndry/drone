@@ -533,6 +533,28 @@ def continuation_gate(measured: dict[str, Any], controls: dict[str, Any]) -> dic
     }
 
 
+def bind_cost_provenance(config: dict[str, Any], cost: dict[str, Any]) -> None:
+    """A measured disposable probe must use the prospective fit's invariant recipe."""
+    expected = {
+        "source_sha256": config["source_sha256"],
+        "input_provider": config["input_provider"],
+        "pretrained_checkpoint_sha256": config["weight_sha256"],
+        "plan_sha256": config["plan_sha256"],
+        "labels_sha256": config["labels_sha256"],
+        "cache_manifest_sha256": config["cache_manifest_sha256"],
+        "identity_overlay_sha256": config["identity_overlay_sha256"],
+        "disk_cache_manifest_sha256": config["disk_cache_manifest_sha256"],
+        "decoder_reference_sha256": config["ram_config_sha256"],
+        "module_receipts": config["module_receipts"],
+        "canonical_bp_trace_sha256": config["canonical_bp_trace_sha256"],
+        "eval_batch": config["eval_batch_size"],
+        "seed_after_strict_load": 13,
+    }
+    observed = cost.get("provenance", {})
+    if any(key not in observed or observed[key] != value for key, value in expected.items()):
+        raise ValueError("Disposable cost source/data/evaluation provenance differs from fit")
+
+
 def make_plan(args: argparse.Namespace) -> dict[str, Any]:
     if (
         sha(args.plan) != PLAN_SHA
@@ -637,7 +659,7 @@ def make_plan(args: argparse.Namespace) -> dict[str, Any]:
     )
     if any(load(path)["bp_trace_sha256"] != augmented for path in controls.values()):
         raise ValueError("Old executed K10 augmented trace does not match frozen metadata replay")
-    return {
+    result = {
         "status": "PROPOSED_NO_EXECUTION_AUTHORIZATION",
         "canonical_bp_trace_sha256": canonical,
         "old_k10_augmented_trace_replay_sha256": augmented,
@@ -684,6 +706,9 @@ def make_plan(args: argparse.Namespace) -> dict[str, Any]:
         if args.mode == "fit"
         else None,
     }
+    if args.mode == "fit":
+        bind_cost_provenance(result, cost)
+    return result
 
 
 def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: int) -> None:
@@ -779,6 +804,10 @@ def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: i
         "plan_sha256": PLAN_SHA,
         "labels_sha256": LABEL_SHA,
         "cache_manifest_sha256": config["cache_manifest_sha256"],
+        "identity_overlay_sha256": config["identity_overlay_sha256"],
+        "disk_cache_manifest_sha256": config["disk_cache_manifest_sha256"],
+        "decoder_reference_sha256": config["ram_config_sha256"],
+        "module_receipts": config["module_receipts"],
         "seed_after_strict_load": 13,
         "runtime": {
             "python": sys.version,

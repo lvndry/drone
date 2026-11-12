@@ -248,3 +248,40 @@ def test_canonical_bp_trace_matches_interleaved_stream_without_comparing_old_for
             if draw.domain == "beatport":
                 actual.update(f"{draw.identity}:{draw.augmentation_seed}\n".encode())
     assert actual.hexdigest() == expected
+
+
+def test_cost_binding_rejects_changed_source_data_or_evaluation() -> None:
+    config = {
+        "source_sha256": {"driver": "frozen"},
+        "input_provider": "disk",
+        "weight_sha256": "original",
+        "plan_sha256": "plan",
+        "labels_sha256": "labels",
+        "cache_manifest_sha256": "canonical",
+        "identity_overlay_sha256": "physical",
+        "disk_cache_manifest_sha256": "disk",
+        "ram_config_sha256": "decoder",
+        "module_receipts": {"torch": "pinned"},
+        "canonical_bp_trace_sha256": "trace",
+        "eval_batch_size": 16,
+    }
+    provenance = {
+        **{
+            k: v
+            for k, v in config.items()
+            if k not in {"weight_sha256", "eval_batch_size", "ram_config_sha256"}
+        },
+        "pretrained_checkpoint_sha256": "original",
+        "decoder_reference_sha256": "decoder",
+        "eval_batch": 16,
+        "seed_after_strict_load": 13,
+        "config_sha256": "different-mode-window-budget-is-allowed",
+        "initial_state_sha256": "separately-checked-at-load",
+    }
+    pilot.bind_cost_provenance(config, {"provenance": provenance})
+    for field in provenance.keys() - {"config_sha256", "initial_state_sha256"}:
+        changed = {**provenance, field: "different"}
+        with pytest.raises(ValueError, match="provenance differs"):
+            pilot.bind_cost_provenance(config, {"provenance": changed})
+    with pytest.raises(ValueError, match="provenance differs"):
+        pilot.bind_cost_provenance(config, {"provenance": {}})
