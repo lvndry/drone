@@ -530,10 +530,17 @@ Evidence that would overturn or materially revise the conclusions above:
   architecture.
 
 
-## 11. Optional Euphoria correction fine-tuning
+<a id="11-optional-euphoria-correction-fine-tuning"></a>
 
-This optional workflow adapts an existing compatible K10 checkpoint to corrected
-keys, mixed with base fitting audio. It is separate from the confirmed release
+## 11. Optional annotation fine-tuning
+
+This optional workflow adapts an existing compatible K10 checkpoint to explicit
+human key annotations, mixed with base fitting audio. Drone is a reusable public
+classifier; Euphoria is its main consumer and its JSONL export is one adapter for
+those annotations, not a required core data source. Any producer may implement the
+unchanged portable schema documented in [DATA.md](../DATA.md#personal-corrections).
+Nothing is collected, uploaded or added to the public model automatically. It is
+separate from the confirmed release
 recipe above. No real correction dataset has established an accuracy gain or
 GiantSteps nonregression; synthetic tests exercise correctness only. No tuned
 checkpoint is automatically promoted or copied into `weights/`.
@@ -542,7 +549,7 @@ checkpoint is automatically promoted or copied into `weights/`.
    `uv run train.py prepare`. Fine-tuning requires these plus both correction
    manifests; `--data` can select another prepared directory.
 2. Save JSONL from `euphoria corrections export`. Run
-   `uv run train.py prepare-corrections --corrections corrections.jsonl --audio <folder>`.
+   `uv run --extra corrections train.py prepare-corrections --corrections corrections.jsonl --audio <folder>`.
    Schema 1 key corrections are matched recursively by full-file BLAKE3, with
    tempo-only corrections skipped and counted. Renaming does not break a match.
    Matching corrected GiantSteps audio is refused. Unmatched counts are printed;
@@ -598,3 +605,11 @@ legacy `giantsteps` report field denotes the supplied fitting-only inner holdout
 in this smoke; it is not an actual GiantSteps result. This is software validation,
 not evidence that personal corrections improve accuracy. The full driver, inputs
 and report remain at the recorded server root with their hashes.
+
+The optional `corrections` extra supplies BLAKE3 for file matching and synthetic
+annotation generation. Base inference, ordinary training, model export and schema
+parsing work without it; already prepared correction manifests do not need BLAKE3
+for fine-tuning. Default development installs include it so the existing tests
+remain usable. A local fine-tuning report does not establish a gain for Drone's
+public model: publishing new weights requires a separately declared provenance,
+rights and evaluation protocol.

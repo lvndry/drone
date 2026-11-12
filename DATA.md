@@ -36,9 +36,22 @@ retain provenance and review the distribution terms for any future model release
 
 ## Personal corrections
 
-`train.py prepare-corrections` accepts schema 1 JSONL from `euphoria corrections
-export`. Only corrected keys are fitting labels; tempo-only records are counted
-and skipped. Files are matched recursively by Euphoria's full-file BLAKE3 identity,
+Human annotations are optional explicit inputs, separate from Drone's public base
+model data. `train.py prepare-corrections` accepts portable schema 1 JSONL produced
+by `euphoria corrections export` or another tool implementing that adapter. Drone
+does not collect annotations automatically, read private libraries unless their
+folder is explicitly supplied, or upload audio/labels. Only corrected keys are
+fitting labels; tempo-only records are counted and skipped.
+
+Each line is a JSON object with `schema_version: 1`, a lowercase 64-hex-character
+`content_hash` (full-file BLAKE3), `corrected_key` (`tonic` integer 0–11 and `mode`
+`major`/`minor`, or null for a tempo-only record), and integer Unix-seconds
+`corrected_at`. Optional `detected_key` uses the same key object or null. Additional
+Euphoria display/tempo fields are accepted without becoming key-training targets.
+The format and existing helper/CLI names are unchanged. File-byte matching needs
+`uv sync --extra corrections` / `drone-key[corrections]`; schema parsing and core
+model use remain independent of BLAKE3. Files are matched recursively by
+Euphoria's full-file BLAKE3 identity,
 including tags. The export has no audio paths; preparation manifests contain local
 paths, SHA-256 identities and corrected labels. These personal manifests/audio are
 local inputs, not bundled package data. Keep only audio and labels you are
@@ -57,5 +70,8 @@ Missing legacy checkpoint witnesses remain unknown and are listed in
 `finetune.json`; passing available checks does not prove unknown historical
 exposure absent. Genuine inherited provenance is retained in tuned checkpoints,
 while new hashes describe only the filtered base and correction-fit audio actually
-sampled. Pre/post scores are descriptive; no measured real-world improvement is
-claimed. See [the workflow](docs/training.md#11-optional-euphoria-correction-fine-tuning).
+sampled. Pre/post scores are descriptive; no measured real-world or public-model
+improvement is claimed. Public-model training would require a separate, explicit
+annotation provenance/rights and evaluation decision; local inputs are not
+silently folded into a published model.
+See [the workflow](docs/training.md#11-optional-annotation-fine-tuning).
