@@ -61,6 +61,50 @@ def select_wheels(lock: Path) -> list[dict[str, Any]]:
     return result
 
 
+def compose_cpu_lock(original: Path, cpu_lock: Path, cpu_wheel: Path, output: Path) -> None:
+    if output.exists():
+        raise FileExistsError("preserve prior candidate lock")
+    old_text, cpu_text = original.read_text(), cpu_lock.read_text()
+    old = tomllib.loads(old_text)["packages"]
+    cpu = tomllib.loads(cpu_text)["packages"]
+    if (
+        len(cpu) != 1
+        or cpu[0]["name"] != "torchaudio"
+        or cpu[0]["version"] != "2.11.0+cpu"
+        or len(cpu[0]["wheels"]) != 1
+    ):
+        raise ValueError("exact official CPU build required")
+    if sha(cpu_wheel) != cpu[0]["wheels"][0]["hashes"]["sha256"]:
+        raise ValueError("CPU wheel integrity")
+    body = cpu_text.split("[[packages]]", 1)[1]
+    body = body.replace("wheels = [{ ", f"wheels = [{{ size = {cpu_wheel.stat().st_size}, ", 1)
+    parts = old_text.split("[[packages]]")
+    matches = 0
+    for index in range(1, len(parts)):
+        if tomllib.loads("[[packages]]" + parts[index])["packages"][0]["name"] == "torchaudio":
+            parts[index] = body
+            matches += 1
+    if matches != 1:
+        raise ValueError("one original TorchAudio entry required")
+    result = "[[packages]]".join(parts)
+    updated = tomllib.loads(result)["packages"]
+    if [p for p in old if p["name"] != "torchaudio"] != [
+        p for p in updated if p["name"] != "torchaudio"
+    ]:
+        raise ValueError("non-TorchAudio dependency changed")
+    output.write_text(result)
+    guard.write_json(
+        output.with_suffix(".assembly.json"),
+        {
+            "original_lock_sha256": sha(original),
+            "cpu_lock_sha256": sha(cpu_lock),
+            "cpu_wheel_sha256": sha(cpu_wheel),
+            "cpu_wheel_bytes": cpu_wheel.stat().st_size,
+            "composed_lock_sha256": sha(output),
+        },
+    )
+
+
 def provision(root: Path, base_python: Path) -> None:
     affinity = getattr(os, "sched_getaffinity", None)
     if affinity is None or affinity(0) != {8, 9}:

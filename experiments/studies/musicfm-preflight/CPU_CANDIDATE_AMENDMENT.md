@@ -35,3 +35,8 @@ formula, official CUDA guard or model source is modified.
 
 The same import-first checkpoint gate,2GiB payload/3GiB storage+sampledRSS/
 600 child CPU/1200 wall limits apply. No GPU probe is authorized by this amendment.
+
+Root prospectively amended the future GPU probe affinity to the same exact CPUs8–9,
+threads1, to avoid the independent cached audit on4–5. The resource tool validates
+that exact pair. This scheduling-only amendment precedes any GPU outcome; all
+shapes, precision, steps and memory envelope remain fixed. No GPU window yet.

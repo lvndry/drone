@@ -135,7 +135,7 @@ in the current inspection. Nothing here estimates teacher accuracy or asserts
 Root must review final source/config/environment and supply a NEW explicit UTC
 window of≤900s. Tool hard stops are600 child CPU seconds,600 worker wall seconds,
 8GiB sampled worker process-tree RSS and4GiB newly owned output storage (runtime caches redirected into that root); the earlier
-UTC deadline wins. Run parent and child on Linux CPUs4–5, all four numeric thread
+UTC deadline wins. Run parent and child on Linux CPUs8–9, all four numeric thread
 variables1, Torch intra/inter1. No CPU0/2, services changes or other GPU work.
 
 The root-supplied last-known GPU0 free memory is22971MiB; it is not newly measured
@@ -177,7 +177,7 @@ proposed and installed package versions, source/guard/index SHAs and environment
 fingerprint, with no Torch import or CUDA query. Future reviewed execution:
 
 ```sh
-taskset -c 4,5 /TASK_LOCAL_OVERLAY/bin/python -m tools.preflight_musicfm \
+taskset -c 8,9 /TASK_LOCAL_OVERLAY/bin/python -m tools.preflight_musicfm \
   run-resource --config /NEW_TASK_ROOT_REVIEW_CONFIG.json
 ```
 
