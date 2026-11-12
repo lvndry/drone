@@ -1,0 +1,74 @@
+{
+  "bp_fit": 1229,
+  "duration_manifest_sha256": "9f2db5efe4cbe2904508d8004f842acd29e90c6bc7f68612679c68993c439de0",
+  "duration_projection": "ceil(canonical22050_samples*24000/22050); actual24k not measured",
+  "eligibility": "amended plan supplied",
+  "excluded_ids": [
+    "beatport:2997186",
+    "fmak:051779",
+    "fmak:096100"
+  ],
+  "fma_fit": 4033,
+  "header_sensitivity_bytes_per_file": [
+    0,
+    16384
+  ],
+  "limitations": "Serial LRU; no worker-prefetch duplication. 1905CPU proxy includes CQT; neither decode24k CPU nor model cost has been measured. No labels read for decisions.",
+  "plan_sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
+  "projected_24k_f32_working_set_bytes": 98757966572,
+  "projections": [
+    {
+      "capacity_bytes": 4294967296,
+      "domains": {
+        "beatport": {
+          "draws": 147733,
+          "hits": 1084,
+          "misses": 146649
+        },
+        "fmak": {
+          "draws": 117227,
+          "hits": 34,
+          "misses": 117193
+        }
+      },
+      "draws": 264960,
+      "evictions": 263560,
+      "historical_1905_cpu_seconds_duration_scaled_proxy": 74907.5863555807,
+      "hit_fraction": 0.004219504830917874,
+      "hits": 1118,
+      "misses": 263842,
+      "projected_cache_write_bytes": 4145741670292,
+      "projected_full_decode_audio_seconds": 43184806.98580796,
+      "requested_crop_audio_seconds": 3179520,
+      "resident_bytes_at_end": 4294431500
+    },
+    {
+      "capacity_bytes": 4294967296,
+      "domains": {
+        "beatport": {
+          "draws": 147733,
+          "hits": 1083,
+          "misses": 146650
+        },
+        "fmak": {
+          "draws": 117227,
+          "hits": 34,
+          "misses": 117193
+        }
+      },
+      "draws": 264960,
+      "evictions": 263562,
+      "historical_1905_cpu_seconds_duration_scaled_proxy": 74907.79450541371,
+      "hit_fraction": 0.004215730676328503,
+      "hits": 1117,
+      "misses": 263843,
+      "projected_cache_write_bytes": 4150075994004,
+      "projected_full_decode_audio_seconds": 43184926.98580796,
+      "requested_crop_audio_seconds": 3179520,
+      "resident_bytes_at_end": 4287515404
+    }
+  ],
+  "sampler_source_sha256": "bd5f279543c55fc857fd777080e2fbbfd76ed80c324f462f5abe5213285ab65e",
+  "status": "metadata_projection_only_not_training_activation",
+  "tool_sha256": "ab819efdfa30d5bc8f58e65654e6c9f70d1e5b804f37035f216ee0528f76ca9e"
+}
