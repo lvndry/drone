@@ -1,0 +1,96 @@
+{
+  "transformers-conformer.py.txt": {
+    "repository": "huggingface/transformers",
+    "commit": "753d61104116eefc8ffc977327b441ee0c8d599f",
+    "path": "src/transformers/models/wav2vec2_conformer/modeling_wav2vec2_conformer.py",
+    "snapshot_path": "transformers-conformer.py.txt.gz",
+    "sha256": "791d19879014102501be3760f0a3d7ecf9d7335333f662af8e69da27f0125a1a",
+    "bytes": 85397,
+    "git_blob_sha": "62357c8e0dcb34bf597e414c567491b38fff8e1d",
+    "api_signatures": {
+      "Wav2Vec2ConformerEncoder": {
+        "__init__": [
+          "self",
+          "config"
+        ],
+        "forward": [
+          "self",
+          "hidden_states",
+          "attention_mask",
+          "output_attentions",
+          "output_hidden_states",
+          "return_dict"
+        ]
+      }
+    },
+    "compressed_sha256": "78ebb20a47ae2773644fe8f387bbdc65baf8e51a66daabec4627479fcb24f5d0"
+  },
+  "torchaudio-transforms.py.txt": {
+    "repository": "pytorch/audio",
+    "commit": "34c52a67e8941bbd8e6adaca0eb0b9eabec11d78",
+    "path": "src/torchaudio/transforms/_transforms.py",
+    "snapshot_path": "torchaudio-transforms.py.txt.gz",
+    "sha256": "d73705853d6e8d0f0f212c39e0e3a0256811bcf4ac1a6f5fa8e8c65c26115680",
+    "bytes": 87205,
+    "git_blob_sha": "36f7ecc1ccc5025f073332c3ba735c751a7bbca3",
+    "api_signatures": {
+      "AmplitudeToDB": {
+        "__init__": [
+          "self",
+          "stype",
+          "top_db"
+        ],
+        "forward": [
+          "self",
+          "x"
+        ]
+      },
+      "MelSpectrogram": {
+        "__init__": [
+          "self",
+          "sample_rate",
+          "n_fft",
+          "win_length",
+          "hop_length",
+          "f_min",
+          "f_max",
+          "pad",
+          "n_mels",
+          "window_fn",
+          "power",
+          "normalized",
+          "wkwargs",
+          "center",
+          "pad_mode",
+          "onesided",
+          "norm",
+          "mel_scale"
+        ],
+        "forward": [
+          "self",
+          "waveform"
+        ]
+      }
+    },
+    "compressed_sha256": "67ad1da10e88db4b3ce74ef7ed10041d357d2167af913c73d110f86ad0e4ee2e"
+  },
+  "LICENSE-torchaudio.txt": {
+    "repository": "pytorch/audio",
+    "commit": "34c52a67e8941bbd8e6adaca0eb0b9eabec11d78",
+    "path": "LICENSE",
+    "snapshot_path": "LICENSE-torchaudio.txt.gz",
+    "sha256": "93a58861a858cc108e6b6b833e08e76e8b2a66339e4a8007c8a5a8c1ff9c40d6",
+    "bytes": 1338,
+    "git_blob_sha": "1bec23eaf1dd562ae3d3216420b1b1bbfbd39cbc",
+    "compressed_sha256": "5f86216951c179d4497f2812e1af25c2f3ef3caebdac2f24eae9df873e2bcb6a"
+  },
+  "LICENSE-transformers.txt": {
+    "repository": "huggingface/transformers",
+    "commit": "753d61104116eefc8ffc977327b441ee0c8d599f",
+    "path": "LICENSE",
+    "snapshot_path": "LICENSE-transformers.txt",
+    "sha256": "77fd4710def9ec3c0f6225800e0235f15a425abd4a8b03559127fcd782612049",
+    "bytes": 11418,
+    "git_blob_sha": "68b7d66c97d66c58de883ed0c451af2b3183e6f3"
+  }
+}
