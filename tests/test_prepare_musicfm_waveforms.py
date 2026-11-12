@@ -60,3 +60,29 @@ def test_sealing_requires_aware_finite_prospective_window(tmp_path: Path) -> Non
         seal(path, "2026-11-12T12:00:00Z", "2026-11-12T15:00:00Z")
     config = seal(path, "2026-11-12T12:00:00Z", "2026-11-12T13:00:00Z")
     assert config["deadline_epoch"] - config["not_before_epoch"] == 3600
+
+
+def test_disk_scan_is_cached_for_progress_and_forced_at_boundaries(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tools import prepare_musicfm_waveforms as module
+
+    now, calls = [100.0], []
+
+    def scan(path: Path) -> int:
+        calls.append(path)
+        return 1234
+
+    monkeypatch.setattr(module.time, "monotonic", lambda: now[0])
+    monkeypatch.setattr(module, "disk_bytes", scan)
+    stage = module.Preparation({}, tmp_path)
+    assert stage.disk_usage() == 1234
+    now[0] = 100.5
+    assert stage.disk_usage() == 1234
+    assert stage.progress(False)["disk_sample_age_seconds"] == 0.5
+    assert len(calls) == 1
+    now[0] = 101.1
+    assert stage.disk_usage() == 1234
+    assert len(calls) == 2
+    stage.disk_usage(force=True)
+    assert len(calls) == 3
