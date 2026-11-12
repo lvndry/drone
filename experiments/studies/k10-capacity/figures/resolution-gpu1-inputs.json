@@ -1,0 +1,8 @@
+{
+  "generator_sha256": "7ae9b02158751d2703be1c59db3b1d664f473fcdc2d7b6c9ccdc7a90ecb4bbcf",
+  "shared_helpers_sha256": "ccd3a536001095fd9af9b029da3a9a09afe378fb373e3ba0a5b388837cf03e5a",
+  "index_sha256": "55c44e95a900cc2b4da25f78a31d0e61ccb117e7c00ac069a6f4702926a01550",
+  "matplotlib_version": "3.11.2",
+  "figure_png_sha256": "f65d6c00591782e91ed48b5e17ca54b691d4d996c16f0037ebd2161fa342df0a",
+  "figure_svg_sha256": "ff4e19ffec08dcddf99b659752ce163b031ee12a50f18c3b9dcf90333d3215b3"
+}

@@ -1,0 +1,362 @@
+{
+  "attempts": {
+    "v1": {
+      "archive_sha256": "594e35f54950fbb8d583f353c4a93741c0e47a240be4eeaecb08bf1dc745eaf2",
+      "files": {
+        "actual-launch.json": {
+          "bytes": 166,
+          "sha256": "0298ad1ee1990afffff7b9f36fdbb38b22f7072809d5756212142cc1e1dec7c6"
+        },
+        "approval-draft.json": {
+          "bytes": 213,
+          "sha256": "6409a97d0f79b9caef35d8931d2fae79368bf2073730700821d2d1687a7aebb4"
+        },
+        "approval-final.json": {
+          "bytes": 2370,
+          "sha256": "86b8d3076329884fd8c9791c5a4332ae41912e170f87f0563ad978c372da9dc2"
+        },
+        "collector-receipt.json": {
+          "bytes": 500,
+          "sha256": "b9f5ff49ac21f42d00738eb46d509ef847ebd0f382e9357ea2125f3b6461ece1"
+        },
+        "launch-reviewed-probe.sh": {
+          "bytes": 645,
+          "sha256": "2963dc24fa9427ff3b96baac8c5a7d6d1a810666fc47d60612509f2422cc4153"
+        },
+        "prelaunch.json": {
+          "bytes": 523,
+          "sha256": "3230948a4adb85a17707a3074eb314601f46d8093dc77288371c86e474225161"
+        },
+        "probe-launch.log": {
+          "bytes": 740,
+          "sha256": "ba9cddae0e8bd430ca7fd0947b3edf98f6506decf7301937647cf645ee785c31"
+        },
+        "protected.json": {
+          "bytes": 2628,
+          "sha256": "ceb88730b83a8153c901ece788ff2745023e7e9b46bef3998f46842f54a844cf"
+        },
+        "run-v1/approval.json": {
+          "bytes": 2370,
+          "sha256": "86b8d3076329884fd8c9791c5a4332ae41912e170f87f0563ad978c372da9dc2"
+        },
+        "run-v1/baseline-launch.json": {
+          "bytes": 700,
+          "sha256": "df8f56ab23f9f81402b0300546ce25d8cef27e2120ac42266c78c14cad528b5f"
+        },
+        "run-v1/baseline.log": {
+          "bytes": 731,
+          "sha256": "e9bc40416bddbc3eeb014912fe2c1c70f68910c64b3161f04b508baeaf0e4da9"
+        },
+        "run-v1/config.json": {
+          "bytes": 55129,
+          "sha256": "6162bbf8bdf4b1e447dafa7f43f783e0e947234ba65c2329825832c04ab016f2"
+        },
+        "run-v1/controller.json": {
+          "bytes": 530,
+          "sha256": "a4a8aefc1b12469e73974e3ad72cee588ec5d4e50aba57d77ecfc174b78f18dd"
+        },
+        "run-v1/ready.json": {
+          "bytes": 171,
+          "sha256": "c28f91507004f99761cc4c1afc8638e54e9374278ea00693d685be750871c135"
+        },
+        "run-v1/samples.jsonl": {
+          "bytes": 83345,
+          "sha256": "351e6df05f443f7b5dd667f2ae64dc884dad058d19ff2ac5546846bebeb1f806"
+        },
+        "runtime.json": {
+          "bytes": 24333,
+          "sha256": "aeba4074898cc7b7c0912acf3176de33367d650ac62548334e3aabc5906564f4"
+        },
+        "sealed-config.json": {
+          "bytes": 55129,
+          "sha256": "6162bbf8bdf4b1e447dafa7f43f783e0e947234ba65c2329825832c04ab016f2"
+        },
+        "staging-readback.json": {
+          "bytes": 3554,
+          "sha256": "15ef1726b922d9c246579046cc564b7339cdec741d7b9d47d5b16e996021fd7c"
+        },
+        "terminal-receipt.json": {
+          "bytes": 1691,
+          "sha256": "c251c736501ddd33c68c32f0d29638d4f71f34478545fb3323681a91f5f340af"
+        }
+      },
+      "source_commit": "c4dbda8c2cd0af09d3d68cb4ddd378e67002e9e7",
+      "source_sha256": {
+        "drone/__init__.py": "1ec665ba2be03bb25a8d085bea0b80d19f0a34e2709681540b93d3ed59d30fa0",
+        "drone/__main__.py": "d28606583082f7005282fe21ea03f16526bd209c531a1c752d6f07ea28131c60",
+        "drone/benchmark.py": "fc3fd881f56ebbaca7e0455c49a35616f3de2daf703b2066418e435d070675e4",
+        "drone/checkpoints.py": "d7afbe39977c44da1d88c71865331b4af3e4733007857a4cdae4ecdf69f241ce",
+        "drone/corrections.py": "97301e62aade82c77c0729ab0326df28759a891ec8c3ae094b448ffef39ebfe1",
+        "drone/datasets.py": "96dc409f1726de9747c3e2491840ab946c8ceeb7669615b06d401e1689445aed",
+        "drone/download.py": "a121cebe9b18b1678135c26b39dc55765b13cd306a81c24f201542e48b5afa8c",
+        "drone/export.py": "6f1f26957686ea5b32033b87ddbae38c42fd1857678dde3788158397d6b67aac",
+        "drone/features.py": "f2fcc1a23a0b587ae870aeec8d47365c5685023fcfec3f98a7a6793613de340b",
+        "drone/keys.py": "ccf774468fb165ce27c0d9e2d3dac05bf258575665c2ff6318a1e1c5b79ea432",
+        "drone/model.py": "1381f893fe439b917fdedd852c5037b9a050ba17bc31b9eb0eaa0beda7a392d0",
+        "drone/safetensors.py": "3574f66fa6aa90c92e3eeaae627dfc564c9410334356e675cab6468d6fc013bb",
+        "drone/splits.py": "5140c60c58b3054acd4894e937a58ba90b1fbf329efd870bfef2c8453b0d50f2",
+        "experiments/k10_gpu1_resource.py": "55386b26c1160ad2f9cdb6fda59448d51cfe97f0d76d1f9d715a53f461717455",
+        "experiments/k10_resolution.py": "18522024553dc3065331299a6ccfc10aa0a62e3e71bcc096a3c7ef7a6a394108",
+        "tools/run_cqt_expansion.py": "1048c16a6e86f6eb9574fd8e9886eae7e43fe3b8a9d3294abb95e3369a8c9342",
+        "tools/run_k10_gpu1_resource.py": "d96aaea698fd91f748a63a326bbd2e3042bbee8dccb7c7e4d53e3eb744b1de6c",
+        "train.py": "b86470901d69c6f275cd500da86b0704a78329e5b8cc8284af097c01a8950b1e"
+      },
+      "source_url": "https://github.com/lvndry/drone/commit/c4dbda8c2cd0af09d3d68cb4ddd378e67002e9e7"
+    },
+    "v2": {
+      "archive_sha256": "c79ad8bbb88481cb98500e8fd5350f93a32f9b13fbb4c7c29df637daa95a41e8",
+      "files": {
+        "actual-launch.json": {
+          "bytes": 166,
+          "sha256": "08ca9df8a0625adfec39e5f11147d1c106952cd7b4871bfa8284682d7826298e"
+        },
+        "approval-draft.json": {
+          "bytes": 213,
+          "sha256": "4d8fc7d1cfa6df65a9e5dff6018ad3db58ffe8f461829f0f69e542ca1d88da1e"
+        },
+        "approval-final.json": {
+          "bytes": 2380,
+          "sha256": "1e681c2f85fa93c2d7261b9075686bbe20537e358d48577f0013c6e65b19d225"
+        },
+        "collector-receipt.json": {
+          "bytes": 502,
+          "sha256": "38b42ce34b84ce12794ce3e362a1ea03d99009be0c95b73ddb373c84741c8076"
+        },
+        "launch-reviewed-probe.sh": {
+          "bytes": 645,
+          "sha256": "ca21efe58c88c8e9517b14d6ded581dbaeabe8d4950172837f03debf220c351c"
+        },
+        "prelaunch.json": {
+          "bytes": 524,
+          "sha256": "c20d3458fcd51c1f1e27ca9fbf4b02468d2141ef663fb332a023e7130bd35f58"
+        },
+        "probe-launch.log": {
+          "bytes": 740,
+          "sha256": "efa224a72ac162f1deb36ea32ade5cfb5f6acdd5c758510452379d04e70f940a"
+        },
+        "protected.json": {
+          "bytes": 2628,
+          "sha256": "ceb88730b83a8153c901ece788ff2745023e7e9b46bef3998f46842f54a844cf"
+        },
+        "run-v1/approval.json": {
+          "bytes": 2380,
+          "sha256": "1e681c2f85fa93c2d7261b9075686bbe20537e358d48577f0013c6e65b19d225"
+        },
+        "run-v1/baseline-launch.json": {
+          "bytes": 701,
+          "sha256": "c21b1dc2196a436f2b0333e8ecee699f2b33ccc4b89b8a405be6ccce1e488efe"
+        },
+        "run-v1/baseline.log": {
+          "bytes": 1731,
+          "sha256": "406ad3414e959002193b658bf1e5fcc41a25d7133d142bcac79151f49c9bac6e"
+        },
+        "run-v1/baseline/initial.json": {
+          "bytes": 675,
+          "sha256": "91894d586e9c81b9ea7153826c182124f618cb0e82573f2d6b84742188f56d1b"
+        },
+        "run-v1/config.json": {
+          "bytes": 55129,
+          "sha256": "2511ca1160ac59b3bca086fd47d51ebe16094ffe9aa7d71f812f063fb7b4b679"
+        },
+        "run-v1/controller.json": {
+          "bytes": 538,
+          "sha256": "d1620353dd5eda7dddc2da6fdc75f5996d5eb5a59a8882bc2355dfb0a5981156"
+        },
+        "run-v1/ready.json": {
+          "bytes": 171,
+          "sha256": "ac13a31cda4fa20d3346ab07dfeb80afead352cccfc5b0426019f42408b1d6a9"
+        },
+        "run-v1/samples.jsonl": {
+          "bytes": 89461,
+          "sha256": "d89a9dbae10d80e68cc1a882eba74dc7b36168cff5818498521622e2f1662409"
+        },
+        "runtime.json": {
+          "bytes": 24333,
+          "sha256": "aeba4074898cc7b7c0912acf3176de33367d650ac62548334e3aabc5906564f4"
+        },
+        "sealed-config.json": {
+          "bytes": 55129,
+          "sha256": "2511ca1160ac59b3bca086fd47d51ebe16094ffe9aa7d71f812f063fb7b4b679"
+        },
+        "staging-readback.json": {
+          "bytes": 3553,
+          "sha256": "a01e2d56314b74d8b85536d5cb0ebfb337519734a1773473f0066d6d554a7202"
+        },
+        "terminal-receipt.json": {
+          "bytes": 1691,
+          "sha256": "f995b41ec016d48323785d32fd7945664dd647002255e4f6b246eae77d78ffb6"
+        }
+      },
+      "source_commit": "a1b6cc3497f064ebf306c79cf0b0b20b3cd31ade",
+      "source_sha256": {
+        "drone/__init__.py": "1ec665ba2be03bb25a8d085bea0b80d19f0a34e2709681540b93d3ed59d30fa0",
+        "drone/__main__.py": "d28606583082f7005282fe21ea03f16526bd209c531a1c752d6f07ea28131c60",
+        "drone/benchmark.py": "fc3fd881f56ebbaca7e0455c49a35616f3de2daf703b2066418e435d070675e4",
+        "drone/checkpoints.py": "d7afbe39977c44da1d88c71865331b4af3e4733007857a4cdae4ecdf69f241ce",
+        "drone/corrections.py": "97301e62aade82c77c0729ab0326df28759a891ec8c3ae094b448ffef39ebfe1",
+        "drone/datasets.py": "96dc409f1726de9747c3e2491840ab946c8ceeb7669615b06d401e1689445aed",
+        "drone/download.py": "a121cebe9b18b1678135c26b39dc55765b13cd306a81c24f201542e48b5afa8c",
+        "drone/export.py": "6f1f26957686ea5b32033b87ddbae38c42fd1857678dde3788158397d6b67aac",
+        "drone/features.py": "f2fcc1a23a0b587ae870aeec8d47365c5685023fcfec3f98a7a6793613de340b",
+        "drone/keys.py": "ccf774468fb165ce27c0d9e2d3dac05bf258575665c2ff6318a1e1c5b79ea432",
+        "drone/model.py": "1381f893fe439b917fdedd852c5037b9a050ba17bc31b9eb0eaa0beda7a392d0",
+        "drone/safetensors.py": "3574f66fa6aa90c92e3eeaae627dfc564c9410334356e675cab6468d6fc013bb",
+        "drone/splits.py": "5140c60c58b3054acd4894e937a58ba90b1fbf329efd870bfef2c8453b0d50f2",
+        "experiments/k10_gpu1_resource.py": "17ff3c602e8ff342b2f20dec4ec25654a49f9c09abe790495a90fa189532b3e7",
+        "experiments/k10_resolution.py": "18522024553dc3065331299a6ccfc10aa0a62e3e71bcc096a3c7ef7a6a394108",
+        "tools/run_cqt_expansion.py": "1048c16a6e86f6eb9574fd8e9886eae7e43fe3b8a9d3294abb95e3369a8c9342",
+        "tools/run_k10_gpu1_resource.py": "d96aaea698fd91f748a63a326bbd2e3042bbee8dccb7c7e4d53e3eb744b1de6c",
+        "train.py": "b86470901d69c6f275cd500da86b0704a78329e5b8cc8284af097c01a8950b1e"
+      },
+      "source_url": "https://github.com/lvndry/drone/commit/a1b6cc3497f064ebf306c79cf0b0b20b3cd31ade"
+    },
+    "v3": {
+      "archive_sha256": "effe7f099a4ada5a081b9004c4c1fb0c8ac2b2558c0892116479163a2252654b",
+      "files": {
+        "actual-launch.json": {
+          "bytes": 165,
+          "sha256": "8ff464149bf62ae4d76d8b8e82645ff81a7f620d21c84f35375bfa06a14b4e12"
+        },
+        "approval-draft.json": {
+          "bytes": 213,
+          "sha256": "1979649bfe95585ad733b3bd713485cc1faa42b0d165858107dfc63f4e3657fc"
+        },
+        "approval-final.json": {
+          "bytes": 2469,
+          "sha256": "e76763b460d5bcf24253fec3d8ee6267594b194aa4116d7dfc30e5ca7e81d6f0"
+        },
+        "collector-receipt.json": {
+          "bytes": 510,
+          "sha256": "d8b683b958d8dbedd2adea638a6099ba1f4c0883c386377a17401acd6f16991e"
+        },
+        "launch-reviewed-probe.sh": {
+          "bytes": 645,
+          "sha256": "3d46525136aab0c4395692ef06c290ddc65ff02e567fd0ec72d72ca364d696c8"
+        },
+        "prelaunch.json": {
+          "bytes": 524,
+          "sha256": "80967e9cd0c9fab0cf44b15aba7dfa40239c8e2eb1ad92c47aab2a13210afda3"
+        },
+        "probe-launch.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "protected.json": {
+          "bytes": 2628,
+          "sha256": "ceb88730b83a8153c901ece788ff2745023e7e9b46bef3998f46842f54a844cf"
+        },
+        "run-v1/approval.json": {
+          "bytes": 2469,
+          "sha256": "e76763b460d5bcf24253fec3d8ee6267594b194aa4116d7dfc30e5ca7e81d6f0"
+        },
+        "run-v1/baseline-launch.json": {
+          "bytes": 701,
+          "sha256": "9e1e8c1e2e4964a3d90be6db1471161dcd5c216a5665463e11262e5229e49b03"
+        },
+        "run-v1/baseline-released.json": {
+          "bytes": 71,
+          "sha256": "39617bd2cc3f751c3083ab80e085e15ccdf39629baa0675b9eb301b4515ec23f"
+        },
+        "run-v1/baseline.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run-v1/baseline/initial.json": {
+          "bytes": 1049,
+          "sha256": "857a3165c64919eaa7c2fddce4f94abd43ba04976ffa8da102b3ec1bb8fdfdc8"
+        },
+        "run-v1/baseline/progress.json": {
+          "bytes": 330,
+          "sha256": "a455a01172336ccc17de6f2b3c775b44c1db87b1d87995c4138c38f4bcd8a66d"
+        },
+        "run-v1/baseline/result.json": {
+          "bytes": 1440,
+          "sha256": "57f57a9c6bb9c64cd961b71b4cff6a2e3c212446e0bf819e05dbafbc837191c8"
+        },
+        "run-v1/candidate-launch.json": {
+          "bytes": 703,
+          "sha256": "98ce08338a5a41e41e365f78141bf3c00a1f954b6de3f8ec485854cd9931aef4"
+        },
+        "run-v1/candidate-released.json": {
+          "bytes": 71,
+          "sha256": "c1cbf8d8e43e2ad6df2c6183433a4d65629c3589dfe1a18f59f93cb63f892473"
+        },
+        "run-v1/candidate.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "run-v1/candidate/initial.json": {
+          "bytes": 1049,
+          "sha256": "a4b41bec3e6e8f107b2c44dfaa5e58ac3c3f6d4f3b953b8a1435d086aba24340"
+        },
+        "run-v1/candidate/progress.json": {
+          "bytes": 329,
+          "sha256": "92501a7280f44cc7472b1c705933922f5be464392a3a99030351339600e5afbc"
+        },
+        "run-v1/candidate/result.json": {
+          "bytes": 1439,
+          "sha256": "a59c1d1b666ef07bf9a568322b5cfee2fb0675eccd823657c9b755bb28f08324"
+        },
+        "run-v1/config.json": {
+          "bytes": 55434,
+          "sha256": "132978eae5395599d7e9ed0da0a12ef62ad7fd5f13646bb06d9147076577728c"
+        },
+        "run-v1/controller.json": {
+          "bytes": 492,
+          "sha256": "c8c921ce1b48cc8462d4184aea93ebaded6bc033c723cbac4e3d2751335207f6"
+        },
+        "run-v1/ready.json": {
+          "bytes": 171,
+          "sha256": "e8bb14c26082e32277c146e72c4ef51d8ef268ba7b1cd9e4f6f690756e8f4015"
+        },
+        "run-v1/samples.jsonl": {
+          "bytes": 109366,
+          "sha256": "a0753613cf444f2388fbe883d5e5d8426572717a41e7b0b427c84d65a1590cb8"
+        },
+        "runtime.json": {
+          "bytes": 24333,
+          "sha256": "aeba4074898cc7b7c0912acf3176de33367d650ac62548334e3aabc5906564f4"
+        },
+        "sealed-config.json": {
+          "bytes": 55434,
+          "sha256": "132978eae5395599d7e9ed0da0a12ef62ad7fd5f13646bb06d9147076577728c"
+        },
+        "staging-readback.json": {
+          "bytes": 3555,
+          "sha256": "138dd84bcdb511a8612fbb39bf8277677f598b632aae6d71e033259c34ebaadf"
+        },
+        "terminal-receipt.json": {
+          "bytes": 5881,
+          "sha256": "8d81eec26afc20224df152087d51a97a452428d41da72e79d0593263c0fdfcbf"
+        }
+      },
+      "source_commit": "57e0fac2b63a242e2d96d86f6fcc0be4d8831bc0",
+      "source_sha256": {
+        "drone/__init__.py": "1ec665ba2be03bb25a8d085bea0b80d19f0a34e2709681540b93d3ed59d30fa0",
+        "drone/__main__.py": "d28606583082f7005282fe21ea03f16526bd209c531a1c752d6f07ea28131c60",
+        "drone/benchmark.py": "fc3fd881f56ebbaca7e0455c49a35616f3de2daf703b2066418e435d070675e4",
+        "drone/checkpoints.py": "d7afbe39977c44da1d88c71865331b4af3e4733007857a4cdae4ecdf69f241ce",
+        "drone/corrections.py": "97301e62aade82c77c0729ab0326df28759a891ec8c3ae094b448ffef39ebfe1",
+        "drone/datasets.py": "96dc409f1726de9747c3e2491840ab946c8ceeb7669615b06d401e1689445aed",
+        "drone/download.py": "a121cebe9b18b1678135c26b39dc55765b13cd306a81c24f201542e48b5afa8c",
+        "drone/export.py": "6f1f26957686ea5b32033b87ddbae38c42fd1857678dde3788158397d6b67aac",
+        "drone/features.py": "f2fcc1a23a0b587ae870aeec8d47365c5685023fcfec3f98a7a6793613de340b",
+        "drone/keys.py": "ccf774468fb165ce27c0d9e2d3dac05bf258575665c2ff6318a1e1c5b79ea432",
+        "drone/model.py": "1381f893fe439b917fdedd852c5037b9a050ba17bc31b9eb0eaa0beda7a392d0",
+        "drone/safetensors.py": "3574f66fa6aa90c92e3eeaae627dfc564c9410334356e675cab6468d6fc013bb",
+        "drone/splits.py": "5140c60c58b3054acd4894e937a58ba90b1fbf329efd870bfef2c8453b0d50f2",
+        "experiments/k10_gpu1_resource.py": "24010e84fc7d38618e0892b2707659f3063b25106bb2ff8f7981bc158ddb3d90",
+        "experiments/k10_resolution.py": "18522024553dc3065331299a6ccfc10aa0a62e3e71bcc096a3c7ef7a6a394108",
+        "tools/run_cqt_expansion.py": "1048c16a6e86f6eb9574fd8e9886eae7e43fe3b8a9d3294abb95e3369a8c9342",
+        "tools/run_k10_gpu1_resource.py": "d96aaea698fd91f748a63a326bbd2e3042bbee8dccb7c7e4d53e3eb744b1de6c",
+        "train.py": "b86470901d69c6f275cd500da86b0704a78329e5b8cc8284af097c01a8950b1e"
+      },
+      "source_url": "https://github.com/lvndry/drone/commit/57e0fac2b63a242e2d96d86f6fcc0be4d8831bc0"
+    }
+  },
+  "bundle": "resolution-gpu1-raw.json.gz",
+  "bundle_sha256": "4bbe694de2da8301b91dae4a19e6a533afb089b4ab2b211c4dcdfd8505630896",
+  "decoded_bytes": 816392,
+  "decoded_sha256": "30d0adcddcdd45301074cac5945b642a47eb0843bc8e5b583455c0fdd47f300f",
+  "format": "k10-resolution-gpu1-raw-v1"
+}

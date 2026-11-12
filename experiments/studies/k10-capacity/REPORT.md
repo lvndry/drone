@@ -137,20 +137,22 @@ both models, so its lifetime memory peak cannot be assigned to either one.
 
 ### Decision and limitations
 
-Prepare this one candidate for an exact-source server resource qualification,
-then a bounded matched comparison only if measured cost fits the budget. The
-control is the fixed CPU320 arm of the ongoing context study, not whichever crop
-arm happens to win. Cohort, crop/augmentation streams, labels, update horizon,
-selection and full-song evaluator remain fixed. The protocol requires at least
-five additional FMA exact cases with no BP exact or weighted-score decline;
-confirmation and release remain separate decisions.
+The original comparison proposal named the fixed CPU320 context-study arm as its
+control. A GPU task comparison instead needs a fresh matched GPU baseline and
+candidate: the running CPU320 arm is contextual evidence, not a numerically
+interchangeable GPU control. The GPU resource qualification below supports
+preparing that comparison; it supplies no accuracy result. Cohort, crop and
+augmentation streams, labels, update horizon, selection and full-song evaluation
+must remain fixed. The planned gate requires at least five additional FMA exact
+cases with no BP exact or weighted-score decline. Confirmation and release remain
+separate decisions.
 
 The principal architectural risk is less nonlinear frequency context: 22 input
 bins span only 11 semitones. A dense head can combine distant features linearly,
 but cannot restore arbitrary lost nonlinear octave interactions. A negative
 outcome must retain that limitation and cannot be recast as evidence that every
 high-resolution architecture fails. No task training, accuracy evaluation,
-confirmation or release promotion has occurred for this candidate.
+confirmation or release promotion is included in this resource report.
 
 [Raw synthetic screen](data/resolution-shape-audit.json) and its
 [provenance](data/resolution-shape-audit-provenance.json) preserve the original
@@ -158,3 +160,107 @@ standalone prototype source byte-for-byte. That prototype, rather than the later
 imported model module, produced these timings. The implementation's nine synthetic
 tests establish shape, initialization and finite-update contracts, not accuracy.
 Regenerate this resource figure with `uv run --extra plots python -m tools.plot_k10_resolution`.
+
+### GPU1 qualification: setup fidelity before resource feasibility
+
+The practical question was whether both models could run the intended FP32
+training and true-length evaluation shapes in spare memory beside the existing
+services. These three source-bound attempts used synthetic values only. The
+ordered 376 admitted selection IDs supplied frame counts, not CQT values or
+reference keys. Four extra arrays exercised T=8/65/320/321. No task scores,
+predictions or disposable weights were retained.
+
+Each attempt used one five-minute UTC window, including 30 seconds of passive
+admission, on the RTX5090's exact GPU1 UUID. The two models ran sequentially in
+fresh processes, with two CPU threads on cores 10–11 at nice 19. Each model was
+to complete three batch 32×192×320 AdamW updates with synthetic targets, then the
+unchanged true-length batch 4 evaluator. The allocator cap was 2 GiB of the actual
+CUDA device total, with a separate 2.75 GiB sampled owned-process GPU ceiling.
+GPU1 admission required 9 GiB free; early abort was 6.5 GiB, above the 6 GiB hard
+floor. GPU0 retained its separate 8 GiB reserve. Whole-tree host RSS was capped at
+4 GiB, aggregate owned CPU at 1,200 seconds, and output at 64 MiB, with a 40 GiB
+host-memory reserve. See the [resource protocol](GPU1_RESOURCE_PROTOCOL.md).
+
+| Attempt | Reached | Outcome | Sampled owned GPU peak | Guardian wall |
+|---|---|---|---:|---:|
+| V1, `c4dbda8c` | Device identity check, before model creation | UUID representation false negative; zero optimizer commits | 0 MiB observed | 37.57 s |
+| V2, `a1b6cc34` | Baseline first backward | Global-determinism API restriction; zero optimizer commits | 2,148 MiB | 40.17 s |
+| V3, `57e0fac2` | Both models: three commits and 376+4 shapes | Synthetic resource qualification complete | 2,524 MiB | 48.29 s |
+
+V1 compared Torch's bare UUID string with NVML's `GPU-`-prefixed representation.
+A separate metadata diagnostic identified the same physical device. The validator
+now compares the 128-bit UUID values while requiring exactly one visible matching
+device; it records actual count, type and canonical value. The
+[cause receipt](data/resolution-gpu1-identity-failure.json) distinguishes the
+retained failure log from the root-reported diagnostic, whose original command
+was not retained. This was a setup predicate bug, not a wrong GPU or memory result.
+
+V2 unnecessarily imposed global deterministic algorithms in addition to the
+historical cuDNN flags. The first backward raised before an optimizer commit.
+The [PyTorch 2.15 documentation](https://docs.pytorch.org/docs/2.15/generated/torch.use_deterministic_algorithms.html)
+lists CUDA differentiation through AdaptiveAvgPool2d as unsupported under that
+global setting. V3 explicitly restored the canonical setup for both arms:
+global deterministic algorithms false, cuDNN deterministic true, benchmark false,
+both TF32 flags false, and FP32 without AMP. It uses neither warning-only mode nor
+custom backward code. The [policy-cause receipt](data/resolution-gpu1-determinism-failure.json)
+preserves this distinction. V2 established an API restriction; it did not measure
+gradient variability or show an accuracy or capacity failure.
+
+![Preserved GPU1 memory traces across all three attempts](figures/resolution-gpu1-qualifications.png)
+
+*Figure 4. All recorded samples, without smoothing or resampling. Shading starts
+at worker launch and ends at a release receipt in V3, or the last sample in V1/V2.
+Later terminal checks, outside these plotted traces, verified that each attempt's
+owned GPU allocation was gone and GPU1 free memory returned to 9,508 MiB. Sampled
+memory is not an allocation interlock or a bound on sub-poll bursts.*
+
+| V3 quantity | Ordinary K10 | Finer-grid candidate |
+|---|---:|---:|
+| First update, including train/eval transition | 0.345 s | 0.366 s |
+| Subsequent two update times | 0.0279 / 0.0263 s | 0.0276 / 0.0267 s |
+| Synthetic 376-case evaluation | 1.123 s | 1.045 s |
+| Extra four-case evaluation | 0.0169 s | 0.0119 s |
+| Torch allocated / reserved peak | 1,459 / 1,828 MiB | 1,555 / 1,860 MiB |
+| Sampled owned GPU peak | 2,492 MiB | 2,524 MiB |
+
+Both models covered 372,532 selection frames in 284 true-length forward groups,
+plus 714 frames across four additional groups. Their expected seed 13 initial
+state digests and identical first-two-block digests passed. Each initialized its
+full AdamW state through three commits. CUDA synchronization bounded the recorded
+phase timings and allocator readings. Times include synthetic array generation,
+finite checks and resource instrumentation; they omit real CQT I/O and augmentation
+and are not an isolated throughput comparison.
+
+V3's whole-tree host peak was 1.94 GB; aggregate owned CPU was 27.55 seconds.
+The minimum sampled GPU1 free memory was 6,979 MiB, above the 6,656 MiB early-abort
+threshold; GPU0 remained at least 10,458 MiB free. Maximum start-to-start guard gap
+was 0.1504 seconds and maximum sensor-completion gap 0.1882 seconds. No hard-floor
+overshoot was observed. Both workers released their allocations before completion,
+and all eight protected process starts remained matched. These checks do not
+measure serving tail latency or guarantee reserve availability during a long fit.
+Training is seeded; bitwise GPU training is not guaranteed.
+
+### Evidence, reproduction and next decision
+
+The [lossless raw bundle](data/resolution-gpu1-raw.json.gz) and
+[hash index](data/resolution-gpu1-index.json) retain all controller/results, traces,
+initialization/launch/release records and source/runtime hash receipts used here.
+They contain metadata and synthetic-shape records, not audio, reference labels,
+checkpoints or copied runtime libraries. Executed source commits remain accessible:
+[V1](https://github.com/lvndry/drone/commit/c4dbda8c2cd0af09d3d68cb4ddd378e67002e9e7),
+[V2](https://github.com/lvndry/drone/commit/a1b6cc3497f064ebf306c79cf0b0b20b3cd31ade),
+[V3](https://github.com/lvndry/drone/commit/57e0fac2b63a242e2d96d86f6fcc0be4d8831bc0).
+The archive hashes and all 18 bound Python source hashes for each attempt are in
+the index; the large source archives remain with the retained server artifacts.
+
+Run `uv run python -m tools.report_k10_gpu1` for metadata-only verification, or add
+`--extra plots` before `python` and `--plot` after the module name to regenerate
+Figure 4. The checker verifies byte hashes, source/config bindings, trace budgets,
+initialization, backend policy, three commits and both true-length phase counts.
+
+V3 establishes bounded synthetic feasibility for these shapes under observed
+load. A separate matched task-pair proposal uses a 30-minute wall cap; that is a
+prospective limit, not an observed fit duration. Multiplying the synthetic step
+times into a whole-fit promise would omit real input work and longer-run resource
+contention. No architecture accuracy result, CPU deployment footprint, serving-SLO
+guarantee, confirmation or release promotion follows from this qualification.
