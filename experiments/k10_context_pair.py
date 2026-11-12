@@ -149,7 +149,12 @@ def metrics(ids: list[str], predictions: list[int], refs: dict[str, int]) -> dic
 
 
 def checkpoint(
-    path: Path, model: torch.nn.Module, provenance: dict[str, Any], watch: Callable[[], None]
+    path: Path,
+    model: torch.nn.Module,
+    provenance: dict[str, Any],
+    watch: Callable[[], None],
+    *,
+    artifact_format: str = "EXPERIMENTAL_K10_CONTEXT_STATE_DICT_V1",
 ) -> str:
     import torch
 
@@ -157,7 +162,7 @@ def checkpoint(
     temporary = path.with_suffix(".pending")
     torch.save(
         {
-            "format": "EXPERIMENTAL_K10_CONTEXT_STATE_DICT_V1",
+            "format": artifact_format,
             "state_dict": model.state_dict(),
             "provenance": provenance,
         },
@@ -169,7 +174,11 @@ def checkpoint(
 
 
 def evaluate_complete(
-    model: torch.nn.Module, full: list[np.ndarray], watch: Callable[[], None]
+    model: torch.nn.Module,
+    full: list[np.ndarray],
+    watch: Callable[[], None],
+    *,
+    device: str = "cpu",
 ) -> np.ndarray:
     import torch
 
@@ -195,7 +204,7 @@ def evaluate_complete(
             counts["frames"] += x.shape[0] * x.shape[2]
             return y
 
-    predictions = evaluate_features(Finite(), full, "cpu", batch=4)
+    predictions = evaluate_features(Finite(), full, device, batch=4)
     if (
         predictions.shape != (len(full),)
         or not np.issubdtype(predictions.dtype, np.integer)
@@ -215,6 +224,12 @@ def train_arm(
     output: Path,
     provenance: dict[str, Any],
     watch: Callable[[], None],
+    *,
+    model_factory: Callable[[], torch.nn.Module] | None = None,
+    expected_init: str | None = None,
+    device: str = "cpu",
+    artifact_format: str = "EXPERIMENTAL_K10_CONTEXT_STATE_DICT_V1",
+    result_status: str = "COMPLETE_CONTEXT_ARM_NOT_PROMOTED",
 ) -> dict[str, Any]:
     import torch
 
@@ -223,13 +238,20 @@ def train_arm(
     from drone.model import KeyCNN
 
     torch.manual_seed(13)
-    model = KeyCNN().to("cpu")
+    factory = KeyCNN if model_factory is None else model_factory
+    model = factory().to(device)
     digest = hashlib.sha256()
     for name, value in model.state_dict().items():
         digest.update(name.encode())
-        digest.update(value.numpy().tobytes())
-    if digest.hexdigest() != INITIAL:
+        digest.update(value.detach().cpu().numpy().tobytes())
+    if digest.hexdigest() != (INITIAL if expected_init is None else expected_init):
         raise ValueError("Fresh initialization differs from qualified seed13")
+    checkpoint_options = (
+        {}
+        if artifact_format == "EXPERIMENTAL_K10_CONTEXT_STATE_DICT_V1"
+        else {"artifact_format": artifact_format}
+    )
+    evaluation_options = {} if device == "cpu" else {"device": device}
     output.mkdir(exist_ok=False)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EVENTS)
@@ -271,7 +293,7 @@ def train_arm(
         model.train()
         optimizer.zero_grad()
         loss = torch.nn.functional.cross_entropy(
-            model(torch.from_numpy(np.stack(xs))), torch.tensor(targets)
+            model(torch.from_numpy(np.stack(xs)).to(device)), torch.tensor(targets, device=device)
         )
         if not bool(torch.isfinite(loss)):
             raise ValueError("Nonfinite training loss")
@@ -288,7 +310,7 @@ def train_arm(
         if update % EVERY:
             continue
         scheduler.step()  # Same timing as original K10 v2 driver.
-        predictions = evaluate_complete(model, full, watch)
+        predictions = evaluate_complete(model, full, watch, **evaluation_options)
         measured = {
             d: metrics(
                 domain_ids,
@@ -307,6 +329,7 @@ def train_arm(
                 model,
                 {**provenance, "crop_frames": length, "selected_update": update},
                 watch,
+                **checkpoint_options,
             )
         history.append({"update": update, "train_ce": loss_sum / EVERY, "metrics": measured})
         loss_sum = 0.0
@@ -330,26 +353,24 @@ def train_arm(
         model,
         {**provenance, "crop_frames": length, "final_update": update},
         watch,
+        **checkpoint_options,
     )
     if sha(output / "best.pt") != best_sha:
         raise ValueError("Selected checkpoint changed before reload")
     payload = torch.load(output / "best.pt", map_location="cpu", weights_only=True)
     expected_metadata = {**provenance, "crop_frames": length, "selected_update": best_update}
-    if (
-        payload.get("format") != "EXPERIMENTAL_K10_CONTEXT_STATE_DICT_V1"
-        or payload["provenance"] != expected_metadata
-    ):
+    if payload.get("format") != artifact_format or payload["provenance"] != expected_metadata:
         raise ValueError("Selected checkpoint metadata differs")
-    restored = KeyCNN().to("cpu")
+    restored = factory().to(device)
     restored.load_state_dict(payload["state_dict"], strict=True)
-    reloaded = evaluate_complete(restored, full, watch)
+    reloaded = evaluate_complete(restored, full, watch, **evaluation_options)
     expected_predictions = (
         best_metrics["beatport"]["predictions"] + best_metrics["fmak"]["predictions"]
     )
     if not np.array_equal(reloaded, np.asarray(expected_predictions)):
         raise ValueError("Selected checkpoint reload prediction identity failed")
     result = {
-        "status": "COMPLETE_CONTEXT_ARM_NOT_PROMOTED",
+        "status": result_status,
         "crop_frames": length,
         "updates": update,
         "events": EVENTS,
