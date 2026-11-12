@@ -1,0 +1,741 @@
+{
+  "format": "drone-native-research-migration-v1",
+  "source_repository": "https://github.com/lvndry/euphoria",
+  "source_commit": "931164b0f1445eb2961629ebc93ff3b2fbfacbaf",
+  "source_path_history": [
+    {
+      "commit": "931164b0f1445eb2961629ebc93ff3b2fbfacbaf",
+      "subject": "docs(research): explain Mac classifier portability results (#92)"
+    },
+    {
+      "commit": "81415e0c4cf4f7a658ef15f1e03124917f312d2a",
+      "subject": "perf(research): qualify native CQT and measure composed inference (#77)"
+    },
+    {
+      "commit": "40a11283e7da37d56d55f758fb6d369ad9394c30",
+      "subject": "feat(research): validate native CQT inputs for key inference (#75)"
+    },
+    {
+      "commit": "84d2ed6be7d13059e017bdb3403812ad3305f327",
+      "subject": "perf(research): validate bounded native K10 CPU inference (#72)"
+    }
+  ],
+  "source_trees": {
+    "research/drone-native-cqt": "ae4dd265cf1554ec575f1aaa02577f58d179b073",
+    "research/drone-native-cached": "bc7002d020e8b30834ecc55ced9008f48b9a4f9f"
+  },
+  "semantics": "Original bytes/modes preserved in exact_import_commit and source history. Subsequent format-only Python adaptations retain identical ASTs; documentation/CI adjustments are indexed separately. No new numerical execution or promotion.",
+  "files": [
+    {
+      "path": ".github/workflows/drone-native-research.yml",
+      "git_mode": "100644",
+      "source_blob_sha1": "e78f53f5819d3101ef44547155a0ca392a4b9064",
+      "sha256": "851ac6a47ff58e215001cb3874b0cafa06d0e4da71d9c8048835e6f1a2cfa8b5",
+      "bytes": 2684
+    },
+    {
+      "path": "research/drone-native-cached/.gitignore",
+      "git_mode": "100644",
+      "source_blob_sha1": "ea8c4bf7f35f6f77f75d92ad8ce8349f6e81ddba",
+      "sha256": "44c92e3a70ad3307b7056871c2bdb096d8bfa9373f5bf06a79bb6324a20ff2fb",
+      "bytes": 8
+    },
+    {
+      "path": "research/drone-native-cached/Cargo.lock",
+      "git_mode": "100644",
+      "source_blob_sha1": "9a214401adff9872ef109249c8c491d0406b8109",
+      "sha256": "c83bd8113a48f0e71b5945e00e6c09b6635eca87b73979503359366425a71838",
+      "bytes": 13035
+    },
+    {
+      "path": "research/drone-native-cached/Cargo.toml",
+      "git_mode": "100644",
+      "source_blob_sha1": "c2c68ee4e193319d870649e127151848ffebb073",
+      "sha256": "6b6f8560d5a62ff03ed7ed993625543d547572999456b6a11519862d7340b4f3",
+      "bytes": 752
+    },
+    {
+      "path": "research/drone-native-cached/README.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "42ba47f1e2fcd89534d9b7fd24583dcc99cdb1ed",
+      "sha256": "de9f7b6a706777dd4893fa0defbcbc64505b52ed42bc7a453763edb28db1830f",
+      "bytes": 9483
+    },
+    {
+      "path": "research/drone-native-cached/REPORT.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "5be576b610c2a1cc0a706b1fe1b8832ae68a6b05",
+      "sha256": "4f9961072dfc5c7c8cdedfe29370a20410a8d303d088273005636eda1f664b52",
+      "bytes": 11087
+    },
+    {
+      "path": "research/drone-native-cached/evidence/native-chunked-58c290b.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "42f3c09e8f7e80350fdfe2776867e571c2cdb7e3",
+      "sha256": "5a49330cbd0d8777541e9ce54fcdec0ef62aa7a3e3204d2b2df095f0e74ee0be",
+      "bytes": 56936
+    },
+    {
+      "path": "research/drone-native-cached/evidence/native-full-58c290b.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "af24e836ad28a0bf2ad350de5095ac4629ddf3a3",
+      "sha256": "68fb6a9f6311f817c6bd8b3e0431477b9f42c1d99d4a5cf430d70faad3a39f2f",
+      "bytes": 56251
+    },
+    {
+      "path": "research/drone-native-cached/evidence/native-validation-summary-58c290b.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "a6091748413b8cf0f4f34542a6f904673a8afca9",
+      "sha256": "9166c543e2ef26a413acfcd98a43dd9e1547abf28f5918ea8822f165b18c0ce4",
+      "bytes": 4979
+    },
+    {
+      "path": "research/drone-native-cached/figures/native-cached-results-58c290b.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "6710bf1607f3cdccc5000fc3e061cf10f9ba10ec",
+      "sha256": "35febf4c9af747e7b39ae89f2aaebb49e6d802a031c3011f815533f847c27f93",
+      "bytes": 755
+    },
+    {
+      "path": "research/drone-native-cached/figures/native-cached-results-58c290b.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "a263df6e94d6eb6e859bb711fe1438df6d6bb9b1",
+      "sha256": "fae31824da2bbc24cff2e46cfcfcf3135dfe7ae37e646c800670627bc638b090",
+      "bytes": 167791
+    },
+    {
+      "path": "research/drone-native-cached/figures/native-cached-results-58c290b.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "1b48002978eb04c742df9a0dd2adb92508e485a6",
+      "sha256": "d9b0b1bb96940fc494c160ce5a5c7128e2b97062ad81087346adc1a7a0fe3767",
+      "bytes": 27150
+    },
+    {
+      "path": "research/drone-native-cached/plot_results.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "38aa429e6ba8259bf2f7a1208cbb3919fa7f5585",
+      "sha256": "0ab2282368bef52168c61377b4e70542e03e3ec430eaf2cf933e49b99d1e44e2",
+      "bytes": 6439
+    },
+    {
+      "path": "research/drone-native-cached/src/lib.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "b3090875c423861d45b41d05ad694fb701a7cf9f",
+      "sha256": "a9084daa288b4744cd7bec25719f8dfad1415bdb470ecd417859e4517ce26a2e",
+      "bytes": 24050
+    },
+    {
+      "path": "research/drone-native-cached/src/main.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "1bb9a5f733ff15dde3a850104f8f35b77e9252b2",
+      "sha256": "d46d86aa2458cf344f77cbd0204c3d9461e30098ae405f3d89e8409521a973ab",
+      "bytes": 15043
+    },
+    {
+      "path": "research/drone-native-cached/tests/contracts.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "c9a8f1a06a5cba2173151ceec7c670a448dc86ee",
+      "sha256": "2d949c9afc9e978e93d883380c8b5c1c34ac7f577a2da51b479ad430c9899035",
+      "bytes": 13755
+    },
+    {
+      "path": "research/drone-native-cqt/.gitignore",
+      "git_mode": "100644",
+      "source_blob_sha1": "2f7896d1d1365eafb0da03d9fe456fac81408487",
+      "sha256": "b53ee26e6ff1da219b0563333a76d2c9ec19eec713d6ee54e11a1edacb0e9f3d",
+      "bytes": 8
+    },
+    {
+      "path": "research/drone-native-cqt/CANDIDATE2.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "a39b0faf5b0182f0bf83197944496fe9ab0c9306",
+      "sha256": "a0dc135ae2de32928b777e2e3457df0826eabae1caa2df94e8bb6224c99b8ba8",
+      "bytes": 4114
+    },
+    {
+      "path": "research/drone-native-cqt/Cargo.lock",
+      "git_mode": "100644",
+      "source_blob_sha1": "92684b3176f6bff2d78b8d52bd71d3a213121d9e",
+      "sha256": "a2113290218729da788bcc59ad78cf51b892fcfdc46c2a2c0ec4e4548133a05d",
+      "bytes": 15385
+    },
+    {
+      "path": "research/drone-native-cqt/Cargo.toml",
+      "git_mode": "100644",
+      "source_blob_sha1": "a6684d2b3a2941503d3729149fb62ab68775e8c0",
+      "sha256": "a6361afb3d1b7616cc22a1548852e0f2617232462e3aefbd3b9b18e5a4ff5a71",
+      "bytes": 511
+    },
+    {
+      "path": "research/drone-native-cqt/EXPANSION.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "aaefba8c95452e75f5d36fd63b37a0677aede71b",
+      "sha256": "0358f5be8c96be91c45be42bb39b36728a6a5a77161192157a06ed5c1237b6f3",
+      "bytes": 5043
+    },
+    {
+      "path": "research/drone-native-cqt/LICENSE-python-soxr",
+      "git_mode": "100644",
+      "source_blob_sha1": "5352afe334aa6ca288f2251f7ff2591dd27bd09a",
+      "sha256": "aeeb7bce59a3dcc7bb08a48a2f012f340c6b28ec50cd22f0ad93194a7d254420",
+      "bytes": 713
+    },
+    {
+      "path": "research/drone-native-cqt/LINUX_COMPOSED_PROTOCOL.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "ee955c40ef42d25275b00e590cf7fe3f1958b0e4",
+      "sha256": "2f43a8f8ed76e6246f1e9fd20838463988f96a9d290efe86b74feef0c06fe2a7",
+      "bytes": 8776
+    },
+    {
+      "path": "research/drone-native-cqt/PROTOCOL.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "b804491286daa34e7ba4ea7409996e8244ee0b95",
+      "sha256": "4b66f2f7b16b06581aa07b45a8ca710a422baad87b31e54f129129de3338b118",
+      "bytes": 5616
+    },
+    {
+      "path": "research/drone-native-cqt/README.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "59331410ca4064fcda56e2c6c01fb1a6983c5dc2",
+      "sha256": "267acaba3fb9197e33c60e0fe0693af00d2dfea205dc5d084ee64f7a456a7b68",
+      "bytes": 6324
+    },
+    {
+      "path": "research/drone-native-cqt/REPORT.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "89ea1a390abb3495d2d612c6d26477b9cc810f1a",
+      "sha256": "73357e7071165bedf96a7b1568aaa746218d6345743e55df51f56f9ea1f22650",
+      "bytes": 13263
+    },
+    {
+      "path": "research/drone-native-cqt/build.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "13ca19be2512f4708d94d1e3041715591158e9be",
+      "sha256": "05e26690e2115cf1a420ba4585c6d386a00b8c0a188d74d1e5740c90271cbaaa",
+      "bytes": 1614
+    },
+    {
+      "path": "research/drone-native-cqt/build_soxr.sh",
+      "git_mode": "100755",
+      "source_blob_sha1": "78ee773cfbcd8d9be286c9592b57f2ccacb32d50",
+      "sha256": "7c7ea0ebffa73110b195101b85df17c2ef1e3b1eedf192a0fddff977ecb76e18",
+      "bytes": 835
+    },
+    {
+      "path": "research/drone-native-cqt/build_svml_probe.sh",
+      "git_mode": "100755",
+      "source_blob_sha1": "37fb4399c718842c6f31aa29978d01c82fe098d7",
+      "sha256": "5a9c756030f9d2f03bfc18493a09ea8102ed691f2d60bb2c80a5e56c28ce54f7",
+      "bytes": 696
+    },
+    {
+      "path": "research/drone-native-cqt/composed/MAC376_PROPOSAL.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "9bf4c5d7d2d0262eb2473ef2eecfac23871777ba",
+      "sha256": "aa78756a048d3e06245696b7a73d6aebca96aa1cbcf6977730d590bc41ec1f11",
+      "bytes": 11629
+    },
+    {
+      "path": "research/drone-native-cqt/composed/REPORT.md",
+      "git_mode": "100644",
+      "source_blob_sha1": "c423085d83b126f34f18ec7c5d4ca16bca490ca5",
+      "sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
+      "bytes": 19635
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/index.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "a806549e68e4a782e9bd8873a300e61a9b7aabf4",
+      "sha256": "b1996e3d5f0abf96a0abce0b3401e88c587c63ac7195842dafa52d90f89c6f63",
+      "bytes": 1323
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/linux-raw.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "17af6b23e38fd7afcdf53b7d970494b391857220",
+      "sha256": "769fb2459526606b1f78cdfdc63f44bbd5601cac6b2a2f9e9ea5d0315b5599c2",
+      "bytes": 642972
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/mac-raw.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "7946e9ddf1e5d086148aaf9d3dc09f969a27b7c4",
+      "sha256": "f3e0f651597c562cde991e254dee9490b2f43172c85ac13623ab63c599477a20",
+      "bytes": 205556
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/mac376-index.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "fca7e66e70535c60f860ca16ad5e9e8e99c6be75",
+      "sha256": "4b23f57d4a7ff896d5e1c89d2eeed90b1e5d54829f9ad051a5b62784f0447e70",
+      "bytes": 75917
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/mac376-raw.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "7c0d45c2e9bf6502f4f92ba05f769ca855d4acf5",
+      "sha256": "3cb4669516a373c79eaf5f1ba0a815f5efe1579d563fe2dce9871c7f0364e20d",
+      "bytes": 2253197
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/qualification-inputs.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "6035b3f880d8623f6809f1f905c518df200a1742",
+      "sha256": "33bc3a96a7d70abdbd6e303837dcda3985056cadeb784cbd6f7bb13f628763a4",
+      "bytes": 4787071
+    },
+    {
+      "path": "research/drone-native-cqt/composed/evidence/summary.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "4173af17e256243be6d087af4b13c95ea773f0b8",
+      "sha256": "8c7438db91cc9b6053121ba960489899e428f99e80d611dbacf182656330bc14",
+      "bytes": 131655
+    },
+    {
+      "path": "research/drone-native-cqt/composed/linux-composed.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "4bfff79409936d5de9b7ef5fd73fe19d03b81781",
+      "sha256": "ef74ad62297efa410d0684c914959f5c5a9e3b9cf49c049cbe9edb0ab8bed711",
+      "bytes": 172374
+    },
+    {
+      "path": "research/drone-native-cqt/composed/linux-composed.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "d6c28f34e89f0ba935483c58c43e949a78925559",
+      "sha256": "33fb6e93d8fb0cb8aa5410c60d1443eeaa239c04859d47f075504bc88f22888b",
+      "bytes": 83933
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac-nine.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "aaa85cdd14c11c5895cda2116c36df9e94c92b33",
+      "sha256": "0f939b799d9fbb13672ae5cd6a3e6602a44ed0ebe1ed7888c3e94d2b0f5dfb10",
+      "bytes": 175182
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac-nine.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "5337ddffa7b741498ea21e6fedc6e18b122a5d62",
+      "sha256": "71c896eefc8e79b66cca2190a2d70ba6947d4393ff352524bc996f8c6d6b314b",
+      "bytes": 79415
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac376-diagnostic.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "d40f81059d251d36d46632f948b1960b8fafc765",
+      "sha256": "40246a12036ae97990c34ca54865875e682bbecfedebb371c1c495856b600ed1",
+      "bytes": 187191
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac376-diagnostic.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "5891215c7c1affed10950c22f66672f5c364195b",
+      "sha256": "8abd2edb6db11de131047c896460c3a05eddcf675474d73db87f8524912931c0",
+      "bytes": 128559
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac376-observed-margins.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "6115701eb0815fb0c403d5753b6634727a157662",
+      "sha256": "2634bde151333a4a8ba18cd25757a32df016721fe9f4ef3096a77d9e9f84b861",
+      "bytes": 66139
+    },
+    {
+      "path": "research/drone-native-cqt/composed/mac376-observed-margins.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "604686855499bed6ddc3844e5325ae3d2b4e3617",
+      "sha256": "f5c8182677767f9b178df3f5de7b868b94961428f901c97d7a3fb9da947a4881",
+      "bytes": 58252
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_mac376.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "bb1327e7094988cbb54b9d2fba60c35bfa1853ac",
+      "sha256": "75038b84ff53332aabfcd8cb5730cff6197a0aa275f83c6a640503e35aa8f42b",
+      "bytes": 3930
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_results.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "50124361db6cab36cc5b3e59b943f5a2c7cb33ab",
+      "sha256": "06a2dd4a819f8cd7078ebcc6d27ed6f9b4a12d284cc502f4c52b412f56b1543f",
+      "bytes": 4119
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "589ee7133651a215e4df47284933c7b3de034753",
+      "sha256": "d975c202d5addb9acd058ef65b658c4cd602c1d826209b095011f6216dc88bdf",
+      "bytes": 11110
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_mac376.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "6521a23aabfc4e9c20a022de02fb6a6b637306b2",
+      "sha256": "4c7e38fdc7a66171112e64161b4d1c02def5405d20737ac6b2f8d9bc8d0f2dfd",
+      "bytes": 10014
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_mac376.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "c957bc99b75925de5c3c3adef96216916f79b80d",
+      "sha256": "f38d2b88da08a71ef7ed804d660761822cb617f8004299f30a40f8db6108746a",
+      "bytes": 3343
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_summarize.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "c0ca096ff3c5e20240cb57fe7f3e9b6b18dec764",
+      "sha256": "f64825e0002ea705d391c105297da329a232e8edd6c38ef4d61858295317c8ee",
+      "bytes": 1838
+    },
+    {
+      "path": "research/drone-native-cqt/cqt-376-ablation.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "6bbb010301d2018fc6e4faae36f92c4f7b22a12b",
+      "sha256": "cc6f1e14da2faaab7ffcb0c42dbc020f77ee530b689e9abbb2665ecbf646016e",
+      "bytes": 190592
+    },
+    {
+      "path": "research/drone-native-cqt/cqt-376-ablation.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "da26bdf3808e1de4759a1347da9cfb2a26d25a41",
+      "sha256": "271d345f96aa5c5e24d437d000f48ba6aa79d6a39f006c56ce89b7883e025d62",
+      "bytes": 254947
+    },
+    {
+      "path": "research/drone-native-cqt/cqt-feasibility.png",
+      "git_mode": "100644",
+      "source_blob_sha1": "a8db9e421f1eaf756835347166e47821c785c080",
+      "sha256": "edebf0a08110c82181686758d8fa95a3b043c69376bafe21291348e67df9074c",
+      "bytes": 108225
+    },
+    {
+      "path": "research/drone-native-cqt/cqt-feasibility.svg",
+      "git_mode": "100644",
+      "source_blob_sha1": "693468ba8e1b673e66c458d1a6269b676e19837a",
+      "sha256": "3d1e2e2d5845e88e939b1738f5caea13ced7a14f2b426fd4288d3333980b6ffc",
+      "bytes": 89866
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/build-evidence-v2.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "06b8c835a13eeb3972bd1b1e9ae350cd520cc61f",
+      "sha256": "35fa6cad00c030c66be93e615de53cc953b3cf3da7a09f90176f007e52d28328",
+      "bytes": 37270
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/candidate2-launch.sh",
+      "git_mode": "100644",
+      "source_blob_sha1": "59103fc940aab5df7a3cb442fe8a5524f68ef332",
+      "sha256": "83b0e4351d30774a446c9973f08574bdfaf211bb2adfeec13256cdb5fff7472e",
+      "bytes": 1974
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/exported-d8424bf.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "6a9bdd771a36d526f52ee11f1537f769ceadb2dc",
+      "sha256": "bff6020b466149e68f61b20563d90b8cb31aca6a4f1012c7d24286cfe90f85da",
+      "bytes": 26881
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/exported-diagnostics-9fd6c34.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "e36cc437d634464c7529e1273419a4108d2dfbd8",
+      "sha256": "f53ca43fb491273aa4979a415e9474397a2cc49b3535638e9140ec08f51560b0",
+      "bytes": 90803
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/first-failure-arithmetic-input.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "f454e3140f4cb8fa380b24046412ac2a9b2cc52a",
+      "sha256": "7b369d7c42678e2fe91c7e5ce75947221f7e425bd8b0457654c4ceefddd5eeef",
+      "bytes": 13894
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/first-failure-arithmetic.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "e53d2afe313f1de6e5ef7eb26ecc9adff85514fc",
+      "sha256": "943420f0821fb52f909dbd3bd1d37ddeedc1c5a5f3187b2179baed344c0d3a2b",
+      "bytes": 24767
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/index.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "87e064982e09db93336239376891b6fc5f491dbb",
+      "sha256": "2dcdef5c1aec3a5b1bbeec762fa78bf06db34753e45c989700d60954338b508e",
+      "bytes": 5870
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/original-376-summary.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "7ca7f73db2a4f00bfa399b8ec9151e45ea5b4cdf",
+      "sha256": "b9bc5cf2d179a26b97f2e8cf80d7cecf42bf4778980896534bde6651f7f73468",
+      "bytes": 266598
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/owner-d8424bf.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "b27b9092bac67cfd95a24c787a58a80a523596f8",
+      "sha256": "29ad3f2535034d654fb75986ec3e0331b9583c01cfbeef945849272c9bb0c708",
+      "bytes": 11837
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/reference-summary.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "9191a6826747619f2f3cdec2dc4692703dddf613",
+      "sha256": "3e86ad29c451b627896132db7d67618c20fd595eea9e9c7b6f3ee51f88288b99",
+      "bytes": 13787
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/svml-arithmetic-result.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "3fbc6e9b9f39733419089215710829a79d465b75",
+      "sha256": "b4b750f2f73ad4daebf7dde51bae41f830f9b4fa0446efea5ae97892e8695f70",
+      "bytes": 241
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/svml-probe-provenance.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "b6cf20a724e78b37baed03174742f8179e7de7c9",
+      "sha256": "4b5203b97589476cde0f014ae7b81bdef5e54ae7bac28985a4ceac8dfa46eec1",
+      "bytes": 1849
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/twoarm-376-summary.json.gz",
+      "git_mode": "100644",
+      "source_blob_sha1": "983eebffae600906171d5ed20820329c4d393762",
+      "sha256": "433b919ac943fce29c8c86ac52eb250e2b83c0466f0616008d49f6451b75c36d",
+      "bytes": 305890
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/twoarm-exit.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "2c4afe31e3e09d537ca2606fbda53916ba7d2f5e",
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392",
+      "bytes": 17
+    },
+    {
+      "path": "research/drone-native-cqt/evidence/twoarm-membership-check.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "eb641f73bc46e5f734b6d6ab84e58c01a1a401a1",
+      "sha256": "98f9af06f841ba47edc9e5b3e984bcf0ab3a08d51e2049de1e1418e45af5c79c",
+      "bytes": 260
+    },
+    {
+      "path": "research/drone-native-cqt/evidence_io.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "f20a365782e80df221e5f893163ec5da29445192",
+      "sha256": "3f5bbfed44ae64fb06c1fa306a92f5fc77ef2a0cd9dac97d85f8deed8978aef9",
+      "bytes": 3858
+    },
+    {
+      "path": "research/drone-native-cqt/plot_expansion.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "634249e45aaecba029ac5ae62c5286cf9b5adf8e",
+      "sha256": "1453b68368bb26b76fcd31894145e84f16578453acb173808728ddb5d8c02f3d",
+      "bytes": 3163
+    },
+    {
+      "path": "research/drone-native-cqt/plot_results.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "d36844060f9f18b5d1e06f37bcf670d7fd604cdf",
+      "sha256": "5bbde63bc67b87ef6103e3af9b1fc5b88f27e7e5faab66e1ec24b5d45a19c76f",
+      "bytes": 3865
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/arithmetic_probe.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "fbbdcf42039ad8daea12c017594ef5f55a53e12c",
+      "sha256": "a765d444e12991423056784a09328ed1565b896b02970172fe4b456fb97c8de8",
+      "bytes": 7444
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/pipeline.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "500aabaec7c7e8b140a4c526b07ac960aae2727b",
+      "sha256": "109eb2dc24a21b7c294b65a939f67421676d53af357f22811781bd93725f024d",
+      "bytes": 10770
+    },
+    {
+      "path": "research/drone-native-cqt/src/evidence.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "1e51eb4bb04c60394eab328e41effa98ebaa477a",
+      "sha256": "47d4995bf31f465e780337321b83bbd4be7ff508d64c6c074cfed4b8c6f56c7f",
+      "bytes": 2156
+    },
+    {
+      "path": "research/drone-native-cqt/src/lib.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "dbfcfd6768e51d1e936bdf19d8f9364a3aa2f59a",
+      "sha256": "c16affc77e105a19e23ab3043d78dac9a712e3110a4f57db5d47bf11fc10ae02",
+      "bytes": 231
+    },
+    {
+      "path": "research/drone-native-cqt/src/main.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "ce767583408d5c2337ab85986377b05b78dfe650",
+      "sha256": "8b59a3967be975e139439a9daeb2dcef4ad2030037d9d30e1dae6e48bde74d43",
+      "bytes": 9645
+    },
+    {
+      "path": "research/drone-native-cqt/src/plan.rs",
+      "git_mode": "100644",
+      "source_blob_sha1": "6a16b786a6ddf4dd0f76e8f73848784288b26d85",
+      "sha256": "88393dd2e3ca216363b23ed54540646722fbd8881b35dcb84140b1573554226d",
+      "bytes": 23293
+    },
+    {
+      "path": "research/drone-native-cqt/src/soxr_split.c",
+      "git_mode": "100644",
+      "source_blob_sha1": "9482581e61d34622823b457cf4956b3d0ea20cb3",
+      "sha256": "31e6bb44cca10ef5f4ecb5b4fe59fe0ea4b51a9ac765e9b1d437d5118877c8f4",
+      "bytes": 1272
+    },
+    {
+      "path": "research/drone-native-cqt/src/svml_probe.c",
+      "git_mode": "100644",
+      "source_blob_sha1": "bf1ebbf3e870beab682558fdb2a9a3170754317d",
+      "sha256": "0623c85b259a783f80dd0932f58d4bc99424fe5be99fd0e05afe0fc0d202af9e",
+      "bytes": 2104
+    },
+    {
+      "path": "research/drone-native-cqt/src/svml_wrapper.c",
+      "git_mode": "100644",
+      "source_blob_sha1": "cbc60b626960b269141b7de0bb6ac682a2fcd7ea",
+      "sha256": "06341403a71cecd726b3ab3b8ca360f7226118357a08d0bd7701c08a7a63658b",
+      "bytes": 1528
+    },
+    {
+      "path": "research/drone-native-cqt/test_evidence_io.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "71c85c873a9ad504f8e96582c8f33e549ed1a432",
+      "sha256": "60034a5205cf2c707f6248a53e483de90f7c6cb7df823c8e79a1b857f7e29927",
+      "bytes": 3955
+    },
+    {
+      "path": "research/drone-native-cqt/test_plot_evidence.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "dff7d1e9fae739f48ad2143c0e7c5afd3212d1f0",
+      "sha256": "8f1e71d8109967a86d3d78f457db1a43276f9263996a48151fb44a4d65ad8d0e",
+      "bytes": 2069
+    },
+    {
+      "path": "research/drone-native-cqt/test_soxr_source.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "d5e7b033668d3550588e6a0a1008003ee1eb7646",
+      "sha256": "2d421b47c9d8d6c753ad071a665b33c4d0d975e3121f6e5e8a9d345b8474f31b",
+      "bytes": 2819
+    },
+    {
+      "path": "research/drone-native-cqt/vendor/LICENSE-SVML",
+      "git_mode": "100644",
+      "source_blob_sha1": "4723d4ea009e5af16664576c0a4d99d41cb11cc9",
+      "sha256": "c17011467b4fe6e20fbfbeda4df09e58c2bca5480a063e55735a4000a379aad9",
+      "bytes": 1543
+    },
+    {
+      "path": "research/drone-native-cqt/vendor/SOURCE.json",
+      "git_mode": "100644",
+      "source_blob_sha1": "d8c436180bcb4c3593325eecf98496bb9b9984ee",
+      "sha256": "8476c33d4cb03eed6b2b75e43921eb989d8f9fe39beef18d9e4f1e464ea91084",
+      "bytes": 701
+    },
+    {
+      "path": "research/drone-native-cqt/vendor/svml_z0_log1p_s_la.s",
+      "git_mode": "100644",
+      "source_blob_sha1": "36107575d7d88a074b7e828eddfc9a6b034186d8",
+      "sha256": "91f68c250ebf9360c078f8ae3f1e6a96506d5995bb717362fb7b65147f3f76a2",
+      "bytes": 33676
+    },
+    {
+      "path": "research/drone-native-cqt/verify_soxr_source.py",
+      "git_mode": "100644",
+      "source_blob_sha1": "1250025185ac192d9e7d021a7c59a1e5bcfc6069",
+      "sha256": "243b0067be98174dbd3cf359a7b851d30f27b8045561b66a8c919f6d651412fa",
+      "bytes": 2000
+    }
+  ],
+  "integration_adjustments": [
+    {
+      "path": "research/drone-native-cached/plot_results.py",
+      "original_sha256": "0ab2282368bef52168c61377b4e70542e03e3ec430eaf2cf933e49b99d1e44e2",
+      "current_sha256": "33a47f0fbbd5ce7aad413f7f656dfd5228eb69e86a581d71e7c7c391159199c0",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_results.py",
+      "original_sha256": "06a2dd4a819f8cd7078ebcc6d27ed6f9b4a12d284cc502f4c52b412f56b1543f",
+      "current_sha256": "973cf700a4b465f7106616ae98ede028b78d5bd48858f25ed010c9306d641947",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize.py",
+      "original_sha256": "d975c202d5addb9acd058ef65b658c4cd602c1d826209b095011f6216dc88bdf",
+      "current_sha256": "732bee0e1f7ea1d65af46bc6aa037f32fb5d6037c863863de3f4867a6bb58a30",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_mac376.py",
+      "original_sha256": "4c7e38fdc7a66171112e64161b4d1c02def5405d20737ac6b2f8d9bc8d0f2dfd",
+      "current_sha256": "bf20a591cbac53f9920552656d37152dcfad513866da3e90050830cdfec52187",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_mac376.py",
+      "original_sha256": "f38d2b88da08a71ef7ed804d660761822cb617f8004299f30a40f8db6108746a",
+      "current_sha256": "90ad22cb626fecc416b4a50caf6072f695e148b75eee9e75cd2c79f947537ce7",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_summarize.py",
+      "original_sha256": "f64825e0002ea705d391c105297da329a232e8edd6c38ef4d61858295317c8ee",
+      "current_sha256": "7c77828f6731f5d75378fd8378b4ad2db9a209d435c2aa7c170d54c33b695cf3",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/evidence_io.py",
+      "original_sha256": "3f5bbfed44ae64fb06c1fa306a92f5fc77ef2a0cd9dac97d85f8deed8978aef9",
+      "current_sha256": "dd66a3e1c2e4e75e9f2f917791ecd720ae27362313f61a9fc894e59b30d034f2",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/plot_expansion.py",
+      "original_sha256": "1453b68368bb26b76fcd31894145e84f16578453acb173808728ddb5d8c02f3d",
+      "current_sha256": "f96758ae934e02786e38b59a62edef225b9f2c819456b2271c920c5e1f0a15a4",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/plot_results.py",
+      "original_sha256": "5bbde63bc67b87ef6103e3af9b1fc5b88f27e7e5faab66e1ec24b5d45a19c76f",
+      "current_sha256": "9e7d0c5758410477d8a0abb3c9e855d86c3f462c6999d3b6f2a4ecc182fece03",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/test_evidence_io.py",
+      "original_sha256": "60034a5205cf2c707f6248a53e483de90f7c6cb7df823c8e79a1b857f7e29927",
+      "current_sha256": "bb8ee9cd3c19351943696e8d0c52056aa9d7311878c5eb74a1908ea745ff7903",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/README.md",
+      "original_sha256": "267acaba3fb9197e33c60e0fe0693af00d2dfea205dc5d084ee64f7a456a7b68",
+      "current_sha256": "73c3cfd72ee102a8cb67a130bb47e9982aa55147deb34f5d48b5f654a5abb15e",
+      "reason": "Current export command runs in the same Drone checkout; historical commands unchanged."
+    },
+    {
+      "path": ".github/workflows/drone-native-research.yml",
+      "original_sha256": "851ac6a47ff58e215001cb3874b0cafa06d0e4da71d9c8048835e6f1a2cfa8b5",
+      "current_sha256": "6db574aa64492210eeb9b3143196283bb9ba30c607a49c34161a368c844b4efc",
+      "reason": "Add provenance verification and corresponding path triggers; native check commands/toolchain unchanged."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/pipeline.rs",
+      "original_sha256": "109eb2dc24a21b7c294b65a939f67421676d53af357f22811781bd93725f024d",
+      "current_sha256": "9c12f9e738be5e5f48501c801b1addb0a7ae8d684f9b0e280b99f16ab67ba9f2",
+      "reason": "Test-only unwrap replaced with explanatory expect to satisfy inherited clippy unwrap_used=deny; production compute unchanged. New source identity is not substituted for any historical measurement."
+    }
+  ],
+  "exact_import_commit": "90f08229b88f5c7969235ba534a3e46fbf53a6f7"
+}
