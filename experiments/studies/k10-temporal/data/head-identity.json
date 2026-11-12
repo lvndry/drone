@@ -1,0 +1,75 @@
+{
+  "version": "frozen-k10-temporal-v1",
+  "identity": {
+    "version": "frozen-k10-temporal-v1",
+    "source_sha256": {
+      "experiments/temporal_model.py": "9e68b4c00d8e0dfc8bf99a7b44fa6390e12fce06d5ce9f871be96fa654c47e0a",
+      "experiments/temporal_cache.py": "66febd98ff8c68bdbed3ee01145d90f600886f16d1fff6bf2bebaa354e99f49a",
+      "experiments/temporal_study.py": "d5419920dc9593a075acd077352538211b71ce8bd442192b41b8bc390d61e6b1",
+      "experiments/temporal_cpu.py": "28a0849a9e4a05f9443f7e1d3abca52c516ddbd286cc2715c85d94988e741853",
+      "experiments/k10_multidomain.py": "5b59ef1442a3db5e7167a9bccc5355e857dc32ac08e2a925921e7c6ad56a6c2e",
+      "experiments/paired.py": "ab7a0215ab2962a3768e00cfe6760fa5b0e4844f64965e581aa02ee51a4323d8",
+      "experiments/ema.py": "77286116c69a9003ea14b99cf87606970d4c83bb92ea9257d45e8f1b3fbe4788",
+      "experiments/octave.py": "8bddcbdbd6c23e68e319f70efcb456fe8cbdbc58ba23627279d2c01225835439",
+      "experiments/small.py": "d8c408fce4256aea7c9b310f36dd5608e484dd3fd3179d3b19566edbf310c90d",
+      "drone/export.py": "6f1f26957686ea5b32033b87ddbae38c42fd1857678dde3788158397d6b67aac",
+      "drone/features.py": "f2fcc1a23a0b587ae870aeec8d47365c5685023fcfec3f98a7a6793613de340b",
+      "drone/keys.py": "ccf774468fb165ce27c0d9e2d3dac05bf258575665c2ff6318a1e1c5b79ea432",
+      "pyproject.toml": "8f0cee2ee18a9e8d75c07ca9fdc5b6a975d1a31f2ed6e173f97406494f0a0ffa",
+      "uv.lock": "ce41bd7cca36cb705a18b90877ecff6a0955707c61232f8858ababb7d4f545f9"
+    },
+    "protocol_sha256": "2a0f0b07347f2310e2caccc140a4976bc02d10dbd24859b336a7eadf3961971f",
+    "torch": "2.15.0+cu132",
+    "numpy": "2.5.4",
+    "python": "3.12.3",
+    "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+    "cuda_build": "13.2"
+  },
+  "encoder_seed": 13,
+  "cache_manifest_sha256": "12216ac1718c42e3dca994216f7d070d013cb6af8bb662902902417de1d3706b",
+  "reconstruction_sha256": "c8641e5da3f694996dad6bea4ce77eff8b680fcd7931c06f7c21711af2a83c0a",
+  "initial_state_sha256": {
+    "M": "1a5588078a929c235cfc80d43f808cd17e2704cebf8d16c05037668b4d383d6d",
+    "O": "ea1dea3b3714e6e41db44391c149422319c1e024927fbb2bfe238696eab01da3",
+    "S": "ea1dea3b3714e6e41db44391c149422319c1e024927fbb2bfe238696eab01da3"
+  },
+  "padding_preflight": {
+    "M": {
+      "ids": [
+        "fmak:108013",
+        "fmak:109277"
+      ],
+      "max_abs_error": 2.384185791015625e-07,
+      "nonzero_readout": true
+    },
+    "O": {
+      "ids": [
+        "fmak:108013",
+        "fmak:109277"
+      ],
+      "max_abs_error": 1.7881393432617188e-07,
+      "nonzero_readout": true
+    },
+    "S": {
+      "ids": [
+        "fmak:108013",
+        "fmak:109277"
+      ],
+      "max_abs_error": 2.384185791015625e-07,
+      "nonzero_readout": true
+    }
+  },
+  "zero_head_recordings_per_arm": 2582,
+  "aggregate_started_epoch": 1794465833.4492478,
+  "config": {
+    "epochs": 60,
+    "patience": 12,
+    "batch": 32,
+    "microbatch_padded_tokens": 8192,
+    "lr": 0.0003,
+    "min_lr": 3e-06,
+    "weight_decay": 0.001,
+    "clip": 1.0,
+    "selection": "balanced-domain-exact,balanced-domain-CE,earlier-epoch"
+  }
+}

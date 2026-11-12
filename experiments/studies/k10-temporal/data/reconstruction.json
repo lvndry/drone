@@ -1,0 +1,26 @@
+{
+  "version": "frozen-k10-temporal-v1",
+  "status": "complete",
+  "recordings": 2582,
+  "all_logits_within_tolerance": true,
+  "argmax_disagreements": 0,
+  "bit_identical": 2582,
+  "max_abs_error": 0.0,
+  "manifest_sha256": "12216ac1718c42e3dca994216f7d070d013cb6af8bb662902902417de1d3706b",
+  "canonical_logits_sha256": "67ceb53f1ca2214ec4cde00bc78510e5517678673dd596b9f661654be558aa65",
+  "elapsed_seconds": 16.066046186955646,
+  "aggregate_started_epoch": 1794465833.4492478,
+  "memory": {
+    "allocator_fraction": 0.04,
+    "required_free_bytes": 8589934592,
+    "free_bytes": 23504486400,
+    "total_bytes": 101971460096,
+    "gpu_name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "cudnn_version": 92600,
+    "tf32_matmul": false,
+    "tf32_cudnn": false,
+    "actual_cap_bytes": 4078858403,
+    "peak_allocated_bytes": 257705472,
+    "peak_reserved_bytes": 429916160
+  }
+}

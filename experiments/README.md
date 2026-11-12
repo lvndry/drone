@@ -15,6 +15,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [K10 capacity](studies/k10-capacity/REPORT.md) | Earn a stronger teacher through one wider model | Width 2 loses accuracy under the same recipe; no teacher or product tier earned. |
 | [Pitch-circle sharing](studies/pitch-circle/REPORT.md) | Retain octaves while sharing transposition patterns | Seed-13 pilot rejected; FMAK exact −0.40 points, no confirmation. |
 | [Tonal key ranker](studies/tonal-key-ranker/REPORT.md) | Test candidate-relative harmonic summaries with a small nonlinear scorer | Fixed descriptor/tree recipe loses substantially; stop this route. |
+| [Frozen temporal heads](studies/k10-temporal/REPORT.md) | Test whether full-track hidden features and order improve exact accuracy | Ordered head loses 5.60 FMAK exact points; candidate and mechanism gates fail. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
