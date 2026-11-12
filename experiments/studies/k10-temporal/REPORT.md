@@ -161,7 +161,7 @@ The authoritative result SHA-256 is
 `b31fe60c57a699bbaf95b409910312b10aa661c587a87494916b6bd22ac5882e`.
 [Provenance](data/provenance.json) indexes every retained artifact's byte size and
 hash, the six executed-file hashes, source tag and server root. Original
-validation logits, identifiers and metrics are retained. Histories and schedules
+validation logits, identifiers and metrics are retained. Validation logits, histories and schedules
 are losslessly gzip-compressed with both compressed and decoded hashes. No
 checkpoint, audio or hidden cache is committed; checkpoint hashes remain in the
 result. [Reconstruction](data/reconstruction.json), [preflight](data/preflight.json)

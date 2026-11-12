@@ -25,6 +25,17 @@ def test_temporal_evidence_bytes_and_decisions() -> None:
     for relative, digest in provenance["executed_files_sha256"].items():
         assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest
     for arm in "MOS":
+        validation_bytes = gzip.decompress((DATA / f"validation-{arm}.json.gz").read_bytes())
+        assert (
+            hashlib.sha256(validation_bytes).hexdigest() == result["arms"][arm]["validation_sha256"]
+        )
+        validation = json.loads(validation_bytes)
+        predictions = {
+            identity: max(range(24), key=logits.__getitem__)
+            for identity, logits in zip(validation["ids"], validation["logits"], strict=True)
+        }
+        for metric in result["arms"][arm]["metrics"].values():
+            assert [predictions[identity] for identity in metric["ids"]] == metric["predictions"]
         history = json.loads(gzip.decompress((DATA / f"history-{arm}.json.gz").read_bytes()))
         selected = min(
             history,
