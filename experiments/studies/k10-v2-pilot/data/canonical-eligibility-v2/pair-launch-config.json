@@ -1,0 +1,53 @@
+{
+  "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+  "TF32_off_inherited": true,
+  "accuracy_dependent_early_stop": false,
+  "amender_commit": "b67ad3e868a1aef99fc0f12f723d4c2bd3264f6c",
+  "cpus": [
+    4,
+    5,
+    10,
+    11
+  ],
+  "feature_manifest_sha256": "9f94f6a5c6a9e78b4c5d1013cf97b44d6d2fd69665348ebb497e2c817560d6cc",
+  "gpu_uuid": "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c",
+  "guard_source_sha256": "059372a6c76d01a99ae4d3497f84869739dcbd016c787f76b816e01830848b23",
+  "numeric_threads": 1,
+  "order": [
+    "restricted",
+    "expanded"
+  ],
+  "per_arm_caps": {
+    "allocator_fraction": 0.04,
+    "cpu_seconds": 6000,
+    "internal_wall_seconds": 1200,
+    "output_bytes": 1073741824,
+    "required_gpu_free_bytes": 8589934592,
+    "rss_bytes": 8589934592,
+    "updates": 8280,
+    "wall_seconds": 1250
+  },
+  "plan_sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
+  "protected_starts": [
+    {
+      "pid": 1478814,
+      "start_ticks": 35698640
+    },
+    {
+      "pid": 3448680,
+      "start_ticks": 111966827
+    },
+    {
+      "pid": 1481756,
+      "start_ticks": 35700162
+    },
+    {
+      "pid": 3451013,
+      "start_ticks": 111967770
+    }
+  ],
+  "retry_or_resume": false,
+  "status": "PROPOSED_SEQUENTIAL_PAIR_NO_EXECUTION_AUTHORIZATION",
+  "torch_threads": 4,
+  "training_source_commit": "58fe80662bdb3362349672820a0bcd4387155ca2"
+}
