@@ -22,3 +22,5 @@ weights/*
 .ruff_cache/
 dist/
 *.egg-info/
+
+!tests/fixtures/*.wav

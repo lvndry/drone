@@ -1,0 +1,45 @@
+{
+  "all_public_audio_hashes_verified": true,
+  "approved_development_manifest_sha256": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5",
+  "artifacts_root": "/home/lysk-admin/drone-experiments/pr14-integration-20261112-v1",
+  "baseline_checkpoint_sha256": "e844a61140cefd3117b7602e73f9cdea297bc3e6cb002bed1474de36de2c31cd",
+  "baseline_epochs": 3,
+  "correction_preparation": {
+    "fit": 41,
+    "held_out": 7,
+    "key_corrections": 48,
+    "matched": 48,
+    "tempo_only_skipped": 1,
+    "unmatched": 0
+  },
+  "driver_sha256": "96229c0b98ca519c7e26f2e46061a974fa4d2d55827e9af0ea17c2c530e4507a",
+  "elapsed_training_seconds": 43.613450854085386,
+  "finetune_epochs": 10,
+  "finetune_report_sha256": "06ed913f6d765f1dacd57692ed0203a8cffe40f7c924bc4312158507734d8c6b",
+  "fitting_pool_partition": {
+    "test": 243,
+    "train": 992
+  },
+  "original_train_manifest_sha256": "471f43c8564d282b3b9d0f64c9b01e1aace77b49ceca08112f82444fb5286a29",
+  "packages": {
+    "blake3": "1.0.11",
+    "librosa": "1.0.0",
+    "numpy": "2.5.4",
+    "soxr": "1.1.0",
+    "torch": "2.15.0"
+  },
+  "postfit_disjointness_verified": true,
+  "promotion": false,
+  "public_fitting_only": true,
+  "purpose": "software integration smoke; not an accuracy/release candidate",
+  "real_giantsteps_final_calibration_swd_private_audio_used": false,
+  "scope": "Software integration only; not evidence of personalization, generalization or release accuracy",
+  "source_archive_sha256": "762972cab9699906e348f56f0a5583d8d9dfbf125b7467ff3fe9358bd3efbee3",
+  "source_audio_units": "1230 approved unique byte hashes; legacy aliases yield 1235 rows, kept on the same side by SHA split",
+  "source_commit": "1e0a8aa1ade83507844f316d80873c8c5b3c34e4",
+  "source_script": "smoke.py; SHA above; retained beside source archive and full report",
+  "status": "complete",
+  "synthetic_corrections": 48,
+  "test_field_note": "legacy report field giantsteps denotes the fitting-pool inner holdout in this smoke only; no GiantSteps files are used",
+  "tuned_checkpoint_sha256": "be7c137c1dc4163670b8170519f1d8bfe635a18a8a0dadfc0386e71b6b3fd882"
+}
