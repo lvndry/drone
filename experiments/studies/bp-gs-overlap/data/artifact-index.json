@@ -1,0 +1,63 @@
+{
+  "collector-provenance-v1.json": {
+    "bytes": 8132,
+    "sha256": "bcb9eca0f7a46764670732896fbb01b686b9d36664e99fddae977c6e77b9380f"
+  },
+  "collector-provenance-v2.json": {
+    "bytes": 9170,
+    "sha256": "20bf0d95754516a5ec9f91b8ae1198a634db7d34b0e956c9373ee20682070246"
+  },
+  "collector-v1.json": {
+    "bytes": 608819,
+    "sha256": "d9badc44eab424821191275c74c3bb7ee5b44e5a66ed52b3cb44a4a64d7e5656"
+  },
+  "collector-v2.json": {
+    "bytes": 652374,
+    "sha256": "11be7af64c39479a287d09d542a588b7ca0a2ae71beaf339836862d13dc1f94c"
+  },
+  "control-plan-v1.json.gz": {
+    "bytes": 2642074,
+    "decoded_bytes": 38969739,
+    "decoded_sha256": "9f9721c7abb05fdc5de9640adf47b9f69552c598c92a32453751351221740473",
+    "sha256": "5403dd97b1b06dff252828288a3d8a7f03b9b27cc7f6f4cf6fb93eb2be0bbf28"
+  },
+  "historical-controls.json": {
+    "bytes": 127833,
+    "sha256": "2e6571acfd048b1844baa8989e0477f9b438a6b756f68d84a8c9b37c207aab16"
+  },
+  "official-download-provenance.json": {
+    "bytes": 3715,
+    "historical_original_sha256": "990e274843d37be79decf293fa0b83a28dd021ffec5a0eb90835927734732742",
+    "publication_derivative": true,
+    "sanitization_manifest": "official-provenance-sanitization.json",
+    "sha256": "fc642921cfbbdc88c14cc58e7f90a35d9d3139e51de5c91b5fbef2bd18c5daf9"
+  },
+  "official-id-catalog.json": {
+    "bytes": 35120,
+    "sha256": "e25ac2f4fd2b3faecebce2f55772e9ce5bd3276a81864dd105d1a0aa8c884b2c"
+  },
+  "official-provenance-sanitization.json": {
+    "bytes": 1217,
+    "sha256": "7099c5dd22d7d84c502cc25050f0e78c303617f4ef6b1d1bea45ed6d8abf74b0"
+  },
+  "pcm-role-check.json": {
+    "bytes": 78121,
+    "sha256": "caf56e2fb883ea7ac30dbbca23dd99a369f9f0de7b4cdaabd160b587b3a8884a"
+  },
+  "plan.json.gz": {
+    "bytes": 960755,
+    "decoded_bytes": 7796054,
+    "decoded_sha256": "8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356",
+    "sha256": "c237e037df03ef0067a33cc6aad5fd952bd4e25b07d00b832fa14965bb3170ec"
+  },
+  "reference-result-v1.json.gz": {
+    "bytes": 1124856,
+    "decoded_bytes": 6046687,
+    "decoded_sha256": "5b3d7296f8277d8b43470736e670d35e58c2c94230b0f95dc53172d33787ed14",
+    "sha256": "0690f58a09be01d5ab37acbb5b845ec77a3b77fc29411227eabc33eaae266a73"
+  },
+  "release-metadata.json": {
+    "bytes": 126091,
+    "sha256": "69432e5f6ddc0ad10a55de591e3174e6db9ef705355cfdca5a1f678a9bfa4c4f"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "source_commit": "faa3a6ffe514c41564e415367fe5b068fd4bd76c",
+  "archive_sha256": "6f0df8232d244f061717216addecaed0d369d8ace83bec4fb02c8baf38245519",
+  "plan_sha256": "8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356",
+  "source_sha256": {
+    "experiments/bp_gs_scope.py": "b5f3bb6564639c1c4460eab8094ae7c94ebac0690ac15392743f949b71d8dcda",
+    "experiments/fma_alignment_matcher.py": "04c8b51b6f37223d0db7544f45c87e8d7a11c8c70f2993741ecc75b5c052aa90",
+    "experiments/fma_fingerprints.py": "a0d315f3f6f6f62b33b7453119350807702eec35a17723b9079fca30c4328f71",
+    "experiments/studies/bp-gs-overlap/PROTOCOL.md": "26ea16d0dabde166e36620ecf05122787f061570a950e30ac0917e99ff41a451",
+    "tools/audit_bp_gs.py": "63306f2a071c7e00c8e47f9cad1594c86cda53f2f73617180607481f4d4d12a1",
+    "tools/collect_bp_lineage.py": "9351e56c68c3416e6606fd930be48961d8a070f0d2c0da3a0ab890f0b8931931"
+  },
+  "counts": {
+    "bp_queries": 1486,
+    "gs_distinct_pcm_hashes": 602,
+    "gs_target_recordings": 604,
+    "indexed_bp_container_hashes": 1478,
+    "indexed_bp_ids": 1486,
+    "indexed_bp_pcm_hashes": 1477,
+    "official_bp_ids": 1486,
+    "prepared_fitting": 1230,
+    "prepared_ids": 1356,
+    "prepared_validation": 126,
+    "raw_outside_release": 123,
+    "release_fit_container_hashes": 1232,
+    "release_fitting_ids": 1237,
+    "release_outside_prepared": 7,
+    "release_train_validation_container_intersection": 2,
+    "release_union_ids": 1363,
+    "release_validation_ids": 126,
+    "source_parseable_ids": 1363,
+    "source_unparseable_ids": 123,
+    "synthetic_negative_controls": 64,
+    "target_self_controls": 604,
+    "total_planned_queries": 2334,
+    "transformed_positive_controls": 180
+  },
+  "verified_utc": "2026-11-12T09:17:01.185982+00:00"
+}

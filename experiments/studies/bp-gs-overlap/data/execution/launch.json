@@ -1,0 +1,10 @@
+{
+  "source_commit": "faa3a6ffe514c41564e415367fe5b068fd4bd76c",
+  "archive": "/tmp/drone-bp-gs-faa3a6f-source.tar.gz",
+  "archive_sha256": "6f0df8232d244f061717216addecaed0d369d8ace83bec4fb02c8baf38245519",
+  "archive_bytes": 12090831,
+  "server_root": "/home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1",
+  "wrapper_sha256": "c76e315e6691c4af6c3cae2f6e1b9758ae216e01bb30582aec08e57a29fe0887",
+  "launch_command": "nohup bash /home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/run.sh </dev/null >/home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/wrapper.log 2>&1 & echo $!",
+  "authoritative_wrapper_pid": 3896221
+}

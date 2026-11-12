@@ -18,6 +18,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [Frozen temporal heads](studies/k10-temporal/REPORT.md) | Test whether full-track hidden features and order improve exact accuracy | Ordered head loses 5.60 FMAK exact points; candidate and mechanism gates fail. |
 | [Fixed SAM](studies/k10-sam/REPORT.md) | Improve accuracy through one sharpness-aware update recipe | Canonical pilot loses weighted and exact accuracy; no confirmation or rescue. |
 | [Fixed probability ensemble](studies/k10-ensemble/REPORT.md) | Qualify a stronger own-data teacher from joint seeds 13/37/73 | Beatport improves, canonical FMAK regresses; teacher and separate BP-reference gates fail. No distillation. |
+| [BP / GiantSteps overlap audit](studies/bp-gs-overlap/REPORT.md) | Reconcile source/model exposure and test cached recording overlap | 0 identity, 539 unresolved review, 947 no-detected; no overlap-free claim. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,

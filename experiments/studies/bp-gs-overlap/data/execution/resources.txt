@@ -1,0 +1,23 @@
+	Command being timed: "timeout -s INT -k 3 3650 taskset -c 4,5 nice -n 15 /home/lysk-admin/drone/.venv/bin/python -m tools.audit_bp_gs run --plan /home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/plan.json --plan-sha256 8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356 --output /home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/evidence"
+	User time (seconds): 821.01
+	System time (seconds): 335.92
+	Percent of CPU this job got: 101%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 18:57.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 276832
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 19
+	Minor (reclaiming a frame) page faults: 172067
+	Voluntary context switches: 4738934
+	Involuntary context switches: 23778
+	Swaps: 0
+	File system inputs: 1926032
+	File system outputs: 2846072
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
