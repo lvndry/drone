@@ -1,0 +1,16 @@
+{
+  "format": "dj-coverage-aggregate-v1",
+  "path": "coverage-aggregate.json.gz",
+  "sha256": "07718b4303596f780284015a29b8b9ff555252546ad50e0bd3c100e3a3cee3af",
+  "decoded_sha256": "cd1131e23ee734973075a4c539f9e156470c482391ff2a1bfc8d74083068af52",
+  "aggregate_sha256": {
+    "fma": "a4e418d0f3f0214dba04bf26fdd5d4ecfd68f59e6292e552d9151d41bfe6eb10",
+    "bp": "94a3ca8b0693907ab8dd1878c8963d24dfa4311308580708bf9e122cbec644f6"
+  },
+  "source_sha256": {
+    "tools/dj_coverage.py": "46a0380aa5188f78b6a0dad8eb1ef47c0fdeac34ffd17675f867dc5f87819051",
+    "tools/dj_coverage_bp.py": "fd55994a3163c37dfa361d29d14555916c5f745c13a35f66cac8279175e681e8"
+  },
+  "metadata_only": true,
+  "source_rows_or_key_exports_included": false
+}

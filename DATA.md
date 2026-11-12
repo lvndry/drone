@@ -34,6 +34,19 @@ annotation license does not itself establish redistribution rights to the audio;
 retain provenance and review the distribution terms for any future model release.
 
 
+## Research reference versions
+
+Research references use [FMAKv2](https://zenodo.org/records/12759100), derived from
+[expert-annotated FMAK](https://zenodo.org/records/10719860). Its release reports
+about 200 revisions not verified by the original annotators; this does not prove
+errors. [Spotify URI matches](https://github.com/stellaywong/fma_keys) support analyzer
+comparison, not Spotify-generated reference keys. Targets remain pinned. See the
+[coverage/provenance audit](experiments/studies/v2-data-contract/REPORT.md#current-genre-duration-and-reference-provenance).
+
+Beatport's human reference annotations are distinct from store metadata keys;
+genre or duration metadata must not replace either references or actual preview
+support. The coverage audit keeps native taxonomies and version identities separate.
+
 ## Personal corrections
 
 Human annotations are optional explicit inputs, separate from Drone's public base
