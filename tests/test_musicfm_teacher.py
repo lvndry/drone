@@ -156,3 +156,108 @@ def test_streamed_song_evaluation_matches_explicit_weighted_reference() -> None:
         evaluate_song(teacher, samples, zip(windows[:-1], inputs[:-1], strict=True))
     with pytest.raises(ValueError, match="window context"):
         evaluate_song(teacher, samples, [(windows[0], torch.zeros(1, 288001))])
+
+
+class Wav2Vec2ConformerRotaryPositionalEmbedding(nn.Module):
+    """Tiny stand-in reproducing the pinned upstream length-only cache defect."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.register_buffer("inv_freq", torch.tensor([1.0 / 3.0]))
+        self.cached_sequence_length: int | None = None
+        self.cached_rotary_positional_embedding: Tensor | None = None
+
+    def forward(self, hidden: Tensor) -> Tensor:
+        length = hidden.shape[1]
+        if (
+            length == self.cached_sequence_length
+            and self.cached_rotary_positional_embedding is not None
+        ):
+            return self.cached_rotary_positional_embedding
+        self.cached_sequence_length = length
+        self.cached_rotary_positional_embedding = torch.full(
+            (2, length, 1, 1, 2), 1.0 / 3.0, device=hidden.device
+        ).type_as(hidden)
+        return self.cached_rotary_positional_embedding
+
+
+class ToyConformer(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.embed_positions = Wav2Vec2ConformerRotaryPositionalEmbedding()
+
+
+class CachedBackbone(ToyBackbone):
+    def __init__(self) -> None:
+        super().__init__()
+        self.conformer = ToyConformer()
+
+    def encoder(self, features: Tensor) -> tuple[None, list[Tensor]]:
+        hidden = self.projection(features).unsqueeze(1)
+        cached = self.conformer.embed_positions(hidden)
+        hidden = hidden + cached[0, :, 0, 0, 0].view(1, -1, 1)
+        return None, [hidden] * 13
+
+
+def test_rotary_cache_is_invalidated_for_bf16_train_fp32_eval_and_reverse() -> None:
+    backbone = CachedBackbone()
+    teacher = KeyTeacher(backbone)
+    fresh = copy.deepcopy(teacher)
+    position = backbone.conformer.embed_positions
+    waveform = torch.full((1, 1200), 0.125)
+    before = {key: value.clone() for key, value in teacher.state_dict().items()}
+    with torch.inference_mode(), torch.autocast("cpu", dtype=torch.bfloat16):
+        teacher(waveform)
+    assert position.cached_rotary_positional_embedding is not None
+    assert position.cached_rotary_positional_embedding.dtype == torch.bfloat16
+    teacher.eval()
+    assert position.cached_sequence_length is None
+    assert position.cached_rotary_positional_embedding is None
+    fresh.eval()
+    with torch.inference_mode():
+        torch.testing.assert_close(teacher(waveform), fresh(waveform), atol=0, rtol=0)
+    cached = position.cached_rotary_positional_embedding
+    assert cached.dtype == torch.float32
+    teacher.eval()  # Same-mode calls must not introduce new evaluation schedule/reset effects.
+    assert position.cached_rotary_positional_embedding is cached
+    teacher.train()
+    assert position.cached_sequence_length is None
+    assert position.cached_rotary_positional_embedding is None
+    with torch.inference_mode(), torch.autocast("cpu", dtype=torch.bfloat16):
+        teacher(waveform)
+    assert position.cached_rotary_positional_embedding is not None
+    assert position.cached_rotary_positional_embedding.dtype == torch.bfloat16
+    for key, value in teacher.state_dict().items():
+        assert torch.equal(value, before[key])
+
+
+def test_rotary_cache_handles_same_mode_precision_changes_and_module_moves() -> None:
+    backbone = CachedBackbone()
+    teacher = KeyTeacher(backbone)
+    position = backbone.conformer.embed_positions
+    waveform = torch.full((1, 1200), 0.125)
+    with torch.inference_mode(), torch.autocast("cpu", dtype=torch.bfloat16):
+        teacher(waveform)
+    assert teacher.training
+    with torch.inference_mode():
+        teacher(waveform)  # Precision change without train()/eval().
+    assert position.cached_rotary_positional_embedding is not None
+    assert position.cached_rotary_positional_embedding.dtype == torch.float32
+    teacher.to("cpu")  # Also exercises invalidation of ordinary non-buffer cache attributes.
+    assert position.cached_sequence_length is None
+    assert position.cached_rotary_positional_embedding is None
+
+
+def test_rotary_cache_rejects_malformed_or_unexpected_upstream_contract() -> None:
+    backbone = CachedBackbone()
+    teacher = KeyTeacher(backbone)
+    position = backbone.conformer.embed_positions
+    position.cached_sequence_length = 1
+    position.cached_rotary_positional_embedding = torch.zeros(1)
+    with pytest.raises(ValueError, match="Malformed pinned"):
+        teacher.eval()
+    backbone = CachedBackbone()
+    teacher = KeyTeacher(backbone)
+    setattr(backbone.conformer, "embed_positions", nn.Identity())
+    with pytest.raises(ValueError, match="pinned Conformer rotary cache contract"):
+        teacher.eval()
