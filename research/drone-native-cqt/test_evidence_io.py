@@ -81,16 +81,12 @@ class EvidenceStorageTests(unittest.TestCase):
                 "decoded_sha256": "0" * 64,
                 "decoded_bytes": len(raw),
             }
-            (root / "index.json").write_text(
-                json.dumps({"compressed_json": {path.name: record}})
-            )
+            (root / "index.json").write_text(json.dumps({"compressed_json": {path.name: record}}))
             with self.assertRaises(ValueError):
                 load_json(path)
             record["decoded_sha256"] = digest(raw)
             path.write_bytes(encoded + b"changed")
-            (root / "index.json").write_text(
-                json.dumps({"compressed_json": {path.name: record}})
-            )
+            (root / "index.json").write_text(json.dumps({"compressed_json": {path.name: record}}))
             with self.assertRaises(ValueError):
                 load_json(path)
 

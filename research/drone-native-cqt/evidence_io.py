@@ -21,9 +21,7 @@ def digest(raw: bytes) -> str:
 
 def canonical_gzip(raw: bytes) -> bytes:
     stream = io.BytesIO()
-    with gzip.GzipFile(
-        filename="", mode="wb", compresslevel=9, fileobj=stream, mtime=0
-    ) as output:
+    with gzip.GzipFile(filename="", mode="wb", compresslevel=9, fileobj=stream, mtime=0) as output:
         output.write(raw)
     return stream.getvalue()
 
@@ -36,10 +34,7 @@ def load_json(path: Path) -> dict[str, Any]:
         if digest(encoded) != identity["compressed_sha256"]:
             raise ValueError(f"Changed compressed evidence: {path.name}")
         raw = gzip.decompress(encoded)
-        if (
-            digest(raw) != identity["decoded_sha256"]
-            or len(raw) != identity["decoded_bytes"]
-        ):
+        if digest(raw) != identity["decoded_sha256"] or len(raw) != identity["decoded_bytes"]:
             raise ValueError(f"Changed decoded evidence: {path.name}")
     else:
         expected = index.get("files", {}).get(path.name)
@@ -68,9 +63,7 @@ def package_summaries(directory: Path) -> None:
             encoded = canonical_gzip(raw)
             if target.exists():
                 if target.read_bytes() != encoded:
-                    raise ValueError(
-                        f"Unexpected existing compressed bytes: {target.name}"
-                    )
+                    raise ValueError(f"Unexpected existing compressed bytes: {target.name}")
             else:
                 with target.open("xb") as output:
                     output.write(encoded)

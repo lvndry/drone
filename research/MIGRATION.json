@@ -24,7 +24,7 @@
     "research/drone-native-cqt": "ae4dd265cf1554ec575f1aaa02577f58d179b073",
     "research/drone-native-cached": "bc7002d020e8b30834ecc55ced9008f48b9a4f9f"
   },
-  "semantics": "Exact byte/mode import. Original history remains at source commits and tags; removal does not rewrite history. No new numerical execution or promotion. Subsequent path-only documentation edits are indexed separately.",
+  "semantics": "Original bytes/modes preserved in exact_import_commit and source history. Subsequent format-only Python adaptations retain identical ASTs; documentation/CI adjustments are indexed separately. No new numerical execution or promotion.",
   "files": [
     {
       "path": ".github/workflows/drone-native-research.yml",
@@ -657,5 +657,85 @@
       "bytes": 2000
     }
   ],
-  "integration_adjustments": []
+  "integration_adjustments": [
+    {
+      "path": "research/drone-native-cached/plot_results.py",
+      "original_sha256": "0ab2282368bef52168c61377b4e70542e03e3ec430eaf2cf933e49b99d1e44e2",
+      "current_sha256": "33a47f0fbbd5ce7aad413f7f656dfd5228eb69e86a581d71e7c7c391159199c0",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_results.py",
+      "original_sha256": "06a2dd4a819f8cd7078ebcc6d27ed6f9b4a12d284cc502f4c52b412f56b1543f",
+      "current_sha256": "973cf700a4b465f7106616ae98ede028b78d5bd48858f25ed010c9306d641947",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize.py",
+      "original_sha256": "d975c202d5addb9acd058ef65b658c4cd602c1d826209b095011f6216dc88bdf",
+      "current_sha256": "732bee0e1f7ea1d65af46bc6aa037f32fb5d6037c863863de3f4867a6bb58a30",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_mac376.py",
+      "original_sha256": "4c7e38fdc7a66171112e64161b4d1c02def5405d20737ac6b2f8d9bc8d0f2dfd",
+      "current_sha256": "bf20a591cbac53f9920552656d37152dcfad513866da3e90050830cdfec52187",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_mac376.py",
+      "original_sha256": "f38d2b88da08a71ef7ed804d660761822cb617f8004299f30a40f8db6108746a",
+      "current_sha256": "90ad22cb626fecc416b4a50caf6072f695e148b75eee9e75cd2c79f947537ce7",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_summarize.py",
+      "original_sha256": "f64825e0002ea705d391c105297da329a232e8edd6c38ef4d61858295317c8ee",
+      "current_sha256": "7c77828f6731f5d75378fd8378b4ad2db9a209d435c2aa7c170d54c33b695cf3",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/evidence_io.py",
+      "original_sha256": "3f5bbfed44ae64fb06c1fa306a92f5fc77ef2a0cd9dac97d85f8deed8978aef9",
+      "current_sha256": "dd66a3e1c2e4e75e9f2f917791ecd720ae27362313f61a9fc894e59b30d034f2",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/plot_expansion.py",
+      "original_sha256": "1453b68368bb26b76fcd31894145e84f16578453acb173808728ddb5d8c02f3d",
+      "current_sha256": "f96758ae934e02786e38b59a62edef225b9f2c819456b2271c920c5e1f0a15a4",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/plot_results.py",
+      "original_sha256": "5bbde63bc67b87ef6103e3af9b1fc5b88f27e7e5faab66e1ec24b5d45a19c76f",
+      "current_sha256": "9e7d0c5758410477d8a0abb3c9e855d86c3f462c6999d3b6f2a4ecc182fece03",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/test_evidence_io.py",
+      "original_sha256": "60034a5205cf2c707f6248a53e483de90f7c6cb7df823c8e79a1b857f7e29927",
+      "current_sha256": "bb8ee9cd3c19351943696e8d0c52056aa9d7311878c5eb74a1908ea745ff7903",
+      "reason": "Formatting-only adaptation to Drone root Ruff line length; Python AST exactly equals the byte-preserved import commit."
+    },
+    {
+      "path": "research/drone-native-cqt/README.md",
+      "original_sha256": "267acaba3fb9197e33c60e0fe0693af00d2dfea205dc5d084ee64f7a456a7b68",
+      "current_sha256": "73c3cfd72ee102a8cb67a130bb47e9982aa55147deb34f5d48b5f654a5abb15e",
+      "reason": "Current export command runs in the same Drone checkout; historical commands unchanged."
+    },
+    {
+      "path": ".github/workflows/drone-native-research.yml",
+      "original_sha256": "851ac6a47ff58e215001cb3874b0cafa06d0e4da71d9c8048835e6f1a2cfa8b5",
+      "current_sha256": "6db574aa64492210eeb9b3143196283bb9ba30c607a49c34161a368c844b4efc",
+      "reason": "Add provenance verification and corresponding path triggers; native check commands/toolchain unchanged."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/pipeline.rs",
+      "original_sha256": "109eb2dc24a21b7c294b65a939f67421676d53af357f22811781bd93725f024d",
+      "current_sha256": "9c12f9e738be5e5f48501c801b1addb0a7ae8d684f9b0e280b99f16ab67ba9f2",
+      "reason": "Test-only unwrap replaced with explanatory expect to satisfy inherited clippy unwrap_used=deny; production compute unchanged. New source identity is not substituted for any historical measurement."
+    }
+  ],
+  "exact_import_commit": "90f08229b88f5c7969235ba534a3e46fbf53a6f7"
 }

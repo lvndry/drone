@@ -17,9 +17,7 @@ def save_figure(figure: Figure, root: Path, name: str) -> None:
     figure.savefig(root / f"{name}.png", dpi=180)
     svg = root / f"{name}.svg"
     figure.savefig(svg, metadata={"Date": None})
-    svg.write_text(
-        "\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n"
-    )
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
 
 
 def plot(root: Path) -> None:
@@ -89,9 +87,7 @@ def plot(root: Path) -> None:
     axes[1].bar(
         range(9),
         [
-            100
-            * row["features"]["mac"]["mismatches"]
-            / row["features"]["mac"]["values"]
+            100 * row["features"]["mac"]["mismatches"] / row["features"]["mac"]["values"]
             for row in mac
         ],
         color="#23856d",

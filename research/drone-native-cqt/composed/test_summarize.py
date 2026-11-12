@@ -27,9 +27,7 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(result["qualification"]["tracks"], 376)
         self.assertEqual(len(result["rows"]), 20)
         self.assertTrue(result["mac"]["passed"])
-        self.assertEqual(
-            result["aggregate"]["chunked"]["maximum_peak_rss_bytes"], 477.5 * 1024**2
-        )
+        self.assertEqual(result["aggregate"]["chunked"]["maximum_peak_rss_bytes"], 477.5 * 1024**2)
 
     def test_finite_tolerance_and_key_are_independent_requirements(self) -> None:
         reference = [1.000001, 1.0] + [0.0] * 22

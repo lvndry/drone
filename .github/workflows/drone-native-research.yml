@@ -6,12 +6,16 @@ on:
       - research/drone-native-cached/**
       - research/drone-native-cqt/**
       - .github/workflows/drone-native-research.yml
+      - research/MIGRATION.json
+      - research/verify_migration.py
   push:
     branches: [main]
     paths:
       - research/drone-native-cached/**
       - research/drone-native-cqt/**
       - .github/workflows/drone-native-research.yml
+      - research/MIGRATION.json
+      - research/verify_migration.py
 
 permissions:
   contents: read
@@ -50,6 +54,9 @@ jobs:
           workspaces: |
             research/drone-native-cached -> target
             research/drone-native-cqt -> target
+      - name: Verify relocation provenance
+        working-directory: .
+        run: python3 research/verify_migration.py
       - name: Formatting
         run: cargo fmt --check
       - name: Contract tests without model/runtime downloads

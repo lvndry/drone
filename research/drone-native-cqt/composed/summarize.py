@@ -56,14 +56,9 @@ def verify_logits(actual: list[float], reference: list[float]) -> None:
         raise ValueError("24-class logit shape")
     if not all(math.isfinite(v) for v in actual + reference):
         raise ValueError("nonfinite recorded logits")
-    if any(
-        abs(a - b) > 1e-5 + 1e-5 * abs(b)
-        for a, b in zip(actual, reference, strict=True)
-    ):
+    if any(abs(a - b) > 1e-5 + 1e-5 * abs(b) for a, b in zip(actual, reference, strict=True)):
         raise ValueError("recorded logit tolerance")
-    if max(range(24), key=actual.__getitem__) != max(
-        range(24), key=reference.__getitem__
-    ):
+    if max(range(24), key=actual.__getitem__) != max(range(24), key=reference.__getitem__):
         raise ValueError("recorded key disagreement")
 
 
@@ -125,9 +120,7 @@ def summarize(root: Path) -> dict[str, Any]:
         raise ValueError("duplicate qualification identity")
     for case in qualification["cases"]:
         path = f"qualification/cases/{case['index']:04d}-both.json"
-        inputs = qualification_inputs[
-            f"qualification/cases/{case['index']:04d}-input.json"
-        ]
+        inputs = qualification_inputs[f"qualification/cases/{case['index']:04d}-input.json"]
         record = json.loads(raw[path])
         if (
             not case["passed"]
@@ -138,8 +131,7 @@ def summarize(root: Path) -> dict[str, Any]:
         if (
             hashlib.sha256(raw[path].encode()).hexdigest()
             != case["results"]["both"]["report_sha256"]
-            or hashlib.sha256(inputs.encode()).hexdigest()
-            != record["identity"]["manifest_sha256"]
+            or hashlib.sha256(inputs.encode()).hexdigest() != record["identity"]["manifest_sha256"]
         ):
             raise ValueError("qualification report/input binding")
         verify_native(record, json.loads(inputs)["cases"][0], {"full", "chunked"}, 1)
@@ -177,11 +169,7 @@ def summarize(root: Path) -> dict[str, Any]:
                 if "frames" in row and row["frames"] != track["frames"]:
                     raise ValueError("timing frame count")
                 row["frames"] = track["frames"]
-            peak = (
-                int(data["peak_rss_bytes"])
-                if mode == "python"
-                else native_peak_bytes(data)
-            )
+            peak = int(data["peak_rss_bytes"]) if mode == "python" else native_peak_bytes(data)
             if peak < track["loaded_rss_bytes"]:
                 raise ValueError("peak/loaded RSS unit contradiction")
             row["modes"][mode] = {
@@ -200,9 +188,7 @@ def summarize(root: Path) -> dict[str, Any]:
         aggregate[mode] = {
             "median_seconds": statistics.median(v["median_seconds"] for v in values),
             "p95_seconds": percentile95([v["median_seconds"] for v in values]),
-            "median_peak_rss_bytes": statistics.median(
-                v["peak_rss_bytes"] for v in values
-            ),
+            "median_peak_rss_bytes": statistics.median(v["peak_rss_bytes"] for v in values),
             "maximum_peak_rss_bytes": max(v["peak_rss_bytes"] for v in values),
         }
     paired = {}
@@ -213,8 +199,7 @@ def summarize(root: Path) -> dict[str, Any]:
     ):
         paired[f"{numerator}_over_{denominator}"] = {
             field: statistics.median(
-                row["modes"][numerator][field] / row["modes"][denominator][field]
-                for row in rows
+                row["modes"][numerator][field] / row["modes"][denominator][field] for row in rows
             )
             for field in ("median_seconds", "peak_rss_bytes")
         }

@@ -264,7 +264,10 @@ mod reporting_tests {
     #[test]
     fn shared_usage_rss_kib_is_converted_to_bytes_once() {
         let helper_kib = 105_408_u64;
-        assert_eq!(peak_bytes_from_usage_kib(helper_kib).unwrap(), 107_937_792);
+        assert_eq!(
+            peak_bytes_from_usage_kib(helper_kib).expect("known KiB usage fits u64 bytes"),
+            107_937_792
+        );
         assert!(peak_bytes_from_usage_kib(u64::MAX).is_err());
     }
 }

@@ -30,8 +30,7 @@ def plot(root: Path) -> None:
     for index, (label, color, evidence, arm) in enumerate(series):
         durations = [case["frames"] * 4096 / 22050 / 60 for case in evidence["cases"]]
         ratios = [
-            case["arms"][arm]["comparison"]["max_normalized_error"]
-            for case in evidence["cases"]
+            case["arms"][arm]["comparison"]["max_normalized_error"] for case in evidence["cases"]
         ]
         axes[0].scatter(
             durations,
@@ -58,14 +57,10 @@ def plot(root: Path) -> None:
     axes[0].set_yscale("log")
     axes[0].set_ylim(5e-6, 2.0)
     axes[0].set_xlabel("Track duration (minutes; logarithmic)")
-    axes[0].set_ylabel(
-        "Maximum normalized logit error\n|Δ| / (10⁻⁵ + 10⁻⁵ |reference|)"
-    )
+    axes[0].set_ylabel("Maximum normalized logit error\n|Δ| / (10⁻⁵ + 10⁻⁵ |reference|)")
     axes[0].set_title("Unchanged gate: every logit ≤ 1")
     axes[0].legend(loc="center right", frameon=False, fontsize=8)
-    axes[0].text(
-        0.02, 0.02, "Zero errors shown at 10⁻⁵", transform=axes[0].transAxes, fontsize=8
-    )
+    axes[0].text(0.02, 0.02, "Zero errors shown at 10⁻⁵", transform=axes[0].transAxes, fontsize=8)
     axes[1].set_xticks(range(3), ["Original", "FMA +\nplatform log1p", "FMA +\nSVML"])
     axes[1].set_ylim(0, 425)
     axes[1].set_ylabel("Tracks passing the strict logit gate")

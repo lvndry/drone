@@ -4,7 +4,7 @@ Read [REPORT.md](REPORT.md) for the frozen method/results and
 [EXPANSION.md](EXPANSION.md) for the proposed next stage. Production workspace,
 MSRV, default dependencies and the detector are untouched.
 
-The companion Drone source exports reference files with:
+From this Drone checkout, the Python source exports reference files with:
 
 ```sh
 python -m tools.export_cqt_goldens \

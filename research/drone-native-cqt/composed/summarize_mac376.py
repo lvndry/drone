@@ -52,14 +52,10 @@ def comparison(actual: list[float], reference: list[float]) -> dict[str, Any]:
     ):
         raise ValueError("24 finite logits required")
     errors = [abs(a - b) for a, b in zip(actual, reference, strict=True)]
-    same = max(range(24), key=actual.__getitem__) == max(
-        range(24), key=reference.__getitem__
-    )
+    same = max(range(24), key=actual.__getitem__) == max(range(24), key=reference.__getitem__)
     return {
         "passed": same
-        and all(
-            e <= 1e-5 + 1e-5 * abs(r) for e, r in zip(errors, reference, strict=True)
-        ),
+        and all(e <= 1e-5 + 1e-5 * abs(r) for e, r in zip(errors, reference, strict=True)),
         "finite": True,
         "same_key": same,
         "max_absolute": max(errors),
@@ -147,9 +143,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
         or not independent["all_claimed_case_fields_exactly_recomputed"]
     ):
         raise ValueError("certificate/independent source binding")
-    canonical_inputs = load_bundle(
-        Path(__file__).resolve().parent, "qualification_inputs"
-    )
+    canonical_inputs = load_bundle(Path(__file__).resolve().parent, "qualification_inputs")
     for row in rows:
         expected = json.loads(
             canonical_inputs[f"qualification/cases/{row['index']:04d}-input.json"]
@@ -186,9 +180,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
         for row in rows:
             if (
                 set(row["gates"]) != set(FAMILIES)
-                or comparison(
-                    row["gates"][name]["logits"], row["gates"][name]["reference"]
-                )
+                or comparison(row["gates"][name]["logits"], row["gates"][name]["reference"])
                 != row["gates"][name]
             ):
                 raise ValueError("original gate recomputation")
@@ -199,8 +191,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
                 raise ValueError("actual native report hash")
             native = load(native_name)["cases"][0]
             predictions = {
-                p["backend"]: p["logits"]
-                for p in native["iterations"][0]["predictions"]
+                p["backend"]: p["logits"] for p in native["iterations"][0]["predictions"]
             }
             if (
                 native["id"] != row["id"]
@@ -216,8 +207,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
             or recorded["certified_tracks"] != 376
             or recorded["minimum_slack"]
             != min(r["minimum_pairwise_certificate_slack"] for r in records)
-            or recorded["minimum_reference_margin"]
-            != min(r["reference_margin"] for r in records)
+            or recorded["minimum_reference_margin"] != min(r["reference_margin"] for r in records)
             or independent["families"][name]["verified_cases"] != 376
             or independent["families"][name]["minimum_slack_id"]
             != min(records, key=lambda r: r["minimum_pairwise_certificate_slack"])["id"]
@@ -230,9 +220,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
             "passed": sum(g["passed"] for g in gates),
             "key_disagreements": sum(not g["same_key"] for g in gates),
             "maximum_absolute": max(g["max_absolute"] for g in gates),
-            "minimum_observed_slack": min(
-                r["minimum_pairwise_certificate_slack"] for r in records
-            ),
+            "minimum_observed_slack": min(r["minimum_pairwise_certificate_slack"] for r in records),
         }
     expected = [375, 375, 348, 350, 350, 376]
     if [summary["families"][n]["passed"] for n in FAMILIES] != expected:

@@ -60,21 +60,40 @@ def make_figure() -> None:
     ratios = [c / f for c, f in zip(chunked_ms, full_ms, strict=True)]
     paired_change = (statistics.median(ratios) - 1) * 100
     rss_mib = [r["peak_process_rss_kib"] / 1024 for r in (full, chunked)]
-    matplotlib.rcParams.update({
-        "font.family": "DejaVu Sans", "font.size": 10,
-        "axes.spines.top": False, "axes.spines.right": False,
-        "axes.edgecolor": "#a2adb1", "axes.labelcolor": "#243843",
-        "text.color": "#243843", "xtick.color": "#52646e", "ytick.color": "#52646e",
-        "svg.fonttype": "none", "svg.hashsalt": "k10-native-58c290b",
-    })
+    matplotlib.rcParams.update(
+        {
+            "font.family": "DejaVu Sans",
+            "font.size": 10,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "axes.edgecolor": "#a2adb1",
+            "axes.labelcolor": "#243843",
+            "text.color": "#243843",
+            "xtick.color": "#52646e",
+            "ytick.color": "#52646e",
+            "svg.fonttype": "none",
+            "svg.hashsalt": "k10-native-58c290b",
+        }
+    )
     figure, (memory, latency) = plt.subplots(
         1, 2, figsize=(11.8, 5.5), gridspec_kw={"width_ratios": [0.9, 1.8]}
     )
     figure.subplots_adjust(left=0.075, right=0.98, top=0.76, bottom=0.24, wspace=0.35)
-    figure.suptitle("Native K10: 8.76× lower peak memory, +1.84% paired latency", x=0.075,
-                   y=0.965, ha="left", fontsize=17, fontweight="bold")
-    figure.text(0.075, 0.875, "Frozen FP32 weights · exact overlap/trim · ORT 1.31.1 · AMD 9955WX",
-                fontsize=11, color="#52646e")
+    figure.suptitle(
+        "Native K10: 8.76× lower peak memory, +1.84% paired latency",
+        x=0.075,
+        y=0.965,
+        ha="left",
+        fontsize=17,
+        fontweight="bold",
+    )
+    figure.text(
+        0.075,
+        0.875,
+        "Frozen FP32 weights · exact overlap/trim · ORT 1.31.1 · AMD 9955WX",
+        fontsize=11,
+        color="#52646e",
+    )
 
     memory.set_title("A  Fresh-process peak RSS", loc="left", pad=18, fontweight="bold")
     bars = memory.bar(["Full", "Chunked"], rss_mib, color=[FULL, CHUNKED], width=0.58)
@@ -84,14 +103,23 @@ def make_figure() -> None:
     memory.grid(axis="y", color="#e5e9eb", zorder=0)
     memory.set_axisbelow(True)
     for bar, value in zip(bars, rss_mib, strict=True):
-        memory.text(bar.get_x() + bar.get_width() / 2, value + 24, f"{value:.2f}",
-                    ha="center", fontsize=11, fontweight="bold")
+        memory.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 24,
+            f"{value:.2f}",
+            ha="center",
+            fontsize=11,
+            fontweight="bold",
+        )
 
-    latency.set_title("B  Per-track median inference latency", loc="left", pad=18, fontweight="bold")
+    latency.set_title(
+        "B  Per-track median inference latency", loc="left", pad=18, fontweight="bold"
+    )
     positions = list(range(1, 21))
     latency.plot(positions, full_ms, "o-", color=FULL, label="Full", markersize=4.5, linewidth=1.3)
-    latency.plot(positions, chunked_ms, "s--", color=CHUNKED, label="Chunked", markersize=4,
-                 linewidth=1.3)
+    latency.plot(
+        positions, chunked_ms, "s--", color=CHUNKED, label="Chunked", markersize=4, linewidth=1.3
+    )
     latency.set_yscale("log")
     latency.set_ylim(4, 400)
     latency.set_yticks([5, 10, 20, 50, 100, 200, 400], ["5", "10", "20", "50", "100", "200", "400"])
@@ -100,16 +128,30 @@ def make_figure() -> None:
     latency.set_xticks([1, 5, 10, 15, 20])
     latency.grid(axis="y", color="#e5e9eb", which="major")
     latency.legend(frameon=False, loc="upper left", ncol=2)
-    latency.text(0.02, 0.73, f"Median paired change +{paired_change:.2f}%\n"
-                 f"Individual ratios {min(ratios):.3f}–{max(ratios):.3f}; none >+10%",
-                 transform=latency.transAxes, fontsize=9, va="top", color="#52646e")
+    latency.text(
+        0.02,
+        0.73,
+        f"Median paired change +{paired_change:.2f}%\n"
+        f"Individual ratios {min(ratios):.3f}–{max(ratios):.3f}; none >+10%",
+        transform=latency.transAxes,
+        fontsize=9,
+        va="top",
+        color="#52646e",
+    )
 
-    figure.text(0.075, 0.105,
-                "1 logical CPU; TWO observed OS threads · 20 tracks × 20 timed repetitions + 1 warmup each",
-                fontsize=10)
-    figure.text(0.075, 0.060,
-                "Cached features only; no decode/CQT · 376-track validation: 0 key changes, max logit error 1.91e−6",
-                fontsize=10, color="#52646e")
+    figure.text(
+        0.075,
+        0.105,
+        "1 logical CPU; TWO observed OS threads · 20 tracks × 20 timed repetitions + 1 warmup each",
+        fontsize=10,
+    )
+    figure.text(
+        0.075,
+        0.060,
+        "Cached features only; no decode/CQT · 376-track validation: 0 key changes, max logit error 1.91e−6",
+        fontsize=10,
+        color="#52646e",
+    )
     destination = ROOT / "figures"
     destination.mkdir(exist_ok=True)
     svg = destination / "native-cached-results-58c290b.svg"
@@ -123,7 +165,8 @@ def make_figure() -> None:
     provenance = {
         "measured_source_commit": "58c290b88959c9901a5c59fd27037b247364190d",
         "binary_sha256": full["identity"]["executable_sha256"],
-        "plot_script_sha256": sha256(Path(__file__)), "matplotlib": matplotlib.__version__,
+        "plot_script_sha256": sha256(Path(__file__)),
+        "matplotlib": matplotlib.__version__,
         "raw_report_sha256": EXPECTED,
         "figure_sha256": {path.name: sha256(path) for path in (svg, png)},
     }
