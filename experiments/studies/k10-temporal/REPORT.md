@@ -19,7 +19,9 @@ representations cannot help.
 The [protocol](PROTOCOL.md) was frozen before extraction and fitting. The encoder
 was the canonical clean joint K10 seed-13 model. Fitting used 1,230 Beatport and
 976 FMAK recordings; development used the existing 126 Beatport and 250 FMAK
-recordings. The established audio and artist/album quarantine remained in force.
+recordings. FMAK retains its audited artist/album-group quarantine. Beatport's
+existing split is label-stratified with duplicate-ID/exact-audio checks; it is
+not established as artist-disjoint. Neither domain's roles changed in this study.
 These development sets have been reused for earlier studies and are not pristine
 external tests. No private recordings, calibration, exposed final sets or SWD
 recordings entered this study.
