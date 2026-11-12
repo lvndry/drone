@@ -1,0 +1,228 @@
+{
+  "torch": "2.15.0",
+  "machine": "arm64",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "threads": 2,
+  "interop": 1,
+  "protocol": "CPU synthetic only, eval inference_mode; one warmup/3 timed per model/T; alternating timed order; process RSS shared and not attributed per model",
+  "models": {
+    "baseline": {
+      "params": 109128,
+      "head_params": 36888
+    },
+    "candidate": {
+      "params": 108936,
+      "head_params": 73752
+    }
+  },
+  "cases": [
+    {
+      "T": 65,
+      "timings_ms": {
+        "baseline": [
+          4.536874999757856,
+          3.882042015902698,
+          4.465750011149794
+        ],
+        "candidate": [
+          3.7813750095665455,
+          4.190667008515447,
+          3.8646250031888485
+        ]
+      },
+      "conv_and_linear_MACs": {
+        "baseline": 115522560,
+        "candidate": 101403648
+      },
+      "largest_single_activation_bytes": {
+        "baseline": 798720,
+        "candidate": 798720
+      },
+      "pool_shapes": {
+        "baseline": [
+          [
+            1,
+            16,
+            96,
+            32
+          ],
+          [
+            1,
+            32,
+            48,
+            16
+          ],
+          [
+            1,
+            64,
+            24,
+            8
+          ]
+        ],
+        "candidate": [
+          [
+            1,
+            16,
+            96,
+            32
+          ],
+          [
+            1,
+            32,
+            96,
+            16
+          ],
+          [
+            1,
+            32,
+            96,
+            8
+          ]
+        ]
+      },
+      "median_ms": {
+        "baseline": 4.465750011149794,
+        "candidate": 3.8646250031888485
+      }
+    },
+    {
+      "T": 320,
+      "timings_ms": {
+        "baseline": [
+          17.657875025179237,
+          21.81183302309364,
+          26.613791997078806
+        ],
+        "candidate": [
+          17.899208003655076,
+          17.67312502488494,
+          20.330958010163158
+        ]
+      },
+      "conv_and_linear_MACs": {
+        "baseline": 575115264,
+        "candidate": 504373248
+      },
+      "largest_single_activation_bytes": {
+        "baseline": 3932160,
+        "candidate": 3932160
+      },
+      "pool_shapes": {
+        "baseline": [
+          [
+            1,
+            16,
+            96,
+            160
+          ],
+          [
+            1,
+            32,
+            48,
+            80
+          ],
+          [
+            1,
+            64,
+            24,
+            40
+          ]
+        ],
+        "candidate": [
+          [
+            1,
+            16,
+            96,
+            160
+          ],
+          [
+            1,
+            32,
+            96,
+            80
+          ],
+          [
+            1,
+            32,
+            96,
+            40
+          ]
+        ]
+      },
+      "median_ms": {
+        "baseline": 21.81183302309364,
+        "candidate": 17.899208003655076
+      }
+    },
+    {
+      "T": 1615,
+      "timings_ms": {
+        "baseline": [
+          75.00250003067777,
+          73.97237501572818,
+          74.9447499983944
+        ],
+        "candidate": [
+          74.53745801467448,
+          74.51116701122373,
+          75.88020904222503
+        ]
+      },
+      "conv_and_linear_MACs": {
+        "baseline": 2899731456,
+        "candidate": 2543219712
+      },
+      "largest_single_activation_bytes": {
+        "baseline": 19845120,
+        "candidate": 19845120
+      },
+      "pool_shapes": {
+        "baseline": [
+          [
+            1,
+            16,
+            96,
+            807
+          ],
+          [
+            1,
+            32,
+            48,
+            403
+          ],
+          [
+            1,
+            64,
+            24,
+            201
+          ]
+        ],
+        "candidate": [
+          [
+            1,
+            16,
+            96,
+            807
+          ],
+          [
+            1,
+            32,
+            96,
+            403
+          ],
+          [
+            1,
+            32,
+            96,
+            201
+          ]
+        ]
+      },
+      "median_ms": {
+        "baseline": 74.9447499983944,
+        "candidate": 74.53745801467448
+      }
+    }
+  ],
+  "process_peak_rss_platform_units": 640712704
+}

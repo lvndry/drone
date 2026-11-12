@@ -1,0 +1,22 @@
+{
+  "kind": "global-determinism-setup-fidelity-failure-v1",
+  "attempt2_source_commit": "a1b6cc3497f064ebf306c79cf0b0b20b3cd31ade",
+  "attempt2_config_sha256": "2511ca1160ac59b3bca086fd47d51ebe16094ffe9aa7d71f812f063fb7b4b679",
+  "attempt2_controller_sha256": "d1620353dd5eda7dddc2da6fdc75f5996d5eb5a59a8882bc2355dfb0a5981156",
+  "attempt2_baseline_log_sha256": "406ad3414e959002193b658bf1e5fcc41a25d7133d142bcac79151f49c9bac6e",
+  "attempt2_terminal_receipt_sha256": "f995b41ec016d48323785d32fd7945664dd647002255e4f6b246eae77d78ffb6",
+  "observed_failure": "First loss.backward raised: adaptive_avg_pool2d_backward_cuda does not have a deterministic implementation under global deterministic algorithms True.",
+  "optimizer_commits": 0,
+  "candidate_launched": false,
+  "oom_observed": false,
+  "primary_documentation": "https://docs.pytorch.org/docs/2.15/generated/torch.use_deterministic_algorithms.html",
+  "primary_documentation_claim": "AdaptiveAvgPool2d attempting CUDA differentiation raises when mode=True. mode=False allows nondeterministic operations.",
+  "canonical_local_source": "experiments/octave.py:device_setup",
+  "canonical_local_source_sha256": "8bddcbdbd6c23e68e319f70efcb456fe8cbdbc58ba23627279d2c01225835439",
+  "canonical_source_observation": "device_setup sets cuDNN deterministic=True, benchmark=False and both TF32 flags=False; it does not impose global deterministic algorithms True.",
+  "prospective_policy": "Explicit global deterministic algorithms False for both arms; unchanged FP32/no-AMP, cuDNN deterministic True, benchmark False and TF32 False. Seeded; bitwise GPU training not guaranteed.",
+  "limits": "This failed attempt establishes an API restriction under True, not measured gradient variability, a memory-cap failure, or accuracy/performance evidence.",
+  "preserved_attempt2": true,
+  "attempt2_retry": false,
+  "resource_budget_change": false
+}
