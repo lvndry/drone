@@ -1,0 +1,10 @@
+{
+  "bp_exact_mirex_nondecline": true,
+  "confirmation_earned": false,
+  "confirmation_scored": false,
+  "fma_asymmetric_mirex_gain_report_only": 0.0144,
+  "fma_exact_gain": 0.016,
+  "fma_symmetric_mirex_gain_report_only": 0.0184,
+  "separate_root_review_required": true,
+  "status": "PILOT_SCREEN_NOT_RELEASE_EVIDENCE"
+}

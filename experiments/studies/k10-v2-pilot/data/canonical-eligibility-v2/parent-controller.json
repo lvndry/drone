@@ -1,0 +1,44 @@
+{
+  "cap_violation": null,
+  "caps": {
+    "aggregate_rss_bytes": 17179869184,
+    "cpu_seconds": 5400,
+    "cpus": [
+      4,
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "native_threads": 1,
+    "new_cache_bytes": 3221225472,
+    "total_owned_output_bytes": 4294967296,
+    "wall_seconds": 2700,
+    "wav_scratch_bytes": 1073741824,
+    "workers": 8
+  },
+  "config_sha256": "368d422611cdd1d668d4d38219736244c77e9af7bfcaf4d9066c077e3ccd07da",
+  "exit": 1,
+  "manifest_complete": false,
+  "manifest_sha256": "9f2db5efe4cbe2904508d8004f842acd29e90c6bc7f68612679c68993c439de0",
+  "measured": {
+    "cache_bytes": 2461121184,
+    "cpu_seconds": 1905.7271099999998,
+    "rss_bytes": 6001221632,
+    "total_owned_bytes": 2531647962,
+    "wall_seconds": 302.20016707503237,
+    "wav_bytes": 155528784
+  },
+  "owned_semantics": "logical bytes of all files in dedicated output parent,including hardlinks/source/logs",
+  "pgid": 525473,
+  "pid": 525473,
+  "plan_sha256": "7e8311580ec961b4ccb0941fc484379f4eaa88bad676c1dba9fcd8eb46c7ef05",
+  "poll_seconds": 0.2,
+  "rss_semantics": "maximum sampled summed process-group RSS;shared pages counted perprocess",
+  "source_sha256": "d5cddd30cf11442a28d0649608d78e7b8d985b2956f56b8d83e5c0cbfe08f14d",
+  "status": "FAILED_NOT_TRAINABLE",
+  "training_authorized": false
+}

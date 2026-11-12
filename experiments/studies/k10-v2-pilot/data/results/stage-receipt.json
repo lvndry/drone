@@ -1,0 +1,36 @@
+{
+  "gpu0_free_mib": 22971,
+  "gpu0_uuid": "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c",
+  "permit_sha256": "a057443406198e1bd6b3bc4d01ee2d6f3ae4d81d2490dbba058074539215787e",
+  "protected_starts": [
+    {
+      "comm": "vllm",
+      "pid": 1478814,
+      "start_ticks": 35698640
+    },
+    {
+      "comm": "vllm",
+      "pid": 3448680,
+      "start_ticks": 111966827
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "pid": 1481756,
+      "start_ticks": 35700162
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "pid": 3451013,
+      "start_ticks": 111967770
+    }
+  ],
+  "readback_sha256": {
+    "numeric-labels-v2.json.gz": "b8942b5913b8ebacdf2fc9e0ebca72a934aaa7c56d4e1a97d0f60fac84354323",
+    "pair-launch-config.json": "4712a6e9660dc6328e054bea770450be7f66ed53cf923f876383d797522c3172",
+    "plan-v2.json.gz": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
+    "run_k10_v2_pair.py": "059372a6c76d01a99ae4d3497f84869739dcbd016c787f76b816e01830848b23"
+  },
+  "runtime_manifest_sha256": "9f94f6a5c6a9e78b4c5d1013cf97b44d6d2fd69665348ebb497e2c817560d6cc",
+  "status": "VERIFIED_BEFORE_LAUNCH",
+  "utc": "2026-11-12T10:51:36.120998+00:00"
+}

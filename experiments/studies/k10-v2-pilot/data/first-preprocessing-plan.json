@@ -1,0 +1,174 @@
+{
+  "bulk_projection_rule": "Measure cold/warm wall+CPU and bytes by duration stratum on first16;sum per-stratum seconds-per-audio-second over missing+CQT-reuse inventories;include all5641 canonical decodes. No bulk start from old latency proxy alone.",
+  "calibration_or_confirmation_audio_allowed": false,
+  "canonical_identity_required_for_all_pilot_rows": true,
+  "counts": {
+    "bp": {
+      "existing": 1356,
+      "missing": 0,
+      "required": 1356
+    },
+    "expanded_fma_fit": {
+      "existing": 1070,
+      "missing": 2965,
+      "required": 4035
+    },
+    "fma_inner_selection": {
+      "existing": 49,
+      "missing": 201,
+      "required": 250
+    }
+  },
+  "first_batch": [
+    {
+      "duration_seconds_metadata": 149.0,
+      "existing": [],
+      "id": "fmak:069068",
+      "sha256": "425268f852c487b8cf95c3fa52f645bdb83218d7cdce7dab4eca3a4ca1bf7f7d"
+    },
+    {
+      "duration_seconds_metadata": 48.0,
+      "existing": [],
+      "id": "fmak:030978",
+      "sha256": "817bf3aa468995866269bec54ab65d5aa381c634cf560b5ee9e5ebe8bb097dcf"
+    },
+    {
+      "duration_seconds_metadata": 137.0,
+      "existing": [],
+      "id": "fmak:081773",
+      "sha256": "427b138eda9dfc51267926d40fc66e174a7da34fbf3b4fa669b4d00d8cc6150d"
+    },
+    {
+      "duration_seconds_metadata": 152.0,
+      "existing": [],
+      "id": "fmak:083159",
+      "sha256": "8ff81a5058c54f4883f57f70fbb93b629528357a68dc2c9f9369838a33f66fa7"
+    },
+    {
+      "duration_seconds_metadata": 150.0,
+      "existing": [],
+      "id": "fmak:102153",
+      "sha256": "58ab720c11dd287f3295764af41ef153f892dde0f68508c1606ee43f2e7b3c32"
+    },
+    {
+      "duration_seconds_metadata": 192.0,
+      "existing": [],
+      "id": "fmak:081450",
+      "sha256": "7abeb181a4ec2b847741f9e2c818af00f1bea9ab67fb8fe8c18c78403a25cf92"
+    },
+    {
+      "duration_seconds_metadata": 255.0,
+      "existing": [],
+      "id": "fmak:010388",
+      "sha256": "98147d2e497a4a800d925574817847f02005a90da3f7deb296ff5c3356611fc7"
+    },
+    {
+      "duration_seconds_metadata": 217.0,
+      "existing": [],
+      "id": "fmak:108167",
+      "sha256": "ef8597fab31e8fd1a7ae760ae6169baf878aa8198228c350facf1e44478b3033"
+    },
+    {
+      "duration_seconds_metadata": 240.0,
+      "existing": [],
+      "id": "fmak:066314",
+      "sha256": "37ea6d935e4e9c0897a44835a16fa1e02877c60430453d32600639f4d6f43da0"
+    },
+    {
+      "duration_seconds_metadata": 282.0,
+      "existing": [],
+      "id": "fmak:051421",
+      "sha256": "db0398107c9c9059bb59479a354ce076e899bac4389bb75e9874776d3988e8b9"
+    },
+    {
+      "duration_seconds_metadata": 374.0,
+      "existing": [],
+      "id": "fmak:011307",
+      "sha256": "a26f6bafb49b9c8d0aefec940f594e8aff7a9514b1d1a2305cca1286a1c1b1b2"
+    },
+    {
+      "duration_seconds_metadata": 2157.0,
+      "existing": [],
+      "id": "fmak:082660",
+      "sha256": "a2c72ef62fd1936b79beeb0027292e136de98b8bd6cfa2227148b9f2f72b70cb"
+    },
+    {
+      "duration_seconds_metadata": null,
+      "existing": [
+        {
+          "bytes": 268864,
+          "path": "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/cqt/fc2db1b204207998/2818f1fd0c7d67bed589863f7434356218673f64a883cee03bee2a83ff12711b.npy"
+        },
+        {
+          "bytes": 268864,
+          "path": "/home/lysk-admin/key-cnn/data/cqt/fc2db1b204207998/2818f1fd0c7d67bed589863f7434356218673f64a883cee03bee2a83ff12711b.npy"
+        }
+      ],
+      "id": "beatport:297268",
+      "sha256": "2818f1fd0c7d67bed589863f7434356218673f64a883cee03bee2a83ff12711b"
+    },
+    {
+      "duration_seconds_metadata": null,
+      "existing": [
+        {
+          "bytes": 268864,
+          "path": "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/cqt/fc2db1b204207998/24bb6d4eb2a05d873a5f56701c39411b61e26c9e7359ba3462bcd926fcc0fa3f.npy"
+        },
+        {
+          "bytes": 268864,
+          "path": "/home/lysk-admin/key-cnn/data/cqt/fc2db1b204207998/24bb6d4eb2a05d873a5f56701c39411b61e26c9e7359ba3462bcd926fcc0fa3f.npy"
+        }
+      ],
+      "id": "beatport:3676879",
+      "sha256": "24bb6d4eb2a05d873a5f56701c39411b61e26c9e7359ba3462bcd926fcc0fa3f"
+    },
+    {
+      "duration_seconds_metadata": 218.0,
+      "existing": [
+        {
+          "bytes": 488928,
+          "path": "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/cqt/fc2db1b204207998/3f7caacb175d0c7e58b01d13ffab0e352b9e46a73ae8e7b3f4a7572b00edfe16.npy"
+        }
+      ],
+      "id": "fmak:055121",
+      "sha256": "3f7caacb175d0c7e58b01d13ffab0e352b9e46a73ae8e7b3f4a7572b00edfe16"
+    },
+    {
+      "duration_seconds_metadata": 165.0,
+      "existing": [
+        {
+          "bytes": 371200,
+          "path": "/home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/cqt/fc2db1b204207998/2097b9bdb7704a3b9c01e182cc0f79dcfb36b1aaf53aa7d63d354b7ccec22f46.npy"
+        }
+      ],
+      "id": "fmak:019718",
+      "sha256": "2097b9bdb7704a3b9c01e182cc0f79dcfb36b1aaf53aa7d63d354b7ccec22f46"
+    }
+  ],
+  "first_batch_caps": {
+    "aggregate_rss_bytes": 4294967296,
+    "cpu_seconds": 1800,
+    "cpus": [
+      10,
+      11
+    ],
+    "native_threads": 1,
+    "new_cache_bytes": 134217728,
+    "wall_seconds": 900,
+    "wav_scratch_bytes": 268435456,
+    "workers": 2
+  },
+  "inventory_sha256": "0f668ee16716c5175cbc99b176947bbb558d0649fd6f73d0f1e1002e338b939e",
+  "inventory_summary": {
+    "found_any": 2475,
+    "found_bytes_first_path": 947443968,
+    "missing": 3166,
+    "required": 5641
+  },
+  "membership_rule": "12 missing fitting CQT,3 per duration quartile with longest forced in upper quartile;4 cached fit examples(2BP/2restrictedFMA);fixed SHA ranks,no labels/scores",
+  "plan_sha256": "7e8311580ec961b4ccb0941fc484379f4eaa88bad676c1dba9fcd8eb46c7ef05",
+  "projected_missing_float16_cache_bytes": 1513196736,
+  "projection_method": "208float16bins * (floor(metadata_duration*22050/4096)+2) +128header;not measured frames",
+  "source_sha256": "1a9e4047a54e384d47e8335a174873cdd24c91fae1221d47366f11cefaba1e75",
+  "status": "PROPOSED_PREPROCESS_ONLY_NOT_LAUNCHED"
+}

@@ -585,6 +585,77 @@ def bp_gs_overlap() -> None:
     save(figure, "bp-gs-overlap", "audit-outcomes")
 
 
+def k10_v2() -> None:
+    """Only recorded validation predictions; no inference or confirmation access."""
+    base = "studies/k10-v2-pilot/data/results/"
+    summary = read(base + "summary.json.gz")
+    intervals = read(base + "paired-uncertainty.json")
+    figure, axes = canvas(
+        "More FMA data, equal optimizer updates: one fixed pair",
+        2,
+        "Both arms complete 8,280 updates. Selection uses these same panels at 120 events.\n"
+        "Dashed lines mark selected checkpoints; training CE reflects changing sampled populations.",
+    )
+    for arm, color in (("restricted", BLUE), ("expanded", ORANGE)):
+        run = read(base + arm + ".json.gz")
+        history = run["history"]
+        x = [r["update"] for r in history]
+        axes[0].plot(x, [r["train_ce"] for r in history], color=color, label=arm)
+        axes[1].plot(x, [100 * r["selection_exact"] for r in history], color=color, label=arm)
+        for axis in axes:
+            axis.axvline(run["best_update"], color=color, linestyle="--", alpha=0.5)
+    axes[0].set(xlabel="Optimizer updates", ylabel="Training cross-entropy")
+    axes[1].set(xlabel="Optimizer updates", ylabel="Equal-domain inner exact (%)")
+    axes[0].legend(frameon=False)
+    save(figure, "k10-v2-pilot", "learning-curves")
+    figure, axes = canvas(
+        "Pilot gate failed: FMA exact gains 1.6 points, below 2.0",
+        2,
+        "Expanded minus restricted; 95% descriptive paired bootstrap intervals, not fresh-test inference.\n"
+        "FMA: 250 records / 100 saved groups. BP: 126 preview records; artist independence unknown.",
+    )
+    for axis, domain in zip(axes, ("beatport", "fmak"), strict=True):
+        for x, scheme in enumerate(("exact", "sym", "asym")):
+            row = intervals["domains"][domain][scheme]
+            y = 100 * row["delta"]
+            lo, hi = [100 * value for value in row["ci95"]]
+            axis.errorbar(x, y, yerr=[[y - lo], [hi - y]], fmt="o", capsize=5, color=BLUE)
+            axis.annotate(f"{y:+.2f}", (x, y), xytext=(8, 8), textcoords="offset points")
+        axis.axhline(0, color="#64748b", linewidth=1)
+        if domain == "fmak":
+            axis.hlines(2, -0.4, 0.4, color=RED, linestyle="--", label="Exact gate +2.0")
+            axis.legend(frameon=False, fontsize=9)
+        axis.set(
+            title=domain,
+            xticks=[0, 1, 2],
+            xticklabels=["Exact", "MIREX\nsymmetric", "MIREX\nasymmetric"],
+            ylabel="Paired change (percentage points)",
+            ylim=(-6, 11),
+            xlim=(-0.5, 2.5),
+        )
+    save(figure, "k10-v2-pilot", "paired-scores")
+    figure, axes = canvas(
+        "Long-track and house evidence remains sparse",
+        2,
+        "Actual canonical durations; full-length features evaluated. Groups overlap across duration bins.\n"
+        "House182 at 5–10 min: only 5 selection records / 3 groups; no verified deep/melodic-house panel.",
+    )
+    bands = ["<2min", "2–<5min", "5–10min", ">10min"]
+    x = np.arange(4)
+    for offset, domain, color in ((-0.18, "beatport", BLUE), (0.18, "fmak", ORANGE)):
+        counts = [summary["duration_domains"][domain][band]["tracks"] for band in bands]
+        bars = axes[0].bar(x + offset, counts, width=0.36, label=domain, color=color)
+        axes[0].bar_label(bars, padding=3)
+    axes[0].set(xticks=x, xticklabels=bands, ylabel="Selection records", ylim=(0, 205))
+    axes[0].legend(frameon=False)
+    for arm, offset, color in (("restricted", -0.18, BLUE), ("expanded", 0.18, ORANGE)):
+        vals = [100 * summary["duration_domains"]["fmak"][band][arm + "_exact"] for band in bands]
+        axes[1].bar(x + offset, vals, width=0.36, label=arm, color=color)
+    axes[1].set(xticks=x, xticklabels=bands, ylabel="FMA exact (%)", ylim=(0, 110))
+    axes[1].legend(frameon=False)
+    save(figure, "k10-v2-pilot", "duration-coverage")
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -610,6 +681,7 @@ def main() -> None:
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
     bp_gs_overlap()
+    k10_v2()
     temporal()
     paired_result(
         "tonal-key-ranker", "Tonal summaries and trees: fixed pilot rejected", "Tonal ranker"

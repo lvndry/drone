@@ -1,4 +1,4 @@
-# Classifier research decisions, 11 November 2026
+# Classifier research decisions, updated 12 November 2026
 
 The product objective is higher musical-key accuracy with efficient CPU execution
 inside Euphoria. Novelty is not a success criterion. Training-only complexity can
@@ -7,6 +7,13 @@ its own controlled result. Three specialist passes covered classifier training,
 small CPU/decision models and evaluation, followed by cross-critique.
 
 ## Current evidence
+
+The completed [K10 v2 matched-data pilot](../experiments/studies/k10-v2-pilot/REPORT.md)
+uses nested976/4033 FMA fitting pools, shared1229 BP and new common inner panels.
+Its +1.60 FMA exact points missed the fixed +2.00 gate; no confirmation or promotion.
+The primary5–10minute house use remains undercovered: only5 inner House182 tracks /
+3 groups, and no verified deep/melodic-house panel. Canonical preparation required
+an explicit3-input eligibility overlay; the failed original receipt is preserved.
 
 The shipped K10 model remains the release candidate. The completed
 [multi-domain comparison](../experiments/studies/k10-multidomain/REPORT.md) gained 2.38

@@ -1,0 +1,1182 @@
+{
+  "after_canonical": {
+    "complete": true,
+    "conflicting_target_families": [],
+    "cross_fit_selection_families": [],
+    "duplicate_families": [
+      {
+        "canonical_sha256": "09180a79ef2171449f80c1484a29c5e2840ca803102cf116c9a4378071ed5306",
+        "ids": [
+          "fmak:073758",
+          "fmak:073770"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "0dd012e92922ccfef7cac80e57224fd34afd90a4139b424611450da9fcdf90dc",
+        "ids": [
+          "fmak:058207",
+          "fmak:075414"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "1d6ffec3715a6057d138e4eb9734f89eacadc4e1327e239f711339f0c83db80c",
+        "ids": [
+          "fmak:034334",
+          "fmak:095407"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "2f92a356d810d3073dd9c16b89ef7cec619b5d815ffd0b2a7d25e2029a9313b5",
+        "ids": [
+          "fmak:027548",
+          "fmak:072360"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "327ae54e34e8c49d7f75d450c3127b37e266c9d4d897993dbb7b0bc57f23de08",
+        "ids": [
+          "fmak:097036",
+          "fmak:099049"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "4457e78d4c2840d2f775320c7c23f9b0e6a85ce43a7d7f68640d156611702e6a",
+        "ids": [
+          "fmak:074864",
+          "fmak:098604"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "48e4d30927a7855d066131a5a6d790340a2a40adf701f521b189b40451210091",
+        "ids": [
+          "fmak:087563",
+          "fmak:119050"
+        ],
+        "refs": [
+          10
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "49102db2a07aa40d3afdb80863bdc7a5243b385476fc5ae86678631e98322620",
+        "ids": [
+          "fmak:011954",
+          "fmak:047347"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "4fc4b2f7f489b005bd74d592718ec42e4c1f54737959ac60100dc20ee28d69fb",
+        "ids": [
+          "fmak:051775",
+          "fmak:084173"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "5895febd2cdf401d5747cfaf4a62a1e2952b659e669804c275a54d846ee2a572",
+        "ids": [
+          "fmak:025062",
+          "fmak:028400"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "68d336e9a0f9f014d6d737f0f03d6c9eab996f77bda4ab09513637ad939977e9",
+        "ids": [
+          "fmak:051783",
+          "fmak:053859"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "699a4ebc5442f7ed4ae5ee60b9a1826c5edf3370c00dd4a9e9190e435b9c8d41",
+        "ids": [
+          "fmak:024736",
+          "fmak:047343"
+        ],
+        "refs": [
+          0
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "6e2890e2b48730bd92be9f0b2bd66756785c12e61e232020842280ecce919eef",
+        "ids": [
+          "fmak:020263",
+          "fmak:047369"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "84cee4113a668e683e0b8cea45d9de27e7803279fad6e456eb3376e5efa7b46f",
+        "ids": [
+          "fmak:051776",
+          "fmak:093932"
+        ],
+        "refs": [
+          4
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "8c1b9eec64d14cee698e017ef87833d58caf5dc84eaacb11227aa610cec0626d",
+        "ids": [
+          "fmak:058210",
+          "fmak:059252"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "b5823c4128440a343c08951f63a80bbb936a61d91cd85396e4d63aae25e1461b",
+        "ids": [
+          "fmak:045100",
+          "fmak:046514"
+        ],
+        "refs": [
+          5
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "b8e5acc67eb72a2c5bcf50c1e7bd195a7aa580f901b2118b9646c797e0401c8e",
+        "ids": [
+          "fmak:077376",
+          "fmak:097039"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "bb5117c92d94ba9ae7c98e9ddccd8cefef70e84ea52da622c8f024cb8dd0ec74",
+        "ids": [
+          "fmak:097043",
+          "fmak:098615"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "cbc77ad2c7981679f09385b5a8bf432559202f5713ecc5e1ff6c5ae611d5f00c",
+        "ids": [
+          "fmak:073741",
+          "fmak:073772"
+        ],
+        "refs": [
+          16
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "d2ec9f6d47957c8fb4c55cb489b0047ba94ca3067d24821bb9e87fac7b76c96a",
+        "ids": [
+          "fmak:089887",
+          "fmak:089888"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "d5d31ce62e5e2eb6025d5cbe4c7a06fa631c2b6ad181cb267bc273d2c5f51922",
+        "ids": [
+          "fmak:046070",
+          "fmak:047916"
+        ],
+        "refs": [
+          1
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "dc6fd61d916158a765706787ce5845c3c7502ca65c37a7b07cf3b7a482f46976",
+        "ids": [
+          "fmak:058374",
+          "fmak:058384"
+        ],
+        "refs": [
+          3
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "fe2e4bfdfe6c1de36b9fb5426c235abf827a62f99baee6677c480255ceb86c85",
+        "ids": [
+          "fmak:087568",
+          "fmak:119049"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ]
+      }
+    ],
+    "no_role_or_label_repair": true,
+    "rows": 5638,
+    "unique_canonical_inputs": 5615
+  },
+  "before_canonical": {
+    "complete": false,
+    "conflicting_target_families": [
+      {
+        "canonical_sha256": "37661bc2c4db39e25264ad9ba9590b3608a851d6879aa64534527ca2f34ea1fb",
+        "ids": [
+          "fmak:051779",
+          "fmak:096100"
+        ],
+        "refs": [
+          1,
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      }
+    ],
+    "cross_fit_selection_families": [
+      {
+        "canonical_sha256": "94fb4963b5b248c09bdad59f0cd9b7c103d61080c46a423273862ab9eef42768",
+        "ids": [
+          "beatport:1926377",
+          "beatport:2997186"
+        ],
+        "refs": [
+          23
+        ],
+        "roles": [
+          "fit",
+          "selection"
+        ]
+      }
+    ],
+    "duplicate_families": [
+      {
+        "canonical_sha256": "09180a79ef2171449f80c1484a29c5e2840ca803102cf116c9a4378071ed5306",
+        "ids": [
+          "fmak:073758",
+          "fmak:073770"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "0dd012e92922ccfef7cac80e57224fd34afd90a4139b424611450da9fcdf90dc",
+        "ids": [
+          "fmak:058207",
+          "fmak:075414"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "1d6ffec3715a6057d138e4eb9734f89eacadc4e1327e239f711339f0c83db80c",
+        "ids": [
+          "fmak:034334",
+          "fmak:095407"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "2f92a356d810d3073dd9c16b89ef7cec619b5d815ffd0b2a7d25e2029a9313b5",
+        "ids": [
+          "fmak:027548",
+          "fmak:072360"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "327ae54e34e8c49d7f75d450c3127b37e266c9d4d897993dbb7b0bc57f23de08",
+        "ids": [
+          "fmak:097036",
+          "fmak:099049"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "37661bc2c4db39e25264ad9ba9590b3608a851d6879aa64534527ca2f34ea1fb",
+        "ids": [
+          "fmak:051779",
+          "fmak:096100"
+        ],
+        "refs": [
+          1,
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "4457e78d4c2840d2f775320c7c23f9b0e6a85ce43a7d7f68640d156611702e6a",
+        "ids": [
+          "fmak:074864",
+          "fmak:098604"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "48e4d30927a7855d066131a5a6d790340a2a40adf701f521b189b40451210091",
+        "ids": [
+          "fmak:087563",
+          "fmak:119050"
+        ],
+        "refs": [
+          10
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "49102db2a07aa40d3afdb80863bdc7a5243b385476fc5ae86678631e98322620",
+        "ids": [
+          "fmak:011954",
+          "fmak:047347"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "4fc4b2f7f489b005bd74d592718ec42e4c1f54737959ac60100dc20ee28d69fb",
+        "ids": [
+          "fmak:051775",
+          "fmak:084173"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "5895febd2cdf401d5747cfaf4a62a1e2952b659e669804c275a54d846ee2a572",
+        "ids": [
+          "fmak:025062",
+          "fmak:028400"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "68d336e9a0f9f014d6d737f0f03d6c9eab996f77bda4ab09513637ad939977e9",
+        "ids": [
+          "fmak:051783",
+          "fmak:053859"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "699a4ebc5442f7ed4ae5ee60b9a1826c5edf3370c00dd4a9e9190e435b9c8d41",
+        "ids": [
+          "fmak:024736",
+          "fmak:047343"
+        ],
+        "refs": [
+          0
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "6e2890e2b48730bd92be9f0b2bd66756785c12e61e232020842280ecce919eef",
+        "ids": [
+          "fmak:020263",
+          "fmak:047369"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "84cee4113a668e683e0b8cea45d9de27e7803279fad6e456eb3376e5efa7b46f",
+        "ids": [
+          "fmak:051776",
+          "fmak:093932"
+        ],
+        "refs": [
+          4
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "8c1b9eec64d14cee698e017ef87833d58caf5dc84eaacb11227aa610cec0626d",
+        "ids": [
+          "fmak:058210",
+          "fmak:059252"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "94fb4963b5b248c09bdad59f0cd9b7c103d61080c46a423273862ab9eef42768",
+        "ids": [
+          "beatport:1926377",
+          "beatport:2997186"
+        ],
+        "refs": [
+          23
+        ],
+        "roles": [
+          "fit",
+          "selection"
+        ]
+      },
+      {
+        "canonical_sha256": "b5823c4128440a343c08951f63a80bbb936a61d91cd85396e4d63aae25e1461b",
+        "ids": [
+          "fmak:045100",
+          "fmak:046514"
+        ],
+        "refs": [
+          5
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "b8e5acc67eb72a2c5bcf50c1e7bd195a7aa580f901b2118b9646c797e0401c8e",
+        "ids": [
+          "fmak:077376",
+          "fmak:097039"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "bb5117c92d94ba9ae7c98e9ddccd8cefef70e84ea52da622c8f024cb8dd0ec74",
+        "ids": [
+          "fmak:097043",
+          "fmak:098615"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "cbc77ad2c7981679f09385b5a8bf432559202f5713ecc5e1ff6c5ae611d5f00c",
+        "ids": [
+          "fmak:073741",
+          "fmak:073772"
+        ],
+        "refs": [
+          16
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "d2ec9f6d47957c8fb4c55cb489b0047ba94ca3067d24821bb9e87fac7b76c96a",
+        "ids": [
+          "fmak:089887",
+          "fmak:089888"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "d5d31ce62e5e2eb6025d5cbe4c7a06fa631c2b6ad181cb267bc273d2c5f51922",
+        "ids": [
+          "fmak:046070",
+          "fmak:047916"
+        ],
+        "refs": [
+          1
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "dc6fd61d916158a765706787ce5845c3c7502ca65c37a7b07cf3b7a482f46976",
+        "ids": [
+          "fmak:058374",
+          "fmak:058384"
+        ],
+        "refs": [
+          3
+        ],
+        "roles": [
+          "fit"
+        ]
+      },
+      {
+        "canonical_sha256": "fe2e4bfdfe6c1de36b9fb5426c235abf827a62f99baee6677c480255ceb86c85",
+        "ids": [
+          "fmak:087568",
+          "fmak:119049"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ]
+      }
+    ],
+    "no_role_or_label_repair": true,
+    "rows": 5641,
+    "unique_canonical_inputs": 5616
+  },
+  "cache_identity_check": {
+    "additional_cache_integrity_families": [],
+    "canonical_families_have_bitidentical_cachefiles": true,
+    "duplicate_cache_families": 25
+  },
+  "counts": {
+    "bp_fit": 1229,
+    "bp_selection": 126,
+    "expanded_fma_fit": 4033,
+    "fma_inner": 250,
+    "prepared": 5638,
+    "restricted_fma_fit": 976
+  },
+  "excluded": [
+    {
+      "canonical_sha256": "94fb4963b5b248c09bdad59f0cd9b7c103d61080c46a423273862ab9eef42768",
+      "domain": "beatport",
+      "id": "beatport:2997186",
+      "in_parent_restricted": true,
+      "old_source_role": "train",
+      "proposed_role_unchanged": "train",
+      "reason": "BP_fitting_alias_preserve_existing_selection",
+      "saved_fma_component": null
+    },
+    {
+      "canonical_sha256": "37661bc2c4db39e25264ad9ba9590b3608a851d6879aa64534527ca2f34ea1fb",
+      "domain": "fmak",
+      "id": "fmak:051779",
+      "in_parent_restricted": false,
+      "old_source_role": "quarantined_development",
+      "proposed_role_unchanged": "train",
+      "reason": "conflicting_canonical_targets_all_members",
+      "saved_fma_component": "artist:17784"
+    },
+    {
+      "canonical_sha256": "37661bc2c4db39e25264ad9ba9590b3608a851d6879aa64534527ca2f34ea1fb",
+      "domain": "fmak",
+      "id": "fmak:096100",
+      "in_parent_restricted": false,
+      "old_source_role": "final",
+      "proposed_role_unchanged": "train",
+      "reason": "conflicting_canonical_targets_all_members",
+      "saved_fma_component": "artist:17784"
+    }
+  ],
+  "no_roles_moved_no_replacements_no_labels_changed": true,
+  "nominal_bp_mass_unchanged": [
+    1230,
+    2206
+  ],
+  "policy": "allconflictingcanonicaltargetmembers excluded;consistentBPcrossrole fittingaliasesexcluded,selectionpreserved;withinroleconsistentduplicatesretained",
+  "revision": "k10-v2-canonical-eligibility-v2",
+  "source_inputs": {
+    "amender_source_sha256": "1964ce84b1e72c4591a4eafd073750ebbb3014cbc00c282dee2b24a93572d509",
+    "parent_audit_sha256": "2ecb59b0971c9ca9207e3dcc331b7c47eff3def53cda549ffe5e53f0a1d50157",
+    "parent_labels_sha256": "939d065e454ccc436e4dd53c53d1c4616dfc09c8cb248cbe1e3410b5d9c9b40d",
+    "parent_manifest_sha256": "9f2db5efe4cbe2904508d8004f842acd29e90c6bc7f68612679c68993c439de0",
+    "parent_plan_sha256": "7e8311580ec961b4ccb0941fc484379f4eaa88bad676c1dba9fcd8eb46c7ef05",
+    "saved_metadata_sha256": "59eb32a50413f7fff1ef18c72e01cc679d2b1344bc6bac3be082030e388f1a89"
+  },
+  "status": "PROPOSED_ELIGIBILITY_AMENDMENT_NOT_TRAINING_AUTHORIZED",
+  "uncertainty_witness": {
+    "BP_grouping_limit": "record/observedcanonicalidentity only;artistindependence notestablished",
+    "consistent_families": [
+      {
+        "canonical_sha256": "09180a79ef2171449f80c1484a29c5e2840ca803102cf116c9a4378071ed5306",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:073758",
+          "fmak:073770"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "0dd012e92922ccfef7cac80e57224fd34afd90a4139b424611450da9fcdf90dc",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:058207",
+          "fmak:075414"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:18799"
+        ]
+      },
+      {
+        "canonical_sha256": "1d6ffec3715a6057d138e4eb9734f89eacadc4e1327e239f711339f0c83db80c",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:034334",
+          "fmak:095407"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:1907"
+        ]
+      },
+      {
+        "canonical_sha256": "2f92a356d810d3073dd9c16b89ef7cec619b5d815ffd0b2a7d25e2029a9313b5",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:027548",
+          "fmak:072360"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:6957"
+        ]
+      },
+      {
+        "canonical_sha256": "327ae54e34e8c49d7f75d450c3127b37e266c9d4d897993dbb7b0bc57f23de08",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:097036",
+          "fmak:099049"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "4457e78d4c2840d2f775320c7c23f9b0e6a85ce43a7d7f68640d156611702e6a",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:074864",
+          "fmak:098604"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:18799"
+        ]
+      },
+      {
+        "canonical_sha256": "48e4d30927a7855d066131a5a6d790340a2a40adf701f521b189b40451210091",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:087563",
+          "fmak:119050"
+        ],
+        "refs": [
+          10
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:16763"
+        ]
+      },
+      {
+        "canonical_sha256": "49102db2a07aa40d3afdb80863bdc7a5243b385476fc5ae86678631e98322620",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:011954",
+          "fmak:047347"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:1922"
+        ]
+      },
+      {
+        "canonical_sha256": "4fc4b2f7f489b005bd74d592718ec42e4c1f54737959ac60100dc20ee28d69fb",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:051775",
+          "fmak:084173"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "5895febd2cdf401d5747cfaf4a62a1e2952b659e669804c275a54d846ee2a572",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:025062",
+          "fmak:028400"
+        ],
+        "refs": [
+          22
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:3723"
+        ]
+      },
+      {
+        "canonical_sha256": "68d336e9a0f9f014d6d737f0f03d6c9eab996f77bda4ab09513637ad939977e9",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:051783",
+          "fmak:053859"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "699a4ebc5442f7ed4ae5ee60b9a1826c5edf3370c00dd4a9e9190e435b9c8d41",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:024736",
+          "fmak:047343"
+        ],
+        "refs": [
+          0
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:1922"
+        ]
+      },
+      {
+        "canonical_sha256": "6e2890e2b48730bd92be9f0b2bd66756785c12e61e232020842280ecce919eef",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:020263",
+          "fmak:047369"
+        ],
+        "refs": [
+          18
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:1922"
+        ]
+      },
+      {
+        "canonical_sha256": "84cee4113a668e683e0b8cea45d9de27e7803279fad6e456eb3376e5efa7b46f",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:051776",
+          "fmak:093932"
+        ],
+        "refs": [
+          4
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "8c1b9eec64d14cee698e017ef87833d58caf5dc84eaacb11227aa610cec0626d",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:058210",
+          "fmak:059252"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:18799"
+        ]
+      },
+      {
+        "canonical_sha256": "b5823c4128440a343c08951f63a80bbb936a61d91cd85396e4d63aae25e1461b",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:045100",
+          "fmak:046514"
+        ],
+        "refs": [
+          5
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "b8e5acc67eb72a2c5bcf50c1e7bd195a7aa580f901b2118b9646c797e0401c8e",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:077376",
+          "fmak:097039"
+        ],
+        "refs": [
+          9
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "bb5117c92d94ba9ae7c98e9ddccd8cefef70e84ea52da622c8f024cb8dd0ec74",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:097043",
+          "fmak:098615"
+        ],
+        "refs": [
+          19
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "cbc77ad2c7981679f09385b5a8bf432559202f5713ecc5e1ff6c5ae611d5f00c",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:073741",
+          "fmak:073772"
+        ],
+        "refs": [
+          16
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:17784"
+        ]
+      },
+      {
+        "canonical_sha256": "d2ec9f6d47957c8fb4c55cb489b0047ba94ca3067d24821bb9e87fac7b76c96a",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:089887",
+          "fmak:089888"
+        ],
+        "refs": [
+          15
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:11431"
+        ]
+      },
+      {
+        "canonical_sha256": "d5d31ce62e5e2eb6025d5cbe4c7a06fa631c2b6ad181cb267bc273d2c5f51922",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:046070",
+          "fmak:047916"
+        ],
+        "refs": [
+          1
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:8706"
+        ]
+      },
+      {
+        "canonical_sha256": "dc6fd61d916158a765706787ce5845c3c7502ca65c37a7b07cf3b7a482f46976",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:058374",
+          "fmak:058384"
+        ],
+        "refs": [
+          3
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:12660"
+        ]
+      },
+      {
+        "canonical_sha256": "fe2e4bfdfe6c1de36b9fb5426c235abf827a62f99baee6677c480255ceb86c85",
+        "domains": [
+          "fmak"
+        ],
+        "ids": [
+          "fmak:087568",
+          "fmak:119049"
+        ],
+        "refs": [
+          6
+        ],
+        "roles": [
+          "fit"
+        ],
+        "saved_fma_components": [
+          "artist:16763"
+        ]
+      }
+    ],
+    "evaluation_uncertainty_merges": []
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "taskset",
+    "-c",
+    "4,5,10,11",
+    "bash",
+    "/home/lysk-admin/drone-experiments/k10-v2-pair-20261112-v1/drone-k10-v2-pair-launch.sh"
+  ],
+  "guard_source_commit": "fa20244bc5f511df607048c3863b1626fce5bf0a",
+  "log": "/home/lysk-admin/drone-experiments/k10-v2-pair-20261112-v1/launch.log",
+  "numerical_source_commit": "58fe80662bdb3362349672820a0bcd4387155ca2",
+  "pid": 962288,
+  "script_sha256": "8ad91d475ee62e3c772ef4e3b14dc52d408bf6dc23ea07ce8b306391ee74b347",
+  "started_utc": "2026-11-12T10:52:08.120599+00:00"
+}

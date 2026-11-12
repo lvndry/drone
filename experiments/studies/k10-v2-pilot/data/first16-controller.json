@@ -1,0 +1,35 @@
+{
+  "batch_sha256": "5fbbc3e28ef085356ad4c743a4a64d0fde6b6b67bf5e7b16c83e23728113ad82",
+  "cap_violation": null,
+  "caps": {
+    "aggregate_rss_bytes": 4294967296,
+    "cpu_seconds": 1800,
+    "cpus": [
+      10,
+      11
+    ],
+    "native_threads": 1,
+    "new_cache_bytes": 134217728,
+    "wall_seconds": 900,
+    "wav_scratch_bytes": 268435456,
+    "workers": 2
+  },
+  "cpu_semantics": "process-group own+reaped-child CPU;terminalwait resource usage included",
+  "exit": 0,
+  "log": "/home/lysk-admin/drone-experiments/k10-v2-first16-20261112-v1/prepared-first16.log",
+  "measured": {
+    "cache_bytes": 11157920,
+    "cpu_seconds": 10.388804,
+    "rss_bytes": 1940099072,
+    "wall_seconds": 8.157829012954608,
+    "wav_bytes": 95041618
+  },
+  "pgid": 243180,
+  "pid": 243180,
+  "plan_sha256": "7e8311580ec961b4ccb0941fc484379f4eaa88bad676c1dba9fcd8eb46c7ef05",
+  "poll_seconds": 0.2,
+  "rss_semantics": "maximum sampled sum of process-group RSS;shared pages counted perprocess",
+  "source_sha256": "0622da2e2a19de0d25d3e75ad429b458c1879b8a9ca36646e9aa01accf8a6e17",
+  "status": "bounded_batch_complete",
+  "training_authorized": false
+}

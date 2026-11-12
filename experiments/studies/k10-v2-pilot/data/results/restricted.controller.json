@@ -1,0 +1,18 @@
+{
+  "arm": "restricted",
+  "confirmation_scored": false,
+  "elapsed_seconds": 378.93430082895793,
+  "exit": 0,
+  "gpu_uuid": "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c",
+  "min_gpu0_free_bytes": 21405630464,
+  "peak": {
+    "cpu_seconds": 390.009451,
+    "output_bytes": 1146083,
+    "rss_bytes": 2180136960
+  },
+  "pgid": 962297,
+  "pid": 962297,
+  "reason": null,
+  "run_sha256": "ee1e4ec8e0a5fb3499f8b870c628b47ab6796d8d3ff281532994ad6c483544fe",
+  "status": "complete"
+}

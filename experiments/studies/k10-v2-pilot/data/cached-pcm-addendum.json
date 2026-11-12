@@ -1,0 +1,56 @@
+{
+  "bp_fitting_to_fma_evaluation": {
+    "current_fitting": {
+      "fitting_ids": 1230,
+      "matches": [],
+      "matching_bp_ids": 0
+    },
+    "release_fitting": {
+      "fitting_ids": 1237,
+      "matches": [],
+      "matching_bp_ids": 0
+    }
+  },
+  "fma_cross_role_pcm_groups": 0,
+  "fma_records": 5489,
+  "fma_unique_cached_pcm_hashes": 5413,
+  "limitations": "Exact cached decoded-PCM identity only; no near-duplicate/work clearance. Proposed rows are reported without changing eligibility or unioning components.",
+  "pcm_hash_contract": {
+    "canonical_22050_model_input": false,
+    "channels": 1,
+    "coverage_guard": "Reject output exceeding 3600 seconds; no silent truncation",
+    "decode_path": "ffmpeg -nostdin -hide_banner -loglevel error -threads 1 -filter_threads 1 -i SOURCE -t 3601 -vn -ac 1 -ar 11025 -f f32le -",
+    "dtype": "little-endian float32 (<f4)",
+    "frozen_engine_sha256": "a0d315f3f6f6f62b33b7453119350807702eec35a17723b9079fca30c4328f71",
+    "hash": "SHA256 of exact ffmpeg stdout bytes",
+    "limitation": "Equality after mono downmix/downsampling is not equality of original stereo or canonical model-input samples",
+    "sample_rate_hz": 11025
+  },
+  "reference_result_decoded_sha256": "5b3d7296f8277d8b43470736e670d35e58c2c94230b0f95dc53172d33787ed14",
+  "source_report_path": "/Users/lvndry/github/jazz-worktrees/drone-bp-gs-audit/experiments/studies/bp-gs-overlap/data/pcm-role-check.json",
+  "source_report_sha256": "caf56e2fb883ea7ac30dbbca23dd99a369f9f0de7b4cdaabd160b587b3a8884a",
+  "source_sha256": "36474c818b5abd9b8659085b12cc32047ba48464d17f28ee4b114c2873af671f",
+  "version": "bp-gs-cached-pcm-role-check-v1",
+  "within_role_duplicate_pcm_summary": {
+    "PROPOSED_calibration": {
+      "bridges_saved_components": 0,
+      "excess_rows": 0,
+      "families": 0
+    },
+    "PROPOSED_development_confirmation": {
+      "bridges_saved_components": 0,
+      "excess_rows": 6,
+      "families": 5
+    },
+    "PROPOSED_expanded_fit": {
+      "bridges_saved_components": 0,
+      "excess_rows": 70,
+      "families": 70
+    },
+    "PROPOSED_inner_selection": {
+      "bridges_saved_components": 0,
+      "excess_rows": 0,
+      "families": 0
+    }
+  }
+}

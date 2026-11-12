@@ -1,0 +1,13 @@
+{
+  "allow_confirmation": false,
+  "allow_retry_or_resume": false,
+  "allow_sequential_pair": true,
+  "allow_training": true,
+  "authorized_by": "root finalgoahead after fa20244 source/config review",
+  "guard_source_commit": "fa20244bc5f511df607048c3863b1626fce5bf0a",
+  "not_before_utc": "2026-11-12T10:47:00Z",
+  "outer_cutoff_utc": "2026-11-12T11:47:00Z",
+  "pair_config_sha256": "4712a6e9660dc6328e054bea770450be7f66ed53cf923f876383d797522c3172",
+  "plan_sha256": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
+  "training_source_commit": "58fe80662bdb3362349672820a0bcd4387155ca2"
+}

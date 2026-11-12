@@ -1,0 +1,52 @@
+{
+  "domains": {
+    "beatport": {
+      "asym": {
+        "ci95": [
+          -0.030158730158730166,
+          0.07936507936507936
+        ],
+        "delta": 0.023015873015873014
+      },
+      "exact": {
+        "ci95": [
+          -0.03968253968253968,
+          0.09523809523809523
+        ],
+        "delta": 0.023809523809523808
+      },
+      "sym": {
+        "ci95": [
+          -0.04523809523809523,
+          0.06031746031746032
+        ],
+        "delta": 0.007142857142857143
+      }
+    },
+    "fmak": {
+      "asym": {
+        "ci95": [
+          -0.014407938294491524,
+          0.04230947955390332
+        ],
+        "delta": 0.0144
+      },
+      "exact": {
+        "ci95": [
+          -0.019381730160166498,
+          0.05078290519067794
+        ],
+        "delta": 0.016
+      },
+      "sym": {
+        "ci95": [
+          -0.009375667735042736,
+          0.045737091052424114
+        ],
+        "delta": 0.0184
+      }
+    }
+  },
+  "interpretation": "Descriptive selected-validation intervals, not fresh test inference; BP record groups do not establish artist independence",
+  "method": "10000 paired group bootstrap draws; fixed seed 20261112; track-weighted"
+}
