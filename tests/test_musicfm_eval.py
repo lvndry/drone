@@ -86,7 +86,11 @@ def test_composed_proof_rejects_panel_order_and_numerical_changes() -> None:
         "logits": np.zeros((376, 24)).tolist(),
         "per_song": metadata,
     }
-    assert compare_panels(ref, ref)["passed"]
+    retained = compare_panels(ref, ref)
+    assert retained["passed"]
+    assert retained["per_song"] == metadata
+    assert retained["reference_logits"] == retained["candidate_logits"] == ref["logits"]
+    assert "domain_schedule" in retained
     changed = {**ref, "logits": np.ones((376, 24)).tolist()}
     assert not compare_panels(ref, changed)["passed"]
     with pytest.raises(ValueError, match="order"):

@@ -122,6 +122,9 @@ def compare_panels(reference: dict[str, Any], candidate: dict[str, Any]) -> dict
         "argmax_disagreements": disagreements,
         "passed": error <= 1e-5 and disagreements == 0,
         "domain_schedule": reference.get("domain_schedule"),
+        "per_song": reference["per_song"],
+        "reference_logits": left.tolist(),
+        "candidate_logits": right.tolist(),
         "label_blind": True,
         "task_scores_computed": False,
     }
