@@ -1,5 +1,5 @@
 {
-  "_generator_sha256": "fe1f714038e0cb173aca233d307f71648779084d90af9ef4690d87ca009005d5",
+  "_generator_sha256": "cc33f20b7364f756e9b3628f52bb96395a3c1cd21f836a94d0f4141c29f1f4c4",
   "_matplotlib_version": "3.11.2",
   "_uv_lock_sha256": "ce41bd7cca36cb705a18b90877ecff6a0955707c61232f8858ababb7d4f545f9",
   "studies/k10-capacity/data/candidate-result.json": "a6abc8fc35b5c642b9bcc4f5a6ac57ec1c2a6a41c815b36a3f47f9c97a754519",
@@ -11,5 +11,6 @@
   "studies/k10-ema/data/ema-result.json": "cea1d50c4f16a39b59b7b1ee9c57edc39d5cd35b9e16009b3f64e1c2eb2a7784",
   "studies/k10-multidomain/data/summary.json": "b3c3952731fa7072205285d19d1280232c284652f88b1af1023bc5f85f246d3a",
   "studies/k10-structured-targets/data/candidate-result.json": "dd6d1bf45fd500a6ae0cc36099f84fd8dd62092e4b2f5e8eef0729021d596691",
-  "studies/pitch-circle/data/candidate-result.json": "49f7f3d034aa66e31afc1e1191bbe87c9413c7919538033363f509d0763ed802"
+  "studies/pitch-circle/data/candidate-result.json": "49f7f3d034aa66e31afc1e1191bbe87c9413c7919538033363f509d0763ed802",
+  "studies/tonal-key-ranker/data/candidate-result.json": "9b92d44143b95058058a7d09b2ffb3cd02d7b84a214ae55b60194a2077f08dd5"
 }
