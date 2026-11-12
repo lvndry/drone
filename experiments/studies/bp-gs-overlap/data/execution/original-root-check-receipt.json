@@ -1,0 +1,11 @@
+{
+  "receipt_kind": "copy_of_observed_tool_result_not_a_new_execution",
+  "executor": "root",
+  "exec_session_id": 72162,
+  "command": "ssh -o ConnectTimeout=10 lysk-admin@lysk-server 'timeout 60 taskset -c 10,11 /usr/bin/python3 /home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/root-check.py'",
+  "exit_code": 0,
+  "source_sha256": "9d9051818a799b216e0f6b1ad84eb1a25b6bdafe5bc0927bb2a3558b9f076382",
+  "stdout": "{\"passed\": true, \"plan_sha256\": \"8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356\", \"queries\": 2334, \"result_sha256\": \"a3eb3809f89617c0435a2ee0e0adbfc4178bb5c837bdc55f48e06012826eece7\", \"scientific_outcomes\": {\"no_detected_overlap\": 947, \"review\": 539}, \"verified_alignment_records\": 4315263}\n",
+  "stdout_sha256": "89e6565ab2423ce669907b20c89532f1877f4429089ce182e726ac19c0fdb444",
+  "stderr": ""
+}

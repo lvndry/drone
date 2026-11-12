@@ -1,8 +1,9 @@
 {
-  "_generator_sha256": "914c216361809a205fbf6d548d83b4fc9a733d7dd9aaaec78488546b90e07a9a",
+  "_generator_sha256": "f10b50ef9c5126b373edf3d7519aab6f4ae697edaa96f5145f76b8f912144762",
   "_matplotlib_version": "3.11.2",
   "_optimizer_checker_sha256": "a6f54d99318c8108b32c71f4dcf32b48b826542575bb7ae676f3a72967ec37db",
   "_uv_lock_sha256": "fe885e19c1faecd53d229842303d16af57807629129b6464e646373343c3f9e0",
+  "studies/bp-gs-overlap/data/diagnostic.json.gz": "3fc59d3916dcdf327e93d08cc318aca9c9de2bc9f06369351ce092cfe4f7c245",
   "studies/k10-capacity/data/candidate-result.json": "a6abc8fc35b5c642b9bcc4f5a6ac57ec1c2a6a41c815b36a3f47f9c97a754519",
   "studies/k10-capacity/data/histories.json": "19301e6f5c6a92a7c40364f4fd57c05b021ec406a6d010116129fe071e74c129",
   "studies/k10-chunked/data/memory-curve.json": "dd4ff5b19ea57cd26c9e352ef36111b5d755c6ea9cb4c3d7a98fdad35fe8f2c5",

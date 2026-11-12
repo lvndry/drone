@@ -1,0 +1,74 @@
+"""Independent streamed consistency check of frozen BP/GS query evidence."""
+import gzip
+import hashlib
+import json
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path('/home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1')
+EXPECTED_PLAN = '8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356'
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def check():
+    assert (ROOT / 'run.exit').read_text().strip() == '0', 'wrapper not successful'
+    plan_raw = (ROOT / 'plan.json').read_bytes()
+    assert sha(plan_raw) == EXPECTED_PLAN
+    plan = json.loads(plan_raw)
+    result_raw = (ROOT / 'evidence/result.json').read_bytes()
+    result = json.loads(result_raw)
+    assert result['status'] == 'complete'
+    assert result['plan_sha256'] == EXPECTED_PLAN
+    assert result['source_sha256'] == plan['source_sha256']
+    rows = result['results']
+    assert len(rows) == 2334 and len({r['id'] for r in rows}) == 2334
+    assert Counter(r['kind'] for r in rows) == {
+        'transformed': 180, 'target-self': 604, 'synthetic-negative': 64, 'bp-audit': 1486,
+    }
+    audit = [r for r in rows if r['kind'] == 'bp-audit']
+    assert {r['id'] for r in audit} == {q['record']['id'] for q in plan['queries']}
+    gs = {r['ref_id'] for r in plan['gs_records']}
+    outcomes = Counter()
+    offsets = 0
+    for row in rows:
+        assert row['complete']
+        raw = (ROOT / 'evidence' / row['evidence']).read_bytes()
+        assert sha(raw) == row['evidence_sha256']
+        decoded = gzip.decompress(raw)
+        assert sha(decoded) == row['decoded_sha256']
+        detail = json.loads(decoded)
+        assert detail['id'] == row['id'] and detail['match']['complete']
+        matches = detail['match']['matches']
+        assert len(matches) == row['alignments']
+        decisions = []
+        for match in matches:
+            count, span, cp = match['count'], match['span_seconds'], match['chromaprint_distance']
+            decision = 'below_screening_support'
+            if count >= 10 and span >= 5:
+                decision = ('identity_evidence' if count >= 20 and span >= 8
+                            and cp is not None and cp <= .15 else 'review')
+            assert match['decision'] == decision
+            decisions.append(decision)
+            if row['kind'] != 'transformed':
+                assert match['ref_id'] in gs
+        assert row['identity_flagged'] == ('identity_evidence' in decisions)
+        assert row['review_flagged'] == ('review' in decisions)
+        offsets += len(matches)
+        if row['kind'] == 'bp-audit':
+            outcomes[row['outcome']] += 1
+    assert all(r['expected_retrieved'] for r in rows[:784])
+    assert all(not r['identity_flagged'] for r in rows[784:848])
+    assert result['index_sha256_before'] == result['index_sha256_after']
+    index_digest = hashlib.sha256()
+    with (Path(plan['cache_root']) / 'references-v1/index.sqlite').open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            index_digest.update(block)
+    assert index_digest.hexdigest() == result['index_sha256_after']
+    print(json.dumps({'passed': True, 'result_sha256': sha(result_raw),
+                      'plan_sha256': EXPECTED_PLAN, 'queries': len(rows),
+                      'verified_alignment_records': offsets,
+                      'scientific_outcomes': dict(outcomes)}, sort_keys=True))
+
+if __name__ == '__main__':
+    check()

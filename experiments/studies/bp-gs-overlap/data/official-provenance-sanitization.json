@@ -1,0 +1,19 @@
+{
+  "derivative_bytes": 3715,
+  "derivative_semantic_sha256": "77034b60d306242d92ab1505856c86d3d87ebd7eab56a309c6edf3bb301fc35a",
+  "derivative_sha256": "fc642921cfbbdc88c14cc58e7f90a35d9d3139e51de5c91b5fbef2bd18c5daf9",
+  "measured_source_archive_sha256": "6f0df8232d244f061717216addecaed0d369d8ace83bec4fb02c8baf38245519",
+  "measured_source_commit": "faa3a6ffe514c41564e415367fe5b068fd4bd76c",
+  "original_bytes": 4047,
+  "original_preservation": "Exact original retained privately outside publication tree and in the private executed FAA source archive",
+  "original_sha256": "990e274843d37be79decf293fa0b83a28dd021ffec5a0eb90835927734732742",
+  "original_without_set_cookie_semantic_sha256": "77034b60d306242d92ab1505856c86d3d87ebd7eab56a309c6edf3bb301fc35a",
+  "publication_relation": "Sanitized metadata derivative; not the source snapshot executed during matching; no matching or validation rerun",
+  "removal_policy": "Remove only HTTP Set-Cookie fields (case insensitive); preserve all other semantic values",
+  "removed_paths": [
+    "/sources/0/headers/set-cookie",
+    "/sources/1/headers/set-cookie"
+  ],
+  "semantic_source_witness_equal": true,
+  "version": "bp-gs-publication-set-cookie-removal-v1"
+}

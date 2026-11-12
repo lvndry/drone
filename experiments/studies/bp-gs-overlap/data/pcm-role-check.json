@@ -1,0 +1,2361 @@
+{
+  "audio_read": false,
+  "bp_fitting_to_fma_evaluation": {
+    "current_fitting": {
+      "fitting_ids": 1230,
+      "matches": [],
+      "matching_bp_ids": 0
+    },
+    "release_fitting": {
+      "fitting_ids": 1237,
+      "matches": [],
+      "matching_bp_ids": 0
+    }
+  },
+  "fingerprint_queries_performed": false,
+  "fma_cross_role_groups": [],
+  "fma_cross_role_pcm_groups": 0,
+  "fma_records": 5489,
+  "fma_role_counts": {
+    "PROPOSED_calibration": {
+      "rows": 159,
+      "unique_cached_pcm_hashes": 159
+    },
+    "PROPOSED_development_confirmation": {
+      "rows": 998,
+      "unique_cached_pcm_hashes": 992
+    },
+    "PROPOSED_expanded_fit": {
+      "rows": 4082,
+      "unique_cached_pcm_hashes": 4012
+    },
+    "PROPOSED_inner_selection": {
+      "rows": 250,
+      "unique_cached_pcm_hashes": 250
+    }
+  },
+  "fma_unique_cached_pcm_hashes": 5413,
+  "inputs": {
+    "ledger": {
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/v2-data-contract/data/exposure-ledger.csv.gz",
+      "sha256": "64fa2acbe2901ffb7ff0cf9fd723a7fcedba2da1fc716422377f6af69943d3ed"
+    },
+    "prepared": {
+      "path": "/tmp/drone-fitting-feature-manifest.json",
+      "sha256": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5"
+    },
+    "proposal": {
+      "path": "/Users/lvndry/github/jazz-worktrees/drone-v2-data-contract/experiments/studies/v2-data-contract/data/proposal.json",
+      "sha256": "e6d7300ca59f385ef6961f294d6d6eda3c04d940fedfc6cc56f15ef83eeb0f10"
+    },
+    "references": {
+      "path": "experiments/studies/bp-gs-overlap/data/reference-result-v1.json.gz",
+      "sha256": "0690f58a09be01d5ab37acbb5b845ec77a3b77fc29411227eabc33eaae266a73"
+    },
+    "release": {
+      "path": "experiments/studies/bp-gs-overlap/data/release-metadata.json",
+      "sha256": "69432e5f6ddc0ad10a55de591e3174e6db9ef705355cfdca5a1f678a9bfa4c4f"
+    }
+  },
+  "labels_read_or_scored": false,
+  "limitations": "Exact cached decoded-PCM identity only; no near-duplicate/work clearance. Proposed rows are reported without changing eligibility or unioning components.",
+  "pcm_hash_contract": {
+    "canonical_22050_model_input": false,
+    "channels": 1,
+    "coverage_guard": "Reject output exceeding 3600 seconds; no silent truncation",
+    "decode_path": "ffmpeg -nostdin -hide_banner -loglevel error -threads 1 -filter_threads 1 -i SOURCE -t 3601 -vn -ac 1 -ar 11025 -f f32le -",
+    "dtype": "little-endian float32 (<f4)",
+    "frozen_engine_sha256": "a0d315f3f6f6f62b33b7453119350807702eec35a17723b9079fca30c4328f71",
+    "hash": "SHA256 of exact ffmpeg stdout bytes",
+    "limitation": "Equality after mono downmix/downsampling is not equality of original stereo or canonical model-input samples",
+    "sample_rate_hz": 11025
+  },
+  "proposal_status": "PROPOSED_NOT_ACTIVATED",
+  "reference_result_decoded_sha256": "5b3d7296f8277d8b43470736e670d35e58c2c94230b0f95dc53172d33787ed14",
+  "roles_changed": false,
+  "source_sha256": "36474c818b5abd9b8659085b12cc32047ba48464d17f28ee4b114c2873af671f",
+  "version": "bp-gs-cached-pcm-role-check-v1",
+  "within_role_duplicate_pcm_families": [
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "0201fb17e643a07bcec895ec3cdc07317c448f6bf843fc9aab428df092de3b16",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:051783",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:053859",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "052c36d5270aebcc5ac6eac62286a315a997c960b6c199a019ed87ac845c3e1c",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089306",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093810",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "05e4bd75f83826d2e19200705337cf24c5242f3886ac37820ad1277c826756aa",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098873",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099040",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "122f62310919361bb6bcd82b8897d189e8a740e6f810cc83eba671168d5bdaf7",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:1907",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:034334",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:1907",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:095407",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:1907"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "1324faee24718fe79fcb91f4e46799c57ea6cadd584315d33ab8e3440298d9f7",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:1922",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:024736",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:1922",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:047343",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:1922"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "1692a1e6bbc0efa53c8099bb03f8f2101987c05ffb53386b25317c243430ad89",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:089297",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:093801",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "169699bf3a28aff403fcf3d00b7988e58d072d3abc96d814ea58a3724164cd75",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:051779",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:096100",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "17f180182044985f53cae5bed09cd79a305aa13a09dc13a41670dcb3d4831ae5",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098865",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099032",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "1d8bfd47239842a702614ce703b6ffa4b3b4c50c71caac8c23b5cec4527df3af",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:051775",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:084173",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "22bf6314df5f452a107a03fa1f245949ba02fa7560819cfe3b00eb75bb651e92",
+      "proposed_roles": [
+        "PROPOSED_development_confirmation"
+      ],
+      "records": [
+        {
+          "component": "artist:12351",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:090975",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:12351",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:094434",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:12351"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "230d54c2fd6e3f48ff60a365af381a6371b81e0f9f85d5fa07d9e67baeacbdb0",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:1922",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:011954",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:1922",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:047347",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:1922"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "250cf34c806c7c67a674de7d970eb86f3bf306e7590b646fee3a96f3db1ddaa3",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089887",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089888",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:11431"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "27611ec5ed3b286104353464ef49b045c48b31598467e9e7ee27de80c9bf803a",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098856",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099023",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "2df7dc0e93f51f4812874e09009e5896c3f7459135d67fa0ef600c3445b76425",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079369",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079753",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "30ecebf7c92a575821e848e07e3fbf49fdf024226fc4222f1c38b127ed4ce3b0",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079367",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079755",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "31b164790a6496fd2673ce7a1abff1beac87ddcb6a646613b41f7c06085abaac",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089301",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093818",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "33394edd39cee2452cf8cb74d37256d7dca0b85479c8aafae72ee53c5ac99d23",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098864",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099031",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "36e2256874ecd2eb77e9ec35a1b1cebfffa1024ed2d6856a4d6340b39ce8611a",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:8706",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:046070",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:8706",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:047916",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:8706"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "39180a6b10085d01b906122ae583d8f46f794690f11f0a91416144547225d818",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:058207",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:075414",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "3a3b90ff938f59eb137186566448c9a02e9a0c4955201a360a35371031c4b549",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098874",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099041",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "4120d9b3ca1d345214b5cde53841a0ff3010269344f9d8512005a587e0c5bd19",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098855",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099022",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "45ed29d57b85f5b518526f026cf7a49798cc44f2e0cf97980eec3b07e8cd5463",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:077376",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:097039",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "508940be4046f05dfb1865905a4fc42d518d52ab0913a023ced902e20469e79f",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089310",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093807",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "543b6eb121ff64128494fafbf7d75b6bff25a42996d0d76a50f2daa9a4ed5ce5",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:12660",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:058374",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        },
+        {
+          "component": "artist:12660",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:058384",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        }
+      ],
+      "saved_components": [
+        "artist:12660"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "5832b0a6bd85783582e7167820bd035abe9ed1f519f43043adee305415b69f21",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098872",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099039",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "60b63bd798ff312397f5e6222dac8aec22bb0166e1c22cbf1a6638d71555ce7b",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:051776",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093932",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "61add9e97ecc2ddb19657f28730e66f9c3cfea42ea387b09d9074dbece7eadb6",
+      "proposed_roles": [
+        "PROPOSED_development_confirmation"
+      ],
+      "records": [
+        {
+          "component": "artist:9772",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:041516",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:9772",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:041569",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:9772"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "61e5b0c825a009a39b9a1f9429fd23e8cd1d4ae3fc1d7b341e4b49789a4eff72",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098876",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099016",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "6220f497f5624e1af4ff510c5e6ded89c170220943134b2ec9cb79de0746a095",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:073741",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:073772",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "65b10f21599e9fe666ba840c7f6a0dee0089f6f97066f0289c7a1bb113b40869",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:050973",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:050991",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:11431"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "65b9e59f8ac41caa1a4a04f492d582117b6dabeb1348561904854023b5b1ca1f",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:079365",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:079757",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "65bf503b87edb86775cfa5d67b31c63f76bf4b7a4e5f6070649e18febbe5edf4",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:1922",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:020263",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:1922",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:047369",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:1922"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "65c99d8362197d6c0dbd2fd22157c8d0c8c75e8e91b9b643d4e72fbd9cd8a44f",
+      "proposed_roles": [
+        "PROPOSED_development_confirmation"
+      ],
+      "records": [
+        {
+          "component": "artist:14279",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:069601",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:14279",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:077234",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:14279"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "6a001ce06587098568e7c445edbe72112cb728301ac6432ebc572c7c0829e45e",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:058210",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:059252",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "6be179e286d739b51ff776b529aa6e2b4ab350e69803c79aaf6277b4c0b11283",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098860",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099027",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "74308be2e42f116bd2c81779a6ec0d05e623dff1eae1c4d43ee08ddbec416744",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:3228",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:105028",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:3228",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:105050",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:3228"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "76f4dedb5ecb6b3d08816d5174790016a4e6c2867fbbf667969bb23bdb37ec29",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079364",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079759",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "78881341d926462e2f0571c6cca5237c46b9ca243dd7a0e9c40370e2a2f5ea83",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:6957",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:027548",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        },
+        {
+          "component": "artist:6957",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:072360",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        }
+      ],
+      "saved_components": [
+        "artist:6957"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "7961d291d6d644ace258cefe1e0bfc9cb1306d8f83b5b1be2975d2c024835959",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098854",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099021",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "83d76f354e2fb6df2be6fe8000c63962b213c713a643f5fdbed373bbaa611c65",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:097043",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098615",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "89d0d90abbffd80862269d7616a7517caf653a873cbd3e4fb33c742b3c11ac58",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089302",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093824",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "8c1f8d818803e1527d627df11415aa26c5256b6023de0a687a4a38822d02f6cc",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089292",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093811",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "9275be0c7be9b22dcc13c001f51efb1984bc3eadc39d6222923a7ee7a9a711b4",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:073758",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:073770",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "94acd4b0fd980c3ac3346f99cbdade24b23bd174ef6c5b5686a95f4dc45b36ea",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098877",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099017",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "958be9159f0d3567811bc39636cd4e9081d1ae341025bd5188ccf7c84a26d87d",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089314",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093798",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "9a7e66cf61159f74fa4a5f687a947b84a91eab5e15a828fdc35cb0d8336427a6",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:074864",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098604",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "9c8a10a03ff80a36801c7b6a608c3920f8d1a995d1664e25124f116b80c0bc73",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089300",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093823",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "a024c17feb355517cca5fa4567a13f12219280099687f8af403b81c5445a18c5",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:050972",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:11431",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:050990",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:11431"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "a2d136eedcaef49462b91979e45029374ed5f14e0024358f1fac1d4c0958ad80",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098867",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099034",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "a4c293eca1d861c3ef7bf429944c7938c8ae60866b91365d86104427f4d9561d",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098879",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099019",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "a8409f90605033a60e7eebc743c7f39a94f5ab8e78a91cc4fabbb823d23bbb4d",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098884",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098993",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "b4727e8fa7b24705fcfe8232681c5ce750f713f57f36cba8e911c2b8924c8aec",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079363",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079758",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "b6439ba2df72dc1bae537187cefb75a3261532306c204fc61aa401f22bd070de",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098863",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099030",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "b80794b5a376fe1371957c05df654776cfbeb895996f13ed79df3c95bb721c36",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098891",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099000",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "ba445606f81248c7f2c270dc7d69c23e7a9296dd45a7065a8994fba25866eeab",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098859",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099026",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "bc8feffb1d77eaa9a21a3a29640a5c6bf8b12ba4b668f1012c37019808a09fb9",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089298",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093815",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "bd89dc1f08ccaf50064835565f01dbae80a5b3d90db990f3dc0ca3a2976a7abe",
+      "proposed_roles": [
+        "PROPOSED_development_confirmation"
+      ],
+      "records": [
+        {
+          "component": "artist:8586",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:033200",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:8586",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:040370",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:8586",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:040841",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:8586"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "bdcd417c2d6821c8125ed9507eca98f2805896c5cdbd2fe01efbc5d93e406e22",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089309",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093825",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "be2bfaf52e12c43ec2c43ad013b9d3eb33d17c9c391ac13fae3852ccb5021a9a",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079368",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079754",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "bfcf3e4808f9024743b9d8e3013b1a8472f3b65e9bf3576c2507274588392edb",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:3228",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:105030",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:3228",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:105052",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:3228"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "c4d0b86c73101f701cca58ed569981288c3353b691499c075de3028ad19a2a1a",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:16763",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:087563",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        },
+        {
+          "component": "artist:16763",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:119050",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        }
+      ],
+      "saved_components": [
+        "artist:16763"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "c7926706bcecdd1d4721918e8bff983422de567148806712302991de07ad0b22",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:045100",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:046514",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "cd6a9489c0ac5c6dc4e07d3b51cef68c0963e4030f5a4e936bf134eff2648cc1",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079366",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079756",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "da27ff90b20bd31b06ed5c7cd01ec78a8a15aa56e060437a93aa45ad6388f21e",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098857",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099024",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "e1777f35e0f499db4334d3deeb675a23359e2c5abe654aec6694edf77ca7f33e",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:089308",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:093821",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "e50d7429c083aa574398699623ff4afcca741fde153ae1e01137027533ae62ee",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:16763",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:087568",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        },
+        {
+          "component": "artist:16763",
+          "historical_exposure": "supervised_fit",
+          "id": "fmak:119049",
+          "old_role": "fit",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "1"
+        }
+      ],
+      "saved_components": [
+        "artist:16763"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "eb014ee643118d792809e4038a3b6a7f23d0c77d691e1341bab3c889d3292e16",
+      "proposed_roles": [
+        "PROPOSED_development_confirmation"
+      ],
+      "records": [
+        {
+          "component": "artist:18172",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:101715",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18172",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:102177",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_development_confirmation",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18172"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "efd2c7cc1c6775cea10624ad0ee3806fb2d8a35fcc85d9e09c974a74770beb80",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:3723",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:025062",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:3723",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:028400",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:3723"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "f163aee6e2d8622de50136bed577efb47932b674eddf0c88ccd18ec3f74a88dd",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17784",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:097036",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17784",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099049",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17784"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "f2553c6a76238959dd013e045ad2bceccbbc21f66ecdf80a09dd0312a432743b",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098878",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099018",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "f56457c5b5f770ae2df5874d1295efedcf5089235f2e05c9beaad3dd749aa9ce",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079372",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:079749",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "f7d07905190d7396deaebb6d68bdc3ba2e51c0199b7d6f71738537bdf4730ccb",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:098880",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:099020",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "f95c7b5805e8b8e0e2908ecdb2bb0209cc94bec441f9bb08d01489e62904724f",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098869",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099036",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "fb381cb3b9bce064e01589cfacd720d54c0040d5cd2f5a1cbb2d9f9249ec21f0",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:098861",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:17999",
+          "historical_exposure": "legacy_development_exposure_not_cleared",
+          "id": "fmak:099028",
+          "old_role": "quarantined_development",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:17999"
+      ]
+    },
+    {
+      "bridges_saved_components": false,
+      "pcm_sha256": "fceb982ae994e3e3cbcfe49835f0ef2610c11319605c3a62e6d9b768cd6e3c1d",
+      "proposed_roles": [
+        "PROPOSED_expanded_fit"
+      ],
+      "records": [
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:089316",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "1",
+          "restricted_fit": "0"
+        },
+        {
+          "component": "artist:18799",
+          "historical_exposure": "program_exposed_historical_final",
+          "id": "fmak:093822",
+          "old_role": "final",
+          "proposed_role": "PROPOSED_expanded_fit",
+          "proposed_unique_fit_representative": "0",
+          "restricted_fit": "0"
+        }
+      ],
+      "saved_components": [
+        "artist:18799"
+      ]
+    }
+  ],
+  "within_role_duplicate_pcm_summary": {
+    "PROPOSED_calibration": {
+      "bridges_saved_components": 0,
+      "excess_rows": 0,
+      "families": 0
+    },
+    "PROPOSED_development_confirmation": {
+      "bridges_saved_components": 0,
+      "excess_rows": 6,
+      "families": 5
+    },
+    "PROPOSED_expanded_fit": {
+      "bridges_saved_components": 0,
+      "excess_rows": 70,
+      "families": 70
+    },
+    "PROPOSED_inner_selection": {
+      "bridges_saved_components": 0,
+      "excess_rows": 0,
+      "families": 0
+    }
+  }
+}

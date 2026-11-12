@@ -26,7 +26,8 @@ INPUTS: dict[str, str] = {}
 def read(relative: str) -> dict[str, Any]:
     path = EXP / relative
     INPUTS[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
-    return json.loads(path.read_bytes())
+    raw = path.read_bytes()
+    return json.loads(gzip.decompress(raw) if path.suffix == ".gz" else raw)
 
 
 def canvas(title: str, columns: int, note: str) -> tuple[Figure, list[Axes]]:
@@ -542,6 +543,48 @@ def temporal() -> None:
     save(figure, "k10-temporal", "paired-exact")
 
 
+def bp_gs_overlap() -> None:
+    data = read("studies/bp-gs-overlap/data/diagnostic.json.gz")
+    figure, axes = canvas(
+        "Cached BP → GS audit: review remains unresolved",
+        2,
+        "1,486 BP recording IDs → GS604 · no key-label scoring · all fixed control queries passed\n"
+        "Offset/phase alignments are correlated. CP disagreement does not clear a pair; no unrelated-music false-positive rate is estimated.",
+    )
+    values = [
+        data["outcomes"][name]
+        for name in (
+            "definite_detected_overlap",
+            "review",
+            "insufficient_information",
+            "no_detected_overlap",
+        )
+    ]
+    bars = axes[0].bar(
+        ["Identity\nevidence", "Review", "Insufficient", "No detected\noverlap"],
+        values,
+        color=[RED, ORANGE, "#64748b", BLUE],
+    )
+    axes[0].bar_label(bars, labels=[f"{value:,}" for value in values], padding=4)
+    axes[0].set(title="Recording-level outcomes", ylabel="BP recording IDs", ylim=(0, 1100))
+    counts = [
+        data["review_alignment_categories"].get(name + ":disagrees", 0)
+        for name in ("review_landmarks", "identity_landmarks")
+    ]
+    bars = axes[1].bar(
+        ["Review landmark\nsupport only", "Identity landmark\nsupport"],
+        [value / 1000 for value in counts],
+        color=[ORANGE, RED],
+    )
+    axes[1].bar_label(bars, labels=[f"{value:,}" for value in counts], padding=4)
+    axes[1].set(
+        title="All review alignments: CP > 0.15",
+        ylabel="Retained offset/phase alignments (thousands)",
+        ylim=(0, 170),
+    )
+    save(figure, "bp-gs-overlap", "audit-outcomes")
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -566,6 +609,7 @@ def main() -> None:
     )
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
+    bp_gs_overlap()
     temporal()
     paired_result(
         "tonal-key-ranker", "Tonal summaries and trees: fixed pilot rejected", "Tonal ranker"
