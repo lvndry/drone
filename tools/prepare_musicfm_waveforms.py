@@ -159,10 +159,18 @@ class Preparation:
         self.began = time.monotonic()
         self.peak_rss = 0
         self.peak_cpu = 0.0
+        self.last_disk_time = 0.0
+        self.last_disk_bytes = 0
         self.rows: list[dict[str, Any]] = []
         self.families: dict[str, list[dict[str, Any]]] = {}
 
-    def guard(self) -> None:
+    def disk_usage(self, force: bool = False) -> int:
+        if force or time.monotonic() - self.last_disk_time >= 1.0:
+            self.last_disk_bytes = disk_bytes(self.output)
+            self.last_disk_time = time.monotonic()
+        return self.last_disk_bytes
+
+    def guard(self, force_disk: bool = False) -> None:
         rss, cpu = process_tree(os.getpid())
         self.peak_rss, self.peak_cpu = max(self.peak_rss, rss), max(self.peak_cpu, cpu)
         c = self.config["caps"]
@@ -171,7 +179,7 @@ class Preparation:
             or cpu > c["cpu_seconds"]
             or time.monotonic() - self.began > c["wall_seconds"]
             or time.time() >= self.config["deadline_epoch"]
-            or disk_bytes(self.output) > c["owned_bytes"]
+            or self.disk_usage(force_disk) > c["owned_bytes"]
         ):
             raise RuntimeError("Fixed preparation resource/UTC cutoff")
 
@@ -284,7 +292,9 @@ class Preparation:
             "sampled_peak_tree_rss_bytes": self.peak_rss,
             "sampled_tree_cpu_seconds": self.peak_cpu,
             "child_cpu_seconds": child_cpu(),
-            "owned_bytes": disk_bytes(self.output),
+            "owned_bytes": self.last_disk_bytes,
+            "disk_sample_age_seconds": time.monotonic() - self.last_disk_time,
+            "disk_requested_interval_seconds": 1.0,
         }
 
 
@@ -330,7 +340,7 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
             cached = output / row["validation_cache"]
             if not cached.is_file() or cached.is_symlink() or cached.stat().st_size != row["bytes"]:
                 raise ValueError("Incomplete validation cache file")
-        stage.guard()
+        stage.guard(force_disk=True)
         write_json(
             output / "validation-cache-complete.json",
             {
@@ -355,6 +365,7 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
                 "rows": stage.rows,
             },
         )
+        stage.guard(force_disk=True)
         write_json(output / "progress.json", stage.progress(True))
     except BaseException as error:
         save(
