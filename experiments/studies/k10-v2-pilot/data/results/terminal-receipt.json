@@ -1,0 +1,29 @@
+{
+  "confirmation_scored": false,
+  "gpu0_after": "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c, 22971",
+  "launch_exit": 0,
+  "no_retry_resume": true,
+  "protected_starts_after": [
+    {
+      "comm": "vllm",
+      "pid": 1478814,
+      "start_ticks": 35698640
+    },
+    {
+      "comm": "vllm",
+      "pid": 3448680,
+      "start_ticks": 111966827
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "pid": 1481756,
+      "start_ticks": 35700162
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "pid": 3451013,
+      "start_ticks": 111967770
+    }
+  ],
+  "utc": "2026-11-12T11:07:02.903032+00:00"
+}

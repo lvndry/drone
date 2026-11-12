@@ -1,0 +1,23 @@
+	Command being timed: "timeout -s INT -k 2 3289 /home/lysk-admin/drone/.venv/bin/python /home/lysk-admin/drone-experiments/k10-v2-full-20261112-v1/eligibility-v2/run_k10_v2_pair.py --config /home/lysk-admin/drone-experiments/k10-v2-full-20261112-v1/eligibility-v2/pair-launch-config.json --permit /home/lysk-admin/drone-experiments/k10-v2-pair-20261112-v1/pair-permit.json --plan /home/lysk-admin/drone-experiments/k10-v2-full-20261112-v1/eligibility-v2/plan-v2.json.gz --features /home/lysk-admin/drone-experiments/k10-v2-full-20261112-v1/prepared-full/manifest.eligibility-v2.json --training-source /home/lysk-admin/drone-experiments/k10-v2-full-20261112-v1/source --output-root /home/lysk-admin/drone-experiments/k10-v2-pair-20261112-v1/runs"
+	User time (seconds): 780.91
+	System time (seconds): 112.27
+	Percent of CPU this job got: 118%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 12:33.45
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2133136
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1148
+	Minor (reclaiming a frame) page faults: 9008770
+	Voluntary context switches: 74295
+	Involuntary context switches: 43210
+	Swaps: 0
+	File system inputs: 843240
+	File system outputs: 38432
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
