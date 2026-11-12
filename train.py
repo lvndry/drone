@@ -51,6 +51,7 @@ FINETUNE_LR = 1e-4
 CORRECTIONS_SHARE = 0.25
 CORRECTIONS_FIT = "corrections-fit"
 CORRECTIONS_HELD_OUT = "corrections-held-out"
+PROVENANCE_FIELDS = ("train_ids", "validation_ids", "training_audio_sha256")
 
 
 def evaluate_features(
@@ -154,6 +155,38 @@ def assert_disjoint(train_ids: Sequence[str], test_ids: Sequence[str]) -> None:
     overlap = set(train_ids) & set(test_ids)
     if overlap:
         raise ValueError(f"Training/test overlap: {sorted(overlap)[:10]}")
+
+
+def assert_checkpoint_disjoint(
+    payload: dict[str, Any], evaluation: dict[str, Any], name: str
+) -> None:
+    """Check known inherited exposure; absent legacy witnesses remain unknown."""
+    metadata = payload.get("metadata", {})
+    try:
+        assert_disjoint(
+            list(metadata.get("train_ids", [])) + list(metadata.get("validation_ids", [])),
+            evaluation["ids"],
+        )
+        assert_disjoint(
+            metadata.get("training_audio_sha256", []),
+            [track["sha256"] for track in evaluation["tracks"]],
+        )
+    except ValueError as error:
+        raise ValueError(
+            f"{name} overlaps starting-checkpoint exposure: {error}. "
+            "Use a checkpoint that has not seen this evaluation set; "
+            "Evaluation membership is not changed."
+        ) from error
+
+
+def assert_fitting_disjoint(
+    ids: Sequence[str], hashes: Sequence[str], evaluation: dict[str, Any], name: str
+) -> None:
+    try:
+        assert_disjoint(ids, evaluation["ids"])
+        assert_disjoint(hashes, [track["sha256"] for track in evaluation["tracks"]])
+    except ValueError as error:
+        raise ValueError(f"{name} overlaps new fine-tuning data: {error}") from error
 
 
 def git_revision() -> str:
@@ -314,13 +347,7 @@ def evaluate_checkpoint(data: str | Path, checkpoint: str | Path, device: str) -
     data = Path(data)
     meta = load_manifest(data, "test")
     model, payload = load_checkpoint(checkpoint, device)
-    trained_ids = payload.get("metadata", {}).get("train_ids", [])
-    validation_ids = payload.get("metadata", {}).get("validation_ids", [])
-    assert_disjoint(trained_ids + validation_ids, meta["ids"])
-    assert_disjoint(
-        payload.get("metadata", {}).get("training_audio_sha256", []),
-        [t["sha256"] for t in meta["tracks"]],
-    )
+    assert_checkpoint_disjoint(payload, meta, "GiantSteps")
 
     ordered = [Track(t["id"], t["path"], tuple(t["key"])) for t in meta["tracks"]]
     pred = evaluate_tracks(model, ordered, data, device)
@@ -485,15 +512,23 @@ def finetune_on_corrections(
     assert_disjoint(fit_hashes + held_hashes, test_hashes)
     assert_disjoint(fit_hashes, held_hashes)
     corrected_audio = set(fit_hashes) | set(held_hashes)
-    base_tracks = [
-        Track(t["id"], t["path"], tuple(t["key"]))
-        for t in base_meta["tracks"]
-        if t["sha256"] not in corrected_audio
-    ]
+    base_rows = [t for t in base_meta["tracks"] if t["sha256"] not in corrected_audio]
+    base_tracks = [Track(t["id"], t["path"], tuple(t["key"])) for t in base_rows]
     fit_tracks = [Track(t["id"], t["path"], tuple(t["key"])) for t in fit_meta["tracks"]]
 
     model, payload = load_checkpoint(checkpoint, device)
     width = payload.get("model_config", {}).get("width", 1.0)
+    base_metadata = payload.get("metadata", {})
+    fitting_ids = [track.id for track in base_tracks + fit_tracks]
+    fitting_hashes = [row["sha256"] for row in base_rows] + fit_hashes
+    for name, evaluation in (("GiantSteps", test_meta), ("corrections-held-out", held_meta)):
+        assert_checkpoint_disjoint(payload, evaluation, name)
+        assert_fitting_disjoint(fitting_ids, fitting_hashes, evaluation, name)
+    inherited_provenance = {
+        "present_fields": [name for name in PROVENANCE_FIELDS if name in base_metadata],
+        "missing_fields": [name for name in PROVENANCE_FIELDS if name not in base_metadata],
+        "policy": "Known exposure is rejected; missing witnesses do not establish unseen audio",
+    }
     before = {
         "giantsteps": score_tracks(model, test_meta, data, device),
         "corrections_held_out": score_tracks(model, held_meta, data, device),
@@ -562,7 +597,6 @@ def finetune_on_corrections(
         print(f"epoch {epoch}/{epochs} loss {loss_sum / samples:.4f}", flush=True)
 
     tuned = run / "drone.pt"
-    base_metadata = payload.get("metadata", {})
     save_checkpoint(
         tuned,
         model,
@@ -574,9 +608,7 @@ def finetune_on_corrections(
         + [t.id for t in base_tracks]
         + [t.id for t in fit_tracks],
         validation_ids=list(base_metadata.get("validation_ids", [])),
-        training_audio_sha256=list(base_metadata.get("training_audio_sha256", []))
-        + [t["sha256"] for t in base_meta["tracks"]]
-        + fit_hashes,
+        training_audio_sha256=list(base_metadata.get("training_audio_sha256", [])) + fitting_hashes,
     )
     after = {
         "giantsteps": score_tracks(model, test_meta, data, device),
@@ -584,6 +616,7 @@ def finetune_on_corrections(
     }
     report: dict[str, Any] = {
         "config": config,
+        "inherited_provenance": inherited_provenance,
         "history": history,
         "elapsed_seconds": time.monotonic() - start,
         "checkpoint_sha256": hashlib.sha256(tuned.read_bytes()).hexdigest(),

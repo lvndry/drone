@@ -78,6 +78,46 @@ both symmetric and asymmetric MIREX scores. The default symmetric convention
 awards fifths in both directions, matching Euphoria's benchmark; compare like
 scoring conventions.
 
+## Optional correction fine-tuning
+
+`prepare-corrections` and `finetune` are an experimental, opt-in workflow for keys
+corrected by a person in Euphoria. No measured real-world correction improvement
+or GiantSteps nonregression is claimed; synthetic tests validate the pipeline only.
+Keep a copy of the starting checkpoint and compare the written report before using
+tuned weights. The commands do not replace bundled release weights.
+
+After preparing the base train/test data above, save the JSONL output of
+`euphoria corrections export` and run:
+
+```bash
+uv run train.py prepare-corrections --corrections corrections.jsonl --audio /path/to/library
+uv run train.py finetune weights/drone-v1.pt --device cpu --threads 4
+```
+
+Matching uses Euphoria's BLAKE3 hash of every file byte, including tags; renamed
+or nested files still match. Tempo-only corrections are counted and skipped.
+A deterministic hash rule holds roughly one fifth of matching files out, and both
+parts must be nonempty. Stability applies to identical file bytes: retagging or
+re-encoding changes identity and can change the split. This does not establish
+artist, recording or near-duplicate independence.
+
+Fine-tuning defaults to 10 epochs, lr 1e-4, batch 32, eight correction examples per
+batch mixed with the remaining base data (the final partial batch may have a
+higher correction fraction). It keeps the last epoch, never selecting on either
+held-out score. Before any scoring or gradient update, known starting-checkpoint
+train/validation exposure and actual new fitting data must be disjoint from
+GiantSteps and correction-held-out identities/hashes. Known overlap fails clearly;
+no sample is reassigned. Missing historical checkpoint witnesses remain unknown,
+not proof that a set was unseen.
+
+Each fresh `data/runs/finetune-.../` directory contains `drone.pt` and
+`finetune.json`: configuration, inherited witness availability, per-epoch loss,
+starting/tuned scores and paired improved/worsened/unchanged MIREX credit counts
+on both sets. This fixed pre/post comparison is deliberate; do not repeatedly tune
+settings against the reported evaluation scores. See
+[the detailed workflow](docs/training.md#11-optional-euphoria-correction-fine-tuning)
+and [data limitations](DATA.md#personal-corrections).
+
 ## Features
 
 Audio is decoded to mono 22.05 kHz PCM and transformed with a constant-Q

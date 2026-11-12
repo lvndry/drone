@@ -143,8 +143,11 @@ def match_corrections(
 
 
 def is_held_out(content_hash: str) -> bool:
-    """One track in five, chosen by its hash, so a track never changes side as
-    more corrections arrive."""
+    """One file-byte identity in five; unchanged files keep their side as exports grow.
+
+    Tags participate in the hash, so retagging can change the split even when
+    decoded audio is unchanged. This is not a recording-level holdout identity.
+    """
     return int(content_hash[:16], 16) % HELD_OUT_EVERY == 0
 
 

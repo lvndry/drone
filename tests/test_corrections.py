@@ -6,13 +6,14 @@ import json
 import shutil
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import blake3
 import numpy as np
 import pytest
 import torch
 
-from drone.checkpoints import save_checkpoint
+from drone.checkpoints import load_checkpoint, save_checkpoint
 from drone.corrections import (
     euphoria_content_hash,
     is_held_out,
@@ -21,18 +22,22 @@ from drone.corrections import (
     split_corrections,
 )
 from drone.datasets import Track
+from drone.features import CROP_FRAMES, FEATURE_SPEC
+from drone.keys import LABEL_SCHEMA
 from drone.model import KeyCNN
 from tests.test_pipeline import write_tone
 from tools.synthetic_corrections import camelot, write_synthetic_corrections
 from train import (
     CORRECTIONS_FIT,
     CORRECTIONS_HELD_OUT,
+    PROVENANCE_FIELDS,
     correction_batches,
     evaluate_checkpoint,
     finetune_on_corrections,
     load_manifest,
     prepare_corrections,
     prepare_dir,
+    prepared_path,
 )
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -184,3 +189,172 @@ def test_corrected_giantsteps_audio_is_refused(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="GiantSteps test audio"):
         prepare_corrections(data, export, tmp_path / "synthetic" / "audio")
     assert not (data / CORRECTIONS_FIT).exists()
+
+
+def synthetic_manifest(ids: list[str], hashes: list[str]) -> dict[str, Any]:
+    """Declarative manifests plus synthetic arrays; never read an audio library."""
+    return {
+        "feature_spec": FEATURE_SPEC,
+        "label_schema": LABEL_SCHEMA,
+        "crop": CROP_FRAMES,
+        "ids": ids,
+        "refs": [0] * len(ids),
+        "tracks": [
+            {
+                "id": track_id,
+                "path": "synthetic-unread.wav",
+                "sha256": digest,
+                "key": ["C", "major"],
+            }
+            for track_id, digest in zip(ids, hashes, strict=True)
+        ],
+    }
+
+
+@pytest.fixture
+def synthetic_finetune_data(tmp_path: Path) -> tuple[Path, dict[str, dict[str, Any]]]:
+    manifests = {
+        "train": synthetic_manifest(["base"], ["a" * 64]),
+        "test": synthetic_manifest(["gs"], ["b" * 64]),
+        CORRECTIONS_FIT: synthetic_manifest(["fit"], ["c" * 64]),
+        CORRECTIONS_HELD_OUT: synthetic_manifest(["held"], ["d" * 64]),
+    }
+    return tmp_path, manifests
+
+
+def write_synthetic_manifests(data: Path, manifests: dict[str, dict[str, Any]]) -> None:
+    for tag, manifest in manifests.items():
+        path = prepared_path(data, tag)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(manifest))
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "evaluation"),
+    [
+        ("train_ids", ["gs"], "GiantSteps"),
+        ("validation_ids", ["gs"], "GiantSteps"),
+        ("training_audio_sha256", ["b" * 64], "GiantSteps"),
+        ("training_audio_sha256", ["d" * 64], "corrections-held-out"),
+        ("validation_ids", ["held"], "corrections-held-out"),
+    ],
+)
+def test_finetune_rejects_inherited_exposure_before_scoring_or_gradients(
+    synthetic_finetune_data: tuple[Path, dict[str, dict[str, Any]]],
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    value: list[str],
+    evaluation: str,
+) -> None:
+    data, manifests = synthetic_finetune_data
+    write_synthetic_manifests(data, manifests)
+    checkpoint = data / "start.pt"
+    inherited: dict[str, Any] = {field: value}
+    save_checkpoint(checkpoint, KeyCNN(), **inherited)
+
+    def forbidden(*args: object, **kwargs: object) -> None:
+        pytest.fail("Exposure must be rejected before scoring, sampling or optimizer creation")
+
+    monkeypatch.setattr("train.score_tracks", forbidden)
+    monkeypatch.setattr("train.sample_features", forbidden)
+    monkeypatch.setattr(torch.optim, "AdamW", forbidden)
+    with pytest.raises(ValueError, match=evaluation + " overlaps starting-checkpoint"):
+        finetune_on_corrections(data, checkpoint, "cpu", epochs=1, batch=2)
+    assert not (data / "runs").exists()
+
+
+def test_finetune_rejects_actual_base_test_overlap_before_scoring(
+    synthetic_finetune_data: tuple[Path, dict[str, dict[str, Any]]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data, manifests = synthetic_finetune_data
+    # Different IDs, identical bytes: the ordinary trainer already rejects this.
+    manifests["train"] = synthetic_manifest(["base-alias"], ["b" * 64])
+    write_synthetic_manifests(data, manifests)
+    checkpoint = data / "start.pt"
+    save_checkpoint(checkpoint, KeyCNN())
+
+    def forbidden(*args: object, **kwargs: object) -> None:
+        pytest.fail("New fitting overlap must be rejected before evaluation or training")
+
+    monkeypatch.setattr("train.score_tracks", forbidden)
+    monkeypatch.setattr("train.sample_features", forbidden)
+    monkeypatch.setattr(torch.optim, "AdamW", forbidden)
+    with pytest.raises(ValueError, match="GiantSteps overlaps new fine-tuning data"):
+        finetune_on_corrections(data, checkpoint, "cpu", epochs=1, batch=2)
+
+
+def test_filtered_held_audio_is_not_added_to_training_provenance(
+    synthetic_finetune_data: tuple[Path, dict[str, dict[str, Any]]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data, manifests = synthetic_finetune_data
+    manifests["train"] = synthetic_manifest(["base", "held-as-base"], ["a" * 64, "d" * 64])
+    write_synthetic_manifests(data, manifests)
+    checkpoint = data / "start.pt"
+    inherited: dict[str, Any] = {
+        "train_ids": ["prior-fit"],
+        "validation_ids": ["prior-validation"],
+        "training_audio_sha256": ["e" * 64],
+    }
+    save_checkpoint(checkpoint, KeyCNN(), **inherited)
+    seen: list[str] = []
+
+    def sample(
+        track: Track, data: Path, rng: np.random.Generator, T: int
+    ) -> tuple[np.ndarray, int]:
+        seen.append(track.id)
+        return np.zeros((192, 8), dtype=np.float32), 0
+
+    def score(
+        model: torch.nn.Module, meta: dict[str, Any], data: Path, device: str
+    ) -> dict[str, Any]:
+        return {
+            "tracks": len(meta["refs"]),
+            "exact": 1.0,
+            "mirex": 1.0,
+            "counts": {"exact": len(meta["refs"])},
+            "predictions": list(meta["refs"]),
+        }
+
+    monkeypatch.setattr("train.sample_features", sample)
+    monkeypatch.setattr("train.score_tracks", score)
+    tuned = finetune_on_corrections(data, checkpoint, "cpu", epochs=1, batch=2)
+    _, payload = load_checkpoint(tuned, "cpu")
+    assert sorted(seen) == ["base", "fit"]
+    metadata = payload["metadata"]
+    assert metadata["train_ids"] == ["prior-fit", "base", "fit"]
+    assert metadata["validation_ids"] == ["prior-validation"]
+    assert metadata["training_audio_sha256"] == ["e" * 64, "a" * 64, "c" * 64]
+    report = json.loads((tuned.parent / "finetune.json").read_text())
+    assert report["inherited_provenance"]["present_fields"] == list(PROVENANCE_FIELDS)
+    assert report["inherited_provenance"]["missing_fields"] == []
+    # An ordinary evaluation on the truly unseen held-out correction stays valid.
+    prepared_path(data, "test").write_text(json.dumps(manifests[CORRECTIONS_HELD_OUT]))
+    monkeypatch.setattr("train.evaluate_tracks", lambda *args: np.array([0]))
+    assert evaluate_checkpoint(data, tuned, "cpu")["tracks"] == 1
+
+
+def test_legacy_missing_provenance_is_reported_as_unknown(
+    synthetic_finetune_data: tuple[Path, dict[str, dict[str, Any]]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data, manifests = synthetic_finetune_data
+    write_synthetic_manifests(data, manifests)
+    checkpoint = data / "start.pt"
+    save_checkpoint(checkpoint, KeyCNN(), train_ids=["known-prior"])
+    monkeypatch.setattr(
+        "train.sample_features", lambda *args, **kwargs: (np.zeros((192, 8), dtype=np.float32), 0)
+    )
+    monkeypatch.setattr(
+        "train.score_tracks",
+        lambda model, meta, *args: dict(tracks=1, exact=1.0, mirex=1.0, predictions=[0]),
+    )
+    tuned = finetune_on_corrections(data, checkpoint, "cpu", epochs=1, batch=2)
+    report = json.loads((tuned.parent / "finetune.json").read_text())
+    assert report["inherited_provenance"]["present_fields"] == ["train_ids"]
+    assert report["inherited_provenance"]["missing_fields"] == [
+        "validation_ids",
+        "training_audio_sha256",
+    ]
+    assert "missing witnesses" in report["inherited_provenance"]["policy"]

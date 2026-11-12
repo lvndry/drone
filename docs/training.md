@@ -314,7 +314,7 @@ silently loaded into a 192-bin network. This versioning is what made the
 33-band → K10 port a clean cut: old weights fail loudly with an actionable
 message instead of scoring garbage.
 
-**The scoring-once rule.** GiantSteps is scored **exactly once per candidate**
+**The ordinary training scoring-once rule.** GiantSteps is scored **exactly once per candidate**
 by the explicit `evaluate` command (`train.py:278-314`); `train` never touches
 it. Repeated held-out evaluation would let seed/recipe selection drift toward
 the test set, which is precisely what turned GiantSteps from a pristine test
@@ -456,7 +456,7 @@ wall time including per-epoch validation on 126 tracks; the dominant costs are
 the one-time `fetch.sh` download (~2.1 GB training archive + test audio) and
 first-run feature preparation (CQT over ~1,967 files, cached afterwards by
 content hash). The reference K10 run's artifacts live at
-`~/key-cnn/data/runs/w1.0-seed13-20261111-185528-lr7fvv4k/` (checkpoint) with
+`~/key-cnn/data/runs/w1.0-seed 13-20261111-185528-lr7fvv4k/` (checkpoint) with
 the evaluation JSON at `~/drone-experiments/k10-arch-giantsteps.json`; `run.json`
 in the run directory carries the source hashes, git revision, lock hash,
 manifests, split IDs, and per-epoch history for that run.
@@ -526,3 +526,63 @@ Evidence that would overturn or materially revise the conclusions above:
 - **A DSP or template baseline rerun on the same 604 files beating 74.8%**:
   would show the learned model's advantage is in its protocol and data, not its
   architecture.
+
+
+## 11. Optional Euphoria correction fine-tuning
+
+This optional workflow adapts an existing compatible K10 checkpoint to corrected
+keys, mixed with base fitting audio. It is separate from the confirmed release
+recipe above. No real correction dataset has established an accuracy gain or
+GiantSteps nonregression; synthetic tests exercise correctness only. No tuned
+checkpoint is automatically promoted or copied into `weights/`.
+
+1. Prepare the ordinary Beatport train and GiantSteps test manifests with
+   `uv run train.py prepare`. Fine-tuning requires these plus both correction
+   manifests; `--data` can select another prepared directory.
+2. Save JSONL from `euphoria corrections export`. Run
+   `uv run train.py prepare-corrections --corrections corrections.jsonl --audio <folder>`.
+   Schema 1 key corrections are matched recursively by full-file BLAKE3, with
+   tempo-only corrections skipped and counted. Renaming does not break a match.
+   Matching corrected GiantSteps audio is refused. Unmatched counts are printed;
+   both correction fit/held-out sets must contain at least one matching file.
+3. Run `uv run train.py finetune <starting.pt> --device cpu --threads 4`.
+   `--epochs`, `--lr`, `--batch-size`, `--corrections-share`, `--seed` and
+   `--weight-decay` configure this explicit run. Defaults are 10 epochs, 1e-4,
+   batch 32, share .25, seed 13, weight decay 1e-4. Architecture width is inherited
+   from the starting checkpoint. Hard CE, existing feature crops and label-
+   preserving pitch shifts apply. Each epoch visits the filtered base set once;
+   shuffled correction passes cycle to supply `max(1, round(batch*share))` examples
+   per step. The final partial base batch can have a larger correction fraction.
+4. Inspect the new run directory's `finetune.json` before using `drone.pt`.
+   The report contains configuration, per-epoch loss, checkpoint hash, inherited
+   witness availability and both sets' starting/tuned exact and symmetric MIREX
+   scores, predictions and improved/worsened/unchanged MIREX-credit counts.
+   It is not an accuracy guarantee. No release artifact is overwritten.
+
+The **last epoch** is always retained. GiantSteps and corrections-held-out are
+scored before and after, never each epoch and never for checkpoint selection.
+This differs from the ordinary train/evaluate scoring-once workflow. A pre/post
+report is a fixed experiment, not permission to search settings using these sets.
+
+Correction split membership is determined by the first 64 bits of the file's
+BLAKE3 hash modulo 5. It stays fixed as additional unchanged-file corrections arrive.
+Tags are part of the hash: metadata rewrites, including writing a corrected key,
+can change identity and split even if decoded audio is unchanged. There is no
+recording/artist/album or decoded-audio deduplication guarantee. Preserve an
+independently audited audio split when that level of independence is required.
+
+Before scoring or optimization, fine-tuning checks both evaluation sets against
+starting-checkpoint `train_ids`, `validation_ids` and `training_audio_sha256`
+witnesses, plus IDs/hashes of the actual new base+correction fitting tracks.
+Corrected fit and held-out audio are removed from new base fitting; this cannot
+undo exposure in the starting weights. If a correction-held-out sample was already
+used by that checkpoint, the command fails and names the evaluation set. Supply
+a genuinely suitable starting checkpoint or a separately prepared evaluation
+protocol; the command never silently excludes or reassigns samples.
+
+The existing evaluator's incomplete-metadata policy remains: absent witnesses do
+not themselves cause rejection. The report lists present/missing inherited fields;
+missing means **unknown exposure**, not clean. Preserve checkpoint provenance when
+fine-tuning repeatedly. Saved provenance keeps inherited fitting/validation IDs
+and training hashes and adds only actual filtered new base and correction-fit
+exposure, so excluded-but-unseen held-out files are not falsely marked trained.

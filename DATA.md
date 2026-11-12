@@ -1,6 +1,7 @@
 # Data provenance
 
-No trained weights ship in this checkout. The baseline training pipeline uses:
+Bundled weight provenance is documented in [weights/README.md](weights/README.md).
+The baseline training pipeline uses:
 
 - [Beatport EDM Key Dataset](https://doi.org/10.5281/zenodo.1101082): 1,486
   two-minute previews with annotations by Eduard Mas Marín, revised and expanded
@@ -22,9 +23,39 @@ artist-, album-, remix-, or near-duplicate independence. Broader corpus evaluati
 must audit those relationships and any pretrained teacher's data exposure.
 
 Training selects checkpoints using only a fixed training/validation split.
-GiantSteps metrics are computed only by the explicit `evaluate` command. Do not
-use repeated test evaluations to select architectures or hyperparameters.
+Ordinary training does not score GiantSteps; its metrics come from the explicit
+`evaluate` command. Optional correction fine-tuning deliberately reports one
+starting/tuned comparison on GiantSteps and correction-held-out, keeps the last
+epoch, and never selects checkpoints on those scores. Do not use repeated test
+evaluations to select architectures or hyperparameters.
 
 Preview audio is dev-time input and is never included in package builds. The
 annotation license does not itself establish redistribution rights to the audio;
 retain provenance and review the distribution terms for any future model release.
+
+
+## Personal corrections
+
+`train.py prepare-corrections` accepts schema 1 JSONL from `euphoria corrections
+export`. Only corrected keys are fitting labels; tempo-only records are counted
+and skipped. Files are matched recursively by Euphoria's full-file BLAKE3 identity,
+including tags. The export has no audio paths; preparation manifests contain local
+paths, SHA-256 identities and corrected labels. These personal manifests/audio are
+local inputs, not bundled package data. Keep only audio and labels you are
+entitled to use; this workflow confers no new redistribution rights.
+
+Matching GiantSteps file bytes is rejected before correction preparation. The
+hash split assigns roughly one fifth of matching files to corrections-held-out;
+both sides must be nonempty. The split is stable for identical file bytes only.
+Retagging/re-encoding may move unchanged musical audio between sides; artist,
+album, recording, remix and decoded-audio independence are not established.
+
+Fine-tuning checks known starting-checkpoint train/validation IDs and training
+SHA-256 witnesses and actual new fitting data against both evaluation sets before
+scoring or gradients. Known overlap fails without silently changing membership.
+Missing legacy checkpoint witnesses remain unknown and are listed in
+`finetune.json`; passing available checks does not prove unknown historical
+exposure absent. Genuine inherited provenance is retained in tuned checkpoints,
+while new hashes describe only the filtered base and correction-fit audio actually
+sampled. Pre/post scores are descriptive; no measured real-world improvement is
+claimed. See [the workflow](docs/training.md#11-optional-euphoria-correction-fine-tuning).
