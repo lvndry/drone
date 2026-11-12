@@ -31,7 +31,13 @@ def select_wheels(lock: Path) -> list[dict[str, Any]]:
         for wheel in package["wheels"]:
             url = urlparse(wheel["url"])
             filename = unquote(Path(url.path).name)
-            if url.scheme != "https" or url.hostname != "files.pythonhosted.org":
+            cpu_audio = (
+                name == "torchaudio"
+                and package["version"] == "2.11.0+cpu"
+                and url.hostname in {"download.pytorch.org", "download-r2.pytorch.org"}
+                and url.path.startswith("/whl/cpu/")
+            )
+            if url.scheme != "https" or not (url.hostname == "files.pythonhosted.org" or cpu_audio):
                 raise ValueError("unexpected wheel origin")
             _, _, _, tags = parse_wheel_filename(filename)
             order = min((ranks[tag] for tag in tags if tag in ranks), default=None)

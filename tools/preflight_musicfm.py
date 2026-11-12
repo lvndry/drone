@@ -27,7 +27,12 @@ if TYPE_CHECKING:
 EVIDENCE = Path(__file__).parents[1] / "experiments/studies/musicfm-preflight/evidence"
 WEIGHT_SHA = "218b483a0256ddef736267425fabb166fd97008983696bb9270def464b47bded"
 WEIGHT_BYTES = 1_316_802_088
-EXPECTED = {"torch": "2.15.0", "torchaudio": "2.11.0", "transformers": "4.57.6", "einops": "0.8.1"}
+EXPECTED = {
+    "torch": "2.15.0",
+    "torchaudio": "2.11.0+cpu",
+    "transformers": "4.57.6",
+    "einops": "0.8.1",
+}
 MIB = 1024**2
 
 
