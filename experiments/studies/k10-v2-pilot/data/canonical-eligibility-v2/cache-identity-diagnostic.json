@@ -1,0 +1,217 @@
+{
+  "additional_integrity_family_not_in_canonical": false,
+  "all_canonical_duplicate_families_have_bitidentical_cachefiles": true,
+  "cache_duplicate_families": 25,
+  "cache_integrity_findings": [
+    {
+      "canonical_hashes": [
+        "94fb4963b5b248c09bdad59f0cd9b7c103d61080c46a423273862ab9eef42768"
+      ],
+      "ids": [
+        "beatport:1926377",
+        "beatport:2997186"
+      ],
+      "refs": [
+        23
+      ],
+      "roles": [
+        "fit",
+        "selection"
+      ]
+    },
+    {
+      "canonical_hashes": [
+        "37661bc2c4db39e25264ad9ba9590b3608a851d6879aa64534527ca2f34ea1fb"
+      ],
+      "ids": [
+        "fmak:051779",
+        "fmak:096100"
+      ],
+      "refs": [
+        1,
+        15
+      ],
+      "roles": [
+        "fit"
+      ]
+    }
+  ],
+  "canonical_families_cache_equality": [
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:073758",
+        "fmak:073770"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:058207",
+        "fmak:075414"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:034334",
+        "fmak:095407"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:027548",
+        "fmak:072360"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:097036",
+        "fmak:099049"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:051779",
+        "fmak:096100"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:074864",
+        "fmak:098604"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:087563",
+        "fmak:119050"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:011954",
+        "fmak:047347"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:051775",
+        "fmak:084173"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:025062",
+        "fmak:028400"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:051783",
+        "fmak:053859"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:024736",
+        "fmak:047343"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:020263",
+        "fmak:047369"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:051776",
+        "fmak:093932"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:058210",
+        "fmak:059252"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "beatport:1926377",
+        "beatport:2997186"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:045100",
+        "fmak:046514"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:077376",
+        "fmak:097039"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:097043",
+        "fmak:098615"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:073741",
+        "fmak:073772"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:089887",
+        "fmak:089888"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:046070",
+        "fmak:047916"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:058374",
+        "fmak:058384"
+      ]
+    },
+    {
+      "cache_hash_count": 1,
+      "ids": [
+        "fmak:087568",
+        "fmak:119049"
+      ]
+    }
+  ],
+  "no_audio_or_cachefile_reads": "existingrecordedcacheSHAmetadataonly"
+}

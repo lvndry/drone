@@ -1,0 +1,28 @@
+{
+  "exit": 1,
+  "protected_vllm_after": [
+    {
+      "comm": "vllm",
+      "live": true,
+      "pid": 1478814
+    },
+    {
+      "comm": "vllm",
+      "live": true,
+      "pid": 3448680
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "live": true,
+      "pid": 1481756
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "live": true,
+      "pid": 3451013
+    }
+  ],
+  "readiness": "BLOCKED_CANONICAL_IDENTITIES_NO_REPAIR_NO_RETRY",
+  "training_started": false,
+  "utc": "2026-11-12T10:21:42.450343+00:00"
+}
