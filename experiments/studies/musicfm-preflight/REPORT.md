@@ -128,8 +128,11 @@ per-file, compressed and decoded SHA256 values. The deterministic gzip bundle
 preserves failed CLI attempts, v1 import failure, exact wheel/lock/module paths,
 CPU layout, approval/config, all21 update records and sampled supervision.
 It includes no checkpoint/wheel/audio bytes. Executed sources are preserved by
-local research tags for2083524,6cabc0e and84685ce; publication must preserve those
-refs rather than relabel results with a squash commit.
+[source-audit2083524](https://github.com/lvndry/drone/commit/20835246e1066b313df3dc40e1e6aaf672c24cee),
+[failed provisioning6cabc0e](https://github.com/lvndry/drone/commit/6cabc0e) and
+[executed resource84685ce](https://github.com/lvndry/drone/commit/84685cef837f2234e6acfd942e9cc8eb80d04f75)
+research tags; these measured identities are preserved independently of the
+publication commit.
 
 ```sh
 uv run python -m tools.musicfm_resource_report --plot
@@ -147,3 +150,11 @@ Next: propose one finite v2-data MusicFM pilot with bounded24k waveform/crop I/O
 fixed song-level validation aggregation and real validation/checkpoint costs.
 Use the newly frozen v2 inner IDs, not the oldv1 FMAK250, and exclude confirmation/
 calibration. Stronger-teacher accuracy must be earned before any student budget.
+
+The primary acceptance domain is5–10minute house/deep-house/melodic-house. This
+synthetic probe provides no labelled evidence for it. A real pilot must cover
+whole songs and separately report duration/domain/genre/group coverage; generic
+FMA Electronic means and120s Beatport previews cannot establish that acceptance.
+Long percussive intros/outros may dilute global evidence; record that risk and
+window diagnostics without automatically reviving failed weighting searches.
+Private DJ audio remains excluded from training and selection.
