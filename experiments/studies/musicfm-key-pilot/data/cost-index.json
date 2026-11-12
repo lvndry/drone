@@ -1,0 +1,18 @@
+{
+  "format": "musicfm-cost-index-v1",
+  "path": "cost-raw.json.gz",
+  "sha256": "ffafcd9c9421ad2d92b9f97ed6853aabdd4b73b2f3b367a140a6f96ae1815704",
+  "decoded_sha256": "9ab2b7d740dd56047b022bac409a02206cd75c354e955b2cbb9fd1b2463eef7d",
+  "files": 13,
+  "executed_sources": {
+    "original-ef3a735": "ef3a735ebf79c22c7b87566b6433a31966d3dc7a",
+    "cachefix-051e4ad": "051e4adaf5207abd5f83ad822dbf60f7c7abf412"
+  },
+  "authoritative_result_sha256": {
+    "original-ef3a735": "4037db0d9ef947485f17123ff577d1a33dc537091555653eb6e02711d14b1ef9",
+    "cachefix-051e4ad": "adac185c04aa3e34f8b7aad7e84b4614e65f87b32cc1ff194024782afa470733"
+  },
+  "initial_state_sha256": "d278e0e197d21d98f8a570be7fbb6195e79247c5dbfada2686c34c6e502a507d",
+  "old_failed_gate_retained": true,
+  "real_task_accuracy_scored": false
+}

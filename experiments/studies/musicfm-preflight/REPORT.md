@@ -20,6 +20,12 @@ accuracy, a trained teacher, whole-fit GPU hours, standalone throughput, CPU
 performance or production readiness. A real-data pilot requires a separately
 reviewed split, input/evaluation pipeline and finite compute/storage budget.
 
+The later [complete-song cost qualification](../musicfm-key-pilot/REPORT.md)
+exposed a train/evaluation rotary-cache precision bug, retained its failed376-song
+check and controlled stop, and qualified a prospective wrapper repair. Its three
+disposable synthetic-target updates provide cost evidence, not teacher accuracy.
+The earlier fixed-window probe below does not establish full-song batching parity.
+
 ## Measured results
 
 ![Measured update timing and GPU allocation](resource-probe.png)
