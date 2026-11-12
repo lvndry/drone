@@ -1,8 +1,9 @@
 # drone
 
-A small neural classifier for the musical key of an audio track, intended for
-[Euphoria](https://github.com/lvndry/euphoria). It predicts 24 classes: 12 tonics,
-each in major or minor.
+Drone is a public, reusable musical-key classifier with a Python API, CLI and
+exportable model. It predicts 24 classes: 12 tonics, each in major or minor.
+[Euphoria](https://github.com/lvndry/euphoria) is its main consumer; other audio
+applications can use Drone independently.
 
 **Model card:** [lvndry/drone on Hugging Face](https://huggingface.co/lvndry/drone).
 The bundled artifacts and their provenance are documented in
@@ -84,8 +85,13 @@ scoring conventions.
 
 ## Optional correction fine-tuning
 
-`prepare-corrections` and `finetune` are an experimental, opt-in workflow for keys
-corrected by a person in Euphoria. No measured real-world correction improvement
+`prepare-corrections` and `finetune` are an experimental, opt-in workflow for
+explicit human key annotations mixed with the base training data. Euphoria's
+JSONL export is one compatible adapter, not Drone's core data source; other tools
+can produce the same portable format described in [DATA.md](DATA.md#personal-corrections).
+Drone does not automatically collect annotations, scan private libraries or upload
+user audio. Only explicitly supplied local files participate. No public-model or
+real-world correction improvement
 or GiantSteps nonregression is claimed; synthetic tests validate the pipeline only.
 Keep a copy of the starting checkpoint and compare the written report before using
 tuned weights. The commands do not replace bundled release weights.
@@ -94,11 +100,15 @@ After preparing the base train/test data above, save the JSONL output of
 `euphoria corrections export` and run:
 
 ```bash
-uv run train.py prepare-corrections --corrections corrections.jsonl --audio /path/to/library
+uv run --extra corrections train.py prepare-corrections \
+  --corrections corrections.jsonl --audio /path/to/library
 uv run train.py finetune weights/drone-v1.pt --device cpu --threads 4
 ```
 
-Matching uses Euphoria's BLAKE3 hash of every file byte, including tags; renamed
+BLAKE3 is needed only for matching/hashing this optional adapter. Base inference,
+ordinary training, export and JSONL schema parsing do not require that dependency;
+`uv sync --extra corrections` installs it. Existing helper and CLI names remain
+compatible. Matching uses Euphoria's BLAKE3 hash of every file byte, including tags; renamed
 or nested files still match. Tempo-only corrections are counted and skipped.
 A deterministic hash rule holds roughly one fifth of matching files out, and both
 parts must be nonempty. Stability applies to identical file bytes: retagging or
@@ -119,7 +129,7 @@ Each fresh `data/runs/finetune-.../` directory contains `drone.pt` and
 starting/tuned scores and paired improved/worsened/unchanged MIREX credit counts
 on both sets. This fixed pre/post comparison is deliberate; do not repeatedly tune
 settings against the reported evaluation scores. See
-[the detailed workflow](docs/training.md#11-optional-euphoria-correction-fine-tuning)
+[the detailed workflow](docs/training.md#11-optional-annotation-fine-tuning)
 and [data limitations](DATA.md#personal-corrections).
 
 ## Features

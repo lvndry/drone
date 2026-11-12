@@ -1,4 +1,4 @@
-"""Key corrections exported by Euphoria, matched to local audio by content hash.
+"""Portable human-key annotations in the Euphoria-compatible JSONL adapter.
 
 `euphoria corrections export` writes one JSON object per line. Each names its
 track by the BLAKE3 hash of every byte of the file, so the export holds no
@@ -13,8 +13,6 @@ import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-
-import blake3
 
 from drone.datasets import Track
 from drone.keys import TONICS, Key
@@ -49,6 +47,13 @@ class MatchedCorrections:
 
 def euphoria_content_hash(path: str | Path) -> str:
     """BLAKE3 of every byte of the file, tags included, as Euphoria computes it."""
+    try:
+        import blake3
+    except ImportError as error:
+        raise ValueError(
+            "Matching correction audio requires the optional corrections extra: "
+            "run `uv sync --extra corrections` or install `drone-key[corrections]`."
+        ) from error
     hasher = blake3.blake3()
     with open(path, "rb") as handle:
         for block in iter(lambda: handle.read(CHUNK_BYTES), b""):

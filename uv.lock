@@ -418,7 +418,6 @@ name = "drone-key"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "blake3" },
     { name = "librosa", version = "0.11.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "librosa", version = "1.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -427,6 +426,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+corrections = [
+    { name = "blake3" },
+]
 export = [
     { name = "onnx" },
     { name = "onnxruntime" },
@@ -441,6 +443,7 @@ research = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "blake3" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "ty" },
@@ -448,7 +451,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "blake3", specifier = ">=1.0.11" },
+    { name = "blake3", marker = "extra == 'corrections'", specifier = ">=1.0.11" },
     { name = "librosa", specifier = ">=0.10" },
     { name = "matplotlib", marker = "extra == 'plots'", specifier = ">=3.10" },
     { name = "nnaudio", marker = "extra == 'research'", specifier = "==0.3.4" },
@@ -458,10 +461,11 @@ requires-dist = [
     { name = "onnxscript", marker = "extra == 'export'", specifier = ">=0.7.2" },
     { name = "torch", specifier = ">=2.6" },
 ]
-provides-extras = ["research", "export", "plots"]
+provides-extras = ["corrections", "research", "export", "plots"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "blake3", specifier = ">=1.0.11" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.9" },
     { name = "ty", specifier = ">=0.0.101" },
