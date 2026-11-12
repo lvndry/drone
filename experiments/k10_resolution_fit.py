@@ -36,7 +36,7 @@ def prefix_digest(model: torch.nn.Module) -> str:
     return digest.hexdigest()
 
 
-def configure_gpu() -> None:
+def configure_gpu() -> dict[str, Any]:
     """Called only inside a separately approved fresh GPU worker."""
     import torch
 
@@ -49,9 +49,20 @@ def configure_gpu() -> None:
     torch.backends.cudnn.allow_tf32 = False
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
-    torch.use_deterministic_algorithms(True)
+    torch.use_deterministic_algorithms(False)
     total = torch.cuda.get_device_properties(0).total_memory
     torch.cuda.set_per_process_memory_fraction(POLICY["allocator_bytes"] / total, 0)
+    return {
+        "global_deterministic_algorithms": torch.are_deterministic_algorithms_enabled(),
+        "cudnn_deterministic": torch.backends.cudnn.deterministic,
+        "cudnn_benchmark": torch.backends.cudnn.benchmark,
+        "matmul_allow_tf32": torch.backends.cuda.matmul.allow_tf32,
+        "cudnn_allow_tf32": torch.backends.cudnn.allow_tf32,
+        "dtype": "float32",
+        "device": "cuda:0",
+        "seed": 13,
+        "bitwise_training_guaranteed": False,
+    }
 
 
 def arm(
@@ -69,7 +80,7 @@ def arm(
 
     if name not in MODELS:
         raise ValueError("Only the predeclared baseline and candidate exist")
-    configure_gpu()
+    backend_flags = configure_gpu()
     factory = KeyCNN if name == "baseline" else SemitoneGridCNN
 
     first = True
@@ -88,7 +99,7 @@ def arm(
         rows,
         array,
         output,
-        {**provenance, "model_name": name},
+        {**provenance, "model_name": name, "backend_flags": backend_flags},
         watch,
         model_factory=checked_factory,
         expected_init=MODELS[name],

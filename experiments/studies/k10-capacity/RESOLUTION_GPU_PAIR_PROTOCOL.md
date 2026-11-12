@@ -6,8 +6,18 @@ All earlier results and the live CPU context pair remain unchanged. GPU1 resourc
 qualification must pass before a source/config-bound execution can be authorized.
 No task-fit resource budget or execution window is selected here.
 
+The v2 resource qualification failed before its first optimizer commit because
+global deterministic algorithms reject AdaptiveAvgPool2d CUDA backward. The
+prospective correction uses the historical CUDA recipe for BOTH fresh arms:
+`torch.use_deterministic_algorithms(False)`, not warn-only or a changed operator.
+All other numerical/data/memory/gate settings remain fixed. Actual backend flags
+are recorded in both checkpoint/result provenance. Seeded CUDA training is not
+guaranteed bitwise reproducible. Hardware feasibility remains unproven until the
+separate corrected resource qualification completes; no v2 timing is extrapolated.
+
 Use two fresh worker processes, baseline first then SemitoneGridCNN, both on the
-same GPU1 backend. Both use seed 13, FP32, deterministic algorithms/cuDNN, TF32 off,
+same GPU1 backend. Both use seed 13, FP32, global deterministic algorithms OFF,
+cuDNN deterministic ON, TF32 off,
 benchmark false, two Torch threads, one interop thread, numeric environment one,
 nice 19, and the reviewed isolated physical CPU placement. Preserve the GPU0
 8 GiB free floor, GPU1 2 GiB allocator/2.75 GiB owned-NVML ceiling and 6.5 GiB early

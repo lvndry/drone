@@ -141,7 +141,7 @@ def test_gpu_arm_injects_factory_identity_without_constructing_model(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured = {}
-    monkeypatch.setattr(fit, "configure_gpu", lambda: None)
+    monkeypatch.setattr(fit, "configure_gpu", lambda: {"global_deterministic_algorithms": False})
 
     def capture(*args: Any, **kwargs: Any) -> dict[str, Any]:  # noqa: ANN401
         captured.update(args=args, kwargs=kwargs)
@@ -152,7 +152,11 @@ def test_gpu_arm_injects_factory_identity_without_constructing_model(
         "candidate", {}, {}, lambda _: np.zeros((208, 8)), tmp_path, {"same": True}, lambda: None
     )
     assert captured["args"][0] == 320
-    assert captured["args"][5] == {"same": True, "model_name": "candidate"}
+    assert captured["args"][5] == {
+        "same": True,
+        "model_name": "candidate",
+        "backend_flags": {"global_deterministic_algorithms": False},
+    }
     assert captured["kwargs"]["expected_init"] == fit.CANDIDATE_INITIAL
     assert captured["kwargs"]["artifact_format"] == fit.FORMAT
     assert captured["kwargs"]["result_status"] == fit.STATUS
