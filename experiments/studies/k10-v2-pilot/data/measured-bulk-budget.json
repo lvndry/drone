@@ -1,0 +1,45 @@
+{
+  "canonical_duplicates_within_batch": 0,
+  "controller_sha256": "d5104d92f13ef42b5edc7bfbb0bf2d2c8f4e65aaf1b8a49f35cb2e8cf37d82af",
+  "decode_hash_affine_seconds": [
+    0.10811049555953638,
+    0.001380574509281858
+  ],
+  "first_two_cold_cqt_seconds": [
+    0.9126995399128646,
+    0.9785523428581655
+  ],
+  "limitations": "16pointdescriptiveprojection,longesttrackhighleverage,coldlibrarycostnotsteady-state;notaguaranteeorautomaticbulkapproval",
+  "manifest_sha256": "ba4958ecbc57656ef0835e38b7e639683b89dbcb59c003d0baf263768370184e",
+  "new_cqt": 12,
+  "projection": {
+    "cqt_missing_records": 3166,
+    "decode_hash_worker_seconds": 2124.659074270678,
+    "ideal_two_worker_wall_seconds": 1175.6195248631927,
+    "metadata_audio_seconds": 1097230.0,
+    "missing_metadata_audio_seconds": 674637.0,
+    "pilot_records": 5641,
+    "reuse_check_worker_seconds": 9.614729769236874,
+    "warm_cqt_worker_seconds": 216.96524568647044
+  },
+  "proposed_bulk_caps": {
+    "cpu_seconds": 5400,
+    "cpus": [
+      10,
+      11
+    ],
+    "logical_cache_bytes": 3221225472,
+    "rss_bytes": 4294967296,
+    "wall_seconds": 2700,
+    "wav_scratch_bytes": 268435456,
+    "workers": 2
+  },
+  "reused_cqt": 4,
+  "rows": 16,
+  "source_commit": "37f17a10f9bed0c54f89342c628e4f6c018602bf",
+  "status": "MEASURED_FIRST16_ONLY_BULK_PROPOSED_NOT_AUTHORIZED",
+  "warm_cqt_affine_seconds": [
+    0.019099388208749818,
+    0.0002319715382013861
+  ]
+}

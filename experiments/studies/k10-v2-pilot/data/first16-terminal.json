@@ -1,0 +1,27 @@
+{
+  "exit": 0,
+  "no_restart": true,
+  "protected_vllm_after": [
+    {
+      "comm": "vllm",
+      "live": true,
+      "pid": 1478814
+    },
+    {
+      "comm": "vllm",
+      "live": true,
+      "pid": 3448680
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "live": true,
+      "pid": 1481756
+    },
+    {
+      "comm": "VLLM::EngineCor",
+      "live": true,
+      "pid": 3451013
+    }
+  ],
+  "utc": "2026-11-12T10:00:19.430405+00:00"
+}

@@ -1,0 +1,69 @@
+{
+  "bulk_source_sha256": "93410f69dcdf8d5117706f97c8bf830761195af978d68ccb340bf7e23389e989",
+  "caps": {
+    "aggregate_rss_bytes": 17179869184,
+    "cpu_seconds": 5400,
+    "cpus": [
+      4,
+      5,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "native_threads": 1,
+    "new_cache_bytes": 3221225472,
+    "total_owned_output_bytes": 4294967296,
+    "wall_seconds": 2700,
+    "wav_scratch_bytes": 1073741824,
+    "workers": 8
+  },
+  "duration_reporting": {
+    "bins": [
+      "<2min",
+      "2\u2013<5min",
+      "5\u201310min",
+      ">10min"
+    ],
+    "boundaries_seconds": [
+      120,
+      300,
+      600
+    ],
+    "boundary_rule": "t<120;120<=t<300;300<=t<=600;t>600",
+    "coverage_caveats": [
+      "BP120spreview limitation",
+      "FMAunknown genres remain unknown",
+      "broadElectronic is not verifiedhouse",
+      "BPunknownartistgrouping not independent",
+      "privateDJfinalperformance/manualonly,nofit/selection"
+    ],
+    "full_true_length_evaluation": true,
+    "primary_use": "5\u201310minute house/deep-house/melodic-house",
+    "source": "canonical_samples/22050",
+    "status": "PROSPECTIVE_REPORT_ONLY_NO_GATE_CHANGE"
+  },
+  "expected_actions": {
+    "carried_first16": 16,
+    "new_cqt": 3154,
+    "reused_v1": 2471
+  },
+  "expected_carried": 16,
+  "expected_records": 5641,
+  "expected_remaining": 5625,
+  "guard_source_sha256": "d5cddd30cf11442a28d0649608d78e7b8d985b2956f56b8d83e5c0cbfe08f14d",
+  "inputs": {
+    "first16_controller": "d5104d92f13ef42b5edc7bfbb0bf2d2c8f4e65aaf1b8a49f35cb2e8cf37d82af",
+    "first16_manifest": "ba4958ecbc57656ef0835e38b7e639683b89dbcb59c003d0baf263768370184e",
+    "labels": "939d065e454ccc436e4dd53c53d1c4616dfc09c8cb248cbe1e3410b5d9c9b40d",
+    "plan": "7e8311580ec961b4ccb0941fc484379f4eaa88bad676c1dba9fcd8eb46c7ef05",
+    "reuse_manifest": "39fe1842a544bd818fe48c38d9b0916d7f6c04f5531894b0396d6e6d24d1f5f5"
+  },
+  "numerical_track_source_commit": "37f17a10f9bed0c54f89342c628e4f6c018602bf",
+  "per_track_source_sha256": "752c2704f73654fa726cde5c5d1bae92110833494310ae15a18181ef654b9192",
+  "policy": "verify all5641 canonicalinputs/labels/content;stop+retain on conflict/crossfit-selection identity,no repair",
+  "status": "PROPOSED_NORMAL_FULL_PILOT_PREPROCESSING_NO_TRAINING",
+  "version": "k10-v2-full-preparation-v1"
+}
