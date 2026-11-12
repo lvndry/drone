@@ -1,0 +1,14 @@
+{
+  "format": "musicfm-runtime-evidence-index-v1",
+  "path": "runtime-raw.json.gz",
+  "sha256": "8b4a3a12618e45307f0b4cfb3b3547cead382462c41c5f92ab562766df1bee0c",
+  "decoded_sha256": "e07f40d3f2004354cd8f250def211d571917a6d6b6d1aa46d17cee91b8633e9f",
+  "files": 90,
+  "measured_source": {
+    "v1": "6cabc0e",
+    "v2_and_resource": "84685cef837f2234e6acfd942e9cc8eb80d04f75"
+  },
+  "approved_config_sha256": "7520c83160f0079eec8f780005acf4c754f15ce213a8072d37ee90627c191a8a",
+  "checkpoint_included": false,
+  "wheels_included": false
+}

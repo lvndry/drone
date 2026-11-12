@@ -5,6 +5,7 @@ data/
 experiments/studies/*/data/**
 !experiments/studies/*/data/**/
 !experiments/studies/*/data/**/*.json
+!experiments/studies/musicfm-preflight/data/runtime-raw.json.gz
 features/
 runs/
 __pycache__/

@@ -18,11 +18,16 @@ multi-domain comparison and its gate decision are recorded in
 [the results](../experiments/studies/k10-multidomain/REPORT.md).
 
 Current research status: the release recipe's three-seed GiantSteps mean is
-73.58% MIREX / 66.8% exact. The corrected multi-domain comparison missed its
-predeclared FMAK gate; the later [EMA pilot](../experiments/studies/k10-ema/REPORT.md)
-also failed. The [chunked CPU prototype](../experiments/studies/k10-chunked/REPORT.md)
-passed observed decision parity and its memory/latency development gates, but
-native Euphoria integration is not measured yet. Release weights are unchanged.
+73.58% MIREX /66.8% exact; this aggregate is not the score of the single shipped
+checkpoint. The corrected multi-domain comparison missed its predeclared FMAK
+gate; the later [EMA pilot](../experiments/studies/k10-ema/REPORT.md) also failed.
+The [chunked CPU prototype](../experiments/studies/k10-chunked/REPORT.md) passed
+its development gates. The measured [native composed research study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cqt/composed/REPORT.md)
+now covers Linux376-track correctness and20-track FMAK timing, plus a Mac9-case
+diagnostic; production Euphoria integration remains unchanged. The
+[MusicFM preflight](../experiments/studies/musicfm-preflight/REPORT.md)
+establishes bounded synthetic GPU resource feasibility, with no task-accuracy
+result or qualified teacher. Release weights remain unchanged.
 The historical narrative below preserves original runs and code-line references;
 these linked reports supersede its prospective experiment status. SWD audio is
 now prepared but has not been scored by these candidates.

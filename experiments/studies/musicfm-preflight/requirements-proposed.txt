@@ -1,0 +1,6 @@
+# Prospective task-local overlay only. Not installed or resolved by this study.
+# Preserve the existing Torch2.15.0+cu132 build and freeze every transitive wheel
+# plus environment fingerprint after root reviews a provisioning plan.
+torchaudio==2.11.0
+transformers==4.57.6
+einops==0.8.1

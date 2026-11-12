@@ -1,0 +1,43 @@
+{
+  "weights_repository": "https://huggingface.co/minzwon/MusicFM",
+  "weights_revision": "4513b38bc25ad1d227b1980819b9691ba97f4d87",
+  "files": {
+    "msd_stats.json": {
+      "bytes": 2277,
+      "sha256": "c36c61ab10ca4d2e7fdfefc3fcc15205316bec276a06a47baa3641a62c546f22",
+      "git_blob": "721254cd8d4912bc7f44090bdf39cca6a074c530",
+      "path": "msd-stats.json"
+    },
+    "README.md": {
+      "bytes": 21,
+      "sha256": "3e0e15fa0c5cc81675bd69af8eb469d128a725c1a7bfc71f03b7877b7b650567",
+      "git_blob": "32897cd3e640101ba184f8c4ccd896981de3804a",
+      "path": "model-card.txt"
+    },
+    "pretrained_msd.pt": {
+      "bytes": 135,
+      "sha256": "30970ee9d1c3cd4228b5a09a474ef8ce273551bcaf8d6f57c14392fa25d99ced",
+      "git_blob": "e8b71a4d808dd5fdaca08485f23c6249824adc74",
+      "path": "weights-lfs-pointer.txt"
+    },
+    "config-model-card": {
+      "path": "config-model-card.txt.gz",
+      "bytes": 3748,
+      "sha256": "fada6f86405869365f64ab48ab470ddeb56e440246bffa3a61fc4cbfde216279",
+      "compressed_sha256": "6eaacc34ecb1dd3d80e19a0e2a37a5928a63791ea457523c64cda5eb4bba76ef"
+    },
+    "server-metadata": {
+      "path": "server-metadata.json",
+      "bytes": 609,
+      "sha256": "fbbb3a85db4eb86eb929a1ce648823d3a15bd4eb6ae41d1d5515e10e424102e5"
+    }
+  },
+  "config_repository": "https://huggingface.co/facebook/wav2vec2-conformer-rope-large-960h-ft",
+  "config_revision": "6b36ef01c6443c67ae7ed0822876d091ab50e4aa",
+  "config": {
+    "bytes": 2239,
+    "sha256": "7a63cb5706c9a37483f1973a3c226d54eb504ce15cf62cb52637019540c8a75d",
+    "git_blob": "f74dbbf6fe96728cceda4888cf841b39a579e66e",
+    "path": "conformer-config.json"
+  }
+}

@@ -8,7 +8,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 |---|---|---|
 | [K10 CPU baseline](studies/k10-cpu/REPORT.md) | What actually costs CPU time and memory? | Frontend median 353 ms versus ONNX 35.6 ms; long-track activation memory warrants optimization. |
 | [K10 chunked inference](studies/k10-chunked/REPORT.md) | Bound activation memory without discarding evidence | All 376 keys agree; paired RSS 865 → 129 MiB, latency +1.91%. Proceed to native integration testing. |
-| [Native cached-feature CPU study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cached/REPORT.md) | Validate the Rust implementation and its memory cost | All 376 keys agree; paired RSS 828 → 95 MiB, latency +1.84%. Audio frontend remains unmeasured. |
+| [Native cached-feature CPU study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cached/REPORT.md) | Validate the Rust implementation and its memory cost | All 376 keys agree; paired RSS 828 → 95 MiB, latency +1.84%. Cached-feature result; the later [composed study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cqt/composed/REPORT.md) measures the frontend separately. |
 | [K10 multi-domain fitting](studies/k10-multidomain/REPORT.md) | Improve broader-domain accuracy with more fitting data | FMAK mean +1.60 points misses the fixed +2.00 gate. Keep release weights. |
 | [K10 EMA](studies/k10-ema/REPORT.md) | Improve accuracy through training-time averaging | Pilot loses accuracy; stop confirmation. Keep release weights. |
 | [Structured key targets](studies/k10-structured-targets/REPORT.md) | Use harmonic error structure in the training loss | Fixed pilot reduces MIREX and exact accuracy; no confirmation. |
@@ -19,6 +19,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [Fixed SAM](studies/k10-sam/REPORT.md) | Improve accuracy through one sharpness-aware update recipe | Canonical pilot loses weighted and exact accuracy; no confirmation or rescue. |
 | [Fixed probability ensemble](studies/k10-ensemble/REPORT.md) | Qualify a stronger own-data teacher from joint seeds 13/37/73 | Beatport improves, canonical FMAK regresses; teacher and separate BP-reference gates fail. No distillation. |
 | [BP / GiantSteps overlap audit](studies/bp-gs-overlap/REPORT.md) | Reconcile source/model exposure and test cached recording overlap | 0 identity, 539 unresolved review, 947 no-detected; no overlap-free claim. |
+| [MusicFM source/resource preflight](studies/musicfm-preflight/REPORT.md) | Establish teacher provenance and a bounded execution path before fine-tuning | Imports/strict loading and a bounded21-update synthetic GPU resource probe passed; no task-accuracy result or qualified teacher. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
