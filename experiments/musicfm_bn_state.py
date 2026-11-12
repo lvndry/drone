@@ -278,13 +278,14 @@ class StateEntry:
 StateSnapshot = tuple[StateEntry, ...]
 
 
-def _state_entry(
+def fingerprint_state_tensor(
     kind: Literal["parameter", "buffer"],
     name: str,
     value: Tensor | None,
     persistent: bool | None,
     watch: Watch,
 ) -> StateEntry:
+    """Hash one registered state field, including its kind/name and metadata."""
     if value is None:
         dtype, shape, requires_grad, raw = None, None, None, b""
     else:
@@ -324,11 +325,11 @@ def snapshot_state(model: nn.Module, watch: Watch) -> StateSnapshot:
     for prefix, module in model.named_modules(remove_duplicate=False):
         for name, value in module._parameters.items():
             full = f"{prefix}.{name}" if prefix else name
-            entries.append(_state_entry("parameter", full, value, None, watch))
+            entries.append(fingerprint_state_tensor("parameter", full, value, None, watch))
         for name, value in module._buffers.items():
             full = f"{prefix}.{name}" if prefix else name
             entries.append(
-                _state_entry(
+                fingerprint_state_tensor(
                     "buffer", full, value, name not in module._non_persistent_buffers_set, watch
                 )
             )

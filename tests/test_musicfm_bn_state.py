@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Iterator
+from dataclasses import replace
+from fractions import Fraction
 
+import numpy as np
 import pytest
 import torch
 from torch import Tensor, nn
 
 from experiments import musicfm_bn_state as state
+from experiments.musicfm_bn import Clip
+from experiments.musicfm_bn_calibration import calibrate_statistics
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -343,3 +349,168 @@ def test_only_exact_36_stat_buffers_may_change_and_counters_stay_fixed() -> None
     with pytest.raises(ValueError, match="Protected state"):
         state.verify_state_change(before, after)
     assert len(state.BN_STAT_BUFFERS) == 36
+
+
+class WaveToy(Toy):
+    """Linear BN chain with waveform-shaped input; not an actual audio frontend."""
+
+    def forward(self, value: Tensor) -> Tensor:
+        first, second = state.expected_temporal_support(value.shape[1])
+        value = value.mean().expand(1, 512, 64, first)
+        for index, site in enumerate(state.BN_SITES):
+            if index == 3:
+                value = value[:, :, :32, :second]
+            if index == 6:
+                value = value.mean(dim=2).repeat(1, 2, 1)
+            value = self.get_submodule(site.name)(value)
+        return value
+
+
+def toy_clips() -> tuple[Clip, ...]:
+    # A small unit-test population is intentionally not the required 512-row
+    # protocol panel. The low-level core supplies no dataset/execution authority.
+    return (
+        Clip("beatport", "toy-a", 1200, 0, 1200, Fraction(1, 2)),
+        Clip("fmak", "toy-b", 1200, 0, 1200, Fraction(1, 2)),
+    )
+
+
+def toy_wave(clip: Clip) -> Tensor:
+    return torch.full((1, clip.length), 2.0 if clip.identity == "toy-a" else 6.0)
+
+
+def test_complete_sequential_core_matches_closed_form_and_preserves_original() -> None:
+    original = WaveToy()
+    before = state.snapshot_state(original, watch)
+    disposable = copy.deepcopy(original)
+    reads = []
+
+    def read(clip: Clip) -> Tensor:
+        reads.append(clip.identity)
+        return toy_wave(clip)
+
+    result = calibrate_statistics(disposable, toy_clips(), read, watch)
+    assert result.prefix_forwards == 36
+    assert reads == ["toy-a", "toy-b"] * 18
+    assert len(result.moments) == 18
+    torch.testing.assert_close(
+        torch.from_numpy(result.moments[0].mean.copy()),
+        torch.full((512,), 4.0, dtype=torch.float64),
+    )
+    torch.testing.assert_close(
+        torch.from_numpy(result.moments[0].variance.copy()),
+        torch.full((512,), 4.0, dtype=torch.float64),
+    )
+    # Site two sees site one's NEW population normalization, not the old prefix.
+    np.testing.assert_allclose(result.moments[1].mean, 0, atol=1e-6, rtol=0)
+    np.testing.assert_allclose(result.moments[1].variance, 4 / (4 + 1e-5), atol=1e-6, rtol=0)
+    assert set(result.changed_buffers) <= state.BN_STAT_BUFFERS
+    assert state.verify_state_change(before, state.snapshot_state(original, watch)) == ()
+    state.verify_state_change(
+        before, state.snapshot_state(disposable, watch), allow_bn_statistics=True
+    )
+    assert_no_hooks(disposable)
+
+
+def test_core_abort_leaves_only_declared_partial_statistics_on_disposable_copy() -> None:
+    model = WaveToy()
+    before = state.snapshot_state(model, watch)
+    calls = 0
+
+    def fail(clip: Clip) -> Tensor:
+        nonlocal calls
+        calls += 1
+        if calls == 3:
+            raise RuntimeError("reader failed")
+        return toy_wave(clip)
+
+    with pytest.raises(RuntimeError, match="reader failed"):
+        calibrate_statistics(model, toy_clips(), fail, watch)
+    changed = state.verify_state_change(
+        before, state.snapshot_state(model, watch), allow_bn_statistics=True
+    )
+    assert set(changed) == {
+        state.BN_SITES[0].name + suffix for suffix in (".running_mean", ".running_var")
+    }
+    assert_no_hooks(model)
+
+
+@pytest.mark.parametrize("defect", ["shape", "dtype", "nonfinite", "gradient"])
+def test_core_rejects_invalid_reader_before_prefix(defect: str) -> None:
+    model = WaveToy()
+    before = state.snapshot_state(model, watch)
+
+    def read(clip: Clip) -> Tensor:
+        value = toy_wave(clip)
+        if defect == "shape":
+            value = value[:, :-1]
+        elif defect == "dtype":
+            value = value.double()
+        elif defect == "nonfinite":
+            value.fill_(float("nan"))
+        else:
+            value.requires_grad_(True)
+        return value
+
+    with pytest.raises(ValueError, match="Reader"):
+        calibrate_statistics(model, toy_clips(), read, watch)
+    assert state.verify_state_change(before, state.snapshot_state(model, watch)) == ()
+    assert_no_hooks(model)
+
+
+def test_core_freezes_recording_sequence_before_reader_callbacks() -> None:
+    clips = list(toy_clips())
+
+    def read(clip: Clip) -> Tensor:
+        if len(clips) == 2:
+            clips.pop()
+        return toy_wave(clip)
+
+    result = calibrate_statistics(WaveToy(), clips, read, watch)
+    assert len(clips) == 1
+    assert result.prefix_forwards == 36
+    assert {identity for identity, _ in result.crop_sha256} == {"toy-a", "toy-b"}
+
+
+@pytest.mark.parametrize("mutation", ["crop", "allowed_buffer"])
+def test_core_rejects_changed_crop_or_overwritten_bn_replacement(mutation: str) -> None:
+    model = WaveToy()
+    calls = 0
+
+    def read(clip: Clip) -> Tensor:
+        nonlocal calls
+        calls += 1
+        value = toy_wave(clip)
+        if calls == 3:
+            if mutation == "crop":
+                value[0, 0] += 1
+            else:
+                first = state.validate_bn_inventory(model)[0]
+                assert first.running_mean is not None
+                first.running_mean.add_(1)
+        return value
+
+    with pytest.raises(ValueError, match="Repeated crop|intended FP32"):
+        calibrate_statistics(model, toy_clips(), read, watch)
+    assert_no_hooks(model)
+
+
+@pytest.mark.parametrize("defect", ["empty", "duplicate", "mass", "bounds", "length"])
+def test_core_rejects_invalid_population_without_reader_access(defect: str) -> None:
+    clips = list(toy_clips())
+    if defect == "empty":
+        clips.clear()
+    elif defect == "duplicate":
+        clips[1] = clips[0]
+    elif defect == "mass":
+        clips[0] = replace(clips[0], weight=Fraction(1, 3))
+    elif defect == "bounds":
+        clips[0] = replace(clips[0], start=1)
+    else:
+        clips[0] = replace(clips[0], samples=1199, length=1199)
+
+    def forbidden(_: Clip) -> Tensor:
+        raise AssertionError("Invalid population must not read a crop")
+
+    with pytest.raises(ValueError):
+        calibrate_statistics(WaveToy(), clips, forbidden, watch)
