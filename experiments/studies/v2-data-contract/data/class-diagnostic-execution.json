@@ -1,0 +1,8 @@
+{
+  "diagnostic_source_sha256": "dbaa812834edc2e75e8b3157586e789c8c16b3e4fe3c65d29e294bb0126a06cd",
+  "executed_stdin_sha256": "39846aa867ba77e92a2c49a43fa26b8a29d7c40c2b94941ae3a6839944d3c72c",
+  "transport_note": "stdio embeds captured input/ledger; only source provenance __file__ hash expression replaced by its literal; no algorithm change",
+  "metadata_member_expected_sha256": "94f65bb54329b239028dfffc1e8bf37f7d037f6e1e7c25f6721e73efd2c037bc",
+  "remote_command": "taskset -c 4,5 python3 -",
+  "mode": "read-only metadata.npy, no feature/audio member"
+}

@@ -1,0 +1,11 @@
+{
+  "artifacts": {
+    "PROTOCOL.md": "f723ad4989fba7fb109d5640ab8126d6d38b84840ab8fa8aeb2fc93ab2fdbb41",
+    "data/exposure-ledger.csv.gz": "64fa2acbe2901ffb7ff0cf9fd723a7fcedba2da1fc716422377f6af69943d3ed",
+    "data/input.json.gz": "67e93b84469b19d824bbcb589bd0a933afa5c6a10199125e3ba2aaf1a25308db"
+  },
+  "assignment_source_sha256": "a493477402049f0faa7b8531959992485b3edf4aeec96cc67b0057e78d36f2c9",
+  "labels_used_for_assignment": false,
+  "status": "PROPOSED_ASSIGNMENT_PINNED_BEFORE_CLASS_DIAGNOSTIC",
+  "utc": "2026-11-12T08:00:07.869363+00:00"
+}

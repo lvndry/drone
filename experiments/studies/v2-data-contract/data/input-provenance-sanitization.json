@@ -1,0 +1,9 @@
+{
+  "before_label_original_compressed_sha256": "67e93b84469b19d824bbcb589bd0a933afa5c6a10199125e3ba2aaf1a25308db",
+  "canonical_tracks_sha256_before_and_after": "8d7044d41191c9467566c8a349d72b58a11556b02783e4f63a1362cab00ae40b",
+  "historical_ledger_sha256_unchanged": "64fa2acbe2901ffb7ff0cf9fd723a7fcedba2da1fc716422377f6af69943d3ed",
+  "private_original_capture": "/tmp/drone-fitting-group-audit/v2-input-before-provenance-sanitization.json.gz",
+  "published_compressed_sha256": "59eb32a50413f7fff1ef18c72e01cc679d2b1344bc6bac3be082030e388f1a89",
+  "removed_fields": "all HTTP response headers from BP download provenance;includes Set-Cookie;no track field modified",
+  "status": "PROVENANCE_HEADERS_ONLY_SANITIZATION_NO_ASSIGNMENT_CHANGE"
+}
