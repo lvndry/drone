@@ -22,7 +22,7 @@ Current research status: the release recipe's three-seed GiantSteps mean is
 checkpoint. The corrected multi-domain comparison missed its predeclared FMAK
 gate; the later [EMA pilot](../experiments/studies/k10-ema/REPORT.md) also failed.
 The [chunked CPU prototype](../experiments/studies/k10-chunked/REPORT.md) passed
-its development gates. The measured [native composed research study](https://github.com/lvndry/euphoria/blob/main/research/drone-native-cqt/composed/REPORT.md)
+its development gates. The measured [native composed research study](../research/drone-native-cqt/composed/REPORT.md)
 now covers Linux376-track correctness and20-track FMAK timing, plus a Mac9-case
 diagnostic; production Euphoria integration remains unchanged. The
 [MusicFM preflight](../experiments/studies/musicfm-preflight/REPORT.md)
