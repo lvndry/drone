@@ -42,21 +42,60 @@ def child_cpu() -> float:
     return usage.ru_utime + usage.ru_stime
 
 
+def process_children(pid: int) -> dict[int, int]:
+    """Return children of every thread, witnessed by parent/start identities."""
+    root = Path(f"/proc/{pid}")
+    try:
+        before = root.joinpath("stat").read_text().rsplit(")", 1)[1].split()[19]
+        tasks = list(root.joinpath("task").iterdir())
+    except (FileNotFoundError, ProcessLookupError):
+        return {}
+    candidates: set[int] = set()
+    for task in tasks:
+        try:
+            candidates.update(int(value) for value in (task / "children").read_text().split())
+        except (FileNotFoundError, ProcessLookupError):
+            continue  # A decoder thread may have completed during this sample.
+    children = {}
+    for child in candidates:
+        try:
+            fields = Path(f"/proc/{child}/stat").read_text().rsplit(")", 1)[1].split()
+            if int(fields[1]) == pid:
+                children[child] = int(fields[19])
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    try:
+        if root.joinpath("stat").read_text().rsplit(")", 1)[1].split()[19] != before:
+            return {}  # Never attach a reused parent's descendants to this tree.
+    except (FileNotFoundError, ProcessLookupError):
+        return {}
+    return children
+
+
 def process_tree(pid: int) -> tuple[int, float]:
-    """Conservative summed resident bytes and live+reaped-descendant CPU time."""
+    """Summed process RSS and live/reaped CPU, including threaded subprocesses."""
     resident = 0
     cpu = 0.0
-    pending = [pid]
+    pending: list[tuple[int, int | None]] = [(pid, None)]
+    seen: set[tuple[int, int]] = set()
     while pending:
-        current = pending.pop()
+        current, expected_start = pending.pop()
         try:
             stat = Path(f"/proc/{current}/stat").read_text().rsplit(")", 1)[1].split()
-            cpu += sum(float(stat[index]) for index in (11, 12, 13, 14)) / os.sysconf("SC_CLK_TCK")
-            resident += int(Path(f"/proc/{current}/statm").read_text().split()[1]) * os.sysconf(
+            identity = (current, int(stat[19]))
+            if identity in seen or (expected_start is not None and identity[1] != expected_start):
+                continue
+            children = process_children(current)
+            rss = int(Path(f"/proc/{current}/statm").read_text().split()[1]) * os.sysconf(
                 "SC_PAGE_SIZE"
             )
-            children = Path(f"/proc/{current}/task/{current}/children").read_text().split()
-            pending.extend(int(child) for child in children)
+            after = Path(f"/proc/{current}/stat").read_text().rsplit(")", 1)[1].split()
+            if int(after[19]) != identity[1]:
+                continue
+            seen.add(identity)
+            cpu += sum(float(stat[index]) for index in (11, 12, 13, 14)) / os.sysconf("SC_CLK_TCK")
+            resident += rss
+            pending.extend(children.items())
         except (FileNotFoundError, ProcessLookupError):
             continue
     return resident, cpu

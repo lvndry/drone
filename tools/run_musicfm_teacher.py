@@ -58,6 +58,18 @@ def worker_watch(config: dict[str, Any], root: Path, guardian_pid: int) -> Any: 
     return watch, statistics
 
 
+def owned_resources(
+    config: dict[str, Any], peaks: dict[str, float], *, enforce: bool = True
+) -> dict[str, float]:
+    """Cap the guardian, its live workers/queries, and all reaped descendant CPU."""
+    rss, cpu = process_tree(os.getpid())
+    peaks["rss"] = max(peaks["rss"], rss)
+    peaks["cpu"] = max(peaks["cpu"], cpu)
+    if enforce and (rss > config["caps"]["rss_bytes"] or cpu > config["caps"]["cpu_seconds"]):
+        raise RuntimeError("Owned teacher process-tree finite CPU/RSS cap")
+    return dict(rss_bytes=rss, cpu_seconds=cpu)
+
+
 def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     config, approval = load(config_path), load(approval_path)
     mode = config["mode"]
@@ -112,14 +124,16 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     transferred = False
     state = "GUARDING_BEFORE_WORKER"
     lastdisk = lastgpu = 0.0
-    peaks = {"rss": 0, "cpu": 0.0}
+    peaks: dict[str, float] = {"rss": 0, "cpu": 0.0}
     config["_config_sha256"] = cfgsha
     try:
         while True:
+            owned_resources(config, peaks)
             capacity_guard(config, root)
             if time.monotonic() - lastgpu >= 0.5:
                 resources(config, root)
                 lastgpu = time.monotonic()
+                owned_resources(config, peaks)
             if time.time() >= config["deadline_epoch"]:
                 raise TimeoutError("Guardian cutoff")
             if time.monotonic() - started > config["caps"]["wall_seconds"]:
@@ -189,12 +203,10 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
             if worker is not None:
                 if worker.poll() is None:
                     tracked.update(descendants(worker.pid))
-                    rss, cpu = process_tree(worker.pid)
-                    peaks = {"rss": max(peaks["rss"], rss), "cpu": max(peaks["cpu"], cpu)}
-                    if rss > config["caps"]["rss_bytes"] or cpu > config["caps"]["cpu_seconds"]:
-                        raise RuntimeError("Worker finite CPU/RSS cap")
+                    owned_resources(config, peaks)
                 elif state == "MODEL_WORKER_ACTIVE":
                     worker.wait()
+                    owned_resources(config, peaks)
                     if worker.returncode != 0:
                         raise RuntimeError(f"Model worker exit={worker.returncode}")
                     result = load(root / "worker/result.json")
@@ -240,6 +252,8 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                 "state": state,
                 "worker_started": transferred,
                 "peaks": peaks,
+                "terminal_resources": owned_resources(config, peaks, enforce=False),
+                "resource_scope": "guardian and all owned live/reaped descendants, including GPU queries",
                 "wall_seconds": time.monotonic() - started,
                 "worker_exit": worker.returncode if worker else None,
             },

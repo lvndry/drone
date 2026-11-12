@@ -20,7 +20,7 @@ from tools.prepare_musicfm_ram_cache import (
     rounded,
     save_or_replace,
 )
-from tools.run_cqt_expansion import disk_bytes, process_tree
+from tools.run_cqt_expansion import disk_bytes, process_children, process_tree
 
 
 def proc(pid: int) -> tuple[int, str] | None:
@@ -33,18 +33,23 @@ def proc(pid: int) -> tuple[int, str] | None:
 
 def descendants(pid: int) -> dict[int, int]:
     result: dict[int, int] = {}
-    pending = [pid]
+    pending: list[tuple[int, int | None]] = [(pid, None)]
+    seen: set[tuple[int, int]] = set()
     while pending:
-        current = pending.pop()
+        current, expected_start = pending.pop()
         info = proc(current)
-        if info is None:
+        if info is None or (expected_start is not None and info[0] != expected_start):
+            continue
+        identity = (current, info[0])
+        if identity in seen:
+            continue
+        seen.add(identity)
+        children = process_children(current)
+        after = proc(current)
+        if after is None or after[0] != info[0]:
             continue
         result[current] = info[0]
-        try:
-            text = (Path("/proc") / str(current) / "task" / str(current) / "children").read_text()
-            pending.extend(int(value) for value in text.split())
-        except FileNotFoundError:
-            pass
+        pending.extend(children.items())
     return result
 
 
