@@ -415,8 +415,8 @@ def run(config_path: Path) -> None:
     config = json.loads(config_path.read_bytes())
     validate_config(config, time.time())
     affinity = getattr(os, "sched_getaffinity", None)
-    if affinity is None or affinity(0) != {4, 5}:
-        raise ValueError("prospective Linux execution must use taskset4,5")
+    if affinity is None or affinity(0) != {8, 9}:
+        raise ValueError("prospective Linux execution must use taskset8,9")
     verify_evidence()
     if installed() != EXPECTED:
         raise ValueError("reviewed dependencies unavailable; no provisioning performed")
