@@ -111,7 +111,7 @@ combination; no weight/temperature/seed rescue.
 
 ```sh
 export OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4
-timeout 1250 "$PY" -m experiments.ensemble --data /home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data --output "$STUDY_ROOT/result" --reference-source /home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/source --joint-runs "$JOINT=13/run.json" "$JOINT37/run.json" "$JOINT73/run.json" --bp-runs "$BP13/run.json" "$BP37/run.json" "$BP73/run.json" --sam-result /home/lysk-admin/drone-experiments/k10-sam-20261112-v1/candidate-seed13/sam-result.json --sam-exit /home/lysk-admin/drone-experiments/k10-sam-20261112-v1/candidate.exit
+timeout 1250 "$PY" -m experiments.ensemble --data /home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data --output "$STUDY_ROOT/result" --reference-source /home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/source --joint-runs "$JOINT13/run.json" "$JOINT37/run.json" "$JOINT73/run.json" --bp-runs "$BP13/run.json" "$BP37/run.json" "$BP73/run.json" --sam-result /home/lysk-admin/drone-experiments/k10-sam-20261112-v1/candidate-seed13/sam-result.json --sam-exit /home/lysk-admin/drone-experiments/k10-sam-20261112-v1/candidate.exit
 ```
 
 All checkpoints best.pt must be adjacent to immutable run.json. Source archive must
