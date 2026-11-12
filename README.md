@@ -16,6 +16,14 @@ libkeyfinder reference on the same files. Pre-K10 features and unversioned
 checkpoints are incompatible and must be regenerated. The full training story
 is in [docs/training.md](docs/training.md).
 
+Inference processes the full-duration audio: `Predictor.predict` extracts full-length
+features and the CNN pools across time. The current release was trained on
+approximately two-minute EDM previews. Reliable accuracy on 5–10 minute
+house/deep-house/melodic-house tracks has not yet been established; the
+[latest matched-data study](experiments/studies/k10-v2-pilot/REPORT.md) records
+the full-song acceptance gap. Softmax outputs are uncalibrated model scores,
+not validated probabilities of a correct key.
+
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/) and `ffmpeg` (`brew install ffmpeg` on

@@ -20,6 +20,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [Fixed SAM](studies/k10-sam/REPORT.md) | Improve accuracy through one sharpness-aware update recipe | Canonical pilot loses weighted and exact accuracy; no confirmation or rescue. |
 | [Fixed probability ensemble](studies/k10-ensemble/REPORT.md) | Qualify a stronger own-data teacher from joint seeds 13/37/73 | Beatport improves, canonical FMAK regresses; teacher and separate BP-reference gates fail. No distillation. |
 | [BP / GiantSteps overlap audit](studies/bp-gs-overlap/REPORT.md) | Reconcile source/model exposure and test cached recording overlap | 0 identity, 539 unresolved review, 947 no-detected; no overlap-free claim. |
+| [MusicFM crop I/O qualification](studies/musicfm-crop-io/REPORT.md) | Test bounded random-access waveform crops against full decoding | Initial 144/144 crops pass; corpus attempt stops at file 2,289 after 2,288 passes. No complete cache or training activation. |
 | [MusicFM source/resource preflight](studies/musicfm-preflight/REPORT.md) | Establish teacher provenance and a bounded execution path before fine-tuning | Imports/strict loading and a bounded21-update synthetic GPU resource probe passed; no task-accuracy result or qualified teacher. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
 

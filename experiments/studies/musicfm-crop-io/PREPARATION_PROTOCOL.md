@@ -1,6 +1,6 @@
 # Prospective approved-pool24k preparation
 
-Status: source/config proposal only. **No full preparation or GPU execution authorized.** The completed6011bf7 sixteen-file/144-case evidence, raw bytes and figures remain immutable. This follow-up does not relax the failed K10 two-point accuracy gate or consult confirmation/calibration/private audio.
+**Historical prospective protocol.** The subsequently authorized preparation failed its strict waveform gate; [REPORT.md](REPORT.md) records the incomplete execution. At this protocol freeze no full preparation or GPU execution was authorized. The completed6011bf7 sixteen-file/144-case evidence, raw bytes and figures remain immutable. This follow-up does not relax the failed K10 two-point accuracy gate or consult confirmation/calibration/private audio.
 
 ## Fixed method
 
