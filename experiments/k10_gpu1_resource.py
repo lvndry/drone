@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +59,22 @@ POLICY: dict[str, Any] = dict(
 def load(path: Path) -> dict[str, Any]:
     raw = path.read_bytes()
     return json.loads(gzip.decompress(raw) if raw.startswith(b"\x1f\x8b") else raw)
+
+
+def validate_device_identity(count: int, actual: object) -> dict[str, Any]:
+    """Compare UUID bits, accepting Torch's bare UUID and NVML's GPU- prefix."""
+    raw = str(actual)
+    observation = dict(
+        count=count, type=type(actual).__name__, value=raw, repr=repr(actual), canonical=None
+    )
+    try:
+        canonical = uuid.UUID(raw.removeprefix("GPU-"))
+        observation["canonical"] = str(canonical)
+    except ValueError:
+        raise ValueError("Invalid GPU identity observation: " + json.dumps(observation)) from None
+    if count != 1 or canonical != uuid.UUID(GPU1.removeprefix("GPU-")):
+        raise ValueError("Wrong visible GPU identity: " + json.dumps(observation))
+    return observation
 
 
 def sources() -> dict[str, str]:
@@ -206,9 +223,12 @@ def worker(config: Path, approval: Path, output: Path, model_name: str, guardian
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
     torch.use_deterministic_algorithms(True)
-    if torch.cuda.device_count() != 1 or str(torch.cuda.get_device_properties(0).uuid) != GPU1:
-        raise ValueError("Wrong visible GPU")
-    total = torch.cuda.get_device_properties(0).total_memory
+    count = torch.cuda.device_count()
+    properties = torch.cuda.get_device_properties(0) if count == 1 else None
+    device_identity = validate_device_identity(count, properties.uuid if properties else None)
+    if properties is None:
+        raise ValueError("Missing admitted device properties")
+    total = properties.total_memory
     torch.cuda.set_per_process_memory_fraction(POLICY["allocator_bytes"] / total, 0)
     torch.manual_seed(13)
     model = (KeyCNN() if model_name == "baseline" else SemitoneGridCNN()).to("cuda:0")
@@ -236,6 +256,7 @@ def worker(config: Path, approval: Path, output: Path, model_name: str, guardian
             first_two_blocks_sha256=prefix.hexdigest(),
             setup_seconds=setup_seconds,
             actual_total_device_bytes=total,
+            device_identity=device_identity,
             allocator_bytes=POLICY["allocator_bytes"],
             task_fit=False,
         ),

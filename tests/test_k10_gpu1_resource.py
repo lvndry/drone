@@ -12,6 +12,35 @@ from experiments.k10_gpu1_resource import FEATURES, GPU0, GPU1, PLAN, POLICY, co
 from tools import run_k10_gpu1_resource as guard
 
 
+def test_torch_uuid_proxy_and_nvml_prefix_compare_equal_bits() -> None:
+    class _CUuuid:
+        def __str__(self) -> str:
+            return GPU1.removeprefix("GPU-")
+
+    for value in (_CUuuid(), GPU1, GPU1.removeprefix("GPU-")):
+        observed = probe.validate_device_identity(1, value)
+        assert observed["canonical"] == GPU1.removeprefix("GPU-")
+
+
+@pytest.mark.parametrize(
+    "count,value",
+    [
+        (0, None),
+        (2, GPU1),
+        (1, GPU0),
+        (1, "not-a-uuid"),
+        (1, "GPU-GPU-" + GPU1),
+    ],
+)
+def test_device_identity_rejects_count_wrong_or_malformed_with_observation(
+    count: int, value: object
+) -> None:
+    with pytest.raises(ValueError) as error:
+        probe.validate_device_identity(count, value)
+    assert f'"count": {count}' in str(error.value)
+    assert '"type":' in str(error.value) and '"canonical":' in str(error.value)
+
+
 def config() -> dict[str, Any]:
     return dict(
         policy=copy.deepcopy(POLICY),
