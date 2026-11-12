@@ -188,7 +188,6 @@ def decode_command(ffmpeg: Path, audio: Path, start: int | None, length: int) ->
         "-nostdin",
         "-v",
         "error",
-        "-xerror",
         "-threads",
         "1",
         "-filter_threads",
@@ -360,6 +359,12 @@ def make_config(first: Path, manifest: Path, plan: Path) -> dict[str, Any]:
     }
 
 
+def file_identity(path: Path) -> tuple[int, int, int, int, int]:
+    """Ignore atime, which may legitimately change when this worker reads audio."""
+    info = path.stat()
+    return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+
 def qualify(config_path: Path, output: Path, approval: Path) -> None:
     """Only execute after a separately retained, source-bound root approval."""
     import numpy as np
@@ -399,7 +404,7 @@ def qualify(config_path: Path, output: Path, approval: Path) -> None:
         audio, ffmpeg = Path(row["path"]), Path(config["ffmpeg"])
         if sha(audio) != row["sha256"]:
             raise ValueError("Source audio integrity failure")
-        stat = audio.stat()
+        identity = file_identity(audio)
         # One full reference at a time; mmap avoids an extra complete waveform copy.
         reference_path = output / "reference.f32le"
         full_execution = bounded_decode(
@@ -420,10 +425,11 @@ def qualify(config_path: Path, output: Path, approval: Path) -> None:
             "full_samples": len(reference),
             "full_sha256": sha(reference_path),
             "full_execution": full_execution,
+            "decoder_profile": "ffmpeg-default-recovery-no-xerror-v1",
             "cases": [],
         }
         for start in crop_positions(len(reference), row["id"]):
-            if audio.stat() != stat:
+            if file_identity(audio) != identity:
                 raise ValueError("Audio changed after integrity check")
             command = decode_command(ffmpeg, audio, start, length)
             candidate_path = output / "crop.f32le"
@@ -431,7 +437,9 @@ def qualify(config_path: Path, output: Path, approval: Path) -> None:
             _, trim, _ = seek_geometry(start, length)
             decoded = np.fromfile(candidate_path, dtype="<f4")
             candidate_path.unlink()
-            candidate_path.with_suffix(".stderr").unlink()
+            candidate_path.with_suffix(".stderr").rename(
+                output / f"track-{len(reports) + 1:02}-crop-{len(record['cases']) + 1:02}.stderr"
+            )
             crop = decoded[trim : trim + length]
             report = compare(reference[start : start + length], crop)
             record["cases"].append({"start_sample": start, "execution": execution, **report})
