@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import torch
 
 from drone.checkpoints import load_checkpoint, save_checkpoint
@@ -37,3 +38,25 @@ def test_safetensors_round_trip_reproduces_the_checkpoint(tmp_path: Path) -> Non
     features = torch.randn(1, 192, 64)
     with torch.inference_mode():
         assert torch.equal(restored(features), model(features))
+
+
+@pytest.mark.parametrize("destination", ["source", "existing", "hardlink", "symlink"])
+def test_export_refuses_to_overwrite_files(tmp_path: Path, destination: str) -> None:
+    checkpoint = tmp_path / "model.pt"
+    save_checkpoint(checkpoint, KeyCNN())
+    checkpoint_bytes = checkpoint.read_bytes()
+    output = tmp_path / "model.safetensors"
+    if destination == "source":
+        output = checkpoint
+    elif destination == "existing":
+        output.write_bytes(b"previous export")
+    elif destination == "hardlink":
+        output.hardlink_to(checkpoint)
+    else:
+        output.symlink_to(checkpoint)
+    previous = output.read_bytes()
+    with pytest.raises(FileExistsError, match="Refusing to overwrite"):
+        export_safetensors(checkpoint, output)
+    assert output.read_bytes() == previous
+    assert checkpoint.read_bytes() == checkpoint_bytes
+    load_checkpoint(checkpoint)

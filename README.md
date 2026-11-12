@@ -142,7 +142,9 @@ uv run python -m drone.safetensors weights/drone-v1.pt data/drone-v1.safetensors
 
 It stores every learned parameter and BatchNorm running statistic in float32
 under its PyTorch name, with the feature spec, label schema and the checkpoint's
-SHA-256 in the header metadata. It needs only PyTorch, not the export extra.
+SHA-256 in the header metadata. Choose a new output path: the exporter refuses
+to overwrite existing files, including the source checkpoint. It needs only
+PyTorch, not the export extra.
 
 Benchmarks separate model loading, warm forward latency, cold decoding/features/
 forward time, and warm feature-cache time. They report parameter and artifact size,

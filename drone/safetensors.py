@@ -21,6 +21,9 @@ from drone.checkpoints import load_checkpoint
 
 def export_safetensors(checkpoint: str | Path, output: str | Path) -> dict[str, str]:
     checkpoint = Path(checkpoint)
+    output = Path(output)
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(f"Refusing to overwrite {output}; choose a new output path")
     model, payload = load_checkpoint(checkpoint)
     tensors = {
         name: tensor.detach().to(torch.float32).contiguous()
@@ -48,9 +51,10 @@ def export_safetensors(checkpoint: str | Path, output: str | Path) -> dict[str, 
         blobs.append(blob)
     encoded = json.dumps(header, separators=(",", ":")).encode()
     encoded += b" " * (-len(encoded) % 8)
-    output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_bytes(struct.pack("<Q", len(encoded)) + encoded + b"".join(blobs))
+    # Exclusive creation also protects against a destination appearing during export.
+    with output.open("xb") as handle:
+        handle.write(struct.pack("<Q", len(encoded)) + encoded + b"".join(blobs))
     return metadata
 
 
