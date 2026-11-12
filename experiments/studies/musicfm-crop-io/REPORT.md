@@ -57,3 +57,11 @@ python -m tools.musicfm_crop_io_report --study experiments/studies/musicfm-crop-
 ```
 
 Use the repository's plot dependencies; this figure was generated with Matplotlib3.11.2. `6011bf7` remains the measured numerical source; the report/verification tool is a later publication-only addition. The earlier80d4574 metadata evidence and prospective method remain separately identifiable.
+
+Publication preserves original source commits through
+`research/musicfm-crop-projection-20261112` (80d4574) and
+`research/musicfm-crop-qualification-20261112` (6011bf7).
+[Publication provenance](data/publication-provenance.json) records source hashes and
+the separate report commit; [SHA256SUMS](SHA256SUMS) covers this study.
+The prospective protocol is explicitly historical; later preparation is outside
+this completed qualification.

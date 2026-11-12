@@ -1,6 +1,6 @@
 # MusicFM crop I/O feasibility
 
-Status: prospective waveform qualification, **not authorized to process audio yet**. Original80d4574 and its LRU evidence remain immutable; this prospective amendment changes only stable file-identity checking and the shared decoder recovery profile. The metadata-only LRU simulation has completed. No model, labels, training accuracy or GPU is involved.
+**Historical prospective protocol.** The completed execution and144-case result are recorded in [REPORT.md](REPORT.md). At this protocol freeze, waveform processing was **not yet authorized**. Original80d4574 and its LRU evidence remain immutable; this prospective amendment changes only stable file-identity checking and the shared decoder recovery profile. The metadata-only LRU simulation has completed. No model, labels, training accuracy or GPU is involved.
 
 ## Problem and fixed membership
 
@@ -54,4 +54,4 @@ OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
   --config sealed-config.json --approval root-approval.json --output NEW_OWNED_STAGE
 ```
 
-No16-file audio experiment has run under this protocol. After qualification, measured decode service time and cache-free crop cost can inform a revised finite pilot budget. A pass on16 files is not proof of corpus-wide equivalence, teacher accuracy, long-house acceptance or production readiness. Full-song validation and5–10min house-domain coverage remain mandatory and separate; the existing labelled corpus is insufficient to establish the latter.
+At this protocol freeze, no16-file audio experiment had run. The subsequently authorized completed result is recorded in the report. After qualification, measured decode service time and cache-free crop cost can inform a revised finite pilot budget. A pass on16 files is not proof of corpus-wide equivalence, teacher accuracy, long-house acceptance or production readiness. Full-song validation and5–10min house-domain coverage remain mandatory and separate; the existing labelled corpus is insufficient to establish the latter.
