@@ -1,0 +1,102 @@
+{
+  "status": "FAILED_NOT_QUALIFIED_NO_RESUME",
+  "checked": 2289,
+  "passed_prefix": 2288,
+  "unprocessed": 3349,
+  "validation_processed": 0,
+  "first_failure": {
+    "id": "fmak:046091",
+    "samples": 9083089,
+    "crop_start": 5424593,
+    "crop": {
+      "bitwise_mismatch_samples": 288000,
+      "finite": true,
+      "max_absolute_error": 2.022789478302002,
+      "mismatch_fraction": 1.0,
+      "passed": false,
+      "rms_error": 0.4169094385644788,
+      "samples": 288000
+    }
+  },
+  "prefix_audio_seconds": 392549.506125,
+  "prefix_phase_costs": {
+    "full_execution": {
+      "wall_seconds": 520.178796247812,
+      "child_cpu_seconds": 504.228581000004
+    },
+    "crop_execution": {
+      "wall_seconds": 142.23560385778546,
+      "child_cpu_seconds": 110.53730099999592
+    }
+  },
+  "passed_files_with_nonempty_stderr": 7,
+  "terminal": {
+    "exit": 1,
+    "reason": null,
+    "wall_seconds": 714.9833763309289,
+    "aggregate_child_cpu_seconds": 671.23875,
+    "sampled_peak_outer_tree_rss_bytes": 136564736,
+    "sampled_outer_tree_cpu_seconds": 690.1600000000001,
+    "owned_bytes": 49084818,
+    "disk_requested_interval_seconds": 1.0,
+    "previous_disk_sample_age_seconds": 0.18710103421472013,
+    "protected_after": {
+      "1481756": {
+        "start_ticks": "35700162",
+        "state": "S"
+      },
+      "1478814": {
+        "start_ticks": "35698640",
+        "state": "S"
+      },
+      "3451013": {
+        "start_ticks": "111967770",
+        "state": "S"
+      },
+      "3448680": {
+        "start_ticks": "111966827",
+        "state": "S"
+      }
+    },
+    "completed_epoch": 1794484115.3303952
+  },
+  "array_only_diagnostic": {
+    "diagnostic_only": true,
+    "admission_or_repair": false,
+    "source_sha256": "0d4d0484b23914311a18307f2ac1582546ef0e48a57227e865525dde54dcb28c",
+    "row_sha256": "7d3317148d059b212240c9aa06acbb3ac9ed23fc4192b0e8dc9ad18853e8a442",
+    "input_file_sha256": {
+      "reference.f32le": "1067cf1a135eae28729d79d9fbbfe0486828d2639998f0f59235e78b7e5911ad",
+      "crop.f32le": "86efe44d7f26aa5c7f704cd9eacccfd8c212dc283ec63c7aa1f028736a08ac44",
+      "failed-reference-crop.f32le": "76c1c4be228aa27d44c89664525f5ab0d66275ec016f267b7e3a8838dad5f0cb",
+      "failed-candidate-crop.f32le": "fde2d529a668493ff083f7f9418bb24245c511e196adc9f768b5584ee9901a35"
+    },
+    "algorithm": "one16x-stridednormalizedFFTcorrelationsearch+integerfine\u00b132; no reruns",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "expected_start": 5424593,
+    "coarse_start": 5423968,
+    "coarse_normalized_correlation": 0.9423600040718488,
+    "best_integer_start": 5423966,
+    "offset_from_expected_samples": -627,
+    "offset_seconds": -0.026125,
+    "best_normalized_correlation": 0.9999257335637187,
+    "at_diagnostic_best_offset": {
+      "bitwise_mismatch_samples": 288000,
+      "max_absolute_error": 0.03513932228088379,
+      "rms_error": 0.0036805967151982513
+    },
+    "full_stderr": "[mp3float @ 0x57f286d29f00] Header missing\n[mp3float @ 0x57f286d50b80] Header missing\n[aist#0:0/mp3 @ 0x57f286d50a00] Error submitting packet to decoder: Invalid data found when processing input\n",
+    "crop_stderr": "[mp3float @ 0x622b82e2ff80] Header missing\n",
+    "wall_seconds": 0.23296013288199902,
+    "cpu_seconds": 0.590133,
+    "self_peak_rss_bytes": 186085376
+  },
+  "diagnostic_terminal": {
+    "exit": 0,
+    "reason": null,
+    "wall_seconds": 0.8532376100774854,
+    "child_cpu_seconds": 0.686312,
+    "sampled_peak_rss_bytes": 186613760
+  }
+}
