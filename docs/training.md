@@ -31,18 +31,25 @@ How the drone key classifier is trained, the strategies behind each choice, and 
 we learned getting here. Audience: a competent engineer who has never seen this repo.
 Every code reference below is `file:line` against the `k10-arch` branch.
 
-The current model is a **109k-parameter CNN** that predicts 24 musical keys
+The original K10 port described in this chronology is a **109k-parameter CNN**
+that predicts 24 musical keys
 (12 tonics × major/minor) from audio, trained on 1,363 EDM track previews and
-scored on 604 held-out GiantSteps tracks. Its architecture follows **K10**:
+scored on 604 GiantSteps tracks. These tracks subsequently informed development;
+they are not a pristine final benchmark. See [the README](../README.md) for the
+confirmed three-seed release result. The architecture follows **K10**:
 "K10: A Compact Convolutional Network for Global Key Estimation" by John
 Hurliman, MIREX 2026 Audio Key Detection, from the open-source jams project
 (github.com/jhurliman/jams, MIT; `train_key_cnn.py`). The architecture and
 training recipe below follow that reference, with independent training and the
-checkpoint-selection differences described in section 5. K10's published figure
-on GiantSteps is **78.0% exact / 83.2% MIREX**; our port scores **68.5% exact /
-74.8% MIREX** in its single reference run (seed 13). These are different
-training and selection protocols, so the score gap is not an architecture-only
-comparison.
+checkpoint-selection differences described in section 5. The author's
+[current project documentation](https://github.com/jhurliman/jams#key-detection-our-cnn)
+labels **78.0% exact / 83.2% symmetric MIREX** as a legacy 567-file result with
+development reuse. It is not a verified 604-file SOTA target. The
+[official MIREX 2026 results](https://music-ir.org/mirex/wiki/2026%3AAudio_Key_Detection_Results)
+report K10 at **67.88% exact / 74.57% symmetric MIREX** on GiantSteps 604.
+Our historical port scored **68.5% exact / 74.8% MIREX** in its single seed-13
+reference run. These independently trained systems and protocols are not a
+paired comparison or evidence of statistical parity.
 
 ## Why K10
 
@@ -64,15 +71,20 @@ At that point the choice was: iterate our own 33-band design indefinitely, or
 take the one published system that already embodied the insight we had just
 re-derived ourselves. We took K10 because:
 
-1. **It is SOTA-verified on exactly our test set** - 78.0% exact / 83.2%
-   MIREX on GiantSteps is published, not a self-reported training metric.
+1. **It supplies a concrete, auditable key-estimation reference.** Its official
+   604-file result supports testing the design; the legacy 567-file score does
+   not establish SOTA superiority on our evaluation. The author's
+   [claim audit](https://github.com/jhurliman/jams/blob/main/paper/REVIEW.md#claim-audit)
+   explicitly documents development reuse and unsupported ranking claims.
 2. **It is MIT-licensed with the full training script published**
    (github.com/jhurliman/jams), so the port is auditable line-by-line and the
    recipe is reproducible from the source, not from a paper figure.
 3. **It is the scale we wanted for CPU inference** — 109k parameters, one
    forward pass, no GPU in the serving path.
-4. **Its feature (24 bins/octave CQT) makes pitch-shift augmentation an exact
-   re-slice** of the padded spectrogram — no resampling, no approximation.
+4. **Its feature (24 bins/octave CQT) supports integer-semitone bin reslicing.**
+   The indexing and corresponding label transpose are exact. Reslicing cached
+   CQT features is a surrogate for waveform pitch shifting, not a claim of
+   physical or numerical equivalence to resynthesizing the audio.
 5. **Its design insight (time-only pooling) is what our own screen
    independently confirmed**, so we were porting a validated idea, not an
    exotic one.
@@ -290,15 +302,15 @@ Details that matter:
 - **Nonfinite guard.** A nonfinite training loss raises immediately
   (`train.py:238-239`) instead of quietly producing a dead checkpoint.
 
-**Why our 74.8% is below K10's paper figure of 83.2% on the same data.**
-Protocol difference, documented and expected: K10 selects the epoch using
-**5-fold cross-validation** and then trains the final model on **all the data**
-with the median CV epoch budget. We use a single 10% validation split for
-checkpoint selection and train on 90% of the data. Fewer training rows and a
-noisier epoch estimate both cost points on a 1,363-track dataset. (K10's MIREX
-2026 task entry reports 74.57 weighted / 67.88 exact under the task's scoring
-convention — a different protocol again. All three numbers describe the same
-model trained under three different evaluation setups; compare within one setup.)
+**What the protocol differences do and do not establish.** K10's reference
+recipe selects an epoch budget with five-fold cross-validation and refits on
+the full fitting corpus; this historical port used one 10% validation split.
+Those differences may affect performance, but we have not measured their causal
+effect. They do not explain an established eight-point gap: the 83.2% legacy
+result used a different 567-file evaluation with development reuse. Grouped CV
+is useful for model selection and uncertainty; its gain must be measured rather
+than inferred from unrelated scores. Preserve the official 604-file result,
+the legacy result and our own measurements as separate evidence.
 
 ## 6. Provenance: run manifests and checkpoints
 
@@ -396,7 +408,8 @@ Single reference run, seed 13, one held-out GiantSteps 604 evaluation:
 **68.5% exact / 74.8% MIREX**, error breakdown 414 exact / 40 fifth / 44
 relative / 24 parallel / 82 other. Best validation MIREX 75.8%. First candidate
 to pass the native bar: **+5.45 MIREX over 69.35%** and +13.7 over the tranche
-winner. Below the paper's 83.2% for the protocol reasons in §5.
+winner. Section 5 explains why the author's legacy 83.2% is not a comparable
+target and why the effect of checkpoint-selection changes remains unmeasured.
 
 Promotion gate (decided with the user, confirm-then-merge): seeds 37 and 73 are
 trained on CPU, each receives **exactly one** held-out evaluation, and the branch
@@ -485,10 +498,9 @@ Reproduction rules:
   ± 0.97 Beatport validation — but **the final 1,000-track FMAK holdout remains
   unscored** for the K10 model. Until it is scored, "generalizes beyond EDM"
   is a hypothesis with pilot evidence, not a result.
-- **The 5-fold-protocol gap.** We train on 90% of the data with single-split
-  checkpoint selection; K10's 83.2% uses 5-fold CV plus a full-data final model.
-  Closing that gap is the most direct documented path to their number and has
-  not yet been run.
+- **Selection variance.** Single-split checkpoint selection and full-data refits
+  deserve a controlled comparison with grouped cross-validation. Their effect
+  is unmeasured here; CV is not an established path to the legacy 83.2% score.
 - **Promotion is gated.** The K10 model enters the host application only after
   the 3-seed confirmation: seeds 37 and 73 each get one held-out evaluation,
   and the merge requires the three-seed mean ≥ native 69.35% + 0.02 MIREX.
@@ -510,10 +522,9 @@ Evidence that would overturn or materially revise the conclusions above:
 - **A three-seed mean below 71.35% MIREX** (native + 0.02): the port's single
   74.8% was seed 13's draw; if 37/73 land low, the "+5.45 over native" claim
   evaporates and the native detector stays, exactly as the gate intends.
-- **K10's 83.2% reproduced by us under their 5-fold/full-data protocol**: would
-  confirm the protocol-gap explanation of §5. If we *fail* to reproduce it on
-  the same 1,363 tracks with their protocol, the gap is not the protocol and the
-  port has a real defect to find.
+- **A paired grouped-CV/full-refit comparison on common evaluation recordings**:
+  would measure the effect of that selection recipe. Failure to match the
+  author's legacy 567-file result would not, by itself, establish a porting bug.
 - **A score at chance (~4% exact / ~7% MIREX) after re-running the fixed
   pipeline** on a fresh track subset: would indicate a regression in the
   feature/label contract of the kind that produced Run 1.
