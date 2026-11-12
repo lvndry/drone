@@ -211,6 +211,9 @@ def plot(data: dict[str, Any], study: Path = STUDY) -> None:
         study / "coverage-genre-duration.svg",
         metadata={"Date": None, "Creator": "Drone metadata coverage"},
     )
+    # Preserve XML/path line separators while removing generated line-end whitespace.
+    svg = study / "coverage-genre-duration.svg"
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
     plt.close(fig)
 
 
