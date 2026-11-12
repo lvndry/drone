@@ -4,12 +4,18 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
+
+from experiments.musicfm_key import SongLogits, SongWindow
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 ACCUMULATION = 32
 MIN_TRAIN_SAMPLES = 1200  # Five mel steps -> two positions for microbatch-one BatchNorm.
@@ -117,3 +123,28 @@ def accumulated_update(
     # Also ensures evaluation does not retain the last update's gradient buffers.
     optimizer.zero_grad(set_to_none=True)
     return total / ACCUMULATION
+
+
+def evaluate_song(
+    teacher: KeyTeacher,
+    samples: int,
+    windows: Iterable[tuple[SongWindow, Tensor]],
+) -> NDArray[np.float64]:
+    """Batch-one reference: every actual window, FP32 eval, FP64 mean.
+
+    Waveforms must come from the immutable prepared cache, not a new decoder.
+    The iterable can stream one CPU waveform at a time. The caller maintains
+    resource/service guards; this helper neither loads labels nor scores keys.
+    """
+    accumulator = SongLogits(samples)
+    device = teacher.head.weight.device
+    teacher.eval()
+    with torch.inference_mode(), torch.autocast(device.type, enabled=False):
+        for window, waveform in windows:
+            if waveform.shape != (1, window.stop - window.start):
+                raise ValueError("Actual waveform must match its complete-song window context")
+            logits = teacher(waveform.to(device=device))
+            if logits.shape != (1, 24) or logits.dtype != torch.float32:
+                raise ValueError("Expected FP32 batch-one teacher logits")
+            accumulator.add(window, logits[0].cpu().numpy())
+    return accumulator.finish()

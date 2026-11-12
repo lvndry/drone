@@ -11,9 +11,11 @@ import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
+from experiments.musicfm_key import song_windows
 from experiments.musicfm_teacher import (
     KeyTeacher,
     accumulated_update,
+    evaluate_song,
     make_optimizer,
     seed_training,
 )
@@ -131,3 +133,26 @@ def test_nonfinite_gradient_aborts_even_with_finite_losses() -> None:
     assert not optimizer.state
     for key, value in teacher.state_dict().items():
         assert torch.equal(value, before[key])
+
+
+def test_streamed_song_evaluation_matches_explicit_weighted_reference() -> None:
+    teacher = KeyTeacher(ToyBackbone())
+    samples = 2 * 288000 + 1199
+    windows = song_windows(samples)
+    inputs = [torch.full((1, w.stop - w.start), float(i + 1)) for i, w in enumerate(windows)]
+    with torch.inference_mode():
+        explicit = (
+            sum(
+                teacher(x)[0].numpy().astype(np.float64) * w.weight
+                for x, w in zip(inputs, windows, strict=True)
+            )
+            / samples
+        )
+    actual = evaluate_song(teacher, samples, zip(windows, inputs, strict=True))
+    np.testing.assert_array_equal(actual, explicit)
+    assert not teacher.training
+    assert all(p.grad is None for p in teacher.parameters())
+    with pytest.raises(ValueError, match="complete song"):
+        evaluate_song(teacher, samples, zip(windows[:-1], inputs[:-1], strict=True))
+    with pytest.raises(ValueError, match="window context"):
+        evaluate_song(teacher, samples, [(windows[0], torch.zeros(1, 288001))])
