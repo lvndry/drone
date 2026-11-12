@@ -44,6 +44,6 @@ The dedicated research workflow additionally runs the Rust/evidence checks.
 
 Rust CI pins the existing 1.99.1 research toolchain on Linux and macOS. These tests
 need no model, audio, ONNX runtime or SoXR/SVML download. Explicit ignored runtime
-checks and reproduction commands require their original separately licensed,
-source-bound artifacts and an approved execution window; moving files grants no
-permission to recreate audio or rerun measurements.
+checks and reproduction commands require the original pinned runtime, model and
+audio artifacts. The normal CI and evidence commands above read saved results
+without downloading those artifacts or rerunning the measurements.
