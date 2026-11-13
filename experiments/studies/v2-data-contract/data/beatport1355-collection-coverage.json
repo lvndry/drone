@@ -1,0 +1,52 @@
+{
+  "audio_read": false,
+  "bpm_known": 716,
+  "bpm_unknown": 639,
+  "catalog_duration_known": 676,
+  "catalog_sha256": "24a09353dc4e653bfc62898a0ca61ee2ff4838d62c3ea07ee261a2fe4f00b11f",
+  "collection_id": "beatport1355-current-plan",
+  "exposure_relations": {
+    "declared_fit_id": 1229,
+    "declared_selection_id": 126,
+    "source_hash_in_release_audio_list_role_not_inferred": 1355
+  },
+  "frozen_groups": 1355,
+  "generator_sha256": "607b5e877291b615a0b93665970dd384e8408a45f9b2736f440d93d3f9a3f26a",
+  "inference_performed": false,
+  "interpretation": "Coverage only. Publisher tempo and catalog duration are unverified metadata; frozen groups remain proxies. Recorded 24kHz cache is not release input. No accuracy measurements.",
+  "recorded_training_cache_bands": {
+    "2\u2013<5m": 1315,
+    "30s\u2013<2m": 40
+  },
+  "relation_tracks": {
+    "artist": 676,
+    "release": 676,
+    "remixer": 145
+  },
+  "roles": {
+    "fit": 1229,
+    "inner_selection": 126
+  },
+  "source_duration_known": 0,
+  "tracks": 1355,
+  "workbook_native_genres": {
+    "Big Room": 2,
+    "Breaks": 87,
+    "Deep House": 75,
+    "Drum & Bass": 80,
+    "Dubstep": 85,
+    "Electro House": 88,
+    "Electronica / Downtempo": 170,
+    "Funky / Groove / Jackin' House": 9,
+    "Hard Dance": 89,
+    "Hip-Hop / R&B": 85,
+    "House": 75,
+    "Minimal": 72,
+    "Progressive House": 90,
+    "Psy-Trance": 92,
+    "Tech House": 80,
+    "Techno": 84,
+    "Trance": 91,
+    "Trap / Future Bass": 1
+  }
+}

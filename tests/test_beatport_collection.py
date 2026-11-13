@@ -1,0 +1,98 @@
+"""Label-free BP adapter provenance and allowlist regressions."""
+
+import io
+import json
+import zipfile
+from typing import Any
+
+import pytest
+
+from tools.export_beatport_collection import observed_entities, store_metadata
+
+
+def bundle(payload: dict[str, Any], identity: str = "123") -> bytes:
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w") as archive:
+        archive.writestr(f"meta/{identity} Example.json", json.dumps(payload))
+    return output.getvalue()
+
+
+def test_store_allowlist_preserves_native_entities_without_targets() -> None:
+    raw = bundle(
+        {
+            "id": 123,
+            "key": "SECRET_TARGET",
+            "bpm": 999,
+            "genres": [{"id": 4, "name": "Native", "slug": "native"}],
+            "sub_genres": [],
+            "artists": [{"id": 8, "name": "Artist"}],
+            "remixers": [],
+            "release": {"id": 9, "name": "Release"},
+            "duration": {"milliseconds": 331000},
+        }
+    )
+    row = store_metadata(raw, {"beatport:123"})["beatport:123"]
+    assert row["artists"] == [{"id": 8, "name": "Artist", "slug": None}]
+    assert row["release"][0]["id"] == 9
+    assert row["catalog_duration_seconds"] == 331
+    assert row["genres"][0]["name"] == "Native"
+    assert "key" not in row and "bpm" not in row
+    assert "SECRET_TARGET" not in json.dumps(row)
+
+
+def test_store_checks_member_identity_and_membership() -> None:
+    assert store_metadata(bundle({"id": 123}), {"beatport:456"}) == {}
+    with pytest.raises(ValueError, match="identity mismatch"):
+        store_metadata(bundle({"id": 456}), {"beatport:123"})
+
+
+def test_missing_native_metadata_is_explicit_and_bad_duration_rejected() -> None:
+    row = store_metadata(bundle({"id": 123}), {"beatport:123"})["beatport:123"]
+    assert row["catalog_duration_seconds"] is None
+    assert row["artists"] == row["remixers"] == row["release"] == []
+    with pytest.raises(ValueError, match="Invalid catalog duration"):
+        store_metadata(bundle({"id": 123, "duration": {"milliseconds": True}}), {"beatport:123"})
+    with pytest.raises(ValueError, match="entity list"):
+        observed_entities("artist name is not a grouping")
+
+
+def test_published_collection_keeps_coverage_and_exposure_semantics() -> None:
+    from experiments.collection_catalog import load_collection
+    from tools.export_beatport_collection import OUTPUT, ROOT, coverage, sha
+
+    catalog = load_collection(ROOT / OUTPUT)
+    summary = coverage(catalog)
+    assert summary["tracks"] == 1355
+    assert summary["roles"] == {"fit": 1229, "inner_selection": 126}
+    assert (summary["bpm_known"], summary["bpm_unknown"]) == (716, 639)
+    assert summary["catalog_duration_known"] == 676
+    assert summary["source_duration_known"] == 0
+    assert summary["frozen_groups"] == 1355
+    assert all(
+        row.analyzed_audio.support_kind == "recorded24khztrainingcache" for row in catalog.tracks
+    )
+    assert all(row.analyzed_audio.sample_rate == 24000 for row in catalog.tracks)
+    assert all(len(row.exposures) == 2 for row in catalog.tracks)
+    assert all(
+        row.exposures[1].relation == "source_hash_in_release_audio_list_role_not_inferred"
+        for row in catalog.tracks
+    )
+    for source in catalog.sources:
+        assert sha((ROOT / source.path).read_bytes()) == source.sha256
+    assert {source.source_id for source in catalog.external_sources} == {
+        "workbook",
+        "store_json_zip",
+        "canonical_counts",
+    }
+    from dataclasses import asdict
+
+    def reject_targets(value: object) -> None:
+        if isinstance(value, dict):
+            assert not ({"key", "key_label", "target", "prediction", "class_id"} & value.keys())
+            for item in value.values():
+                reject_targets(item)
+        elif isinstance(value, (tuple, list)):
+            for item in value:
+                reject_targets(item)
+
+    reject_targets(asdict(catalog))
