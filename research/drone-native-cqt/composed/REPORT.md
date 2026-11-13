@@ -553,3 +553,62 @@ uv run --script research/drone-native-cqt/composed/plot_boundary_trace.py
 # Optional: replay retained arrays in the original private trace root (needs NumPy).
 python3 research/drone-native-cqt/composed/summarize_boundary_trace.py --trace-root "$TRACE_ROOT"
 ```
+
+## Sparse-product rounding explains the retained responses (November 13)
+
+The follow-up isolated the difference **inside complex multiplication**, before
+the completed product is added to the accumulator. The installed SciPy sparse
+kernel uses a fused multiply-add within each complex product. The native source
+rounds its component products separately. Both then add the completed complex
+product to the running sum separately.
+
+**Method.** Static inspection of the installed sparse kernel justified exactly
+two arithmetic paths. An exact integer implementation of binary32 rounding
+evaluated both on the captured operands, without a transform, decoder or model.
+The first bounded run covered stage 0 and two fixed coordinates: the first
+archived mismatch and the first equal nonzero response. All 22 isolated products
+and all 22 prefix responses agreed with the fused model. At the mismatch
+coordinate, the first product already differed. The equal-output control also
+had differing products, but its accumulators later converged; intermediate
+differences do not always survive to an output.
+
+A second, prospectively fixed run covered **all eight remaining stages** using
+the same two arithmetic implementations. Each model consumed its implementation's
+own captured spectrum. Every CSR-used spectrum value was identical; the single
+stage-5 FFT difference remained outside the matrix's column support. Each stage's
+installed SciPy replay reproduced its archived response before interpretation.
+
+Across all nine stages, the replay covered 1,260,042 complex terms per arithmetic
+path and 82,992 response elements, including bins outside the final core:
+
+| Arithmetic model | Differences from archived native responses | Differences from archived Python responses |
+|---|---:|---:|
+| Separate component products, separate accumulation | **0** | 55,369 |
+| Fused operation within product, separate accumulation | 55,369 | **0** |
+
+The response coordinates feeding all nine original FP16 differences also matched
+their respective archived responses. This establishes the product-rounding
+explanation for this case's sparse responses. It does **not** yet establish that
+a newly compiled frontend reproduces the whole Python core, or that the same
+reference behavior holds on other CPUs and SciPy builds.
+
+| Diagnostic | Wall time | Aggregate CPU | Sampled process-tree RSS |
+|---|---:|---:|---:|
+| Stage 0 and fixed term checks | 5.44 s | 6.20 CPU-s | 84.33 MiB |
+| Fixed stages 1–8 extension | 43.29 s | 47.20 CPU-s | 105.78 MiB |
+
+These are instrumented arithmetic-replay costs, not inference benchmarks. Both
+controllers completed within their declared limits and found no surviving owned
+processes. [Aggregate results](csr-product-rounding-results.json) and
+[technical provenance](csr-product-rounding-provenance.json) retain coverage,
+exact-match counts, term-check outcomes and original evidence identities without
+publishing operational paths or raw operands.
+
+**Next candidate, prepared only.** The ordinary native path still uses separate
+products. An explicitly named research method and the frontend-only
+[`fused_product_case`](../src/bin/fused_product_case.rs) entrypoint prepare the
+fused-product candidate. The entrypoint must first reproduce the original native
+negative control, then retain and compare the candidate's complete core with the
+archived Python reference. Neither build nor execution is claimed here. The
+[prospective protocol](FUSED_PRODUCT_PROTOCOL.md) fixes the build and single-case
+checks; no tolerance, backend, model or existing release decision changes.

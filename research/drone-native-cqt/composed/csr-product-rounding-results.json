@@ -1,0 +1,193 @@
+{
+  "format": "drone-csr-product-rounding-public-results-v1",
+  "case": "fmak:091711",
+  "stages": [
+    {
+      "stage": 0,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 146832,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6438
+    },
+    {
+      "stage": 1,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6404
+    },
+    {
+      "stage": 2,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6332
+    },
+    {
+      "stage": 3,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6434
+    },
+    {
+      "stage": 4,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6521
+    },
+    {
+      "stage": 5,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 1,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6464
+    },
+    {
+      "stage": 6,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6361
+    },
+    {
+      "stage": 7,
+      "rows": 24,
+      "frames": 399,
+      "complex_terms_per_path": 150822,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 6468
+    },
+    {
+      "stage": 8,
+      "rows": 16,
+      "frames": 399,
+      "complex_terms_per_path": 57456,
+      "full_spectrum_unequal_complex": 0,
+      "used_spectrum_unequal_complex": 0,
+      "existing_scipy_response_exact": true,
+      "strict_native_unequal": 0,
+      "fused_python_unequal": 0,
+      "opposite_unequal": 3947
+    }
+  ],
+  "paths": [
+    "strict_product_separate_add",
+    "observed_fused_product_separate_add"
+  ],
+  "total_complex_terms_per_path": 1260042,
+  "total_complex_response_elements": 82992,
+  "opposite_model_unequal_complex": 55369,
+  "fixed_stage0_term_checks": [
+    {
+      "purpose": "first_archived_mismatch",
+      "row": 0,
+      "frame": 2,
+      "terms": 11,
+      "product_different_steps": [
+        0,
+        1,
+        2,
+        3,
+        7,
+        10
+      ],
+      "accumulator_different_steps": [
+        0,
+        1,
+        7,
+        8,
+        9,
+        10
+      ],
+      "isolated_products_matching_fused": 11,
+      "prefixes_matching_fused": 11,
+      "final_accumulators_equal": false
+    },
+    {
+      "purpose": "first_archived_equal_nonzero",
+      "row": 0,
+      "frame": 0,
+      "terms": 11,
+      "product_different_steps": [
+        0,
+        1,
+        2,
+        4,
+        6,
+        10
+      ],
+      "accumulator_different_steps": [
+        0,
+        1,
+        4
+      ],
+      "isolated_products_matching_fused": 11,
+      "prefixes_matching_fused": 11,
+      "final_accumulators_equal": true
+    }
+  ],
+  "original_nine_fp16_response_links_verified": 9,
+  "new_final_core_computed": false,
+  "new_model_or_accuracy_result": false,
+  "candidate_compiled_or_run": false,
+  "resources": {
+    "stage0": {
+      "wall_seconds": 5.441029042005539,
+      "cpu_seconds": 6.198709,
+      "sampled_peak_rss_bytes": 88424448,
+      "owned_output_bytes_before_controller": 100419,
+      "complete": true,
+      "worker_exit_code": 0
+    },
+    "stages1_to8": {
+      "wall_seconds": 43.292656417004764,
+      "cpu_seconds": 47.204688000000004,
+      "sampled_peak_rss_bytes": 110919680,
+      "owned_output_bytes_before_controller": 113551,
+      "complete": true,
+      "worker_exit_code": 0
+    }
+  },
+  "scope": "Exact retained-response arithmetic on one case. Does not establish a corrected whole frontend, other recordings or platform parity."
+}
