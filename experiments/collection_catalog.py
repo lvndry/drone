@@ -291,6 +291,18 @@ def resolve_sources(
             if hashlib.file_digest(stream, "sha256").hexdigest() != source.sha256:
                 raise ValueError("Metadata source changed: " + source.source_id)
         resolved[source.source_id] = path
+    for source in value.external_sources:
+        raw = resolved[source.descriptor.source_id].read_bytes()
+        document = json.loads(gzip.decompress(raw) if raw.startswith(b"\x1f\x8b") else raw)
+        selected = document
+        try:
+            for part in source.descriptor.pointer[1:].split("/"):
+                key = part.replace("~1", "/").replace("~0", "~")
+                selected = selected[int(key)] if isinstance(selected, list) else selected[key]
+        except (KeyError, IndexError, TypeError, ValueError) as error:
+            raise ValueError("External source descriptor pointer does not resolve") from error
+        if not isinstance(selected, dict) or selected.get("sha256") != source.sha256:
+            raise ValueError("External source SHA disagrees with its bundled descriptor")
     return resolved
 
 

@@ -117,9 +117,13 @@ def test_local_resolver_checks_declared_external_identity_and_no_embedded_paths(
 
     value = fixture()
     metadata = tmp_path / "metadata.json"
-    metadata.write_text("{}")
     external = tmp_path / "external.csv"
     external.write_text("id\n1\n")
+    import json
+
+    metadata.write_text(
+        json.dumps({"external": {"sha256": hashlib.sha256(external.read_bytes()).hexdigest()}})
+    )
     source = replace(value.sources[0], sha256=hashlib.sha256(metadata.read_bytes()).hexdigest())
     descriptor = ExternalSource(
         "external",
@@ -147,3 +151,21 @@ def test_streaming_encoder_keeps_exact_original_canonical_bytes() -> None:
     expected["tracks"] = sorted(expected["tracks"], key=lambda row: row["track_id"])
     original = (json.dumps(expected, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
     assert collection_bytes(value) == original
+
+
+def test_external_hash_must_match_the_pinned_descriptor_value(tmp_path: Path) -> None:
+    import hashlib
+    import json
+
+    value = fixture()
+    data = tmp_path / "changed.csv"
+    data.write_text("changed")
+    descriptor = tmp_path / "metadata.json"
+    descriptor.write_text(json.dumps({"external": {"sha256": "b" * 64}}))
+    source = replace(value.sources[0], sha256=hashlib.sha256(descriptor.read_bytes()).hexdigest())
+    external = ExternalSource(
+        "external", hashlib.sha256(data.read_bytes()).hexdigest(), Evidence("metadata", "/external")
+    )
+    changed = replace(value, sources=(source,), external_sources=(external,))
+    with pytest.raises(ValueError, match="bundled descriptor"):
+        resolve_sources(changed, tmp_path, {"external": data})
