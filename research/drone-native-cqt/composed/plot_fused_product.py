@@ -13,6 +13,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from summarize_fused_product import summarize, summarize_goldens, summarize_public
+from summarize_retained_model import summarize as summarize_model
 
 
 def plot(root: Path) -> None:
@@ -155,10 +156,63 @@ def plot_public(root: Path) -> None:
     plt.close(fig)
 
 
+def plot_model(root: Path) -> None:
+    result = summarize_model(root)
+    families = list(result["families"].values())
+    labels = ["Full / Mac reference", "Chunked / Mac reference", "Chunked / full"]
+    plt.rcParams["svg.hashsalt"] = "cqt-retained-model376-v1"
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.7), layout="constrained")
+    for index, row in enumerate(families):
+        axes[0].barh(index, row["strict_passes"], color="#277f67", height=0.55)
+        axes[0].text(383, index, f"{row['strict_passes']} / 376", va="center", fontsize=10)
+        axes[1].barh(index, row["max_normalized_error"], color="#336b8e", height=0.55)
+        axes[1].text(
+            row["max_normalized_error"] + 0.025,
+            index,
+            f"{row['max_normalized_error']:.4f}",
+            va="center",
+            fontsize=10,
+        )
+    axes[0].set_yticks(range(3), labels)
+    axes[0].set_xlim(0, 455)
+    axes[0].set_xlabel("Recordings passing every logit bound")
+    axes[0].set_title("Strict numerical agreement: all three families pass", fontsize=11)
+    axes[1].set_yticks(range(3), [""] * 3)
+    axes[1].set_xlim(0, 1.18)
+    axes[1].axvline(1, linestyle="--", color="#a4582c", label="Failure boundary")
+    axes[1].set_xlabel("Largest error / allowed error (lower is better)")
+    axes[1].set_title("Full logits are bitwise equal to Mac reference", fontsize=11)
+    axes[1].legend(frameon=False, loc="lower right")
+    for axis in axes:
+        axis.set_ylim(2.7, -0.7)
+        axis.spines[["top", "right"]].set_visible(False)
+    fig.suptitle("The repaired cores close the historical native/Mac logit failure", fontsize=14)
+    fig.supxlabel(
+        "Same 376 public recordings: 126 Beatport + 250 FMAK; 40 seconds to 28 minutes.\n"
+        "Key agreement is 376/376 in every family, as it was before the fix: this is not an accuracy gain.\n"
+        "Unchanged model, native adapters and tolerances; no decode, CQT, or performance benchmark.",
+        fontsize=9,
+    )
+    fig.savefig(root / "retained-model376.png", dpi=180)
+    svg = root / "retained-model376.svg"
+    fig.savefig(svg, metadata={"Date": None})
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--goldens", action="store_true")
     parser.add_argument("--public376", action="store_true")
+    parser.add_argument("--model376", action="store_true")
     args = parser.parse_args()
-    function = plot_public if args.public376 else plot_goldens if args.goldens else plot
+    function = (
+        plot_model
+        if args.model376
+        else plot_public
+        if args.public376
+        else plot_goldens
+        if args.goldens
+        else plot
+    )
     function(Path(__file__).resolve().parent)
