@@ -7,6 +7,7 @@ on:
       - research/drone-native-cqt/**
       - .github/workflows/drone-native-research.yml
       - research/MIGRATION.json
+      - research/NATIVE_EVOLUTION.json
       - research/verify_migration.py
   push:
     branches: [main]
@@ -15,6 +16,7 @@ on:
       - research/drone-native-cqt/**
       - .github/workflows/drone-native-research.yml
       - research/MIGRATION.json
+      - research/NATIVE_EVOLUTION.json
       - research/verify_migration.py
 
 permissions:

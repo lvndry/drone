@@ -180,6 +180,8 @@ fn observed_error(root: &Path, actual: &[f32], observation: &Value) -> Result<Va
     Ok(json!({"full_hash_equal":exact,"probes":probes}))
 }
 
+type StageResponse = (usize, Vec<Complex<f32>>, Option<Vec<Complex<f32>>>);
+
 struct StageKernel {
     n: usize,
     hop: usize,
@@ -228,11 +230,13 @@ impl StageKernel {
             fft,
         })
     }
-    fn response(&self, samples: &[f32]) -> Result<(usize, Vec<Complex<f32>>)> {
+    fn response(&self, samples: &[f32], capture_spectrum: bool) -> Result<StageResponse> {
         let (n, hop, rows) = (self.n, self.hop, self.rows);
         let (indptr, indices, basis) = (&self.indptr, &self.indices, &self.basis);
         let frames = 1 + samples.len() / hop;
         let mut response = vec![Complex::new(0.0f32, 0.0); rows * frames];
+        let mut observed_spectrum =
+            capture_spectrum.then(|| vec![Complex::new(0.0f32, 0.0); (n / 2 + 1) * frames]);
         let fft = &self.fft;
         let mut buffer = vec![Complex::new(0.0, 0.0); n];
         for frame in 0..frames {
@@ -256,6 +260,11 @@ impl StageKernel {
                 .iter()
                 .map(|v| Complex::new(v.re as f32, v.im as f32))
                 .collect();
+            if let Some(observed) = observed_spectrum.as_mut() {
+                for (bin, value) in spectrum.iter().enumerate() {
+                    observed[bin * frames + frame] = *value;
+                }
+            }
             for row in 0..rows {
                 let mut sum = Complex::new(0.0f32, 0.0);
                 for index in indptr[row]..indptr[row + 1] {
@@ -266,15 +275,23 @@ impl StageKernel {
             }
         }
 
-        Ok((frames, response))
+        Ok((frames, response, observed_spectrum))
     }
 }
 
-type Observer<'a> = dyn for<'b> FnMut(Intermediate<'b>) -> Result<()> + 'a;
+pub type Observer<'a> = dyn for<'b> FnMut(Intermediate<'b>) -> Result<()> + 'a;
 
 pub enum Intermediate<'a> {
+    Input(usize, &'a [f32]),
+    Spectrum(usize, usize, &'a [Complex<f32>]),
     Response(usize, &'a [Complex<f32>]),
     Resampled(usize, &'a [f32]),
+    PreNormalization(usize, &'a [Complex<f32>]),
+    Scales(&'a [f64]),
+    Normalized(usize, &'a [Complex<f32>]),
+    Magnitudes(&'a [f32]),
+    Logged(&'a [f32]),
+    Core(&'a [f32]),
 }
 
 /// Prevalidated invariant kernels; compute does no evidence file/hash/JSON work.
@@ -334,7 +351,17 @@ impl PreparedPlan {
         math: Option<&NumpyMath>,
         numpy_magnitude: bool,
     ) -> Result<(Vec<f32>, usize)> {
-        self.run(pcm, soxr, math, numpy_magnitude, None)
+        self.run(pcm, soxr, math, numpy_magnitude, None, false)
+    }
+    /// Observation-only frontend diagnostic: original FMA magnitude/platform log1p.
+    /// No model/runtime is constructed. Extra arrays exist only on this path.
+    pub fn trace(
+        &self,
+        pcm: &[f32],
+        soxr: &Soxr,
+        observer: &mut Observer<'_>,
+    ) -> Result<(Vec<f32>, usize)> {
+        self.run(pcm, soxr, None, true, Some(observer), true)
     }
     fn run(
         &self,
@@ -343,6 +370,7 @@ impl PreparedPlan {
         math: Option<&NumpyMath>,
         numpy_magnitude: bool,
         mut observe: Option<&mut Observer<'_>>,
+        capture_boundaries: bool,
     ) -> Result<(Vec<f32>, usize)> {
         ensure!(
             !pcm.is_empty() && pcm.iter().all(|v| v.is_finite()),
@@ -351,8 +379,14 @@ impl PreparedPlan {
         let mut samples = pcm.to_vec();
         let mut responses = Vec::new();
         for (index, stage) in self.stages.iter().enumerate() {
-            let (frames, response) = stage.response(&samples)?;
+            if capture_boundaries && let Some(observer) = observe.as_mut() {
+                observer(Intermediate::Input(index, &samples))?;
+            }
+            let (frames, response, spectrum) = stage.response(&samples, capture_boundaries)?;
             if let Some(observer) = observe.as_mut() {
+                if let Some(spectrum) = spectrum.as_ref() {
+                    observer(Intermediate::Spectrum(index, frames, spectrum))?;
+                }
                 observer(Intermediate::Response(index, &response))?;
             }
             let mut stage_rows = Vec::new();
@@ -374,12 +408,27 @@ impl PreparedPlan {
         }
         let frames = responses.iter().map(Vec::len).min().context("responses")?;
         let lengths = &self.lengths;
+        if capture_boundaries && let Some(observer) = observe.as_mut() {
+            let values: Vec<Complex<f32>> = responses[8..200]
+                .iter()
+                .flat_map(|row| row[..frames].iter().copied())
+                .collect();
+            observer(Intermediate::PreNormalization(frames, &values))?;
+        }
         let mut magnitudes = Vec::with_capacity(192 * frames);
+        let mut scales = capture_boundaries.then(|| Vec::with_capacity(192));
+        let mut normalized = capture_boundaries.then(|| Vec::with_capacity(192 * frames));
         for bin in 8..200 {
             let scale = lengths[bin].sqrt();
+            if let Some(scales) = scales.as_mut() {
+                scales.push(scale);
+            }
             for value in &responses[bin][..frames] {
                 let re = (f64::from(value.re) / scale) as f32;
                 let im = (f64::from(value.im) / scale) as f32;
+                if let Some(normalized) = normalized.as_mut() {
+                    normalized.push(Complex::new(re, im));
+                }
                 magnitudes.push(if numpy_magnitude || math.is_some() {
                     numpy_finite_magnitude(re, im)?
                 } else {
@@ -387,15 +436,31 @@ impl PreparedPlan {
                 });
             }
         }
+        if capture_boundaries && let Some(observer) = observe.as_mut() {
+            observer(Intermediate::Scales(
+                scales.as_deref().context("trace scales")?,
+            ))?;
+            observer(Intermediate::Normalized(
+                frames,
+                normalized.as_deref().context("trace normalized")?,
+            ))?;
+            observer(Intermediate::Magnitudes(&magnitudes))?;
+        }
         let logged = if let Some(math) = math {
             math.log1p(&magnitudes)?
         } else {
             magnitudes.iter().map(|value| value.ln_1p()).collect()
         };
-        let core = logged
+        if capture_boundaries && let Some(observer) = observe.as_mut() {
+            observer(Intermediate::Logged(&logged))?;
+        }
+        let core: Vec<f32> = logged
             .into_iter()
             .map(|value| half::f16::from_f32(value).to_f32())
             .collect();
+        if capture_boundaries && let Some(observer) = observe.as_mut() {
+            observer(Intermediate::Core(&core))?;
+        }
 
         Ok((core, frames))
     }
@@ -426,10 +491,11 @@ pub fn features(
                     .context("resample observation")?;
                 diagnostics.push(json!({"after_stage":index,"resample":observed_error(root,samples,&entry["output"])?}));
             }
+            _ => {} // Existing diagnostics do not request the new boundary buffers.
         }
         Ok(())
     };
-    let (core, frames) = plan.run(pcm, soxr, math, numpy_magnitude, Some(&mut observer))?;
+    let (core, frames) = plan.run(pcm, soxr, math, numpy_magnitude, Some(&mut observer), false)?;
     Ok((core, frames, json!({"resamplings":diagnostics})))
 }
 

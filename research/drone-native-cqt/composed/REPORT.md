@@ -321,3 +321,119 @@ accuracy, calibrated Drone confidence, bounded warm sessions, and engine/model
 cache identity require separate evidence. Existing libkeyfinder confidence
 thresholds cannot be applied to softmax top1-minus-top2 margins without calibration. No final-result cache, Euphoria production key detector,
 default dependency/MSRV, model weights or training changed.
+
+## Boundary observer import closure and failed build qualification (November 13)
+
+Source commit `081e160` adds exact bindings for all local Python trace-support
+imports and package initializers, the interpreter pathname, and the absence of
+PYTHONPATH/PYTHONHOME. Thirteen tiny synthetic checks, Ruff format/lint and ty pass.
+No transform or model runs in those tests. The shared editable test environment
+contributes an extra `tools` namespace; actual trace admission correctly rejects
+that environment. Tests isolate their import search without modifying shared pth
+files. A complete actual Python trace runtime remains unqualified.
+
+The separately [frozen build protocol](BOUNDARY_BUILD_PROTOCOL.md) authorized one
+local offline build, with a private cache rather than shared Cargo mutations.
+The 68-package lockfile has two local packages and 66 registry packages. All
+required cached crates, archives and sparse-index entries were copied and
+hashed; their private copy occupied 70,764,137 bytes within the total 512 MiB cap.
+The macOS ownership probe verified exact process-start identities, live resident
+memory and reaped-child CPU counters before compilation. The initial metadata
+preparation launcher, `/usr/bin/python3`, lacked tomllib and exited before target
+creation or any compiler process; the existing `/usr/local/bin/python3` 3.14.5
+then performed preparation and was pinned in the actual build plan. No package
+was installed and no environment was changed.
+
+**The single build attempt failed operationally; build qualification was not
+achieved.** Plan SHA256:
+`af4c313c99fafad60b7e3282b2aa7dd1812153a9f248332a259033db60b37b9c`.
+The window began at 07:37:56 UTC. Guardian PID 24710/start-abstime 12444153175429
+launched owned worker 24717/start 12444173968602 and Cargo 24742/start 12444198043827.
+After 2.692619 seconds, the guardian's owned-output scan attempted to stat a
+transient Cargo `.rcgu.o` file that had just been removed. It treated that
+FileNotFoundError as a failure and terminated only its verified owned process
+group. This is not a compiler, numerical parity or CPU-portability finding.
+No retry, cap extension, trace execution, PCM transfer, decoding or model call
+followed. The loader inspection stage was not reached.
+
+At failure, sampled aggregate RSS was 255,049,728 bytes, conservatively sampled
+CPU usage was 2.381104 seconds, and owned outputs totaled 76,464,031 bytes. These
+are sampled measurements, not an exact transient peak or complete final CPU
+accounting. Post-failure verification found no remaining owned-group processes;
+all bound source/toolchain files, copied shared-cache inputs and shared Cargo
+metadata remained byte-identical. The old pipeline retained SHA256
+`9a5b7fc9887e7cf160a95614d26b86f2e65df98d837260177c16ca95841893ad`.
+
+The [evidence archive](boundary-build-v1-evidence.tar.gz) contains the prospective
+plan, complete input/copy hash inventory, source commit, exact build argv and
+clean environment, launch identities, original logs/controller and post-failure
+checks. It contains neither audio nor compiled artifacts. Archive SHA256:
+`3e5a570cd0850da1c0c1bd7363bd6c219a2c05848d347019e8e16aaff4a4d37d`.
+The executed v1 guardian remains preserved in commit `a958920`. Its original
+receipt and evidence archive are unchanged. The [current guardian](qualify_boundary_build.py.txt)
+now ignores only `ENOENT` when an already-enumerated output file disappears during
+size sampling. Other errors, symlink checks and the original resource caps remain.
+A regression covers both disappearance and non-ENOENT failures. The prospective
+v2 build uses a fresh `/tmp/drone-cqt-boundary-build-v2` root with new source
+bindings. At repair commit `f9d51bc`, it had not been prepared or executed. No build success,
+frontend parity or performance improvement is claimed from the scanner repair.
+
+
+## Repaired offline build qualified (November 13, 10:04–10:06 UTC)
+
+**Problem.** The first build monitor failed when Cargo removed a temporary object
+between directory enumeration and `stat`. This prevented us from qualifying the
+boundary observer; it was not a numerical CQT failure.
+
+**Method.** Commit `f9d51bcf815b9017e7eeba21618e4d08ca4767c2` ignores only `ENOENT`
+for an already-enumerated output. Permission, I/O, non-directory and symlink errors
+remain fatal. Six regressions cover these distinctions. Root prepared and reviewed
+a new private cache and hash-bound build plan, then ran one offline, locked release
+build of `boundary_trace`, with one Cargo job and nice 19. All original resource
+limits were retained; the failed v1 run remains unchanged.
+
+**Result.** The guardian recorded `COMPLETE`, with successful compilation and
+post-build dependency inspection. It verified unchanged source/toolchain bytes,
+shared Cargo cache inputs and metadata, private copied inputs, and the original
+pipeline binary. The resulting diagnostic executable was **not executed**.
+
+| Measurement | Observed | Declared limit |
+|---|---:|---:|
+| Wall time, including post-build inspection | 147.37 s | 360 s |
+| Terminal guardian/reaped-child CPU | 197.23 CPU-s | 300 CPU-s |
+| Sampled aggregate process-tree RSS peak | 482.39 MiB | 1,024 MiB |
+| Owned output at terminal scan, including private cache | 224.15 MiB | 512 MiB |
+| Private copied cache at admission | 67.49 MiB | <128 MiB |
+
+RSS is sampled, not an exact OS peak. One Cargo job does not imply one active
+thread throughout compiler/linker execution. The terminal cumulative CPU value
+includes completed children; the earlier sampled live-process counter is not
+substituted for that total.
+
+The [v2 evidence archive](boundary-build-v2-evidence.tar.gz), SHA256
+`c3f4709d80eda175a7cdca319db61336b8072a5326a43fe6363419bbfe3ea402`, preserves the
+plan, controller and worker receipts, logs, input hashes and exact source snapshots.
+Plan SHA256 is `eb252f4832cb36d50b298e93076fe0277d07d13eb31ceb300a097aea91e948d4`.
+The built binary is 1,799,584 bytes, SHA256
+`a4b5a29ce31de5a8dd87e131f7d0839487f13c0916e6487722da707283f96d94`; it remains a
+local diagnostic artifact and is not bundled in the repository.
+
+**What this establishes.** The build and inspected loader identities are now
+qualified. It does not establish frontend parity, a faster inference result or a
+new model accuracy result. No audio was decoded, no model or ORT session was
+initialized, and no tolerance changed. The next numerical trace still needs the
+pinned PCM witness and an unambiguous Python import/runtime closure described in
+[the trace protocol](BOUNDARY_TRACE_PROTOCOL.md). Euphoria remains untouched.
+
+
+### Source identity after CI lint repair
+
+The successful v2 receipt above qualifies the archived `f9d51bc` source snapshot
+and binary, before the later CI repair that names the stage-response tuple type
+in `src/plan.rs`. That repair addresses Clippy's type-complexity diagnostic; it
+does not alter the FFT, accumulation, normalization, magnitude or log operations.
+The original archive and built binary are preserved unchanged. The current source
+has a different hash and is subject to CI validation; the old build receipt must
+not be presented as a build of that newer source. Any numerical trace must bind
+the actual executable to its archived source, or separately qualify a newly built
+executable. This lint repair did not rebuild or execute either native binary.
