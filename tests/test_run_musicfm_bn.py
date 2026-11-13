@@ -15,6 +15,26 @@ from experiments.musicfm_bn_execution import bound_json, score_admission, useful
 from tools import run_musicfm_bn as guard
 
 
+def test_interpreter_guard_preserves_overlay_even_with_same_binary(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    overlay = tmp_path / "overlay-python"
+    shared = tmp_path / "shared-python"
+    overlay.symlink_to(sys.executable)
+    shared.symlink_to(sys.executable)
+    assert overlay.resolve() == shared.resolve()
+    monkeypatch.setattr(guard.sys, "executable", str(overlay))
+    guard.verify_original_interpreter({"command": [str(overlay), "-m", "worker"]})
+    with pytest.raises(ValueError, match="isolated Python"):
+        guard.verify_original_interpreter({"command": [str(shared), "-m", "worker"]})
+
+
+@pytest.mark.parametrize("command", [None, [], [None], "python", ["relative/python"]])
+def test_interpreter_guard_rejects_missing_or_ambiguous_command(command: object) -> None:
+    with pytest.raises(ValueError, match="isolated Python"):
+        guard.verify_original_interpreter({"command": command})
+
+
 @pytest.fixture
 def permit(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
@@ -133,7 +153,12 @@ def test_late_timeout_and_cleanup_error_cannot_leave_complete_controller(
     monkeypatch.setattr(guard.time, "sleep", lambda _: None)
     monkeypatch.setattr(guard, "verify_import_paths", lambda _: None)
     monkeypatch.setattr(
-        guard, "read_original", lambda _: {"config": b'{"protected_starts":[],"source_sha256":{}}'}
+        guard,
+        "read_original",
+        lambda _: {
+            "config": b'{"protected_starts":[],"source_sha256":{}}',
+            "launch": json.dumps({"command": [sys.executable]}).encode(),
+        },
     )
     monkeypatch.setattr(guard, "original_failures_absent", lambda: True)
     monkeypatch.setattr(

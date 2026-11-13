@@ -145,6 +145,23 @@ def check_deadline(config: dict[str, Any], started: float) -> None:
         raise TimeoutError("Diagnostic wall/lease cutoff")
 
 
+def verify_original_interpreter(launch: dict[str, Any]) -> None:
+    """Preserve the pilot's virtual environment, not just its underlying binary.
+
+    Resolving symlinks would erase the distinction between the provisioned overlay
+    and the shared environment: both may point to the same system Python.
+    """
+    command = launch.get("command")
+    if (
+        not isinstance(command, list)
+        or not command
+        or not isinstance(command[0], str)
+        or not Path(command[0]).is_absolute()
+        or os.path.abspath(sys.executable) != os.path.abspath(command[0])
+    ):
+        raise ValueError("Use the original pilot's isolated Python interpreter")
+
+
 def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     config_path, approval_path, root = (
         config_path.resolve(),
@@ -179,6 +196,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     cleanup_error = None
     try:
         original = read_original(config)
+        verify_original_interpreter(json.loads(original["launch"]))
         terminal = verify_terminal_teacher(
             original,
             config["selected_checkpoint_sha256"],

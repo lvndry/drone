@@ -108,3 +108,30 @@ validation waveforms. It then rechecks remaining score-phase budget against
 `2*complete_comparison_cost + measured_overhead + 120`. Insufficient margin leaves
 a sealed candidate with a budget-inconclusive/no-scoring result; it does not
 authorize another attempt. The actual hardware/source run is still unperformed.
+
+## November 13 startup failure and interpreter correction
+
+The first hardware attempt used source `16beee9` and config
+`b50b6ed024155e5b08fce8bf44a1c0353a4043e1daadee525259a1747bd057fb`.
+It started at 05:45 UTC and failed during `MODEL_LOAD` with missing `einops`,
+before calibration or selection. The guardian recorded worker exit 1 after
+13.66 seconds, peak tree RSS 728,649,728 bytes and aggregate CPU 8.89 seconds.
+This is an infrastructure failure, not evidence about BN or model accuracy.
+The original run and its one-shot permit remain unchanged and are not reusable.
+
+The launcher mistakenly selected `/home/lysk-admin/drone/.venv/bin/python`.
+The original pilot used the isolated overlay interpreter recorded in its sealed
+launch receipt. The earlier preimport check loaded local research modules but did
+not import the upstream model's dependency closure. Its passing result was
+insufficient qualification.
+
+The guardian now requires the original launch receipt's absolute interpreter path
+before launching a worker. It deliberately does not resolve interpreter symlinks:
+two environments may share a binary while exposing different packages. A bounded,
+CPU-only import check with the original overlay subsequently loaded the upstream
+model and all nine recorded dependency modules; every module SHA256 matched the
+pilot receipts, and CUDA remained uninitialized. No packages were installed and
+the shared environment was not modified. This does not prove model construction,
+GPU correctness, timing admission, calibration or scoring. Any later hardware
+attempt needs new source/config bindings, import qualification, resource checks
+and its own fixed window; the failed window must not be extended.
