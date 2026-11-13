@@ -1,0 +1,45 @@
+{
+  "schema": "drone.mik-comparison-access.v1",
+  "observed_at_utc": "2026-11-13T12:39:24.198982+00:00",
+  "mode": "read_only_application_directory_and_bundle_metadata",
+  "scanned_roots": [
+    "/Applications",
+    "~/Applications"
+  ],
+  "matching_rule": "top-level names containing mixed in key, mixedinkey, or rekordbox; Info.plist for direct application bundles or immediate app children of matching directories",
+  "mixed_in_key": {
+    "matching_application_found": false,
+    "license_or_activation": "user_reports_no_license",
+    "outside_scanned_roots": "unknown",
+    "executable_build": "unknown",
+    "analysis_or_export_qualified": false,
+    "license_evidence": "User confirmed no Mixed In Key license on 2026-11-13; activation and license stores were not inspected."
+  },
+  "other_installed_applications": [
+    {
+      "path": "/Applications/rekordbox 7/rekordbox.app",
+      "bundle_identifier": "com.pioneerdj.rekordboxdj",
+      "short_version": "7.2.19.0342",
+      "bundle_version": "7.2.19.0342",
+      "license_or_activation": "not_inspected"
+    }
+  ],
+  "actions_not_performed": [
+    "application_launch",
+    "license_store_read",
+    "music_scan",
+    "settings_change",
+    "analysis",
+    "install_or_purchase",
+    "upload",
+    "external_message"
+  ],
+  "documentation_checked_on": "2026-11-13",
+  "official_sources": [
+    "https://mixedinkey.com/workflows/add-key-and-bpm-tags/",
+    "https://mixedinkey.com/workflows/fix-missing-key-or-bpm-tags/",
+    "https://mixedinkey.com/workflows/export-cue-points-to-rekordbox/"
+  ],
+  "output_transport": "Initial Key file tag documented; exact installed-build behavior unqualified",
+  "cli_or_csv_export": "not_established"
+}

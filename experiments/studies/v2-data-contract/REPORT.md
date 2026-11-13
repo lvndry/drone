@@ -855,3 +855,22 @@ The library's default `keyOfAudio` algorithm is unchanged. The new wrapper accep
 only explicit, validated mono PCM16, preserves the signed sample amplitude
 conversion and includes raw enum in output for future audits. Future GTZAN scoring
 must separately freeze the audio path, artifact versions, cohort and evaluator.
+
+## Prospective comparison with Mixed In Key
+
+The next product comparison must answer whether Drone is more accurate than
+Mixed In Key on the same independently annotated complete recordings. The
+[comparison protocol](MIK_COMPARISON_PROTOCOL.md) fixes the preparation rules:
+separate development and final panels, blinded reference annotation, identical
+audio editions, a named comparator build, paired uncertainty and genre/length
+coverage. It also separates full-track feature-extraction cost from model cost.
+
+No comparison has run and no accuracy gain is claimed. A scoped local application
+inventory did not find Mixed In Key, and the user confirmed they have no license.
+The comparison depends on access; independent full-length audio, annotators and a
+powered final-panel execution packet also remain unresolved. Model research can
+continue while these dependencies are resolved.
+Rekordbox's presence does not establish Mixed In Key access. The existing FMA
+roles and the private DJ library's performance/manual-review restriction remain
+unchanged. The [access inventory](data/mik-comparison-access.json) records exactly
+what was inspected, without opening an application or scanning music.
