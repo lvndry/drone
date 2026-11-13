@@ -81,3 +81,52 @@ that current research fitting manifests describe the published release. Unknown
 identity coverage remains unknown; filtered lists do not prove complete artist
 or recording independence. No scoring or audio acquisition is authorized by
 these metadata outputs. Existing GTZAN literature exposure remains disclosed.
+
+### GTZAN archive integrity stage — November 13, before any scores
+
+Acquire exactly the pinned Marsyas mirror archive at Hugging Face commit
+`d2146561ecc7df707d9e6b8318885fe6a39668a2`: 1,226,192,050 compressed bytes,
+SHA256 `b28cc067ff6199bd826f5d1a6931458586d64acae7f44b2e882b7a97af057531`.
+Use it only for the already authorized, private research evaluation; public hosting
+and annotation licensing do not establish redistribution or commercial clearance.
+Do not commit or redistribute audio. Preserve a failed transfer without automatic
+retry or switching mirrors.
+
+This stage verifies the archive, all 1,000 per-recording MD5 witnesses from the
+pinned mirdata index, and WAV structure. Stream the tar without extracting audio;
+reject links, traversal, duplicates, unexpected members, missing recordings and
+payloads over fixed limits. Preserve the existing jazz.00054 corruption flag;
+it does not authorize excluding other new failures. No classifier or keyfinder
+runs, training, feature cache, reference changes or score admission occur.
+Matching recordings still need cross-corpus overlap review and a locked scoring
+protocol. Thirty-second excerpts do not establish long-track quality.
+
+Server acquisition bounds: 900 wall seconds, 300 aggregate CPU seconds, 512 MiB
+whole-tree RSS, two GiB owned outputs; use CPU affinity 10–11, nice 19 and no GPU.
+Keep at least 40 GiB host memory and 32 GiB ordinary disk free, in addition to the
+remaining archive reservation. Preserve all four original vLLM PID/start identities.
+Network reads have a 30-second timeout. Stop only owned processes on a cap or
+identity failure. Keep source, configuration, download and audit receipts. A
+passing audit proves recording identity and format only, not label correctness,
+license clearance, exposure independence or accuracy.
+
+The first acquisition downloaded the exact pinned archive, then its verifier
+stopped on bundled AppleDouble/Finder files before checking recordings. Preserve
+that failed controller and the verified archive. A packaging correction admits
+only exact `._` companions of expected recordings/directories and `.DS_Store`
+files under known directories, capped at 16 KiB per file and 16 MiB total. Links,
+unknown paths and every recording MD5 requirement remain unchanged. This changes
+archive parsing, not reference eligibility or track-failure exclusions.
+
+A separate audit-only pass may reuse those exact retained bytes without another
+download: 120 wall seconds, 90 CPU seconds, 256 MiB tree RSS and two MiB new
+outputs, CPU 10–11/nice 19/no GPU, with unchanged host/disk/service reserves.
+Keep both verifier source versions and their results; no automatic retry.
+
+The corrected strict parser stopped on an MD5 mismatch at jazz.00054, already
+flagged corrupt by the source metadata. This remains a failed strict audit.
+A separate `--inventory-only` mode may enumerate all recording identities and
+format faults without treating mismatches as a pass, changing exclusions, or
+admitting tracks for scoring. The same retained archive and audit-only bounds
+apply. Report full-universe and frozen eligible-subset counts separately; archive
+integrity, recording identity, parseability and scoring admission are distinct.
