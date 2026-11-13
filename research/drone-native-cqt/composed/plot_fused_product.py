@@ -56,6 +56,8 @@ def plot(root: Path) -> None:
     )
     fig.savefig(root / "fused-product.png", dpi=180)
     fig.savefig(root / "fused-product.svg", metadata={"Date": None})
+    svg = root / "fused-product.svg"
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
     plt.close(fig)
 
 

@@ -156,13 +156,13 @@
     },
     {
       "path": "research/drone-native-cqt/composed/fused-product.svg",
-      "sha256": "d7b82f8e311c2640378e1f5d38a53ec624ed50450f2abb455f208e6c38f8221e",
+      "sha256": "f45cf7e59a982fef80736fb8fc8383b1e92b9f6f0a16e58fe62626c86f5ba260",
       "git_mode": "100644",
       "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
     },
     {
       "path": "research/drone-native-cqt/composed/plot_fused_product.py",
-      "sha256": "1edace8a6bd4e910bee6ff260e629a12660cbbf1738270caca84f740c8c44fa2",
+      "sha256": "9f2c8b511387b050dbdfaa44f1b9f1bf498338fe8a7b6934b79413ee5e36e893",
       "git_mode": "100644",
       "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
     },
