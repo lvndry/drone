@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import io
 import json
 import math
 import re
@@ -261,7 +262,12 @@ def collection_bytes(value: CollectionCatalog) -> bytes:
     for field in ("sources", "external_sources"):
         data[field] = sorted(data[field], key=lambda row: row["source_id"])
     data["tracks"] = sorted(data["tracks"], key=lambda row: row["track_id"])
-    return (json.dumps(data, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
+    stream = io.BytesIO()
+    encoder = json.JSONEncoder(sort_keys=True, indent=2, allow_nan=False)
+    for chunk in encoder.iterencode(data):
+        stream.write(chunk.encode())
+    stream.write(b"\n")
+    return stream.getvalue()
 
 
 def resolve_sources(

@@ -134,3 +134,16 @@ def test_local_resolver_checks_declared_external_identity_and_no_embedded_paths(
     external.write_text("changed")
     with pytest.raises(ValueError, match="changed"):
         resolve_sources(value, tmp_path, {"external": external})
+
+
+def test_streaming_encoder_keeps_exact_original_canonical_bytes() -> None:
+    import json
+    from dataclasses import asdict
+
+    value = fixture()
+    expected = asdict(value)
+    for field in ("sources", "external_sources"):
+        expected[field] = sorted(expected[field], key=lambda row: row["source_id"])
+    expected["tracks"] = sorted(expected["tracks"], key=lambda row: row["track_id"])
+    original = (json.dumps(expected, sort_keys=True, indent=2, allow_nan=False) + "\n").encode()
+    assert collection_bytes(value) == original
