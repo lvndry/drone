@@ -161,6 +161,14 @@ before-label input and ledger; the checker verifies the sanitized derivative and
 unchanged assignment. Executed diagnostic source/stdio and metadata-member hashes
 are recorded; only metadata was read on CPU4–5, with no persistent server job.
 
+A later edit to `PROTOCOL.md` (the pre-scoring GTZAN integrity stage, PR #39) made
+the pinned witness hash stale and caused `python -m tools.check_v2_contract` to fail
+on main. The witness file is preserved byte-for-byte. The change is recorded in
+[`data/protocol-amendments.json`](data/protocol-amendments.json) as an append-only
+chain from the pinned to the current hash, with an explicit assertion that no FMA
+assignment, ledger, input, label or role artifact changed. The checker follows that
+chain for `PROTOCOL.md` only; any other moved assignment artifact still fails.
+
 Reproduce locally without network, labels or models:
 
 ```sh
@@ -168,7 +176,7 @@ python -m tools.check_v2_contract
 python -m pytest tests/test_v2_contract.py -q
 ```
 
-Six regressions cover whole components/nesting/order invariance, bounded-group
+Eight regressions cover whole components/nesting/order invariance, bounded-group
 failure, same-audio cross-component rejection, old-ID-preserving deduplication,
 strict rejection of target fields in assignment inputs, and generic conflict
 quarantine across restricted/expanded membership with no feature member read.

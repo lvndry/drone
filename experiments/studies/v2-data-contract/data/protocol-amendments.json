@@ -1,0 +1,17 @@
+{
+  "status": "APPEND_ONLY_PROTOCOL_AMENDMENT_CHAIN",
+  "pinned_witness": "data/before-label-witness.json",
+  "assignment_artifacts_changed": false,
+  "amendments": [
+    {
+      "utc": "2026-11-13T06:17:54+00:00",
+      "source_commit": "cdb353ed8c7ce8bdbc6c5978014db80508efdf3d",
+      "pull_request": 39,
+      "artifact": "PROTOCOL.md",
+      "from_sha256": "f723ad4989fba7fb109d5640ab8126d6d38b84840ab8fa8aeb2fc93ab2fdbb41",
+      "to_sha256": "0227c64ca07ab862d22199f072c5bfca275506a05cf44d396c43485610b86046",
+      "change": "Appended the GTZAN archive-integrity stage, which runs before any GTZAN score and does not touch the FMA assignment, ledger, input, labels or role rules.",
+      "fma_assignment_artifacts_changed": false
+    }
+  ]
+}

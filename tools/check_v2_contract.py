@@ -16,6 +16,27 @@ from tools.propose_v2_contract import describe, load_input, proposal, sha
 STUDY = Path(__file__).resolve().parents[1] / "experiments/studies/v2-data-contract"
 
 
+def amended_hash(data: Path, artifact: str, pinned: str, current: str) -> bool:
+    """Follow an append-only amendment chain from the pinned to the current hash.
+
+    Only the named artifact may move, every step must connect, and any amendment
+    that claims to have changed an FMA assignment artifact is rejected.
+    """
+    chain = json.loads((data / "protocol-amendments.json").read_text())
+    if chain.get("assignment_artifacts_changed"):
+        return False
+    digest = pinned
+    for step in chain["amendments"]:
+        if step["artifact"] != artifact:
+            continue
+        if step["from_sha256"] != digest:
+            return False
+        if step.get("fma_assignment_artifacts_changed"):
+            return False
+        digest = step["to_sha256"]
+    return digest == current
+
+
 def check(study: Path = STUDY) -> dict[str, Any]:
     data = study / "data"
     tracks, provenance = load_input(data / "input.json.gz")
@@ -27,6 +48,10 @@ def check(study: Path = STUDY) -> dict[str, Any]:
     witness = json.loads((data / "before-label-witness.json").read_text())
     for relative, digest in witness["artifacts"].items():
         if sha((study / relative).read_bytes()) != digest:
+            if relative == "PROTOCOL.md" and amended_hash(
+                data, relative, digest, sha((study / relative).read_bytes())
+            ):
+                continue
             if relative != "data/input.json.gz":
                 raise ValueError("Before-label assignment artifact changed")
             sanitized = json.loads((data / "input-provenance-sanitization.json").read_text())

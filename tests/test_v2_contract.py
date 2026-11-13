@@ -154,3 +154,59 @@ def test_post_assignment_conflicting_labels_are_reported_not_repaired(tmp_path: 
         diagnose(prepared, assignment, ledger, hashlib.sha256(ledger).hexdigest(), "changed")
     with pytest.raises(ValueError, match="witness mismatch"):
         diagnose(tmp_path / "nonexistent.npz", assignment, ledger, "changed", "unused")
+
+
+def test_committed_study_reproduces_and_panels_stay_frozen() -> None:
+    """The published reproduction command must pass against the committed study.
+
+    The synthetic tests above never touch the real artifacts, so a later edit to a
+    pinned file could break ``python -m tools.check_v2_contract`` without CI noticing.
+    """
+    from tools.check_v2_contract import check
+
+    result = check()
+    assert result["metadata_checks_passed"] is True
+    assert result["training_authorized"] is False
+    panels = result["eligible_panels"]
+    assert (
+        panels["PROPOSED_expanded_fit"]["rows"],
+        panels["PROPOSED_expanded_fit"]["unique_saved_audio_sha256"],
+    ) == (4080, 4035)
+    assert (
+        panels["PROPOSED_inner_selection"]["rows"],
+        panels["PROPOSED_inner_selection"]["unique_saved_audio_sha256"],
+    ) == (250, 250)
+    assert (
+        panels["PROPOSED_calibration"]["rows"],
+        panels["PROPOSED_calibration"]["unique_saved_audio_sha256"],
+    ) == (159, 159)
+    assert (
+        panels["PROPOSED_development_confirmation"]["rows"],
+        panels["PROPOSED_development_confirmation"]["unique_saved_audio_sha256"],
+    ) == (998, 997)
+    assert result["quarantined_rows"] == 2
+
+
+def test_protocol_amendment_chain_rejects_unconnected_step(tmp_path: Path) -> None:
+    from tools.check_v2_contract import amended_hash
+
+    pinned = "a" * 64
+    current = "b" * 64
+    chain = {
+        "assignment_artifacts_changed": False,
+        "amendments": [
+            {
+                "artifact": "PROTOCOL.md",
+                "from_sha256": pinned,
+                "to_sha256": current,
+                "fma_assignment_artifacts_changed": False,
+            }
+        ],
+    }
+    data = tmp_path
+    (data / "protocol-amendments.json").write_text(json.dumps(chain))
+    assert amended_hash(data, "PROTOCOL.md", pinned, current)
+    assert not amended_hash(data, "PROTOCOL.md", current, pinned)
+    chain["amendments"][0]["fma_assignment_artifacts_changed"] = True
+    (data / "protocol-amendments.json").write_text(json.dumps(chain))
+    assert not amended_hash(data, "PROTOCOL.md", pinned, current)
