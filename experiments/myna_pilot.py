@@ -16,6 +16,7 @@ from numpy.typing import NDArray
 from torch import Tensor, nn
 from torch.nn import functional as F
 
+from drone.keys import score_mirex, transpose_key
 from experiments.k10_v2_pilot import selection_key
 from experiments.musicfm_pilot import metrics
 from experiments.myna_cache import (
@@ -241,6 +242,8 @@ def admit(config: dict[str, Any], watch: Callable[[], None]) -> tuple[LoadedCach
         (metrics, "experiments/musicfm_pilot.py"),
         (selection_key, "experiments/k10_v2_pilot.py"),
         (load_cache, "experiments/myna_cache.py"),
+        (score_mirex, "drone/keys.py"),
+        (transpose_key, "drone/keys.py"),
     ):
         origin = inspect.getsourcefile(function)
         require(

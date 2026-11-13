@@ -317,3 +317,25 @@ def test_failed_pitch_qualification_cannot_admit_training() -> None:
     proof["identities"] = {"encoder_sha256": "b" * 64}
     with pytest.raises(ValueError, match="identities differ"):
         validate_qualification(proof, identities)
+
+
+def test_imported_key_semantics_must_come_from_the_pinned_tree(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from experiments import myna_pilot as pilot
+
+    original = pilot.inspect.getsourcefile
+
+    def substituted_origin(value: object) -> str | None:
+        if value is pilot.score_mirex:
+            return "/different-checkout/drone/keys.py"
+        return original(value)
+
+    monkeypatch.setattr(pilot.inspect, "getsourcefile", substituted_origin)
+    config = {
+        "schema_version": "drone-myna-head-pilot-v1",
+        "passes": 10,
+        "source_sha256": {name: "a" * 64 for name in pilot.SOURCES},
+    }
+    with pytest.raises(ValueError, match="Imported helper origin differs"):
+        pilot.admit(config, lambda: None)
