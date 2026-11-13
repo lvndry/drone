@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
+import sys
 import zipfile
 from pathlib import Path
 
@@ -85,3 +87,28 @@ def test_committed_export_keeps_complete_frozen_membership() -> None:
     assert sum(row["role"] == "fit" for row in tracks) == 1229
     assert sum(row["role"] == "inner_selection" for row in tracks) == 126
     assert data["audio_read"] is False and data["inference_performed"] is False
+
+
+def test_check_reports_hash_of_actual_compressed_artifact(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from tools import beatport_tempo_metadata as tool
+
+    value: dict[str, object] = {"summary": {"n": 1}}
+
+    def fixture_build(store_zip: Path, plan: Path) -> dict[str, object]:
+        return value
+
+    raw = (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
+    # A gzip timestamp changes the physical artifact, not its metadata content.
+    compressed = gzip.compress(raw, mtime=123)
+    destination = tmp_path / "tempo.json.gz"
+    destination.write_bytes(compressed)
+    monkeypatch.setattr(tool, "build", fixture_build)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["tempo", "--store-zip", "unused.zip", "--output", str(destination), "--check"],
+    )
+    tool.main()
+    assert json.loads(capsys.readouterr().out)["sha256"] == hashlib.sha256(compressed).hexdigest()

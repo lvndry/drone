@@ -169,7 +169,8 @@ def main() -> None:
     encoded = (json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n").encode()
     compressed = gzip.compress(encoded, mtime=0)
     if args.check:
-        if gzip.decompress(args.output.read_bytes()) != encoded:
+        compressed = args.output.read_bytes()
+        if gzip.decompress(compressed) != encoded:
             raise ValueError("Stored tempo export differs from source-derived values")
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)

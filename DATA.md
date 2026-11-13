@@ -78,8 +78,9 @@ must preserve these distinctions rather than change the meaning to fit a table:
 - **Source provenance:** source URL/revision, archive/member, byte hashes,
   acquisition receipt and adapter/version. Retain original native genre IDs and
   taxonomy hierarchy and source-native tag lists without duplicating recordings.
-  The current 93-row pilot has a scalar genre field; broader FMA admission needs
-  multi-tag support. Any display bucket is an explicitly versioned derivation.
+  The schema supports source-native tag lists with direct/ancestor relations;
+  broader FMA adapters must populate them. Any display bucket is an explicitly
+  versioned derivation.
 - **Analysis support:** full catalog duration, actual supplied audio duration,
   analyzed start/end/support, codec, sample rate, channel handling, preprocessing
   and truncation policy. A two-minute preview of a seven-minute catalog track belongs in the two-minute analyzed-duration slice.
