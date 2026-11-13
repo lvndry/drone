@@ -535,6 +535,64 @@ monitored via repeated reads of the OS high-water mark, rather than described
 as an exact instantaneous process-tree sample. Limits were 90 seconds, 512 MiB
 RSS and 16 MiB output. No audio, target or classifier execution was performed.
 
+## Joining development outcomes to the collection metadata
+
+The [retrospective K10/MusicFM diagnosis](../musicfm-key-pilot/REPORT.md#retrospective-diagnosis-by-genre-recording-duration-and-bpm)
+now joins the same 376 development recordings to the BP/FMA catalogs. Its
+[analysis relation](data/development-slices.json.gz) contains model-scoped
+predictions and selected references; the source catalogs remain target-free.
+Every join verifies ordered IDs, source identities, checkpoint/evaluator bindings
+and sample support before calculating exact and symmetric-fifths scores.
+The report embeds genre, duration and BPM figures and retains empty and unknown
+cells. It does not redefine splits, score confirmation data or change a gate.
+
+The [execution record](data/development-slice-execution.json) preserves the first
+inconclusive attempt, the memory repair and successful bounded runs. Incremental
+catalog reading retains only selected records while deriving the full native
+metadata label universe. This avoids materializing every collection row at once;
+it does not omit evaluation errors or select recordings by their predictions.
+
+## GiantSteps collection: all 604 previews (November 13)
+
+The earlier scored panel contains only 45 GiantSteps recordings. To organize the
+complete source cohort, the [GS604 collection](data/giantsteps604-collection.json.gz)
+joins the pinned publisher annotation archive to the existing overlap plan and
+historical fingerprint decode receipt. The adapter verifies all source hashes,
+exact ID membership and saved source/PCM identities, selecting native genre
+metadata without extracting key targets or predictions. The
+[source descriptor](data/giantsteps604-collection-sources.json) records the archive
+revision and portable source paths; the [coverage receipt](data/giantsteps604-collection-coverage.json)
+binds the generated catalog.
+
+All **604 IDs** have native genre and recorded decode support. The 23 native
+labels include **77 deep-house, 47 house, 88 progressive-house, 81 tech-house,
+34 techno, 38 drum-and-bass, six glitch-hop and four hip-hop** recordings.
+Glitch-hop and hip-hop remain distinct; these counts do not establish broad
+contemporary hip-hop or Afrobeats coverage. No row has admitted BPM,
+verified artist/work grouping or established full-song duration.
+
+Saved decode support ranges **44.70–120.01 seconds**, at 11,025 Hz mono float32.
+It describes the audio used by the historical fingerprint extraction, not the
+24-kHz training cache or newly decoded model inputs. There are **602 distinct
+saved PCM hashes across 604 source IDs**; duplicate identities are retained.
+Publisher JAMS duration is preview metadata, so it does not fill the unknown
+full-song duration field. All 604 recordings carry model-scoped release
+evaluation exposure; direct training membership is not inferred.
+
+This extension adds metadata coverage, not new accuracy observations. Reproduce
+it without opening audio:
+
+```bash
+uv run python -m tools.export_giantsteps_collection --external-sources sources.json
+```
+
+`sources.json` maps `giantsteps_annotations` to the existing pinned metadata
+archive; its location may change, its SHA256 may not. Omit `--write` to check the
+committed artifacts. The corrected export used 0.34 seconds wall, 0.42 seconds
+CPU and an OS-reported peak RSS of 89,800,704 bytes under a 120-second wall /
+60-second CPU / 256 MiB RSS limit. A regression verifies that publisher preview
+duration cannot become full-song support.
+
 ## GTZAN reference metadata: prospective short-clip coverage
 
 **Decision: metadata frozen; no audio admitted and no detector scores.** This

@@ -85,6 +85,128 @@ The saved decision is `continuation_earned: false`,
 `confirmation_scored: false`, and `release_or_distillation_authorized: false`.
 No selected-seed retry, reinterpretation of the gate or release claim follows.
 
+## Retrospective diagnosis by genre, recording duration and BPM
+
+The aggregate result does not tell us whether the failed pilot is weaker on every
+kind of music. We joined its saved predictions and the expanded K10 control to the
+new source-bound Beatport/FMA catalogs. This analysis uses the **same 126 Beatport
+and 250 FMA development records** that selected both checkpoints across 120 events.
+It adds no inference, training, independent test or new promotion gate. K10 here
+is the expanded-data research control, not the released Drone-v1 checkpoint.
+
+### Method and complete paired results
+
+The [analysis artifact](../v2-data-contract/data/development-slices.json.gz)
+binds source archives, the shared plan and selected references, model checkpoint
+and evaluator identities, canonical scoring code, and metadata/binning helpers.
+It checks ordered IDs, source-container hashes, the selected teacher's B1/B16
+proof and actual per-recording sample counts. Scoring uses only the 376 authorized development
+reference values; reserved confirmation references are not selected. The source catalogs remain target-free.
+Symmetric-fifths MIREX follows the existing scorer; exact errors and abstentions
+would remain in the denominator. All recorded predictions here are valid.
+
+| Development cohort | Both exact | K10 only exact | MusicFM only exact | Both miss the exact reference | Frozen groups |
+|---|---:|---:|---:|---:|---:|
+| Beatport, 126 | 70 | 19 | 13 | 24 | 126 recording proxies |
+| FMA, 250 | 150 | 26 | 16 | 58 | 100 existing components |
+
+These disjoint outcomes sum to each full cohort. They explain the net MusicFM
+losses of six Beatport and ten FMA exact cases without hiding the records where
+it helps. “Both miss” does not mean zero harmonic partial credit. The groups do
+not prove full recording independence, and some FMA components cross slices.
+No confidence intervals or significance claims are assigned to this retrospective,
+single-seed, adaptively reused development comparison.
+
+### Genres: different strengths, thin support
+
+![Exact success counts by native Beatport workbook genre and FMA top genre](figures/development-native-genres.png)
+
+*Every row shows exact successes / recordings for both systems and the number
+of frozen groups. Asterisks mark fewer than ten recordings. Empty categories are
+NA. Display order follows native labels, not the observed winner. The full artifact
+also retains separate API genres/subgenres and overlapping FMA hierarchy tags.*
+
+MusicFM is not uniformly worse. The Beatport workbook's **Deep House** subset is
+11/12 exact versus K10's 9/12; **Techno** is 8/14 versus 6/14. In contrast,
+**Electro House** is 7/11 versus 10/11 and **Breaks** is 5/10 versus 8/10. These
+are descriptions of those records, not reliable genre rankings or a rule for
+choosing a model after seeing its result.
+
+FMA demonstrates why taxonomy provenance matters. Its top-level Hip-Hop field
+covers only six records, while the hierarchy-inclusive Hip-Hop tag covers 16.
+Neither interpretation should silently replace the other:
+
+| FMA hierarchy-inclusive tag | Records / groups | K10 exact | MusicFM exact |
+|---|---:|---:|---:|
+| Electronic | 93 / 38 | 57/93 | 56/93 |
+| Hip-Hop | 16 / 8 | 11/16 | 10/16 |
+| House | 9 / 4 | 7/9 | 7/9 |
+| Techno | 6 / 3 | 3/6 | 3/6 |
+| Afrobeat | 0 / 0 | NA | NA |
+
+These tags overlap and can include ancestors; the rows do not partition FMA.
+The legacy Afrobeat tag is not contemporary Afrobeats coverage. The native top
+field is missing for 143/250 records, and 16/250 have no all-genre tags. Missing
+metadata is retained rather than silently removing those predictions.
+
+### Duration: actual recording support, not the training crop
+
+![Paired exact outcomes by actual evaluation duration](figures/development-duration-pairs.png)
+
+*Counts of K10-only and MusicFM-only successes are printed even when their bar
+segments are tiny. Empty length bins remain visible. The Beatport 2–<5-minute
+bin consists of approximately two-minute previews, not broad full-song coverage.*
+
+K10 evaluated true-length 22,050-Hz-derived CQT features. MusicFM covered each
+24-kHz recording with 12-second contexts plus real tails, pooling logits by sample
+support. The saved model-specific durations fall into identical bins for every
+joined recording; their hashes/frontends are not interchangeable. A 12-second
+context does not make a five-minute evaluated recording a 12-second sample.
+
+The FMA **five–ten-minute** bin has 37 recordings from 27 groups: K10 gets **27/37**
+exact, MusicFM **29/37**. Both get 26 correct, MusicFM alone gets three, K10 alone
+one, and both miss seven. The **two–five-minute** bin is larger: K10 **126/179**,
+MusicFM **117/179**. The two recordings above ten minutes are both correct under
+both systems, an insufficient sample for a long-track accuracy claim.
+
+This is a mixed-genre length breakdown. It does not establish the result on
+five–ten-minute house/techno specifically; only five FMA selection recordings
+combine the House tag with five–ten-minute cache support. Genre, duration and
+recording group are confounded here. Broad long-DJ-track evaluation remains a
+measured data gap.
+
+### BPM: missingness changes the apparent comparison
+
+![Paired exact outcomes by publisher-reported Beatport BPM, including unknown](figures/development-bpm-pairs.png)
+
+Only 60/126 Beatport development records have admitted publisher BPM. On those
+60, K10 gets **44/60** exact and MusicFM **45/60**; on the 66 unknown-BPM records,
+K10 gets **45/66** and MusicFM **38/66**. Dropping unknowns would therefore conceal
+the overall decline. This is not evidence that missing BPM causes errors or that
+tempo is the mechanism. The source metadata is not a verified tempo reference,
+and all 250 FMA BPM values remain unknown.
+
+### Consequence for the next experiment
+
+The fixed MusicFM continuation gate remains failed. These results justify
+checking specific coverage and error patterns, not distillation or a post-hoc
+routing policy. The next representation candidate needs the same complete-domain
+controls and a prospective decision rule. Additional labeled data should improve
+support for full DJ recordings, contemporary genres and reliable metadata, rather
+than simply increase the number of short previews.
+
+Reproduce the analysis and verify or regenerate the inline figures:
+
+```bash
+uv run python -m tools.analyze_development_slices --check
+uv run --extra plots python -m tools.plot_development_slices
+uv run --extra plots python -m tools.plot_development_slices --write
+```
+
+The figure receipt binds the source analysis, plotting code and PNG/SVG hashes.
+The analysis reads pinned catalogs incrementally, retaining only development
+records, without opening audio or loading models.
+
 ## Checkpoint correctness and terminal evidence
 
 The fit's **recorded selected-checkpoint proof** strictly reloaded `best.pt`,

@@ -1,0 +1,15 @@
+{
+  "analysis": "experiments/studies/v2-data-contract/data/development-slices.json.gz",
+  "analysis_sha256": "914f74586804b627c70f0866c1751990c574fb1df12574c07dc5945df17222e5",
+  "generator_sha256": "1067e6c7013e4e11e24e692cf5fa2e58d03eb0b12aad946eb1ceb67bf98f37fc",
+  "inference_performed": false,
+  "matplotlib": "3.11.2",
+  "outputs": {
+    "development-bpm-pairs.png": "a3636346b79c32f497ad898b2a6077819a77e2e486a23bf266446e91fb08fdcc",
+    "development-bpm-pairs.svg": "29ccfe9b5f35016bd1fa68ab082a419c543ec655a40d95a4b03182ccdadf8741",
+    "development-duration-pairs.png": "3f4474577bc417919d426cc799cc06f8c2ae06c348acf2d03a6f7e41fa7a0c03",
+    "development-duration-pairs.svg": "6ed1f040e86006492213401321cd9723b3afff143b92a3866a3b5a6a1e7918a7",
+    "development-native-genres.png": "70a48e14155222d5587e5a65ff55246cdcf8fc1b585a7400193cf9d1b6678fc4",
+    "development-native-genres.svg": "c95900ff94cef969f8b9c3785ade828f3c04b361ddb71fe91dadc9a23fb762cb"
+  }
+}
