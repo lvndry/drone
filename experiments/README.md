@@ -8,7 +8,9 @@ Start dataset work with the [corpus inventory](../DATA.md). It records which
 genres, analyzed durations and tempo metadata are actually available, along with
 split roles, reference provenance and missing coverage. The scored-reference catalog covers 93 recordings; separate metadata collections
 now cover 1,355 current Beatport development IDs and all 5,489 FMA source IDs.
-The GiantSteps collection covers all 604 previews; the GTZAN adapter remains outstanding.
+The GiantSteps collection covers all 604 previews. GTZAN's 1,000-row collection
+links frozen reference memberships to recorded file identities and WAV-header
+observations; overlap clearance and scoring admission remain separate.
 
 | Study | Problem | Result and decision |
 |---|---|---|
