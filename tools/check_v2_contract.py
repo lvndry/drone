@@ -16,17 +16,71 @@ from tools.propose_v2_contract import describe, load_input, proposal, sha
 STUDY = Path(__file__).resolve().parents[1] / "experiments/studies/v2-data-contract"
 
 
+def amended_hash(data: Path, artifact: str, pinned: str, current: str) -> bool:
+    """Verify witness-bound bytes and every append-only protocol transition.
+
+    Receipt assertions describe the amendment; snapshot hashes and byte prefixes
+    establish that the original before-label protocol was retained unchanged.
+    """
+    chain = json.loads((data / "protocol-amendments.json").read_text())
+    if artifact != "PROTOCOL.md" or chain.get("assignment_artifacts_changed") is not False:
+        return False
+    study = data.parent.resolve()
+
+    def snapshot(relative: str) -> bytes:
+        path = Path(relative)
+        if path.is_absolute() or ".." in path.parts or "\\" in relative:
+            raise ValueError("Protocol snapshot must be study-relative")
+        resolved = (study / path).resolve()
+        if not resolved.is_relative_to(study):
+            raise ValueError("Protocol snapshot escapes study")
+        return resolved.read_bytes()
+
+    digest = pinned
+    previous: bytes | None = None
+    steps = chain["amendments"]
+    if not steps:
+        return False
+    for step in steps:
+        if (
+            step["artifact"] != artifact
+            or step["from_sha256"] != digest
+            or step.get("fma_assignment_artifacts_changed") is not False
+        ):
+            return False
+        before = snapshot(step["from_snapshot"])
+        after = snapshot(step["to_snapshot"])
+        if (
+            sha(before) != digest
+            or sha(after) != step["to_sha256"]
+            or (previous is not None and before != previous)
+            or not after.startswith(before)
+        ):
+            return False
+        previous = after
+        digest = step["to_sha256"]
+    return digest == current and previous == (study / artifact).read_bytes()
+
+
 def check(study: Path = STUDY) -> dict[str, Any]:
     data = study / "data"
     tracks, provenance = load_input(data / "input.json.gz")
-    proposed, ledger = proposal(tracks, provenance)
+    proposed, regenerated_ledger = proposal(tracks, provenance)
     if json.loads((data / "proposal.json").read_text()) != proposed:
         raise ValueError("Proposal does not reproduce")
-    if (data / "exposure-ledger.csv.gz").read_bytes() != ledger:
+    # Gzip headers/deflate bytes depend on the producer platform and zlib.
+    # Reproduce every CSV byte, then retain the archived container for its
+    # original before-label hash checks and downstream diagnostic bindings.
+    ledger = (data / "exposure-ledger.csv.gz").read_bytes()
+    if gzip.decompress(ledger) != gzip.decompress(regenerated_ledger):
         raise ValueError("Exposure ledger does not reproduce")
     witness = json.loads((data / "before-label-witness.json").read_text())
     for relative, digest in witness["artifacts"].items():
         if sha((study / relative).read_bytes()) != digest:
+            if relative == "PROTOCOL.md" and amended_hash(
+                data, relative, digest, sha((study / relative).read_bytes())
+            ):
+                continue
             if relative != "data/input.json.gz":
                 raise ValueError("Before-label assignment artifact changed")
             sanitized = json.loads((data / "input-provenance-sanitization.json").read_text())
@@ -98,7 +152,9 @@ def check(study: Path = STUDY) -> dict[str, Any]:
     with tempfile.TemporaryDirectory() as temporary:
         target = Path(temporary) / "overlay.gz"
         write_overlay((data / "input.json.gz").read_bytes(), ledger, diagnostic, target)
-        if target.read_bytes() != (data / "eligibility-overlay.csv.gz").read_bytes():
+        if gzip.decompress(target.read_bytes()) != gzip.decompress(
+            (data / "eligibility-overlay.csv.gz").read_bytes()
+        ):
             raise ValueError("Eligibility overlay does not reproduce")
     eligible_panels = {}
     for role in sorted({r["proposed_role"] for r in role_rows}):
