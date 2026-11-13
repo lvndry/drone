@@ -91,8 +91,8 @@ Neither a second full byte buffer nor an audio frontend is retained.
 
 ### Runtime and environment
 
-Measured source is **58c290b88959c9901a5c59fd27037b247364190d**. Subsequent report/CI
-commits do not relabel or replace that source, its binary or its measurements.
+The [reproducibility record](../report-provenance.json) identifies the measured
+source and binary; later documentation changes do not replace those measurements.
 The standalone Rust 1.92+ research crate leaves production Euphoria untouched.
 It was built with Rust 1.99.1, `ort=2.0.0-rc.15`/API 31, and the same native
 ORT1.31.1 shared library as the Python reference. The C API version is checked
@@ -156,18 +156,14 @@ audio-to-key speed or application-wide memory reduction.
 The [README](README.md) specifies the complete fixture contract and commands.
 Raw 20-track reports are committed unchanged:
 
-- [Full report](evidence/native-full-58c290b.json), SHA256 `68fb6a9f6311f817c6bd8b3e0431477b9f42c1d99d4a5cf430d70faad3a39f2f`.
-- [Chunked report](evidence/native-chunked-58c290b.json), SHA256 `5a49330cbd0d8777541e9ce54fcdec0ef62aa7a3e3204d2b2df095f0e74ee0be`.
+- [Full report](evidence/native-full-58c290b.json).
+- [Chunked report](evidence/native-chunked-58c290b.json).
 - [Derived validation summary](evidence/native-validation-summary-58c290b.json), preserving all comparison counts and the original full report digest.
 
-Full validation evidence remains immutable on the research server at
-`/home/lysk-admin/drone-experiments/native-runtime-20261111-v1/native-validation-58c290b.json`,
-SHA256 `b8f7802b32f6bae775fb4feb49987e79c11d3dd50f1f56a1d6fff5cfd872fe3e`.
-Adjacent command JSON/log files record exact invocations. No raw features/audio
-are committed. Binary SHA256 is
-`0cce67453a2c0ed388aab4a8a71116cb4c1475725b2c0ff429df106aeed612b8`;
-source archive SHA256 is
-`5b30fbf1bb986ccaba7b52c660d999c789f895789bcb5fefb4accf1ad4301e44`.
+Full validation evidence remains immutable on the research server. The
+[reproducibility record](../report-provenance.json) retains its location and the
+report, binary and source checksums. Adjacent command records contain exact
+invocations. No raw features or audio are committed.
 
 ## Minimum next frontend feasibility stage
 

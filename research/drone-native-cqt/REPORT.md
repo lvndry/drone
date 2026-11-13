@@ -48,7 +48,8 @@ identity. The [original summary](evidence/original-376-summary.json.gz) and
 underlying immutable report hashes. The summaries use deterministic gzip;
 `evidence/index.json` retains both encoded and original decoded-byte SHA256
 identities, and plot loading verifies both. The original source/data are retained on
-the research host; the Git execution refs are listed below for publication.
+the research host; exact execution identities are retained in the
+[reproducibility record](../report-provenance.json).
 
 ### Why the arithmetic change was necessary
 
@@ -83,8 +84,7 @@ original vectorized logarithm at all six positions. See the complete
 [arithmetic observation](evidence/first-failure-arithmetic.json) and its
 [source/runtime context](evidence/first-failure-arithmetic-input.json).
 
-Actual installed NumPy 2.5.4 reports git revision
-`a3d0ef1df045b858e68115001fdabc930bb3b68c`, GCC 14.2.1, and `X86_V4` dispatch for
+The installed NumPy 2.5.4 build uses GCC 14.2.1 and `X86_V4` dispatch for
 `absolute.Ff` and `log1p.ff`; AVX512_SKX/FMA3 are available. The executed Rust
 binary references `hypotf@GLIBC_2.35` and `log1pf@GLIBC_2.2.5`, with glibc 2.39.
 NumPy's [complex magnitude source](https://raw.githubusercontent.com/numpy/numpy/v2.5.4/numpy/_core/src/umath/loops_unary_complex.dispatch.c.src)
@@ -94,8 +94,8 @@ and [build configuration](https://raw.githubusercontent.com/numpy/numpy/v2.5.4/n
 identify the SVML path used for the Linux x86 SIMD build.
 
 The pinned [NumPy/SVML source](https://github.com/numpy/SVML/blob/bd9d46e0c627ab16f3d2641f7cdb1bc15d303ba4/linux/avx512/svml_z0_log1p_s_la.s)
-is copied **without byte changes**, checked against Git blob
-`36107575d7d88a074b7e828eddfc9a6b034186d8`. Its BSD notices and source hashes are
+is copied **without byte changes** and verified against the upstream source.
+Its BSD notices and source hashes are
 preserved under [vendor](vendor/SOURCE.json). The isolated native arithmetic
 probe has [zero bit differences](evidence/svml-arithmetic-result.json) on all
 124,032 reference magnitudes and links no NumPy or Python. The wrapper batches
@@ -131,22 +131,20 @@ reused. Whole-track frame counts, ceil resampling lengths and full model time
 pooling remain intact. Kernels/resampler configurations are verified invariant
 across the nine goldens and each expanded track.
 
-Resampling uses the verified [python-soxr 1.1.0 source distribution](https://pypi.org/project/soxr/1.1.0/),
-SHA `9f228ae21c78fa9359ca98d8a5e8e91f30639e438e574133dace62c5b5309e44`.
+Resampling uses the verified [python-soxr 1.1.0 source distribution](https://pypi.org/project/soxr/1.1.0/).
 The task-local shared CMake build uses Release, OpenMP off and two jobs. Its
 wrapper matches mono FLOAT32 split-channel HQ processing in 96,000-sample blocks,
 final null-input flush, ceil-length fix and librosa scaling. The standalone
 library reports `libsoxr-0.1.3`; the Python wheel reports
-`0.1.3-14-ga66f3ee`. Source identity and build configuration are recorded
-separately from version strings: binary identity is not asserted. All 63
+a later development revision of the same library. Source identity and build
+configuration are recorded separately from version strings: binary identity is not asserted. All 63
 recursive outputs in the original nine-case diagnostic match bit for bit.
 [Build evidence](evidence/build-evidence-v2.json) includes source/configuration,
 compiler, library, licenses, FFT binary, CPU/kernel and executable hashes.
 Python-SoXR and libsoxr use LGPL-2.1-or-later; the separate SVML source uses BSD.
 
-Both reference and native logits use the unchanged authoritative full ONNX graph,
-SHA `35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613`,
-checkpoint `dcf8a7a292b7c12076ffff63c8c6550cb09a6c41ce4d000fd7949fc6bb4b452c`.
+Both reference and native logits use the same unchanged full ONNX graph and
+checkpoint, identified in the [reproducibility record](../report-provenance.json).
 ORT 1.31.1 runs with explicit CPU preference/arena, intra/inter threads 1,
 sequential execution and spinning off. Native inference invokes no Python or
 Torch. The production workspace/MSRV/default dependencies remain untouched.
@@ -176,18 +174,10 @@ source/data outcomes; the two-arm run started2026-11-12 05:10UTC. Its
 [recorded process exit](evidence/twoarm-exit.json) is 1 because one arm failed;
 independent arm status qualifies FMA+SVML and rejects FMA-only.
 
-| Executed source | Commit / retained research ref |
-| --- | --- |
-| Drone reference exporter | `b1c90d3`, `research/cqt-reference-b1c90d3` |
-| Corrected build evidence collector | `b9c22f2`, `research/cqt-build-evidence-b9c22f2` |
-| First nine-case native comparison / diagnostic | `d8424bf` / `9fd6c34`, corresponding `research/cqt-*` refs |
-| First 376 producer/supervisor / native | Drone `b5ad965` / Euphoria `66db00c` |
-| First-failure arithmetic | Drone `1452f4c` / Euphoria `5beef8c` |
-| Standalone upstream SVML probe | Euphoria `93aeb04` |
-| Frozen two-arm supervisor / native | Drone `2ac6364` / Euphoria `2f87e2c` |
-
-Numerical identities remain tied to those commits, even when this report/CI is
-updated. The other contributor's experimental frontend source stays outside Git;
+The [reproducibility record](../report-provenance.json) identifies the exact
+source used at each stage, including the earlier native work performed in the
+Euphoria repository. Later documentation changes do not change which code was
+measured. The other contributor's experimental frontend source stays outside Git;
 only its hashes and nine-case comparison outputs are retained. Its unchanged
 screening result is shown below.
 

@@ -89,11 +89,10 @@ was rerun before successful paired probes; original diagnostics and the failed
 report remain preserved.
 
 [Paired reports/provenance](data/provenance.json) bind source archives, contracts
-and environment. Source v1: `0fd31faaa6bc199e1705588eea756ade7e2fb22b`; v2:
-`8663145914cfa370a9d1170e05f8a05b2455badc`. The unchanged bundle remains on the
+and environment for both measured versions. The unchanged bundle remains on the
 server. [Per-track data](data/memory-curve.json) and
-[provenance](data/memory-curve-provenance.json) identify follow-up source
-`ef69ecbedb6453d0e3b00e585920a426b5ffb218` and its archived validation gate.
+[provenance](data/memory-curve-provenance.json) identify the follow-up implementation
+and its archived validation gate.
 Replay with `python -m tools.benchmark_k10_memory_curve --help`, Linux affinity
 [0], thread budgets one and a fresh output. The tool requires exact passing
 artifacts/source evidence and enforces a 600-second wall budget.
@@ -117,6 +116,6 @@ cannot reuse parity evidence after its implementation changes.
 
 [Fixture-export provenance](data/v3/native-fixture-export.json) records 376
 completed FP32 inputs, exactly 20 performance selections and a 13.16-second
-export. Source `857a60372d37c7892fb3aafb5e09281bbd3495a6` is frozen on the server;
+export. Its executed source is frozen on the server;
 raw inputs stay there. This checks implementation integrity, not accuracy gains
 or native performance. Historical v1/v2 reports remain unchanged.

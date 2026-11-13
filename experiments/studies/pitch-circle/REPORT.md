@@ -37,8 +37,10 @@ No final/calibration/SWD/private data was scored. No smoothing, dilation, width 
 
 ## Reproduction and evidence
 
-Actual fitting source is preserved at [`research/pitch-circle-fit-v1`](https://github.com/lvndry/drone/tree/research/pitch-circle-fit-v1), commit `a804ee7018f4b1883da9a3b30b7cf0ec32816859`. Its [fixed protocol](https://github.com/lvndry/drone/blob/research/pitch-circle-fit-v1/experiments/studies/pitch-circle/PROTOCOL.md), architecture specification and strict research-checkpoint loader remain there; replay from that frozen source rather than current main. This report does not add an unused production model or duplicate training loop.
+Actual fitting source is preserved at [`research/pitch-circle-fit-v1`](https://github.com/lvndry/drone/tree/research/pitch-circle-fit-v1). Its [fixed protocol](https://github.com/lvndry/drone/blob/research/pitch-circle-fit-v1/experiments/studies/pitch-circle/PROTOCOL.md), architecture specification and strict research-checkpoint loader remain there; replay from that frozen source rather than current main. This report does not add an unused production model or duplicate training loop.
 
-[Raw candidate result](data/candidate-result.json) binds source/protocol/feature/control/checkpoint/logit hashes, actual memory policy, both score conventions and complete paired error movements. Full runs/checkpoints/logits remain at `/home/lysk-admin/drone-experiments/pitch-circle-20261112-v1`; archived source tar SHA256 is `d08563c680af54534ada71c319a8cbb17e5c00c40f6f6f40aea3f8735cb0d3f0`.
+[Raw candidate result](data/candidate-result.json) binds source/protocol/feature/control/checkpoint/logit hashes, actual memory policy, both score conventions and complete paired error movements. Full runs/checkpoints/logits remain at `/home/lysk-admin/drone-experiments/pitch-circle-20261112-v1`.
 
 Regenerate Figure 1 with `uv run --extra plots python -m tools.plot_research`.
+
+The [historical source record](../../REPORT_PROVENANCE.md#pitch-circle) retains the exact execution and source-archive identities.

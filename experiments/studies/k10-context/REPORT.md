@@ -102,8 +102,8 @@ or new external panel was consulted to improve these results.
 
 ## Resource qualification and completed execution
 
-The earlier [disposable CPU qualification](RESOURCE_PROTOCOL.md), source
-`804b21c`, used three actual batch-32 fitting draws per crop size with **synthetic
+The earlier [disposable CPU qualification](RESOURCE_PROTOCOL.md) used the
+[frozen probe implementation](https://github.com/lvndry/drone/tree/804b21c) for three actual batch-32 fitting draws per crop size with **synthetic
 targets only**, then one full 376-song pass per size with no retained predictions,
 task scores or weights. Whole-controller cost was 34.826 wall seconds, 56.44
 aggregate CPU-seconds and 2,464,256,000 bytes peak whole-tree RSS. The 320 update
@@ -130,10 +130,6 @@ preserved under every use condition. Product inference and weights are unchanged
 
 ## Artifact and provenance verification
 
-Executed task source is `90a318e069ed63a3bc1f3af639dcdf7c3255b93f`; configuration
-SHA-256 is `da13456c0bb8d992b81a73e422ce4cf74bc8c1b8afb126adb4cbcdfc55f72925`.
-The executed source archive SHA-256 is
-`6295ad8d1b2aee97d05d8441241be2cbc00d678fe5b99682e4f5f055f1610cff`.
 The retained [archive index](data/archive-index.json) binds original bytes and
 deterministic compressed supplements for both complete histories/results,
 configuration, approval, cost evidence, controller and read-only postflight.
@@ -141,13 +137,6 @@ The numerical source is retained as a small compressed witness; no weights,
 CQT arrays or audio are committed. The 17 executed runtime-source hashes are
 preserved in both results and independently matched against server bytes.
 Publication code may add analysis helpers without relabeling executed source.
-
-| Server artifact | Actual SHA-256 |
-|---|---|
-| 320 best | `39f4616bc1f6aafe4115e089b6e5c0691ae653e058a059d781057127b093792f` |
-| 320 final | `8336d0df2d885cf41403db43e2b49aa85bba1b9c04d32f6d348d9eb62b70d455` |
-| 65 best | `fe8bb8736f327e6f733594d901cf05751c39573adfe404c8e9d42540fbdff6ae` |
-| 65 final | `96bdf5b760e6cb60aed697157a7df67f53e2c8724c97859ac88714edbdfea6f3` |
 
 All four checkpoint byte hashes match their arm records. Each selected file was
 strictly loaded into a fresh KeyCNN and replayed all 376 true-length inputs:

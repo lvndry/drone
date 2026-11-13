@@ -31,8 +31,7 @@ size ceilings. No target labels enter the assignment schema or objective.
 The first rule produced **4,082 / 250 / 159 / 998** raw rows in expanded fitting,
 inner selection, calibration and development confirmation. These counts were
 preserved; no second seed/rule was tried to improve class support. The assignment
-ledger was pinned **before labels** at SHA256
-`64fa2acbe2901ffb7ff0cf9fd723a7fcedba2da1fc716422377f6af69943d3ed`.
+ledger was pinned **before labels**; the [before-label record](data/before-label-witness.json) retains its identity.
 
 ## Source-integrity overlay and usable counts
 
@@ -147,8 +146,7 @@ claims. The separate BP→GS overlap investigation must report its actual cached
 Compressed sanitized input retains all FMA IDs, components, old roles, existing SHA
 strings, artist/album IDs, coarse genres and publisher durations. It contains **no
 key labels, features, audio or HTTP response cookies**. Source file paths/hashes and
-public BP acquisition checksums are retained. Original prepared metadata-member SHA
-is `94f65bb54329b239028dfffc1e8bf37f7d037f6e1e7c25f6721e73efd2c037bc`.
+public BP acquisition checksums and the original prepared metadata identity are retained.
 Assignment uses the captured full graph, not rebuilt subset groups. Old calibration
 is the 159 eligible indices left after the observed 976 fitting/250 validation IDs,
 consistent with the saved v1 split policy; no old role is guessed from model scores.
@@ -212,8 +210,8 @@ new seed/fold search or external panel scoring follows this metadata proposal.
 A broad DJ-key classifier needs evidence across hip-hop, contemporary Afrobeats,
 house/techno and other club styles, and across short and extended recordings.
 Counts alone establish neither accuracy nor representative independent testing.
-This metadata-only audit uses the current amended plan `c3e59ffb…`, frozen exposure
-ledger `64fa2acb…`, captured FMA master/taxonomy, and existing BP metadata. It reads
+This metadata-only audit uses the current amended plan, frozen exposure
+ledger, captured FMA master/taxonomy, and existing BP metadata. It reads
 no audio or private files, makes no model predictions, selects no reference-key
 fields, and changes no roles. Full source hashes are in
 [coverage-inputs.json](data/coverage-inputs.json).
@@ -238,7 +236,7 @@ Duration bands are `<30 s`, `30 s–<2 min`, `2–<5 min`, `5–10 min`
 (including 600 s), and `>10 min`. FMA's publisher
 `track_duration` is not newly decoded support; metadata rounding and a clipped
 rendition can change the applicable band. BP uses the existing canonical 24 kHz
-sample-count metadata `7d56908d…`; no waveform was reopened. Neither source's genre tag is a
+sample-count metadata; no waveform was reopened. Neither source's genre tag is a
 verified listening judgment.
 
 ### FMA coverage and missingness
@@ -634,14 +632,11 @@ No recording has been decoded or verified. The raw 837 and filtered 769 remain
 separate denominators; neither can be changed after seeing detector outputs.
 
 The compact [source packet and summary](data/gtzan-reference/summary.json)
-contains pinned metadata only. Annotation and fault archives have SHA-256
-`2df9326b758c696d5097e80cb561b7baf172da392a4d42300c6dbb945baabe42`
-and `ea65dfdeb0e2f2944c077b402ce5b3318402dce686c9b65119c22df7a07c33f8`.
+contains pinned metadata only and records the exact annotation and fault archive identities.
 The importer reconstructs both complete Git trees against pinned identities;
 no floating branch or archive filename is treated as version proof. The mirdata
 [index 1.0](https://zenodo.org/records/13993311/files/gtzan_genre_index_1.0.json?download=1)
-checks against publisher MD5 `533ca050855f22acf2feb283d9957fe3` and acquired
-SHA-256 `fd9655a35aebbdd09b120ec53d6bd36056b24f4b161ed21d9571364ecdc1f5ea`.
+is checked against both its publisher checksum and the acquired file identity in that summary.
 Its checksums are **expected** audio identities, not evidence our audio matches.
 Acquired source bodies total under 1 MiB; the compressed packet remains small.
 The preserved MIT annotation notice supplies no blanket audio clearance;
@@ -687,8 +682,7 @@ MD5 with the independently pinned mirdata index, and inspect WAV encoding and
 payload structure. No classifier, keyfinder, feature extraction or score selection
 ran. Audio remains on the research server and is not redistributed here.
 
-**Result.** The 1,226,192,050-byte archive matches publisher SHA256
-`b28cc067ff6199bd826f5d1a6931458586d64acae7f44b2e882b7a97af057531`.
+**Result.** The 1,226,192,050-byte archive matches the publisher checksum.
 All recordings in both frozen reference cohorts match their expected recording
 identities and parse as mono 22,050-Hz, 16-bit PCM WAVs.
 
@@ -699,9 +693,9 @@ identities and parse as mono 22,050-Hz, 16-bit PCM WAVs.
 | Named fault-filtered intersection | 769 | 769 | 769 |
 
 The sole identity/format failure is `jazz.00054`, already excluded by the
-previously frozen metadata rule. Its acquired MD5 is
-`320218e302b1807c70cb7f6d660409f4`, versus the index witness
-`8f0ab76fff2d2c6bc80eb9c9362318ca`. Its bytes do not begin with a RIFF identifier.
+previously frozen metadata rule. Its acquired checksum differs from the expected
+index entry, and its bytes do not begin with a RIFF identifier. The
+[integrity evidence](data/gtzan-audio-integrity/evidence.tar.gz) retains both checksums.
 This finding does not create a new exclusion or establish that every byte in the
 mirror is equivalent to the historical archive. The full-universe strict audit
 remains failed. **No recording is admitted for classifier scoring yet.**
@@ -712,8 +706,7 @@ second strict audit stopped on the corrupt jazz recording's MD5 mismatch. A
 separate diagnostic inventory then recorded all 1,000 outcomes without weakening
 the strict audit. All three controllers, logs, source versions, configuration
 receipts and per-recording outcomes are preserved in the
-[metadata evidence bundle](data/gtzan-audio-integrity/evidence.tar.gz), SHA256
-`0c3b991306d84d3e9c9b90be55c9b22e83d6c41a4750245b6718619f2fa0ffb0`.
+[metadata evidence bundle](data/gtzan-audio-integrity/evidence.tar.gz), whose identity is retained in the evidence index.
 It contains no audio. Failed audits are not presented as successful runs.
 
 The download took **13.04 seconds**. The diagnostic inventory took **6.96 seconds**,
@@ -825,9 +818,7 @@ not modified. No branch was pushed by this qualification.
 ### Executed result
 
 - Server binary: `/home/lysk-admin/drone-experiments/keyfinder-reference-fix-20261113-v1/keyfinder_reference`.
-- Binary SHA256: `3be7ac37598aeef09af1b9f2f002e139d5b920888a6fef197f40e70c66a1764a`.
-- C++ source SHA256: `a407aebf8b877d392f526b9df9885b4fd5094153735bd5a50fa8cfa29d54a781`.
-- Runtime enum output SHA256: `0a1b10013b743fa70f32da1a397f753d64b14d820366f524cb350f6b695d58b3`.
+- Binary, C++ source and runtime enum output identities are in the [qualification receipt](data/keyfinder-reference/receipt.json).
 - Compile/self-test wall: 0.623288 seconds; child CPU: 0.313313 seconds.
 - Sampled aggregate peak RSS: 94,969,856 bytes; this is sampled, not an exact peak.
 - CPUs 10–11, nice 19; all four protected vLLM start identities passed throughout

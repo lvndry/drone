@@ -46,6 +46,12 @@ results and discussion/decision. Place figures beside that report, with captions
 where the results are discussed. State metrics, units, sample size, uncertainty,
 selection policy and limitations. Keep negative results and failed gates.
 
+Write reports for a reader following the research, using descriptive experiment
+names such as “original implementation” and “precision-cache repair”. Explain
+what changed and why it matters. Keep raw commit IDs, artifact checksums and
+process identities in linked reproducibility records, not in narrative prose or
+result-table headings. Preserve those exact records when improving the report.
+
 Every accuracy report must identify its corpus/version and fixed cohort, show
 genre and analyzed-duration coverage, and report available tempo metadata plus
 unknowns. Include per-slice recording counts and failures alongside accuracy;

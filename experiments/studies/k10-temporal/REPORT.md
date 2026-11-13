@@ -151,16 +151,11 @@ No CPU deployment conclusion was earned because the accuracy gate failed.
 ## Reproduction and evidence
 
 The exact executed source is published at
-[`research/k10-temporal-v1`](https://github.com/lvndry/drone/tree/research/k10-temporal-v1),
-commit `0cbb93ecd40e55be9ae239687287ff9b9268064e`. The six implementation,
+[`research/k10-temporal-v1`](https://github.com/lvndry/drone/tree/research/k10-temporal-v1). The six implementation,
 protocol and test files included with this report preserve their executed bytes.
 For full fit replay use that complete frozen tag: later main-branch dependency
 and source changes do not satisfy the historical identity contract.
 
-The executed source archive SHA-256 is
-`c097cd58e95d605f6e7bd8122b066586ca908bcd8fb3b8ca218b68d1f2f059bc`.
-The authoritative result SHA-256 is
-`b31fe60c57a699bbaf95b409910312b10aa661c587a87494916b6bd22ac5882e`.
 [Provenance](data/provenance.json) indexes every retained artifact's byte size and
 hash, the six executed-file hashes, source tag and server root. Original
 validation logits, identifiers and metrics are retained. Validation logits, histories and schedules

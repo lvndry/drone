@@ -219,9 +219,9 @@ retained as an implementation-failure record, excluded from valid-detector
 plots, and must not support DSP-versus-neural conclusions. The replacement is
 backed by the [sealed corrected execution](data/corrected-kf/receipt.json):
 93 row/result and stdout witnesses, source/decode identities, the pre-output plan,
-controller and worker-completion chain. The plan pins corrected binary
-`3be7ac37…`, wrapper source `a407aebf…`, and unchanged libkeyfinder shared library
-`f475cde0…`; full hashes and exact commands remain in the evidence archive.
+controller and worker-completion chain. The plan pins the corrected binary,
+wrapper source and unchanged libkeyfinder shared library; their full identities
+and exact commands remain in the evidence archive.
 The metadata reproducer validates native typed JSON with the same enum/key
 parser as the repaired harness and recomputes scores from the fresh classes,
 rather than remapping the invalid old predictions.
@@ -238,8 +238,8 @@ and evaluation population differ.
 
 The initial run recorded MusicFM+MLP as blocked because the published submission's
 required fine-tuned checkpoint was unavailable. A fresh official Hugging Face
-API metadata check on November 13, 2026, at 07:02:56 UTC identified repository
-revision `6b7fc0fbd47fa28762e2f7ca26534f4e392080f6` (last modified October 30)
+API metadata check on November 13, 2026, at 07:02:56 UTC identified the
+repository snapshot last modified October 30
 and no `.pt`, `.pth`, `.bin` or `.safetensors` files in that snapshot. The
 [raw API metadata](data/musicfm-availability.json) and
 [acquisition receipt](data/musicfm-availability-receipt.json) are hash-bound in

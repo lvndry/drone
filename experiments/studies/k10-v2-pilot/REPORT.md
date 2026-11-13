@@ -142,7 +142,8 @@ is missing for143/250 records. The study cannot establish primary-use accuracy.
 
 ## Runtime, provenance and decision
 
-The sequential pair ran on GPU0UUID `GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c`,
+The sequential pair ran on the same physical GPU 0, identified in the
+[terminal record](data/results/terminal.json),
 CPUs4,5,10,11, Torch4 threads, numeric-library threads1, TF32off and4% allocator.
 Both protected vLLM parents and both EngineCore start identities survived. Python3.12.3,
 Torch2.15.0+cu132 and NumPy2.5.4 are recorded. Controllers exited0; restricted/expanded
@@ -151,10 +152,9 @@ RSS≈2.18GB; expanded RSS combines sampled process-group peak with a reaped-chi
 lifetime upper bound inherited from the first child, not an independent peak.
 This is training resource evidence, not measured product inference acceleration.
 
-Executed numerical source is **58fe80662bdb3362349672820a0bcd4387155ca2**, with the
-driver byte-identical to37f17a1; eligibility source **b67ad3e868a1aef99fc0f12f723d4c2bd3264f6c**;
-launch guard **fa20244bc5f511df607048c3863b1626fce5bf0a**. Original execution identities
-are retained despite publication cherry-picks. Both arms match initial state, BP
+The [execution provenance](data/results/archive-index.json) identifies the numerical
+implementation, eligibility checks and launch guard as they actually ran. Later
+publication changes do not replace those execution records. Both arms match initial state, BP
 trace, source, plan, features, configuration, runtime and device. Server root,
 PIDs, ordered targets, checkpoint hashes, permit/readback/terminal receipts and
 compressed/decoded evidence hashes are retained under `data/`; no weights or audio

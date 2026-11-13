@@ -20,17 +20,16 @@ the pinned sampler, BP 1,229 / expanded FMA 4,033 fitting IDs and unchanged nomi
 BP mass 1230/2206. Scaling historical preparation cost by decoded duration gives
 approximately 74,908 CPU seconds, beyond the earlier 60,000-second whole-pilot
 allowance. That warning proxy includes historical CQT work and is **not** a measured
-24 kHz decoding estimate. Original projection source `80d4574` remains distinct
+24 kHz decoding estimate. The [original projection implementation](https://github.com/lvndry/drone/tree/80d4574) remains distinct
 from the later decoder and report sources.
 
 ## Method fixed before waveform outcomes
 
 ### Initial 16-file qualification
 
-The [historical protocol](PROTOCOL.md), decoder source
-`6011bf7681f0831c4d354f9803797cc874103a9e`, sealed configuration
-`30144ca9abf7a8258983856c13cad1be544acad4ad556269769039ec2033721b` and separate
-root approval were fixed before execution. The original 16 fitting files remained
+The [historical protocol](PROTOCOL.md), decoder implementation, configuration
+and separate execution approval were fixed before execution. Their exact identities
+are retained in the [runtime index](data/runtime-index.json). The original 16 fitting files remained
 eligible after the canonical-identity amendment; none was substituted. No labels,
 models or scores selected files or crop offsets.
 
@@ -57,10 +56,9 @@ overshoot between polls.
 
 ### Approved-pool expansion
 
-Frozen preparation sources `598e746` and `9facd95` reused the byte-identical
-`6011bf7` full/crop decoder. The [preparation protocol](PREPARATION_PROTOCOL.md)
-and separately approved configuration
-`b575ed66aab29acad8a6f421055198267554e4d36bbcc7bfe1c27b2a77d1c885` bind all
+Both frozen preparation implementations reused the initial full/crop decoder
+without changing its bytes. The [preparation protocol](PREPARATION_PROTOCOL.md)
+and separately approved configuration bind all
 5,638 IDs: 5,262 fitting and 376 selection. Numeric targets support input-identity
 checks only. Each file receives one full decode and one deterministic, label-blind
 whole-track crop comparison. Successful fitting references are discarded; selection
@@ -136,8 +134,6 @@ not a representative speed benchmark. The longest temporary reference was about
 resident mapped pages rather than the full on-disk extent. Outer sampled CPU and
 per-command child CPU have different accounting boundaries.
 
-The original report SHA is
-`9afddd0a07f3cb4ec0b97041059845ff4e01bc295a1e1da127b424c4e0e33a66`.
 The [deterministic packet](data/runtime-raw.json.gz), [index](data/runtime-index.json)
 and [verified result](data/verified-result.json) preserve raw JSON, stderr, approval,
 wrapper and service-identity receipts. The later failure packet additionally contains

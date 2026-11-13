@@ -78,8 +78,7 @@ No calibration/final/SWD/private predictions or distillation followed.
 
 The actual fitting source is preserved by the [`research/k10-capacity-v1`](https://github.com/lvndry/drone/tree/research/k10-capacity-v1) tag.
 
-Actual fit source: `679b7fdb021af64cb2816c8b61d571a5d3ac773c`, based on
-`a1abac9ddad927830b0409f80d6908502eeab2cd`. Replay fitting from the frozen source,
+Replay fitting from the frozen source,
 not an evolving combined runner. [Candidate result](data/candidate-result.json)
 contains the independently reverified control proof, source/math audits, logits
 artifact hashes, memory policy and gate. [History extracts](data/histories.json)
@@ -183,9 +182,9 @@ host-memory reserve. See the [resource protocol](GPU1_RESOURCE_PROTOCOL.md).
 
 | Attempt | Reached | Outcome | Sampled owned GPU peak | Guardian wall |
 |---|---|---|---:|---:|
-| V1, `c4dbda8c` | Device identity check, before model creation | UUID representation false negative; zero optimizer commits | 0 MiB observed | 37.57 s |
-| V2, `a1b6cc34` | Baseline first backward | Global-determinism API restriction; zero optimizer commits | 2,148 MiB | 40.17 s |
-| V3, `57e0fac2` | Both models: three commits and 376+4 shapes | Synthetic resource qualification complete | 2,524 MiB | 48.29 s |
+| V1 | Device identity check, before model creation | UUID representation false negative; zero optimizer commits | 0 MiB observed | 37.57 s |
+| V2 | Baseline first backward | Global-determinism API restriction; zero optimizer commits | 2,148 MiB | 40.17 s |
+| V3 | Both models: three commits and 376+4 shapes | Synthetic resource qualification complete | 2,524 MiB | 48.29 s |
 
 V1 compared Torch's bare UUID string with NVML's `GPU-`-prefixed representation.
 A separate metadata diagnostic identified the same physical device. The validator
@@ -361,7 +360,7 @@ the 24 hash-checked raw metadata files plus the post-run receipt, including full
 histories, selected predictions, config, controller and samples. It contains no
 audio, CQT arrays, weights or runtime-library binaries. The
 [terminal index](data/resolution-pair-terminal-index.json) binds its bytes and
-the executed source [72ac5650](https://github.com/lvndry/drone/commit/72ac56507ebfab8f3a2a4d1ce1e572ccfc5fd3bd).
+the [executed source](https://github.com/lvndry/drone/commit/72ac56507ebfab8f3a2a4d1ce1e572ccfc5fd3bd).
 Run `uv run python -m tools.report_k10_resolution_pair` to verify the raw hashes,
 source/config and horizon/reload bindings, selection arithmetic, recorded scores,
 clustered intervals and active monitoring. Add `--plot` with the plots extra to

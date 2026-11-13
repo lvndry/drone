@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "c9740f70fbe2fb9088eecdef617a0f8f8d5c0f72a42306ede3f5a604d7ea7c83",
+      "current_sha256": "e8ca613710d6d14f6fbed0ef0719b87696555037b39d5f0adb5b9262f7c0d619",
       "git_mode": "100644",
-      "reason": "Append fixed-case boundary observer methods, preserved failed build and successful build qualification; original measurements remain identified as historical."
+      "reason": "Append fixed-case boundary observer methods, preserved failed build and successful build qualification; original measurements remain identified as historical. Move raw source and artifact identifiers into linked technical provenance for readable reporting."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -23,6 +23,20 @@
       "current_sha256": "dc5a393cadd7b8bfdb610f8e4e7075acbc13c7576ccb784bf7441c4f4d45ac81",
       "git_mode": "100644",
       "reason": "Expose observation-only stage boundaries and name the result tuple for Clippy; no numerical frontend operation or tolerance change. Earlier built binary remains bound to its archived pre-lint source."
+    },
+    {
+      "path": "research/drone-native-cqt/REPORT.md",
+      "migrated_sha256": "73357e7071165bedf96a7b1568aaa746218d6345743e55df51f56f9ea1f22650",
+      "current_sha256": "a2e281e5a30b85ee7bd4fa467aa4fe9a5f4dbd444153649391f26eb3b0d8161f",
+      "git_mode": "100644",
+      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence."
+    },
+    {
+      "path": "research/drone-native-cached/REPORT.md",
+      "migrated_sha256": "4f9961072dfc5c7c8cdedfe29370a20410a8d303d088273005636eda1f664b52",
+      "current_sha256": "fb81b1a7fa5a59d68f1f9bd3bb3f0879b424534ed52a4a8cea1642556b4cfbee",
+      "git_mode": "100644",
+      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence."
     }
   ],
   "additions": [

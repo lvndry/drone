@@ -60,24 +60,20 @@ or recipe retried after an outcome.
 
 ## Method and fixed authorization
 
-Root approved exact config SHA
-`7520c83160f0079eec8f780005acf4c754f15ce213a8072d37ee90627c191a8a`,
-source`84685cef837f2234e6acfd942e9cc8eb80d04f75`, tool SHA
-`7b8523d363012c6d564dab435dbdb6022a23cdc32a06db1a792fee039675499d`,
-and environment fingerprint
-`40d07d3cfd8459bac65a585ef49cd546250b327045fcf953b755bd949555f274`
-BEFORE the GPU attempt. The window was2026-11-12 09:35–09:50UTC. An explicit
+The exact configuration, source, probe and environment were approved before
+the GPU attempt. Their identities are retained in the [resource evidence](data/runtime-index.json). The window was2026-11-12 09:35–09:50UTC. An explicit
 separate approval receipt retained the original draft config unchanged, including
 its draft`launch_authorized=false` metadata. All provided module hashes and both
 protected process start identities were checked immediately before execution.
 
-The sole probe launched09:37:35.744900UTC, supervisor PID4137056/worker4137186,
-and exited0 within the approved window. Hard policies: fixed Linux CPUs8–9,
-numeric/Torch threads1, GPU0 UUID
-`GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c`, requested allocator cap12288MiB,
-global-free reserve8192MiB,600 child CPU/600 wall seconds,8GiB sampled worker-tree
-RSS and4GiB new output. Both vLLM PIDs1481756/3451013 retained start identities
-35700162/111967770. Only this probe could be terminated by its supervisor.
+The sole probe launched at 09:37:35.744900 UTC and exited successfully within
+the approved window. It used Linux CPUs 8–9, one numeric/Torch thread and
+GPU 0, with a requested allocator cap of 12,288 MiB, an 8,192 MiB global
+free-memory reserve, 600 CPU / 600 wall seconds, 8 GiB sampled worker-tree RSS
+and 4 GiB of new output. Both protected vLLM processes retained their original
+start identities. The exact device and process identities are retained in the
+[runtime evidence](data/runtime-index.json). Only this probe could be terminated
+by its supervisor.
 No service action, second probe or parameter/shape/precision/cap change occurred.
 
 The original MusicFM source/stat/config/weight identities are in the
@@ -107,8 +103,7 @@ about every TorchAudio CUDA operator or task-numerical equivalence to FP32.
 The first failure is preserved, not normalized away. Stable TorchABI policy did
 not imply CUDA-build compatibility. Root approved the separate CPU candidate;
 no TorchAudio version check was monkeypatched. Its official341338byte cp312
-manylinux_2_28 wheel has SHA
-`2354248848d06a9ae1e7a12165f800f0dda7df60ecac9fca892322b722b922c0`.
+manylinux_2_28 wheel is identified in the provisioning evidence.
 All other resolved wheel records remained identical.19 exact direct/transitive
 wheel identities and hashes are retained in the raw lock/selection receipt.
 Torch and NumPy were excluded from resolution/download/install.
@@ -134,9 +129,9 @@ per-file, compressed and decoded SHA256 values. The deterministic gzip bundle
 preserves failed CLI attempts, v1 import failure, exact wheel/lock/module paths,
 CPU layout, approval/config, all21 update records and sampled supervision.
 It includes no checkpoint/wheel/audio bytes. Executed sources are preserved by
-[source-audit2083524](https://github.com/lvndry/drone/commit/20835246e1066b313df3dc40e1e6aaf672c24cee),
-[failed provisioning6cabc0e](https://github.com/lvndry/drone/commit/6cabc0e) and
-[executed resource84685ce](https://github.com/lvndry/drone/commit/84685cef837f2234e6acfd942e9cc8eb80d04f75)
+[source audit](https://github.com/lvndry/drone/commit/20835246e1066b313df3dc40e1e6aaf672c24cee),
+[failed provisioning](https://github.com/lvndry/drone/commit/6cabc0e) and
+[executed resource probe](https://github.com/lvndry/drone/commit/84685cef837f2234e6acfd942e9cc8eb80d04f75)
 research tags; these measured identities are preserved independently of the
 publication commit.
 

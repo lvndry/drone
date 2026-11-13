@@ -57,9 +57,9 @@ followed. GPU 0 used the existing allocator/free-memory guards; vLLM stayed runn
 
 ## Reproduction and evidence
 
-Run source: `407b9024b5b88277d18bb66ce4cbad925de7fead`, based on
-`c52255761412ef48f2f9af814df67c3d3214ef4f`; archived reference source:
-`673e280ca244d4187d8c20f9fdaecaa1c75281fd`. Full source maps, protocol/schedule and
+The [frozen fitting source](https://github.com/lvndry/drone/tree/407b9024b5b88277d18bb66ce4cbad925de7fead)
+and [archived control](https://github.com/lvndry/drone/tree/673e280ca244d4187d8c20f9fdaecaa1c75281fd)
+remain available. Full source maps, protocol/schedule and
 artifact hashes are in [raw results](data/ema-result.json) and
 [identity](data/ema-identity.json). Checkpoint file hashes differ because metadata
 differs; exact tensor equality passed. Generated logits, schedules, states and
