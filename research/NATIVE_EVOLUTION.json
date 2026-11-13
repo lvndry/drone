@@ -177,6 +177,18 @@
       "sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0",
       "git_mode": "100644",
       "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_GOLDENS_PROTOCOL.md",
+      "sha256": "d00e97adbf6912284c9a29ad37b2248185e5162536d1ca7d0f0267472b375943",
+      "git_mode": "100644",
+      "reason": "Prospective fixed nine-golden frontend-only validation of unchanged fused-product research candidate; no build or execution asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/fused_golden_cases.rs",
+      "sha256": "58edacdb2f30908ff8e4b598e1b2990df5a3a533729781dc7f663cf8180b57ef",
+      "git_mode": "100644",
+      "reason": "Prospective fixed nine-golden frontend-only validation of unchanged fused-product research candidate; no build or execution asserted."
     }
   ]
 }
