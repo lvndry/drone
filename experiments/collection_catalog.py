@@ -152,6 +152,8 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
             raise ValueError("Invalid SHA256")
 
     for source in value.sources:
+        require_text(source.source_id, "source ID")
+        require_text(source.path, "source path")
         sha(source.sha256)
         path = Path(source.path)
         if (
@@ -163,6 +165,7 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
         ):
             raise ValueError("Source paths must be portable repository-relative files")
     for source in value.external_sources:
+        require_text(source.source_id, "external source ID")
         sha(source.sha256)
         if source.descriptor.source_id not in {source.source_id for source in value.sources}:
             raise ValueError("External sources need a bundled descriptor witness")
@@ -196,6 +199,11 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
 
     tracks = set()
     for row in value.tracks:
+        require_text(row.corpus_id, "corpus ID")
+        require_text(row.source_track_id, "source track ID")
+        require_text(row.genre_method, "genre method")
+        if row.native_genre_top is not None:
+            require_text(row.native_genre_top, "native top genre")
         if row.track_id in tracks or row.track_id != row.corpus_id + ":" + row.source_track_id:
             raise ValueError("Duplicate or inconsistent track identity")
         tracks.add(row.track_id)
@@ -205,6 +213,14 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
         measurement(row.bpm, "bpm")
         for tag in row.genre_tags:
             require_text(tag.name, "native tag name")
+            if tag.tag_id is not None and (
+                isinstance(tag.tag_id, bool) or not isinstance(tag.tag_id, (str, int))
+            ):
+                raise ValueError("Native genre tag ID must be a string/integer, never boolean")
+            if isinstance(tag.tag_id, str):
+                require_text(tag.tag_id, "native genre tag ID")
+            if tag.taxonomy is not None:
+                require_text(tag.taxonomy, "native taxonomy")
             if tag.relation not in {"direct", "ancestor", "unspecified", "corpus_context"}:
                 raise ValueError("Unknown tag relation")
             ev(tag.evidence)
@@ -215,6 +231,14 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
         require_text(support.interval_policy, "interval policy")
         ev(support.evidence)
         identity(support.pcm_identity)
+        for field, item in (
+            ("sample rate", support.sample_rate),
+            ("channel count", support.channels),
+        ):
+            if item is not None and (type(item) is not int or item <= 0):
+                raise ValueError("Invalid provided support " + field)
+        if support.dtype is not None and support.dtype not in {"<f4", "<i2"}:
+            raise ValueError("Invalid provided support dtype")
         if support.samples is None:
             require_text(support.missing_reason, "analyzed support missing reason")
         elif (
@@ -232,7 +256,11 @@ def validate_collection(value: CollectionCatalog) -> CollectionCatalog:
             if relation.kind not in {"artist", "remixer", "album", "release"}:
                 raise ValueError("Unknown metadata relation")
             require_text(relation.entity_id, "related entity")
+            if relation.name is not None:
+                require_text(relation.name, "related entity name")
             ev(relation.evidence)
+        for reason in row.relation_missing_reasons:
+            require_text(reason, "relation missing reason")
         for membership in row.memberships:
             require_text(membership.plan_id, "frozen plan")
             require_text(membership.role, "frozen role")

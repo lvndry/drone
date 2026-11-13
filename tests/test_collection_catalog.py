@@ -169,3 +169,48 @@ def test_external_hash_must_match_the_pinned_descriptor_value(tmp_path: Path) ->
     changed = replace(value, sources=(source,), external_sources=(external,))
     with pytest.raises(ValueError, match="bundled descriptor"):
         resolve_sources(changed, tmp_path, {"external": data})
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("sample_rate", -24000),
+        ("sample_rate", True),
+        ("channels", 0),
+        ("channels", False),
+        ("dtype", "fake"),
+    ],
+)
+def test_unknown_sample_count_still_validates_provided_contract_fields(
+    field: str, value: object
+) -> None:
+    catalog = fixture()
+    row = catalog.tracks[0]
+    support = replace(row.analyzed_audio, **{field: value})
+    assert support.samples is None
+    with pytest.raises(ValueError, match="provided support"):
+        validate_collection(replace(catalog, tracks=(replace(row, analyzed_audio=support),)))
+    known_contract = replace(row.analyzed_audio, sample_rate=24000, channels=1, dtype="<f4")
+    validate_collection(replace(catalog, tracks=(replace(row, analyzed_audio=known_contract),)))
+
+
+def test_empty_metadata_and_boolean_native_tag_ids_are_rejected() -> None:
+    from experiments.collection_catalog import Relation
+    from experiments.corpus_catalog import GenreTag
+
+    catalog = fixture()
+    row = catalog.tracks[0]
+    invalid = [
+        replace(row, track_id=":", corpus_id="", source_track_id=""),
+        replace(row, genre_method=""),
+        replace(row, native_genre_top=""),
+        replace(
+            row,
+            genre_tags=(GenreTag("tag", True, "taxonomy", "direct", row.source_audio.evidence),),
+        ),
+        replace(row, relations=(Relation("artist", "artist:1", "", row.source_audio.evidence),)),
+        replace(row, relation_missing_reasons=("",)),
+    ]
+    for changed in invalid:
+        with pytest.raises(ValueError):
+            validate_collection(replace(catalog, tracks=(changed,)))
