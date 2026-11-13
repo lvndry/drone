@@ -90,7 +90,7 @@ GPU 0 used its existing headroom with the bounded allocator; both vLLM instances
 were preserved. No workload was stopped. Server runtime: Torch 2.15.0+cu132,
 CUDA 13.2, NumPy 2.5.4, librosa 1.0.0, SciPy 1.18.1, numba 0.68.1, soxr 1.1.0.
 
-Original fitting source commit: `673e280`. Later production inference/export fixes
+The [original fitting source](https://github.com/lvndry/drone/tree/673e280) is archived. Later production inference/export fixes
 do not retroactively change these run sources. Reproduction artifacts on
 lysk-server are under `~/drone-experiments/k10-multidomain-20261111-v1/`:
 

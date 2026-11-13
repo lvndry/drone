@@ -22,7 +22,7 @@ from K10. It does not isolate a representation effect. The product remains the
 small CPU model; a 328,957,080-parameter teacher is a research/training candidate,
 not a proposed ordinary-PC deployment.
 
-Source `051e4adaf5207abd5f83ad822dbf60f7c7abf412` fitted the approved **1,229 Beatport
+The corrected training implementation fitted the approved **1,229 Beatport
 + 4,033 FMA recordings**. Selection used the same **126 Beatport + 250 FMA
 recordings** as the two completed K10 controls. No calibration, confirmation,
 GiantSteps or private DJ audio was evaluated. The run preserved the original
@@ -220,10 +220,13 @@ The later **independent byte audit** hashed the real checkpoint files in place
 without Torch loading, inference or downloading weights. Both hashes matched the
 fit result, with stable file identities before and after hashing:
 
-| Artifact | Bytes | SHA256 |
+| Artifact | Size | Independent integrity check |
 |---|---:|---|
-| Selected `best.pt` | 1,316,945,166 | `2b5a34916eea78e4b452c25cf1a5141a21375808c09014b301e44ee80524f8d4` |
-| Last-update `final.pt` | 1,316,945,639 | `cdc99aff7475848ab9887567a709098a25fe1daeb67288cd037e23c543b8b04f` |
+| Selected checkpoint | 1.23 GiB | Matched the training record |
+| Final checkpoint | 1.23 GiB | Matched the training record |
+
+Exact byte counts and checksums are retained in the
+[checkpoint audit records](data/terminal-index.json).
 
 These are distinct claims: the original worker recorded a successful reload and
 numerical comparison; the independent audit established which bytes remained on
@@ -305,11 +308,8 @@ large fit.
 five byte-preserved original JSON receipts, the read-only audit script and a
 lossless audit projection that removes duplicate base64 copies of those JSONs.
 The archive contains metadata, predictions and proof vectors, not audio,
-checkpoints or reference-label exports. Original configuration and result hashes
-are `069d1afc396c65fcaa1d7cb993db7d4c930aec93eae377a0a611842dfcbbac28` and
-`d922b15739ac6bbe8e12110d0c2eb97944010ad61b490dc3112be33a9ae2e490`.
-The executed source is frozen `051e4ad`; the publication commit is not the
-training source.
+checkpoints or reference-label exports. It records the exact training source,
+configuration and result identities separately from later report edits.
 
 From the repository root:
 
@@ -365,14 +365,11 @@ requires the original interpreter path, and a bounded CPU-only check verified
 all nine original module hashes before the corrected attempt. Neither startup
 failure nor budget refusal is a negative BN-accuracy result.
 
-The [terminal metadata bundle](data/bn-diagnostic/terminal-metadata.tar.gz), SHA256
-`8aabe764ce6a49ce1615bb526c9390a3628d4690b0153b1afb716d1b043fb1c1`,
-preserves configuration, approval, source binding, process launch, qualification,
-admission, fitting-panel and final controller receipts. It contains no audio or
-model weights. Actual diagnostic source was
-`6ea7ab810d2c42dde1ed761b7b723c41d30ab6d0`; the original teacher source and
-failed continuation gate are unchanged. The existing report command now also
-checks these receipts and recomputes the calibration projection:
+The [terminal metadata bundle](data/bn-diagnostic/terminal-metadata.tar.gz)
+preserves the exact diagnostic source, configuration and execution records. It
+contains no audio or model weights. The original teacher and failed continuation
+gate are unchanged. The existing report command verifies the bundle and
+recomputes the calibration projection:
 
 ```sh
 python -m tools.musicfm_teacher_result_report
@@ -433,40 +430,35 @@ result also bounds the earlier speculation: even the minimum-signal bar would
 have left the candidate below the expanded K10 control's 176/250 FMA and 89/126
 Beatport.
 
-Evidence is in [data/bn-diagnostic/v4](data/bn-diagnostic/v4/), with hashes in
-its `SHA256SUMS`. The raw sealed config and approval are retained privately;
-their hashes are `c2ddf304…` and `e48d3b9a…`. Result `36b8dcba…`, moments
-`82e6832a…`. The exact terminal `controller.json` (`3a2b6a14…`) records the
-707.606751 s measured wall, 6,219,206,656-byte peak owned RSS, 843.28 s aggregate
-CPU, zero worker exit and absent errors. The 3,600 s wall **limit** is separate
-from measured wall. The host RSS cap was 8 GiB; the CUDA allocator allowance was
-16 GiB. The controller does not record a terminal output-byte measurement, so
-the output-cap statement rests on the executed guard, not a published size receipt.
+The [run record](data/bn-diagnostic/v4/run.json) separates actual resource use
+from the one-hour wall limit, 8 GiB host-memory cap and 16 GiB CUDA allocator
+allowance. The [terminal controller record](data/bn-diagnostic/v4/controller.json)
+confirms successful completion. It does not contain a final output-size
+measurement, so output-cap compliance is supported by the running guard alone.
+The co-resident inference service was restored immediately after the run.
 
-Source commit `094d735ac9c206913be27d854221a9a7e0d24449` was the **base**,
-not the complete executed tree. The nominal archive (`13eed4e5…`) also precedes
-two overrides: `tools/plot_research.py` and `tools/run_musicfm_teacher.py`.
-`source-overrides.patch` reproduces their exact sealed bytes; `source-lock.json`
-publishes all 132 sealed source hashes. These historical overrides are evidence,
-not changes to today's runner. Reproduce the evidence and source pins without
-loading models or audio from a clone containing the base commit:
+For reproducibility, the executed source included two overrides beyond its
+recorded base revision. The [source lock](data/bn-diagnostic/v4/source-lock.json)
+and [archived patch](data/bn-diagnostic/v4/source-overrides.patch) identify and
+reconstruct the actual code used. The private configuration and approval are
+identified in the public record; their contents cannot be independently recovered
+from those identifiers.
+
+Verify the archived evidence without loading models or audio:
 
 ```sh
-python -m tools.check_musicfm_bn_v4 --reconstruct-source
+python -m tools.check_musicfm_bn_v4
 ```
 
-The verifier reconstructs in a temporary directory, leaving the checkout untouched.
-Without `--reconstruct-source`, it verifies the archived metadata and patch hashes
-without requiring old Git history. The raw sealed config and approval are not
-published; their hashes identify the retained private originals rather than
-allowing independent recovery of their redacted contents. The co-resident
-inference service was restored immediately after the run.
+Add `--reconstruct-source` to also reconstruct and verify the executed code in a
+temporary directory. That optional check requires the historical Git revision;
+it leaves the checkout untouched.
 
 ## Historical preparation — November 12, 2026
 
-The original cost-qualification report follows, preserved as written. Its
+The original cost-qualification findings follow. Their
 statements that no task fit or accuracy result was established refer to those
-**disposable pre-fit executions**, not the completed fit above. Its failed gate,
+**disposable pre-fit executions**, not the completed fit above. The failed gate,
 controlled stop, cache repair and cost projection remain part of the evidence.
 
 ### MusicFM whole-song cost qualification exposed and repaired a precision cache bug
@@ -508,10 +500,9 @@ Both complete runs use the original pinned MusicFM-MSD checkpoint, original
 24-kHz mono mel frontend and MSD global statistics, original Conformer encoder
 and pretraining projection, final hidden layer's time mean and a seed-13 linear
 24-key head. Class IDs use the shared `2*tonic_index + minor` mapping.
-The measured environment retains Torch2.15.0+cu132 and NumPy2.5.4; exact module
-paths/hashes and the complete source closure are in the raw configs.
-The original checkpoint SHA is
-`218b483a0256ddef736267425fabb166fd97008983696bb9270def464b47bded`.
+The measured environment retains Torch 2.15.0+cu132 and NumPy 2.5.4; exact
+dependency, source and checkpoint identities are retained in the
+[cost-study records](data/cost-index.json).
 There are 328,957,080 registered model/head parameters; checkpoint state elements
 are a different quantity, documented in the [source/resource preflight](../musicfm-preflight/REPORT.md).
 
@@ -521,8 +512,7 @@ finite loss per microbatch and finite accumulated gradients before optimizer
 commit. AdamW uses backbone/head learning rates `1e-5`/`1e-4`, weight decay0.01,
 betas0.9/0.999, epsilon1e-8, foreach/fused off. Python/NumPy/Torch training RNGs are
 reset to13 after upstream construction's142 reset, strict checkpoint load and
-head/device setup. Both runs' full initial state digest is
-`d278e0e197d21d98f8a570be7fbb6195e79247c5dbfada2686c34c6e502a507d`.
+head/device setup. Both runs started from the same verified model state.
 
 Each cost run consumes exactly three groups of32 synthetic-target examples from
 the predeclared original16 fitting IDs, using deterministic whole-track crop
@@ -558,7 +548,7 @@ throughput numbers.
 
 ### Results and timing boundaries
 
-| Measurement | Original `ef3a735` | Corrected `051e4ada` |
+| Measurement | Original implementation | Precision-cache repair |
 | --- | ---: | ---: |
 | First actual32-microbatch update |3.46544s |3.56225s |
 | Second / third update |2.49380 /2.45074s |2.54529 /2.53705s |
@@ -608,8 +598,7 @@ was class6 on `beatport:1059355`, B1logit0.24281444 versus B16logit0.24403955.
 The remaining371 songs had errors on the ordinary~`1e-7` scale; FMA maximum was
 3.230626e-7. Zero changed keys did not satisfy or relax the frozen numeric gate.
 
-The [pinned Transformers source](../musicfm-preflight/evidence/transformers-conformer.py.txt.gz)
-(decoded SHA`791d19879014102501be3760f0a3d7ecf9d7335333f662af8e69da27f0125a1a`)
+The [archived Transformers source](../musicfm-preflight/evidence/transformers-conformer.py.txt.gz)
 returns the rotary cache whenever
 sequence length matches (snapshot lines143–144), but constructs that tensor in
 the hidden-state dtype (lines154–155). The lookup does not check dtype/device.
@@ -651,13 +640,9 @@ sample/window counts, separate-domain schedule, measured source closures, module
 receipts and initialization digests. No waveform, feature array, model weights or
 new task labels are bundled. Controlled-stop receipts remain distinct.
 
-Executed numerical commits are `ef3a735ebf79c22c7b87566b6433a31966d3dc7a` and
-`051e4adaf5207abd5f83ad822dbf60f7c7abf412`; publication cherry-picks are not relabelled
-as measured commits. Original result SHA is
-`4037db0d9ef947485f17123ff577d1a33dc537091555653eb6e02711d14b1ef9`;
-corrected result SHA is
-`adac185c04aa3e34f8b7aad7e84b4614e65f87b32cc1ff194024782afa470733`.
-The index and retained config/source hashes are authoritative if a file path moved.
+The index records the original and repaired implementations, their exact results
+and shared initialization. These execution identities remain distinct from
+later publication edits, even if a file path moves.
 
 The verifier needs only the Python standard library. Plotting uses the repository's
 existing Matplotlib plotting environment; it adds no inference/training dependency.

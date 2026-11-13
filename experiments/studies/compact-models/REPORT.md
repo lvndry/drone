@@ -26,7 +26,7 @@ not describe the new octave model.
 
 ## Protocol and provenance
 
-- Experiment source commit: `6660334` on `experiment/small-baseline`.
+- [Archived small-baseline implementation](https://github.com/lvndry/drone/tree/6660334).
 - Fixed source hashes in all run records match that branch snapshot exactly.
 - Seven identical-audio pairs were found in the 1,363-row Beatport cache; two
   crossed the old split. Preserve the 126 validation IDs, quarantine matching
@@ -68,7 +68,7 @@ dataset. A three-seed result is not evidence of generalization across artists/ge
 All 604 tracks were scored once for each frozen artifact. The selected model gains
 22.32 symmetric MIREX points over the control but remains below the
 freshly rerun 69.35% Euphoria reference (8.23 points using unrounded scores).
-The native run uses unmodified Euphoria commit `cde6db9`, libkeyfinder 2.2.8 and
+The native run uses the [unmodified Euphoria implementation](https://github.com/lvndry/euphoria/tree/cde6db9), libkeyfinder 2.2.8 and
 FFTW 3.3.10; all audio hashes match the neural test bundle, with zero missing
 predictions. It reproduces the historical 69.4% figure. The earlier 8.27-point
 gap used that rounded historical number.
@@ -91,7 +91,7 @@ untouched development-independent comparison for subsequent recipe changes.
 - On 100 FMAK pilot files (median duration 232 s; p95 360 s; maximum 453 s),
   original Python/PyTorch full-path p50/p95 was 0.523/1.026 s; peak parent RSS
   796 MiB. This sample comes from one archive and is not genre representative.
-- Bitwise-equivalent streaming aggregation (source commit `65b42e7`) removed the
+- [Bitwise-equivalent streaming aggregation](https://github.com/lvndry/drone/tree/65b42e7) removed the
   full track-length FFT magnitude allocation. On the same sample, measured
   PyTorch p95 was 0.623 s and peak parent RSS 671 MiB. Regression tests verify
   exact feature equality and bounded FFT working memory; a real 7.5-minute file
@@ -155,7 +155,7 @@ final-holdout result. The common-decoded comparison has the same conclusion. See
 | Beatport, 126 rows | 60.56% | 61.64% ±0.97 points | 52.65% |
 | Artist-purged FMAK, 250 rows | 56.00% | 62.64% ±1.15 points | 51.87% |
 
-Confirmation source `53638a1`; seeds 13/37/73; canonical seed 13. Source, recipe,
+[Frozen confirmation implementation](https://github.com/lvndry/drone/tree/53638a1); seeds 13/37/73; canonical seed 13. Source, recipe,
 data and split identities match across runs. Repeated seed-13 histories and
 validation predictions match the pilot exactly. Confirmation took 8.45 minutes;
 pilot 2.44 minutes. Alongside the initial 20.79 minutes, total fitting/per-run
@@ -181,7 +181,7 @@ detector pending stronger quality.
 The next research priority is accuracy: broader pitch evidence, octave-aware
 representations and structured tonic/mode outputs. Native Rust performance tuning
 follows a validated quality candidate. A single supervised CQT/octave candidate
-(source `fe727b2`) has passed a real Blackwell forward/backward smoke test; its
+([frozen pilot implementation](https://github.com/lvndry/drone/tree/fe727b2)) has passed a real Blackwell forward/backward smoke test; its
 fitting/validation identity lists match the adapted artifact exactly. See
 [the preregistered octave pilot](OCTAVE_PROTOCOL.md). Preparation/fitting are
 currently in flight on GPU 0 with bounded memory; no serving workloads stopped. The user's private DJ library is reserved
@@ -198,7 +198,8 @@ No raw audio, checkpoints, or the untracked local `PLAN.md` are in the source co
 
 ## Completed supervised octave/CQT stage
 
-Source `fe727b2` pilot, `cd68770` confirmation. Same 2,206 fit / 376 validation
+The [pilot](https://github.com/lvndry/drone/tree/fe727b2) and
+[confirmation](https://github.com/lvndry/drone/tree/cd68770) implementations are archived. Same 2,206 fit / 376 validation
 identities as the data-adaptation stage, exactly audited against its artifact.
 Own supervised training from scratch; no pretrained weights or unlabeled pretraining.
 See [the fixed octave protocol](OCTAVE_PROTOCOL.md).
@@ -232,7 +233,7 @@ rule. Canonical seed 13 was fixed in advance, not selected as the strongest seed
 
 ## Freeze, calibration and final evaluation
 
-Freeze SHA-256: `38a51f91c3cb3c6584490fb2fb293764e77bfba61accfff26655d9d7ae6f1058`.
+The frozen decision is identified in the [training record](../../../docs/RESEARCH_TRAINING.md).
 Recorded at 2026-11-11 18:30:57 UTC, before final predictions. Positive temperature
 0.7371346086 fitted on the assigned 159 calibration rows by NLL only; class argmax
 is unchanged. Their earlier inclusion in the original whole-development baseline

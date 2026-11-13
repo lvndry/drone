@@ -79,8 +79,8 @@ and key checks outside its timer. RSS covers the complete fresh worker lifetime,
 including setup, PCM, frontend and inference, rather than only the timed region.
 
 The Linux host was AMD Ryzen Threadripper PRO 9955WX. ORT 1.31.1 CPU only used
-intra/inter 1, sequential execution and disabled spinning. Unchanged model SHA is
-`35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613`.
+intra/inter 1, sequential execution and disabled spinning. Both paths used the
+same unchanged model.
 Source/binary/library/config/hardware bindings and every raw report are in the
 [lossless evidence index](evidence/index.json). No ML runtime download is needed
 for the evidence/unit tests.
@@ -95,7 +95,7 @@ observations and stops, not a universal allocation bound.
 ## RSS unit erratum and reproducibility
 
 **The immutable native `pipeline` reports mislabeled KiB as `peak_rss_bytes`.**
-At executed source `c5f8c4e`, `drone_native_cached::process_usage()` returns KiB on
+In the measured implementation, `drone_native_cached::process_usage()` returns KiB on
 both platforms (Linux ru_maxrss directly, Darwin ru_maxrss/1024). `pipeline` stored
 that value unchanged under a byte field. All native peak RSS values in this
 report/checker are recovered as **raw ×1,024**. Original bytes, SHA values and
@@ -188,9 +188,9 @@ Three prospective stages remain distinct:
 
 | Stage | Terminal outcome | Reported coverage | Resource evidence |
 | --- | --- | ---: | --- |
-| v2 `dc575ba` | Controlled SIGINT: supervision overhead made completion implausible | 11/376; excluded from final composition | Last complete checkpoint: 326.53 CPU s, 299.43 wall s |
-| v3 `92bc825` | Fixed 1,800 CPU-second resource stop | 305/376, indices 0–304 | Trigger 1,800.213 CPU s; terminal 1,810.651 s including cleanup/reaping |
-| v4 `2a546f8` | Complete remainder; exit 1 because strict numerical gates failed | 71/71, indices 305–375 | 554.711/600 CPU s, 531.486 wall s; sampled peak 1,340,243,968 bytes |
+| Initial attempt (v2) | Controlled SIGINT: supervision overhead made completion implausible | 11/376; excluded from final composition | Last complete checkpoint: 326.53 CPU s, 299.43 wall s |
+| Reduced supervision overhead (v3) | Fixed 1,800 CPU-second resource stop | 305/376, indices 0–304 | Trigger 1,800.213 CPU s; terminal 1,810.651 s including cleanup/reaping |
+| Remaining tracks (v4) | Complete remainder; exit 1 because strict numerical gates failed | 71/71, indices 305–375 | 554.711/600 CPU s, 531.486 wall s; sampled peak 1,340,243,968 bytes |
 
 V2 was not silently restarted. V3 changed only supervisor sampling: process trees
 at approximately 0.1 seconds, disk scans at approximately 1 second, with fresh
@@ -270,14 +270,9 @@ representative full manifests include the native/Mac failing case. Larger PCM,
 CSR arrays and complete per-track plan artifacts remain unchanged in their
 original owned roots; this publication does not copy an audio corpus.
 
-Frozen Drone execution sources are `dc575ba4095f0bfe17f0f5ef18d6c42a4c538ae6`,
-`92bc825399a593a99fd0c9480a845619969fa8e7` and
-`2a546f88ea84f9d34baeae0b1b09ce6e06979c29`; Euphoria/native source is
-`7b0186261eccfbab1f54c21fe3212030e83eda78`. The native executable SHA is
-`9a5b7fc9887e7cf160a95614d26b86f2e65df98d837260177c16ca95841893ad`.
-The original combined diagnostic SHA remains
-`e3055e34852ed1e2fab9e5ad6b697ea008d970bd65c9091b3eb0940f1247bd1f`;
-compression and this publication do not reattribute its identity.
+The [reproducibility record](../../report-provenance.json) identifies the
+source for each attempt, the native executable and the original combined
+diagnostic. Compression and publication preserve the original evidence.
 
 ```sh
 # Saved metadata/vector arithmetic only: no model, audio or ML runtime needed.
@@ -324,7 +319,7 @@ default dependency/MSRV, model weights or training changed.
 
 ## Boundary observer import closure and failed build qualification (November 13)
 
-Source commit `081e160` adds exact bindings for all local Python trace-support
+The boundary observer adds exact bindings for all local Python trace-support
 imports and package initializers, the interpreter pathname, and the absence of
 PYTHONPATH/PYTHONHOME. Thirteen tiny synthetic checks, Ruff format/lint and ty pass.
 No transform or model runs in those tests. The shared editable test environment
@@ -345,10 +340,9 @@ then performed preparation and was pinned in the actual build plan. No package
 was installed and no environment was changed.
 
 **The single build attempt failed operationally; build qualification was not
-achieved.** Plan SHA256:
-`af4c313c99fafad60b7e3282b2aa7dd1812153a9f248332a259033db60b37b9c`.
-The window began at 07:37:56 UTC. Guardian PID 24710/start-abstime 12444153175429
-launched owned worker 24717/start 12444173968602 and Cargo 24742/start 12444198043827.
+achieved.** The original build plan is retained in the linked evidence archive.
+The build window began at 07:37:56 UTC. The supervisor tracked the worker and
+compiler as an isolated process group.
 After 2.692619 seconds, the guardian's owned-output scan attempted to stat a
 transient Cargo `.rcgu.o` file that had just been removed. It treated that
 FileNotFoundError as a failure and terminated only its verified owned process
@@ -361,21 +355,21 @@ CPU usage was 2.381104 seconds, and owned outputs totaled 76,464,031 bytes. Thes
 are sampled measurements, not an exact transient peak or complete final CPU
 accounting. Post-failure verification found no remaining owned-group processes;
 all bound source/toolchain files, copied shared-cache inputs and shared Cargo
-metadata remained byte-identical. The old pipeline retained SHA256
-`9a5b7fc9887e7cf160a95614d26b86f2e65df98d837260177c16ca95841893ad`.
+metadata remained byte-identical, as did the old pipeline binary.
 
 The [evidence archive](boundary-build-v1-evidence.tar.gz) contains the prospective
 plan, complete input/copy hash inventory, source commit, exact build argv and
 clean environment, launch identities, original logs/controller and post-failure
-checks. It contains neither audio nor compiled artifacts. Archive SHA256:
-`3e5a570cd0850da1c0c1bd7363bd6c219a2c05848d347019e8e16aaff4a4d37d`.
-The executed v1 guardian remains preserved in commit `a958920`. Its original
+checks. It contains neither audio nor compiled artifacts. The original guardian
+source is preserved separately from the repair; its identity is in the
+[reproducibility record](../../report-provenance.json). Its original
 receipt and evidence archive are unchanged. The [current guardian](qualify_boundary_build.py.txt)
 now ignores only `ENOENT` when an already-enumerated output file disappears during
 size sampling. Other errors, symlink checks and the original resource caps remain.
 A regression covers both disappearance and non-ENOENT failures. The prospective
 v2 build uses a fresh `/tmp/drone-cqt-boundary-build-v2` root with new source
-bindings. At repair commit `f9d51bc`, it had not been prepared or executed. No build success,
+bindings. When the repair was written, that new build had not yet been prepared
+or executed. No build success,
 frontend parity or performance improvement is claimed from the scanner repair.
 
 
@@ -385,7 +379,7 @@ frontend parity or performance improvement is claimed from the scanner repair.
 between directory enumeration and `stat`. This prevented us from qualifying the
 boundary observer; it was not a numerical CQT failure.
 
-**Method.** Commit `f9d51bcf815b9017e7eeba21618e4d08ca4767c2` ignores only `ENOENT`
+**Method.** The repaired build supervisor ignores only `ENOENT`
 for an already-enumerated output. Permission, I/O, non-directory and symlink errors
 remain fatal. Six regressions cover these distinctions. Root prepared and reviewed
 a new private cache and hash-bound build plan, then ran one offline, locked release
@@ -410,13 +404,12 @@ thread throughout compiler/linker execution. The terminal cumulative CPU value
 includes completed children; the earlier sampled live-process counter is not
 substituted for that total.
 
-The [v2 evidence archive](boundary-build-v2-evidence.tar.gz), SHA256
-`c3f4709d80eda175a7cdca319db61336b8072a5326a43fe6363419bbfe3ea402`, preserves the
-plan, controller and worker receipts, logs, input hashes and exact source snapshots.
-Plan SHA256 is `eb252f4832cb36d50b298e93076fe0277d07d13eb31ceb300a097aea91e948d4`.
-The built binary is 1,799,584 bytes, SHA256
-`a4b5a29ce31de5a8dd87e131f7d0839487f13c0916e6487722da707283f96d94`; it remains a
-local diagnostic artifact and is not bundled in the repository.
+The [successful-build evidence archive](boundary-build-v2-evidence.tar.gz)
+preserves the plan, controller and worker receipts, logs, input hashes and exact
+source snapshots. Their checksums are retained in the
+[reproducibility record](../../report-provenance.json). The built binary is
+1,799,584 bytes; it remains a local diagnostic artifact and is not bundled in
+the repository.
 
 **What this establishes.** The build and inspected loader identities are now
 qualified. It does not establish frontend parity, a faster inference result or a
@@ -428,7 +421,7 @@ pinned PCM witness and an unambiguous Python import/runtime closure described in
 
 ### Source identity after CI lint repair
 
-The successful v2 receipt above qualifies the archived `f9d51bc` source snapshot
+The successful build receipt above qualifies the archived source snapshot
 and binary, before the later CI repair that names the stage-response tuple type
 in `src/plan.rs`. That repair addresses Clippy's type-complexity diagnostic; it
 does not alter the FFT, accumulation, normalization, magnitude or log operations.

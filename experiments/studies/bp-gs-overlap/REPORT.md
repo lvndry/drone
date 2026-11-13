@@ -48,7 +48,7 @@ queries target only GS 604; transformed controls use their separately declared
 known source scopes. All reference fingerprints, index bytes and the complete
 SQL reference dictionary verified before matching. The original extraction
 engine and corrected all-offset voting code are byte-identical copies from
-`c3177bf`; a typed SQL adapter filters target postings before voting.
+[the archived matcher implementation](https://github.com/lvndry/drone/tree/c3177bf); a typed SQL adapter filters target postings before voting.
 
 Every qualifying 3-anchor/2-second offset/bin/phase is retained. Identity evidence
 requires 20 distinct anchors spanning 8 seconds plus CP distance≤0.15 at that
@@ -148,30 +148,21 @@ Root independently validated all 2,334 original evidence files, per-query gzip
 and decoded hashes, all 4,315,263 alignment decisions, control/population scopes,
 and a fresh actual index SHA. The original checker executed once and exited 0.
 Its byte-exact source is preserved as
-[original-root-checker.py.txt](data/execution/original-root-checker.py.txt), SHA
-`9d9051818a799b216e0f6b1ad84eb1a25b6bdafe5bc0927bb2a3558b9f076382`.
+[the original checker](data/execution/original-root-checker.py.txt).
 The [original receipt](data/execution/original-root-check-receipt.json) preserves
 the command, executor, exit status and exact stdout/hash. It explicitly identifies
 itself as a copy of the observed tool result. This validation is not attributed
 to the later typed report helper, and the original checker was not reformatted
 or rerun for this report.
 
-Executed source commit: `faa3a6ffe514c41564e415367fe5b068fd4bd76c`.
-Source archive SHA:
-`6f0df8232d244f061717216addecaed0d369d8ace83bec4fb02c8baf38245519`.
-Decoded plan SHA:
-`8e127968f40651276efdb7ec10f2229aa8204daaf53676a0d3a37677a5532356`.
-Original result SHA:
-`a3eb3809f89617c0435a2ee0e0adbfc4178bb5c837bdc55f48e06012826eece7`.
 Full metadata collector receipts/source bytes and original index/feature
 witnesses remain adjacent in this study. The
 [execution index](data/execution/artifact-index.json) binds original logs,
 wrapper, staging readback, result, checker and example bytes.
 
-All 2,334 raw query files remain on the task-owned server under
-`/home/lysk-admin/drone-experiments/bp-gs-cached-audit-20261112-faa3a6f-v1/evidence`.
-The complete 64,615,187-byte packed query archive is retained externally, SHA
-`22abee790d792c2bec60b32798a9537035a1ae47345e60bde08f1459c2c8efa8`;
+All 2,334 raw query files remain in the task-owned server directory recorded in
+the [execution index](data/execution/artifact-index.json).
+The complete 64,615,187-byte packed query archive is retained externally;
 it is not included as a 64.6-MB Git blob. The index identifies its retained local
 path, and the original result retains each raw/decoded query hash. Reproducing
 the complete diagnostic requires that retained archive; the repository includes

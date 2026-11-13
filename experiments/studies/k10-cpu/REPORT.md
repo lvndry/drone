@@ -99,8 +99,8 @@ Real Euphoria behavior and target-laptop resource use remain to be measured.
 - Server root: `~/drone-experiments/k10-cpu-20261111-v1/`; `selection.json` records
   input IDs/content hashes and the source development manifest hash. It contains
   server paths and stays with the server artifacts; no audio is committed.
-- Pipeline source commit: `5c551a3e4875f5649e737720f79be6db40d8b1de`, based on
-  main `c522557`. The invocation supplied label `cpu-audit-v1` in the raw
+- The [archived pipeline source](https://github.com/lvndry/drone/tree/5c551a3e4875f5649e737720f79be6db40d8b1de)
+  remains distinct from later changes. The invocation supplied label `cpu-audit-v1` in the raw
   `source_commit` field; `provenance.json` binds that label to the actual revision,
   source archive hash and raw result hash.
 

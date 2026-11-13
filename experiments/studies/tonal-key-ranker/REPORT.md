@@ -37,8 +37,10 @@ The result rejects this descriptor plus 128-tree recipe. It does not establish t
 
 ## Reproduction and evidence
 
-Actual executed source is [`research/tonal-key-ranker-v1`](https://github.com/lvndry/drone/tree/research/tonal-key-ranker-v1), commit `7eae7736ebf6f5d4a8570b19092fe73861e0cc81`. The tag preserves the extractor, runner, optional pinned dependencies, strict research artifact loader, synthetic compatibility checks and pre-fit protocol. It introduces no production model/dependency dispatch on main.
+Actual executed source is [`research/tonal-key-ranker-v1`](https://github.com/lvndry/drone/tree/research/tonal-key-ranker-v1). The tag preserves the extractor, runner, optional pinned dependencies, strict research artifact loader, synthetic compatibility checks and pre-fit protocol. It introduces no production model/dependency dispatch on main.
 
-[Candidate result](data/candidate-result.json) records source/protocol/feature/control/model/validation hashes, resolved parameters, both MIREX conventions and failed gate. [Runtime package versions](data/runtime-packages.json) distinguish the actual server stack from local compatibility tests. Full prepared descriptors, CBM model, validation logits and package-install record remain at `/home/lysk-admin/drone-experiments/tonal-key-ranker-20261112-v1`. Archived source tar SHA256 is `9047139b6ee7cf7990e0c9f57dff988981baba71ab22d34c4ee8d612856da8e9`.
+[Candidate result](data/candidate-result.json) records source/protocol/feature/control/model/validation hashes, resolved parameters, both MIREX conventions and failed gate. [Runtime package versions](data/runtime-packages.json) distinguish the actual server stack from local compatibility tests. Full prepared descriptors, CBM model, validation logits and package-install record remain at `/home/lysk-admin/drone-experiments/tonal-key-ranker-20261112-v1`.
 
 Regenerate Figure 1 with `uv run --extra plots python -m tools.plot_research`. The figure-input index binds the raw result, generator and lockfile.
+
+The [historical source record](../../REPORT_PROVENANCE.md#tonal-key-ranker) retains the exact execution and source-archive identities.
