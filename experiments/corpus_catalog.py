@@ -3,6 +3,15 @@
 The reference-panel adapter preserves recorded genre buckets and source durations.
 Duration bands match tools.dj_coverage.band; equivalence is tested at boundaries.
 Results remain a separate track_id-keyed relation, never fields of this catalog.
+
+This does not replace dj_coverage/dj_coverage_bp/dj_coverage_report: their frozen
+FMA/BP native taxonomies, split roles and aggregate evidence stay authoritative.
+The reference adapter reuses their duration boundaries but adds analyzed sample
+support, and does not equate store/full-track duration with source-file duration.
+inventory_audio's file-SHA256/ffprobe semantics remain source-file observations;
+this exporter consumes existing receipts and never invokes that scanner.
+SourceRecord timestamps describe input recording and provenance capture separately;
+neither is inferred from filesystem modification time or export wall clock.
 """
 
 from __future__ import annotations
