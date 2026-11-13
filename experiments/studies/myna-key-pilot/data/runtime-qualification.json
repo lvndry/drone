@@ -1,0 +1,713 @@
+{
+  "status": "complete",
+  "phases": [
+    {
+      "phase": "strict_load",
+      "wall_seconds": 2.4473514740820974,
+      "result": {
+        "parameters": 21375872,
+        "frames_per_window": 196
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.8463687470648438,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -6,
+        "samples_16k": 2715221,
+        "windows": 27,
+        "discarded_frames": 12,
+        "pitch_seconds": 0.032669260166585445,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2715221,
+          "up": 16000,
+          "down": 11314,
+          "actual_playback_rate": 0.707125,
+          "pitch_rounding_error_cents": 0.04460517802499453,
+          "mel_frames": 5304,
+          "complete_windows": 27,
+          "discarded_frames": 12,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.3410855708643794,
+        "blocked_frontend_seconds": 0.3477412611246109,
+        "both_frontends_seconds": 0.6918597258627415,
+        "encoder_batch16_seconds": 0.009474067948758602,
+        "mel_parity": {
+          "values": 678912,
+          "max_abs_error": 0.00054931640625,
+          "max_normalized_error": 0.05577654764056206,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 10368,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.7093993599992245,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -5,
+        "samples_16k": 2562991,
+        "windows": 25,
+        "discarded_frames": 106,
+        "pitch_seconds": 0.03158698999322951,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2562991,
+          "up": 16000,
+          "down": 11986,
+          "actual_playback_rate": 0.749125,
+          "pitch_rounding_error_cents": -0.06595130998817922,
+          "mel_frames": 5006,
+          "complete_windows": 25,
+          "discarded_frames": 106,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.31699754809960723,
+        "blocked_frontend_seconds": 0.33064664085395634,
+        "both_frontends_seconds": 0.6502266800962389,
+        "encoder_batch16_seconds": 0.007743488065898418,
+        "mel_parity": {
+          "values": 640768,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 9600,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.6778847698587924,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -4,
+        "samples_16k": 2419089,
+        "windows": 24,
+        "discarded_frames": 21,
+        "pitch_seconds": 0.03664661291986704,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2419089,
+          "up": 16000,
+          "down": 12699,
+          "actual_playback_rate": 0.7936875,
+          "pitch_rounding_error_cents": -0.028412747012680484,
+          "mel_frames": 4725,
+          "complete_windows": 24,
+          "discarded_frames": 21,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.29890097002498806,
+        "blocked_frontend_seconds": 0.31182965100742877,
+        "both_frontends_seconds": 0.6141361489426345,
+        "encoder_batch16_seconds": 0.007797840051352978,
+        "mel_parity": {
+          "values": 604800,
+          "max_abs_error": 0.00128173828125,
+          "max_normalized_error": 0.047530412673950195,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 9216,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.6370815618429333,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -3,
+        "samples_16k": 2283336,
+        "windows": 22,
+        "discarded_frames": 148,
+        "pitch_seconds": 0.027816789923235774,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2283336,
+          "up": 16000,
+          "down": 13454,
+          "actual_playback_rate": 0.840875,
+          "pitch_rounding_error_cents": -0.044090196878926236,
+          "mel_frames": 4460,
+          "complete_windows": 22,
+          "discarded_frames": 148,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.28060116386041045,
+        "blocked_frontend_seconds": 0.29383141198195517,
+        "both_frontends_seconds": 0.5769867449998856,
+        "encoder_batch16_seconds": 0.009106151992455125,
+        "mel_parity": {
+          "values": 570880,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 8448,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.6097670521121472,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -2,
+        "samples_16k": 2155185,
+        "windows": 21,
+        "discarded_frames": 94,
+        "pitch_seconds": 0.032662148121744394,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2155185,
+          "up": 16000,
+          "down": 14254,
+          "actual_playback_rate": 0.890875,
+          "pitch_rounding_error_cents": -0.04609075969679566,
+          "mel_frames": 4210,
+          "complete_windows": 21,
+          "discarded_frames": 94,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.27083541406318545,
+        "blocked_frontend_seconds": 0.2751929631922394,
+        "both_frontends_seconds": 0.5482712741941214,
+        "encoder_batch16_seconds": 0.007940666982904077,
+        "mel_parity": {
+          "values": 538880,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 8064,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.5633594060782343,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": -1,
+        "samples_16k": 2034168,
+        "windows": 20,
+        "discarded_frames": 53,
+        "pitch_seconds": 0.026587769156321883,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 2034168,
+          "up": 16000,
+          "down": 15102,
+          "actual_playback_rate": 0.943875,
+          "pitch_rounding_error_cents": 0.0012606640583214812,
+          "mel_frames": 3973,
+          "complete_windows": 20,
+          "discarded_frames": 53,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.24939161585643888,
+        "blocked_frontend_seconds": 0.25860271719284356,
+        "both_frontends_seconds": 0.5101383500732481,
+        "encoder_batch16_seconds": 0.007756657898426056,
+        "mel_parity": {
+          "values": 508544,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 7680,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.5077961031347513,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 0,
+        "samples_16k": 1920000,
+        "windows": 19,
+        "discarded_frames": 27,
+        "pitch_seconds": 0.003158563980832696,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1920000,
+          "up": 16000,
+          "down": 16000,
+          "actual_playback_rate": 1.0,
+          "pitch_rounding_error_cents": 0.0,
+          "mel_frames": 3751,
+          "complete_windows": 19,
+          "discarded_frames": 27,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.2312747670803219,
+        "blocked_frontend_seconds": 0.24470786191523075,
+        "both_frontends_seconds": 0.4781209270004183,
+        "encoder_batch16_seconds": 0.0077329520136117935,
+        "mel_parity": {
+          "values": 480128,
+          "max_abs_error": 0.00091552734375,
+          "max_normalized_error": 0.056199170649051666,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 7296,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.5161195390392095,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 1,
+        "samples_16k": 1812283,
+        "windows": 18,
+        "discarded_frames": 12,
+        "pitch_seconds": 0.036918655037879944,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1812283,
+          "up": 16000,
+          "down": 16951,
+          "actual_playback_rate": 1.0594375,
+          "pitch_rounding_error_cents": -0.04182341200531425,
+          "mel_frames": 3540,
+          "complete_windows": 18,
+          "discarded_frames": 12,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.21809888212010264,
+        "blocked_frontend_seconds": 0.2329235440120101,
+        "both_frontends_seconds": 0.45298063196241856,
+        "encoder_batch16_seconds": 0.0076555239502340555,
+        "mel_parity": {
+          "values": 453120,
+          "max_abs_error": 0.00091552734375,
+          "max_normalized_error": 0.044791098684072495,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 6912,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.4905108120292425,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 2,
+        "samples_16k": 1710563,
+        "windows": 17,
+        "discarded_frames": 9,
+        "pitch_seconds": 0.03648763196542859,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1710563,
+          "up": 16000,
+          "down": 17959,
+          "actual_playback_rate": 1.1224375,
+          "pitch_rounding_error_cents": -0.03786260197458091,
+          "mel_frames": 3341,
+          "complete_windows": 17,
+          "discarded_frames": 9,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.20573166105896235,
+        "blocked_frontend_seconds": 0.2211181540042162,
+        "both_frontends_seconds": 0.4286055739503354,
+        "encoder_batch16_seconds": 0.007410032907500863,
+        "mel_parity": {
+          "values": 427648,
+          "max_abs_error": 0.00048828125,
+          "max_normalized_error": 0.012106889858841896,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 6528,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.45953441807068884,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 3,
+        "samples_16k": 1614548,
+        "windows": 16,
+        "discarded_frames": 18,
+        "pitch_seconds": 0.03648338606581092,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1614548,
+          "up": 16000,
+          "down": 19027,
+          "actual_playback_rate": 1.1891875,
+          "pitch_rounding_error_cents": -0.028555531003689794,
+          "mel_frames": 3154,
+          "complete_windows": 16,
+          "discarded_frames": 18,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.19131986401043832,
+        "blocked_frontend_seconds": 0.21386065217666328,
+        "both_frontends_seconds": 0.40716185700148344,
+        "encoder_batch16_seconds": 0.004474516957998276,
+        "mel_parity": {
+          "values": 403712,
+          "max_abs_error": 0.0008544921875,
+          "max_normalized_error": 0.04182012751698494,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 6144,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.44763702782802284,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 4,
+        "samples_16k": 1523886,
+        "windows": 15,
+        "discarded_frames": 37,
+        "pitch_seconds": 0.043342273915186524,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1523886,
+          "up": 16000,
+          "down": 20159,
+          "actual_playback_rate": 1.2599375,
+          "pitch_rounding_error_cents": 0.022603635515849874,
+          "mel_frames": 2977,
+          "complete_windows": 15,
+          "discarded_frames": 37,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.18579835118725896,
+        "blocked_frontend_seconds": 0.20007642614655197,
+        "both_frontends_seconds": 0.38765962002798915,
+        "encoder_batch16_seconds": 0.004591093165799975,
+        "mel_parity": {
+          "values": 381056,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 5760,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.4188126320950687,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 5,
+        "samples_16k": 1438405,
+        "windows": 14,
+        "discarded_frames": 66,
+        "pitch_seconds": 0.0421480149962008,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1438405,
+          "up": 16000,
+          "down": 21357,
+          "actual_playback_rate": 1.3348125,
+          "pitch_rounding_error_cents": -0.03547763099209078,
+          "mel_frames": 2810,
+          "complete_windows": 14,
+          "discarded_frames": 66,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.17184544797055423,
+        "blocked_frontend_seconds": 0.1864999239332974,
+        "both_frontends_seconds": 0.35996879008598626,
+        "encoder_batch16_seconds": 0.004402396967634559,
+        "mel_parity": {
+          "values": 359680,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 5376,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 0.3909456371329725,
+      "result": {
+        "id": "beatport:100066",
+        "semitones": 6,
+        "samples_16k": 1357671,
+        "windows": 13,
+        "discarded_frames": 104,
+        "pitch_seconds": 0.04358872817829251,
+        "view_geometry": {
+          "input_samples": 1920000,
+          "output_samples": 1357671,
+          "up": 16000,
+          "down": 22627,
+          "actual_playback_rate": 1.4141875,
+          "pitch_rounding_error_cents": -0.031904999827133906,
+          "mel_frames": 2652,
+          "complete_windows": 13,
+          "discarded_frames": 104,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 0.15612982702441514,
+        "blocked_frontend_seconds": 0.17520701000466943,
+        "both_frontends_seconds": 0.332846773089841,
+        "encoder_batch16_seconds": 0.0039658870082348585,
+        "mel_parity": {
+          "values": 339456,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 4992,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 9.41786146396771,
+      "result": {
+        "id": "fmak:082660",
+        "semitones": 0,
+        "samples_16k": 34482032,
+        "windows": 343,
+        "discarded_frames": 120,
+        "pitch_seconds": 0.12487753294408321,
+        "view_geometry": {
+          "input_samples": 34482032,
+          "output_samples": 34482032,
+          "up": 16000,
+          "down": 16000,
+          "actual_playback_rate": 1.0,
+          "pitch_rounding_error_cents": 0.0,
+          "mel_frames": 67348,
+          "complete_windows": 343,
+          "discarded_frames": 120,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 4.4960049509536475,
+        "blocked_frontend_seconds": 4.393351907841861,
+        "both_frontends_seconds": 8.993029735982418,
+        "encoder_batch16_seconds": 0.09494715207256377,
+        "mel_parity": {
+          "values": 8620544,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 131712,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 14.446038116002455,
+      "result": {
+        "id": "fmak:082660",
+        "semitones": -6,
+        "samples_16k": 48763701,
+        "windows": 485,
+        "discarded_frames": 182,
+        "pitch_seconds": 1.2436474650166929,
+        "view_geometry": {
+          "input_samples": 34482032,
+          "output_samples": 48763701,
+          "up": 16000,
+          "down": 11314,
+          "actual_playback_rate": 0.707125,
+          "pitch_rounding_error_cents": 0.04460517802499453,
+          "mel_frames": 95242,
+          "complete_windows": 485,
+          "discarded_frames": 182,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 6.4217704779002815,
+        "blocked_frontend_seconds": 6.2056375639513135,
+        "both_frontends_seconds": 12.76748094893992,
+        "encoder_batch16_seconds": 0.13389322790317237,
+        "mel_parity": {
+          "values": 12190976,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 186240,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "pitch_and_composed_extraction",
+      "wall_seconds": 7.66445236094296,
+      "result": {
+        "id": "fmak:082660",
+        "semitones": 6,
+        "samples_16k": 24382929,
+        "windows": 242,
+        "discarded_frames": 191,
+        "pitch_seconds": 1.0228404419030994,
+        "view_geometry": {
+          "input_samples": 34482032,
+          "output_samples": 24382929,
+          "up": 16000,
+          "down": 22627,
+          "actual_playback_rate": 1.4141875,
+          "pitch_rounding_error_cents": -0.031904999827133906,
+          "mel_frames": 47623,
+          "complete_windows": 242,
+          "discarded_frames": 191,
+          "length_fixed": false,
+          "normalized": false
+        },
+        "whole_frontend_seconds": 3.2164696210529655,
+        "blocked_frontend_seconds": 3.155643777921796,
+        "both_frontends_seconds": 6.429244427010417,
+        "encoder_batch16_seconds": 0.06717539089731872,
+        "mel_parity": {
+          "values": 6095744,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        },
+        "embedding_parity": {
+          "values": 92928,
+          "max_abs_error": 0.0,
+          "max_normalized_error": 0.0,
+          "outside_tolerance": 0
+        }
+      }
+    },
+    {
+      "phase": "steady_head_training_path",
+      "wall_seconds": 0.6755189071409404,
+      "result": {
+        "warmup_updates": 10,
+        "timed_updates": 100,
+        "batch_size": 64,
+        "timed_wall_seconds": 0.22372170793823898,
+        "updates_per_second": 446.9838931660855,
+        "synthetic_only": true,
+        "includes_disk_admission": false,
+        "includes_cpu_gather_transfer_checks_and_scalar_sync": true,
+        "helper_sha256": "774291d2434034138e61ccd8b979a3ba3f4759859018573b59b0278463726dca",
+        "parameters": 18456600
+      }
+    },
+    {
+      "phase": "head_evaluation_path",
+      "wall_seconds": 3.3235984130296856,
+      "result": {
+        "synthetic_windows": 10892,
+        "batch_wall_seconds": {
+          "64": 0.18323356588371098,
+          "1": 3.1350107381585985
+        },
+        "batch_parity": {
+          "values": 9024,
+          "max_abs_error": 8.783842392334762e-08,
+          "max_normalized_error": 0.004657403518641457,
+          "outside_tolerance": 0
+        },
+        "synthetic_tracks": 376,
+        "reference_accuracy_scored": false
+      }
+    }
+  ],
+  "torch": "2.11.0+cu130",
+  "cuda": "13.0",
+  "peak_host_rss_bytes": 3864961024,
+  "peak_gpu_allocated_bytes": 650411008,
+  "peak_gpu_reserved_bytes": 713031680,
+  "accuracy_scored": false,
+  "trained_weights_retained": false,
+  "pitch_method": "pitch-by-playback-rate-polyphase-v1",
+  "paper_pitch_implementation_parity_claimed": false
+}
