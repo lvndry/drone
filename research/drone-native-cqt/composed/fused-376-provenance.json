@@ -6283,5 +6283,12 @@
     "system_math",
     "rustfft_dispatch"
   ],
-  "scope": "Sanitized public projection plus original small controller receipts. Original full result, transport/source packets, complete new cores and logs remain privately retained; publication is not a lossless replacement for all operational artifacts."
+  "scope": "Sanitized public projection plus original small controller receipts. Original full result, transport/source packets, complete new cores and logs remain privately retained; publication is not a lossless replacement for all operational artifacts.",
+  "publication_support_revision": {
+    "path": "research/drone-native-cqt/composed/fused376_transport.py",
+    "executed_archive": "fused-376-transport-executed.py.txt",
+    "executed_sha256": "3dc6c2ee1f0affd4c64b553249e5e60fd687339da49bb4d441b6284d78ea97a5",
+    "current_sha256": "ab870100cb389e3e9aa2e2d2b2b1a376ec90849af2f9c169ad80072ef1237e88",
+    "changes": "Explicit rejection of missing module file origins and IO[bytes] stream annotations; no numerical algorithm change. Historical executed source pins remain unchanged. This publication-only revision was statically checked, not used to regenerate experiment results."
+  }
 }

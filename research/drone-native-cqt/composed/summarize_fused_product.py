@@ -185,13 +185,17 @@ def summarize_goldens(root: Path = ROOT, run_root: Path | None = None) -> dict[s
 
 
 PUBLIC_RESULT_SHA = "c4383293568b6114cfd9b688c163440feb0a33a13881cc576e6d08e4b4aa9041"
-PUBLIC_PROVENANCE_SHA = "890b67a1f5cdb56ea96a1be12d7f375f31981e9bc2aadc7725fbc427e4bb0f97"
+PUBLIC_PROVENANCE_SHA = "d98249d26edef4dc0f37a6c02aef5b1c152feb53b0d4ad4bdd4216687ab208c2"
 
 
 def summarize_public(root: Path = ROOT, run_root: Path | None = None) -> dict[str, Any]:
     """Verify fixed public membership, original controls and both reference identities."""
     result = json.loads(read_checked(root / "fused-376-results.json", PUBLIC_RESULT_SHA))
     provenance = json.loads(read_checked(root / "fused-376-provenance.json", PUBLIC_PROVENANCE_SHA))
+    revision = provenance["publication_support_revision"]
+    read_checked(root / revision["executed_archive"], revision["executed_sha256"])
+    if revision["executed_sha256"] != provenance["source_files"][revision["path"]]["sha256"]:
+        raise ValueError("Executed transport source identity changed")
     membership = json.loads(
         read_checked(root / "FUSED_376_MEMBERSHIP.json", provenance["membership"]["sha256"])
     )["cases"]

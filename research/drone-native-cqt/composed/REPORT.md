@@ -872,7 +872,12 @@ terminal receipts, and [technical provenance](fused-376-provenance.json) preserv
 membership, original controls, both reference identities, source/build/runtime
 pins and hashes of every retained new core. Operational paths are omitted from
 the public projection; full execution packets remain retained. Publication edits
-do not change the separately archived executed source snapshot. The existing
+do not change the separately archived executed source snapshot. The published
+transport helper subsequently gained explicit missing-module-origin rejection and
+stream type annotations to pass static checking. Its
+[executed version](fused-376-transport-executed.py.txt) is preserved byte-for-byte;
+that publication-only guard change was not rerun and is not credited with these
+results. The native numerical source is unchanged. The existing
 checker verifies the projection and can rehash all retained case artifacts
 without numerical computation; the existing plot tool renders this inline figure.
 

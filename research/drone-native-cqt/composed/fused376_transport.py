@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 from types import ModuleType
-from typing import Any, BinaryIO
+from typing import IO, Any
 
 BLOCK = 512 * 1024
 
@@ -31,7 +31,7 @@ def write(path: Path, value: object) -> None:
         stream.write("\n")
 
 
-def exact(stream: BinaryIO, count: int) -> bytes:
+def exact(stream: IO[bytes], count: int) -> bytes:
     data = bytearray()
     while len(data) < count:
         block = stream.read(count - len(data))
@@ -41,7 +41,7 @@ def exact(stream: BinaryIO, count: int) -> bytes:
     return bytes(data)
 
 
-def send(stream: BinaryIO, value: object) -> None:
+def send(stream: IO[bytes], value: object) -> None:
     raw = json.dumps(value, allow_nan=False).encode()
     if len(raw) > 16384:
         raise ValueError("Frame metadata exceeds bound")
@@ -50,7 +50,7 @@ def send(stream: BinaryIO, value: object) -> None:
     stream.flush()
 
 
-def receive(stream: BinaryIO) -> dict[str, Any]:
+def receive(stream: IO[bytes]) -> dict[str, Any]:
     count = struct.unpack("!I", exact(stream, 4))[0]
     if not 0 < count <= 16384:
         raise ValueError("Frame metadata bound")
@@ -58,6 +58,13 @@ def receive(stream: BinaryIO) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError("Frame object required")
     return value
+
+
+def module_path(module: ModuleType) -> Path:
+    origin = module.__file__
+    if origin is None:
+        raise ValueError("Archived support module has no file origin")
+    return Path(origin)
 
 
 def support(config: dict[str, Any]) -> ModuleType:
@@ -69,9 +76,9 @@ def support(config: dict[str, Any]) -> ModuleType:
     guard = importlib.import_module("tools.run_cqt_expansion")
     for role, module in [("transport", transport), ("legacy_guard", guard)]:
         record = config["legacy_files"][role]
-        if Path(module.__file__).resolve() != Path(record["path"]).resolve():
+        if module_path(module).resolve() != Path(record["path"]).resolve():
             raise ValueError("Archived support origin mismatch")
-        if sha(Path(module.__file__)) != record["sha256"]:
+        if sha(module_path(module)) != record["sha256"]:
             raise ValueError("Archived support bytes changed")
     return transport
 
@@ -87,8 +94,8 @@ def server(config: dict[str, Any], membership: dict[str, Any]) -> None:
     producer = importlib.import_module("tools.cqt_pipeline_stage")
     record = config["legacy_files"]["producer"]
     if (
-        Path(producer.__file__).resolve() != Path(record["path"]).resolve()
-        or sha(Path(producer.__file__)) != record["sha256"]
+        module_path(producer).resolve() != Path(record["path"]).resolve()
+        or sha(module_path(producer)) != record["sha256"]
     ):
         raise ValueError("Archived producer origin/bytes changed")
     out, incoming = sys.stdout.buffer, sys.stdin.buffer

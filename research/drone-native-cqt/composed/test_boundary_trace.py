@@ -8,7 +8,9 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from types import ModuleType
 
+from fused376_transport import module_path
 from summarize_boundary_trace import PINS, checked, summarize
 from summarize_fused_product import summarize as summarize_candidate
 from summarize_fused_product import summarize_goldens, summarize_public
@@ -74,6 +76,14 @@ class BoundaryTraceTests(unittest.TestCase):
             path.write_text(json.dumps(result))
             with self.assertRaisesRegex(ValueError, "identity changed"):
                 summarize_goldens(root)
+
+    def test_archived_support_requires_a_file_origin(self) -> None:
+        module = ModuleType("missing_origin")
+        module.__file__ = None
+        with self.assertRaisesRegex(ValueError, "no file origin"):
+            module_path(module)
+        module.__file__ = "archived_support.py"
+        self.assertEqual(module_path(module), Path("archived_support.py"))
 
     def test_public_panel_keeps_both_references_and_long_inputs(self) -> None:
         result = summarize_public(ROOT)
