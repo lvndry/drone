@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 from tools.run_cqt_expansion import disk_bytes, process_tree, sha256, write_json
@@ -20,6 +21,7 @@ from tools.run_k10_gpu1_resource import start_identity, terminate_own
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = (
+    "experiments/__init__.py",
     "experiments/studies/v2-data-contract/data/gtzan-overlap-fresh-controls.json",
     "experiments/fma_fingerprints.py",
     "experiments/fma_alignment_matcher.py",
@@ -112,6 +114,7 @@ def check_contract(config: dict[str, Any], permit: dict[str, Any], digest: str, 
 def verify_bindings(config: dict[str, Any]) -> None:
     if config["source_sha256"] != {name: sha256(ROOT / name) for name in SOURCES}:
         raise ValueError("Worker/guardian numerical source closure differs")
+    verify_import_origins(config)
     for name in ("query_manifest", "control_witness", "historical_controls"):
         if sha256(Path(config[name])) != config[name + "_sha256"]:
             raise ValueError("Bound metadata differs: " + name)
@@ -208,6 +211,37 @@ def execution_plan(config: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def check_import_origin(name: str, module: ModuleType, source_sha256: dict[str, str]) -> None:
+    """Reject already-imported foreign/editable code even when local files match."""
+    package = name.split(".", 1)[0]
+    if package not in {"tools", "experiments"}:
+        return
+    filename = getattr(module, "__file__", None)
+    if filename is None:
+        paths = list(getattr(module, "__path__", []))
+        if not paths or any(Path(path).resolve() != ROOT / package for path in paths):
+            raise ValueError("Foreign local-package namespace: " + name)
+        return
+    origin = Path(filename).resolve()
+    if not origin.is_relative_to(ROOT):
+        raise ValueError("Foreign local import origin: " + name)
+    relative = str(origin.relative_to(ROOT))
+    if relative not in source_sha256 or sha256(origin) != source_sha256[relative]:
+        raise ValueError("Unsealed local import: " + name)
+
+
+def verify_import_origins(config: dict[str, Any]) -> None:
+    for name, module in tuple(sys.modules.items()):
+        if module is not None:
+            check_import_origin(name, module, config["source_sha256"])
+    main = sys.modules.get("__main__")
+    main_filename = getattr(main, "__file__", None)
+    if main_filename is not None:
+        origin = Path(main_filename).resolve()
+        if origin != ROOT / "tools/run_gtzan_overlap.py":
+            raise ValueError("Guardian/worker main import origin differs")
+
+
 def environment(config: dict[str, Any]) -> None:
     if (
         not hasattr(os, "sched_getaffinity")
@@ -216,7 +250,11 @@ def environment(config: dict[str, Any]) -> None:
         or os.environ.get("CUDA_VISIBLE_DEVICES") != ""
         or any(os.environ.get(name) != "1" for name in THREADS)
         or shutil.which("ffmpeg") != config["ffmpeg_path"]
-        or Path(sys.executable).resolve() != Path(config["python_path"]).resolve()
+        or not os.path.isabs(sys.executable)
+        or sys.executable != config["python_path"]
+        or Path.cwd() != ROOT
+        or "PYTHONPATH" in os.environ
+        or "PYTHONHOME" in os.environ
     ):
         raise ValueError("Require sealed two-CPU allocation/nice19/noCUDA/native threads1")
 
@@ -347,13 +385,18 @@ def supervise(config_path: Path, permit_path: Path, output: Path) -> None:
             ),
         )
     except BaseException as error:
+        cleanup_error = None
         if child is not None and child_start is not None:
-            terminate_own(child, child_start)
+            try:
+                terminate_own(child, child_start)
+            except BaseException as cleanup_failure:
+                cleanup_error = repr(cleanup_failure)
         write_json(
             output / "failure.json",
             dict(
                 status="incomplete",
                 error=repr(error),
+                cleanup_error=cleanup_error,
                 remaining_are_not_negatives=True,
                 peaks=peaks,
             ),
@@ -382,6 +425,7 @@ def main() -> None:
         ):
             raise ValueError("Private execution requires live guardian and root permit")
         config = load(args.config)
+        environment(config)
         check_contract(config, load(args.permit), sha256(args.config), time.time())
         verify_bindings(config)
         if args.output != Path(config["output_root"]).absolute() or load(

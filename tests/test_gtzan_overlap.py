@@ -222,8 +222,9 @@ def test_stage_rejects_existing_directory(tmp_path: Path) -> None:
         worker.owned_directory(tmp_path)
 
 
+@pytest.mark.parametrize("cleanup_fails", [False, True])
 def test_whole_tree_cpu_breach_terminates_only_owned_child(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup_fails: bool
 ) -> None:
     value = config() | dict(output_root=str(tmp_path / "output"))
     monkeypatch.setattr(guardian, "load", lambda p: permit() if p.name == "permit" else value)
@@ -239,11 +240,20 @@ def test_whole_tree_cpu_breach_terminates_only_owned_child(
     child.poll.return_value = None
     monkeypatch.setattr(guardian.subprocess, "Popen", lambda *a, **k: child)
     stopped = MagicMock()
+    if cleanup_fails:
+        stopped.side_effect = RuntimeError("cleanup identity changed")
     monkeypatch.setattr(guardian, "terminate_own", stopped)
     with pytest.raises(RuntimeError, match="owned-tree"):
         guardian.supervise(tmp_path / "config", tmp_path / "permit", tmp_path / "output")
     stopped.assert_called_once_with(child, 11)
     assert (tmp_path / "output/failure.json").exists()
+    import json
+
+    receipt = json.loads((tmp_path / "output/failure.json").read_text())
+    assert "owned-tree" in receipt["error"]
+    assert receipt["cleanup_error"] == (
+        "RuntimeError('cleanup identity changed')" if cleanup_fails else None
+    )
 
 
 def test_identity_at_wrong_offset_does_not_pass_fresh_control(
@@ -313,3 +323,56 @@ def test_streamed_union_is_queried_once_with_primary_membership(
     assert [r["primary769"] for r in result["results"]] == [False, True, False]
     assert not list((output / "stage").iterdir())
     assert not result["qualification_passed"]
+
+
+def test_shared_binary_different_venv_is_rejected(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    binary = tmp_path / "base-python"
+    binary.write_bytes(b"same executable binary")
+    first, second = tmp_path / "venv-one/python", tmp_path / "venv-two/python"
+    for path in (first, second):
+        path.parent.mkdir()
+        path.symlink_to(binary)
+    assert first.resolve() == second.resolve()
+    monkeypatch.setattr(guardian.sys, "executable", str(first))
+    monkeypatch.setattr(guardian.os, "sched_getaffinity", lambda p: {8, 9}, raising=False)
+    monkeypatch.setattr(guardian.os, "getpriority", lambda *a: 19, raising=False)
+    monkeypatch.setattr(guardian.os, "PRIO_PROCESS", 0, raising=False)
+    monkeypatch.setattr(guardian.shutil, "which", lambda name: "/mock/ffmpeg")
+    monkeypatch.chdir(guardian.ROOT)
+    monkeypatch.delenv("PYTHONHOME", raising=False)
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+    for name in guardian.THREADS:
+        monkeypatch.setenv(name, "1")
+    value = config() | dict(ffmpeg_path="/mock/ffmpeg", python_path=str(first))
+    guardian.environment(value)
+    with pytest.raises(ValueError):
+        guardian.environment(value | {"python_path": str(second)})
+    monkeypatch.setenv("PYTHONPATH", "")
+    with pytest.raises(ValueError):
+        guardian.environment(value)
+    monkeypatch.delenv("PYTHONPATH")
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError):
+        guardian.environment(value)
+
+
+def test_import_origin_and_loaded_package_init_must_be_pinned(tmp_path: Path) -> None:
+    from types import ModuleType
+
+    foreign = ModuleType("tools.foreign")
+    path = tmp_path / "foreign.py"
+    path.write_text("# foreign editable module")
+    foreign.__file__ = str(path)
+    with pytest.raises(ValueError, match="Foreign local import"):
+        guardian.check_import_origin("tools.foreign", foreign, {})
+    package = ModuleType("experiments")
+    init = guardian.ROOT / "experiments/__init__.py"
+    package.__file__ = str(init)
+    with pytest.raises(ValueError, match="Unsealed local import"):
+        guardian.check_import_origin("experiments", package, {})
+    guardian.check_import_origin(
+        "experiments", package, {"experiments/__init__.py": guardian.sha256(init)}
+    )
