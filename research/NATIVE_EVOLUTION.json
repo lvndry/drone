@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "01af09a487a3ded2cac2164c4389cf4af149d6168f65c18dc28948be5bcb2a95",
+      "current_sha256": "c8c27348edd597b2c22c42c45f0169a5ca91badf9803e56da801ebb63b89730f",
       "git_mode": "100644",
-      "reason": "Publish completed retained-core native full/chunked regression on the same376 Mac references with inline numerical figure; preserve earlier failures and distinguish agreement from accuracy/performance."
+      "reason": "Add a retrospective ID-and-source-audio-hash join of target-free native-panel genre/BPM metadata with duration coverage and missingness; frozen numerical evidence and historical unknowns remain unchanged."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -288,7 +288,7 @@
     },
     {
       "path": "research/drone-native-cqt/composed/RETAINED_MODEL_PROTOCOL.md",
-      "sha256": "2d3b5d38d941fabf7292e3e67421411038e38dc4b07bf4cfcecbcbe87676977f",
+      "sha256": "f99ddcc89dc7ec03dc7a9d63adb5e6407870607dfd13b42da718e362b1f034f2",
       "git_mode": "100644",
       "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
     },
@@ -339,6 +339,24 @@
       "sha256": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
       "git_mode": "100644",
       "reason": "Preserve the exact executed native entrypoint before the publication-only iterator lint fix; recorded model outputs and binary unchanged."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/public376-metadata.json.gz",
+      "sha256": "2208dec0a03f478592b01eb1226967722417ef51eb2082afd7cac68a548695ff",
+      "git_mode": "100644",
+      "reason": "Retrospective descriptive metadata coverage for the unchanged376 public recordings; native top fields and overlapping tags/taxonomies stay separate; no audio, targets, model execution or accuracy claim."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/public376-metadata.png",
+      "sha256": "4576f825d28a1b3406955d2de2fa64054206d5923561d6e37e12e12f5972fe61",
+      "git_mode": "100644",
+      "reason": "Retrospective descriptive metadata coverage for the unchanged376 public recordings; native top fields and overlapping tags/taxonomies stay separate; no audio, targets, model execution or accuracy claim."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/public376-metadata.svg",
+      "sha256": "f41ea35dd62f53417d7bf552e0048cc2e5313bbbf15f54fa7dce33504b952b01",
+      "git_mode": "100644",
+      "reason": "Retrospective descriptive metadata coverage for the unchanged376 public recordings; native top fields and overlapping tags/taxonomies stay separate; no audio, targets, model execution or accuracy claim."
     }
   ]
 }

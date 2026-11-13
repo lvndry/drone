@@ -1,9 +1,9 @@
-# Fixed native model regression on retained Mac cores
+# Fixed native prediction parity on retained Mac cores
 
 This protocol records the scope sealed before the single model pass. Execution
 packets and binary/source identities are bound in
 [technical provenance](retained-model376-provenance.json). The completed result
-belongs in the [consolidated report](REPORT.md#retained-core-native-model-regression--november-13).
+belongs in the [consolidated report](REPORT.md#retained-core-native-prediction-parity--november-13).
 
 ## Question
 
