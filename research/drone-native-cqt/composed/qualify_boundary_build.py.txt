@@ -1,6 +1,7 @@
 """One local offline build; never execute the resulting trace binary."""
 
 import ctypes as C
+import errno
 import hashlib
 import json
 import os
@@ -14,7 +15,7 @@ import tomllib
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
-OUT = Path("/tmp/drone-cqt-boundary-build-v1")
+OUT = Path("/tmp/drone-cqt-boundary-build-v2")
 OLD = Path("/tmp/euphoria-native-cqt-mac376-v2/build/release/pipeline")
 SDK = Path(
     "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
@@ -86,7 +87,16 @@ def files(root):
 
 
 def owned_bytes():
-    return sum(path.stat().st_size for path in files(OUT))
+    total = 0
+    for path in files(OUT):
+        try:
+            total += path.stat().st_size
+        except OSError as error:
+            # Cargo may remove a temporary object after enumeration. The next
+            # sample and terminal scan still count all files that remain.
+            if error.errno != errno.ENOENT:
+                raise
+    return total
 
 
 def command(argv):
@@ -152,6 +162,7 @@ def prepare():
         REPO / "tools/research/contracts.py",
         REPO / "tools/research/measurements.py",
         REPO / "tests/test_cqt_boundary_trace.py",
+        REPO / "tests/test_cqt_build_output.py",
         Path(__file__).with_name("BOUNDARY_BUILD_PROTOCOL.md"),
         Path(__file__).with_name("BOUNDARY_TRACE_PROTOCOL.md"),
     ]

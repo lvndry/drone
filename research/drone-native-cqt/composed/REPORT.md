@@ -369,6 +369,11 @@ plan, complete input/copy hash inventory, source commit, exact build argv and
 clean environment, launch identities, original logs/controller and post-failure
 checks. It contains neither audio nor compiled artifacts. Archive SHA256:
 `3e5a570cd0850da1c0c1bd7363bd6c219a2c05848d347019e8e16aaff4a4d37d`.
-The [executed guardian](qualify_boundary_build.py.txt) remains unchanged. Any later
-build needs a separately reviewed fix for transient-file disappearance during
-size sampling, new source bindings and its own bounded prospective window.
+The executed v1 guardian remains preserved in commit `a958920`. Its original
+receipt and evidence archive are unchanged. The [current guardian](qualify_boundary_build.py.txt)
+now ignores only `ENOENT` when an already-enumerated output file disappears during
+size sampling. Other errors, symlink checks and the original resource caps remain.
+A regression covers both disappearance and non-ENOENT failures. The prospective
+v2 build uses a fresh `/tmp/drone-cqt-boundary-build-v2` root with new source
+bindings; it has not been prepared or executed by this change. No build success,
+frontend parity or performance improvement is claimed from the scanner repair.

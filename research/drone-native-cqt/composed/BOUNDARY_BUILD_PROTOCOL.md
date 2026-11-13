@@ -1,11 +1,18 @@
-# Prospective local boundary observer build qualification
+# Prospective local boundary observer build qualification, v2
+
+The original v1 attempt failed on a transient output-file disappearance and is
+preserved in `boundary-build-v1-evidence.tar.gz`. This is a separate prospective
+build with unchanged resource limits. Only an `ENOENT` encountered while sampling
+an already-enumerated output file is ignored; permissions, I/O failures, symlinks
+and every resource cap remain failures. A disappearing object contributes zero
+to that sample; the next sample and terminal scan recount surviving files.
 
 One offline build of `boundary_trace` on the local Mac, after the source changes
 and this guardian/protocol are committed. This is not permission to execute the
 trace, decode audio, transfer PCM, load a model, initialize ORT or adjust numeric
 tolerances. The old pipeline binary stays untouched. No Euphoria modifications.
 
-The task-owned output root `/tmp/drone-cqt-boundary-build-v1` must be absent before
+The task-owned output root `/tmp/drone-cqt-boundary-build-v2` must be absent before
 preparation. Copy only the exact lockfile's cached registry packages, archives and
 sparse-index records into its private `cargo-home`. Verify package archive SHA256
 against Cargo.lock and source/copy byte hashes. There are two local packages plus
@@ -29,13 +36,13 @@ Build argv (manifest resolves to the isolated committed worktree):
 
 ```
 /opt/homebrew/bin/cargo build --offline --locked --release --jobs 1 \
-  --manifest-path /tmp/drone-cqt-trace-build-qualification/research/drone-native-cqt/Cargo.toml \
+  --manifest-path /tmp/drone-cqt-build-output-race/research/drone-native-cqt/Cargo.toml \
   --bin boundary_trace
 ```
 
 The plan supplies `CARGO_NET_OFFLINE=true`, `CARGO_INCREMENTAL=0`,
-`CARGO_BUILD_JOBS=1`, `CARGO_TARGET_DIR=/tmp/drone-cqt-boundary-build-v1`,
-`CARGO_HOME=/tmp/drone-cqt-boundary-build-v1/cargo-home`, and
+`CARGO_BUILD_JOBS=1`, `CARGO_TARGET_DIR=/tmp/drone-cqt-boundary-build-v2`,
+`CARGO_HOME=/tmp/drone-cqt-boundary-build-v2/cargo-home`, and
 `RUSTC=/opt/homebrew/bin/rustc`. Preserve HOME's existing value. PATH is restricted
 to `/opt/homebrew/bin:/usr/bin:/bin`; TMPDIR is owned. No CQT_OWNER_SNAPSHOT,
 RUSTFLAGS, CARGO_ENCODED_RUSTFLAGS, compiler wrapper, Python path overrides or DYLD
