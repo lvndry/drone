@@ -1,0 +1,241 @@
+{
+  "format": "drone-fused-product-publication-v1",
+  "results": {
+    "sha256": "919a50bf44fc099d97353d070ee02095f94332032a099911fd3ef4fc3214978a",
+    "bytes": 3094
+  },
+  "executed_source_commit": "f05fdb0c3ec258dda39ff3281d5eed61765dfe2b",
+  "native_files": {
+    "executable": {
+      "sha256": "016cf751111af5d61e3fef3da37c0af5ad2e6d12f97638222d76ad6f49ac9143",
+      "bytes": 1798656
+    },
+    "plan_source": {
+      "sha256": "0cd951c51e8cb1e4dad2621faaf45c454d392ff563b6e3251f42a2356f6a6290",
+      "bytes": 29831
+    },
+    "cargo_lock": {
+      "sha256": "a2113290218729da788bcc59ad78cf51b892fcfdc46c2a2c0ec4e4548133a05d",
+      "bytes": 15385
+    },
+    "rustc": {
+      "sha256": "302dacde7af194bebcdd7d45c821fefed52e5b96eacc00de80e4b32863def01b",
+      "bytes": 323008
+    },
+    "cargo": {
+      "sha256": "f6f1ae30e327d6ee1df89485871ec7a971d7c3bc34616fc8cd17ddded0489fbc",
+      "bytes": 25039168
+    },
+    "soxr_wrapper": {
+      "sha256": "49c7903d21711aff76afaaef122f7e71120f901427acb314f721f5b663b53880",
+      "bytes": 33624
+    },
+    "soxr_library": {
+      "sha256": "b98d5dcb7214509496968e72f42b1fa18a3365dce251f6eb56331c0c7f618445",
+      "bytes": 240944
+    },
+    "soxr_wrapper_source": {
+      "sha256": "31e6bb44cca10ef5f4ecb5b4fe59fe0ea4b51a9ac765e9b1d437d5118877c8f4",
+      "bytes": 1272
+    },
+    "soxr_source_receipt": {
+      "sha256": "abf9439d1ca99915d005001b7a8f04671988bb7fc33a7d0df9976376a1742668",
+      "bytes": 35128
+    },
+    "candidate_source": {
+      "sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0",
+      "bytes": 8028
+    }
+  },
+  "runtime_receipts": {
+    "packet.json": {
+      "sha256": "63308f6b0914d668359c1686adffc9d9e95ae07bf529982f819ce58c00255c86",
+      "bytes": 8456
+    },
+    "runtime-proof.json": {
+      "sha256": "c9250c230007b2d9d0a45465bd72507ca714bc00f22c41f7776d2e8febd373f3",
+      "bytes": 5352
+    },
+    "guardian.py": {
+      "sha256": "9b1e1958c3b8752a17b3716a842ff16d0826e02c18de07da7a63929124da9a04",
+      "bytes": 11165
+    },
+    "controller-plan.json": {
+      "sha256": "43baa9cb4323e9c8076b931036ea735589dfd49bda561aa3f68c9e78d9ff1774",
+      "bytes": 1679
+    },
+    "controller-result.json": {
+      "sha256": "5e2bf009dec29ff53e8a928a567adcac08e3ab1f7bc47e642426ae56b6e361af",
+      "bytes": 460
+    },
+    "worker-launch.json": {
+      "sha256": "3d2b187a91b5a4940e421a545d909193bc0ad2e28ee3796621f0681742203bca",
+      "bytes": 54
+    },
+    "worker.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "output/separate-product.json": {
+      "sha256": "0f8260770c6e7907af39df3fcc2845b27a1cda58c38fe1b2ddc3d05ec90036bd",
+      "bytes": 904
+    },
+    "output/result.json": {
+      "sha256": "919a50bf44fc099d97353d070ee02095f94332032a099911fd3ef4fc3214978a",
+      "bytes": 3094
+    },
+    "output/separate-product-core.f32": {
+      "sha256": "6b6efa2647bcbb63e1f0d0a3d96816ed5c43662d087795393437b02cbf46c390",
+      "bytes": 306432
+    },
+    "output/fused-product-core.f32": {
+      "sha256": "4024b6238ef874f7f6e44a3355f384b4d2bdc881ada425d544107a5f7516023e",
+      "bytes": 306432
+    }
+  },
+  "build_receipts": {
+    "packet.json": {
+      "sha256": "5a1d466379294347d9d2dba49f17b7f0e956bd61c69584ef34ab004c71bf8ce8",
+      "bytes": 1556038
+    },
+    "guardian.py": {
+      "sha256": "064994e3e98a744d7dfa5bed7b90abe12cef4be4ceafe7c7675cd34880b68741",
+      "bytes": 14765
+    },
+    "controller-plan.json": {
+      "sha256": "d642a7bdccf5bd30699fc276b638ae55f190a6c0ffa8d1dc98e01dbaccd3fdd9",
+      "bytes": 1402
+    },
+    "controller-result.json": {
+      "sha256": "84885ec5daee25a7605106cf6db99e650f94636a70932a7809898dcc9c120ca4",
+      "bytes": 456
+    },
+    "result.json": {
+      "sha256": "19d045a6fde9464fe9f64d740098e5cc7720128d5f8a5cbbda683ec270d5b134",
+      "bytes": 9312
+    },
+    "command-0-launch.json": {
+      "sha256": "cbdc226dbece5453cf72e6d6cad068ceca12e25b56fa4abb4176c162ebb1e0a3",
+      "bytes": 948
+    },
+    "command-0-result.json": {
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "bytes": 21
+    },
+    "command-0.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "command-0.stderr": {
+      "sha256": "54eb8897f1497d36b70db09dbcfddd8ec6e64f6ccda654b8944a51bd6d36cfb9",
+      "bytes": 1849
+    },
+    "command-1-launch.json": {
+      "sha256": "ec641ca0e6a60f308202be11d4561b88f50de571ed8179d09ec9b3d05fbc485c",
+      "bytes": 1033
+    },
+    "command-1-result.json": {
+      "sha256": "81868a6e94ffc0178bf833deb1c9013d9fab4ee95ddb876a5e8ec4f1d26376d2",
+      "bytes": 21
+    },
+    "command-1.stdout": {
+      "sha256": "98f21786a988f3f6bf4feb6fd2b6cd17c794c325bce7f8c4b512ea2742b61e01",
+      "bytes": 204
+    },
+    "command-1.stderr": {
+      "sha256": "23eb4730f2f8073af9eb06ec9ed9b630dd93d3384edfdca17ec83909e2f074ff",
+      "bytes": 278
+    }
+  },
+  "source_files": {
+    "research/drone-native-cqt/Cargo.toml": {
+      "sha256": "a6361afb3d1b7616cc22a1548852e0f2617232462e3aefbd3b9b18e5a4ff5a71",
+      "bytes": 511
+    },
+    "research/drone-native-cqt/Cargo.lock": {
+      "sha256": "a2113290218729da788bcc59ad78cf51b892fcfdc46c2a2c0ec4e4548133a05d",
+      "bytes": 15385
+    },
+    "research/drone-native-cqt/build.rs": {
+      "sha256": "05e26690e2115cf1a420ba4585c6d386a00b8c0a188d74d1e5740c90271cbaaa",
+      "bytes": 1614
+    },
+    "research/drone-native-cqt/src/lib.rs": {
+      "sha256": "c16affc77e105a19e23ab3043d78dac9a712e3110a4f57db5d47bf11fc10ae02",
+      "bytes": 231
+    },
+    "research/drone-native-cqt/src/plan.rs": {
+      "sha256": "0cd951c51e8cb1e4dad2621faaf45c454d392ff563b6e3251f42a2356f6a6290",
+      "bytes": 29831
+    },
+    "research/drone-native-cqt/src/evidence.rs": {
+      "sha256": "47d4995bf31f465e780337321b83bbd4be7ff508d64c6c074cfed4b8c6f56c7f",
+      "bytes": 2156
+    },
+    "research/drone-native-cqt/src/main.rs": {
+      "sha256": "8b59a3967be975e139439a9daeb2dcef4ad2030037d9d30e1dae6e48bde74d43",
+      "bytes": 9645
+    },
+    "research/drone-native-cqt/src/bin/boundary_trace.rs": {
+      "sha256": "3860d153f62b490d6714b4ad7e908851b6a4847dda132aeb9d24d05d7e2ac7fb",
+      "bytes": 13450
+    },
+    "research/drone-native-cqt/src/bin/fused_product_case.rs": {
+      "sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0",
+      "bytes": 8028
+    },
+    "research/drone-native-cqt/src/bin/arithmetic_probe.rs": {
+      "sha256": "a765d444e12991423056784a09328ed1565b896b02970172fe4b456fb97c8de8",
+      "bytes": 7444
+    },
+    "research/drone-native-cqt/src/bin/pipeline.rs": {
+      "sha256": "9c12f9e738be5e5f48501c801b1addb0a7ae8d684f9b0e280b99f16ab67ba9f2",
+      "bytes": 10836
+    },
+    "research/drone-native-cached/Cargo.toml": {
+      "sha256": "6b6f8560d5a62ff03ed7ed993625543d547572999456b6a11519862d7340b4f3",
+      "bytes": 752
+    },
+    "research/drone-native-cached/Cargo.lock": {
+      "sha256": "c83bd8113a48f0e71b5945e00e6c09b6635eca87b73979503359366425a71838",
+      "bytes": 13035
+    },
+    "research/drone-native-cached/tests/contracts.rs": {
+      "sha256": "2d949c9afc9e978e93d883380c8b5c1c34ac7f577a2da51b479ad430c9899035",
+      "bytes": 13755
+    },
+    "research/drone-native-cached/src/lib.rs": {
+      "sha256": "a9084daa288b4744cd7bec25719f8dfad1415bdb470ecd417859e4517ce26a2e",
+      "bytes": 24050
+    },
+    "research/drone-native-cached/src/main.rs": {
+      "sha256": "d46d86aa2458cf344f77cbd0204c3d9461e30098ae405f3d89e8409521a973ab",
+      "bytes": 15043
+    },
+    "research/drone-native-cqt/composed/FUSED_PRODUCT_PROTOCOL.md": {
+      "sha256": "617c59baed4e4968acd3d4517b295f207537d61a4ee4904265332a0054a78b75",
+      "bytes": 6030
+    }
+  },
+  "resources": {
+    "build": {
+      "complete": true,
+      "worker_exit_code": 0,
+      "wall_seconds": 126.44438295892905,
+      "cpu_seconds": 197.649594,
+      "sampled_peak_rss_bytes": 523419648,
+      "owned_output_bytes_before_controller": 236468041,
+      "remaining_owned_pids": []
+    },
+    "frontend": {
+      "complete": true,
+      "worker_exit_code": 0,
+      "wall_seconds": 0.5522549579618499,
+      "cpu_seconds": 0.4612559999999999,
+      "sampled_peak_rss_bytes": 61751296,
+      "owned_output_bytes_before_controller": 643568,
+      "remaining_owned_pids": []
+    }
+  },
+  "scope": "One fixed frontend case. Core identity verified independently from retained raw bytes. No classifier, accuracy measurement, general parity or release promotion. Operational paths and raw audio/features remain private."
+}

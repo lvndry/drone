@@ -1,0 +1,123 @@
+{
+  "archived_native_core_sha256": "6b6efa2647bcbb63e1f0d0a3d96816ed5c43662d087795393437b02cbf46c390",
+  "baseline": {
+    "archived_native_core_preserved": true,
+    "case": "fmak:091711",
+    "core_sha256": "6b6efa2647bcbb63e1f0d0a3d96816ed5c43662d087795393437b02cbf46c390",
+    "format": "cqt-fused-product-control-v1",
+    "product_rule": "separate",
+    "python_comparison": {
+      "elements": 76608,
+      "first_different_coordinates": [
+        {
+          "bin": 11,
+          "frame": 4
+        },
+        {
+          "bin": 34,
+          "frame": 180
+        },
+        {
+          "bin": 36,
+          "frame": 151
+        },
+        {
+          "bin": 56,
+          "frame": 46
+        },
+        {
+          "bin": 72,
+          "frame": 328
+        },
+        {
+          "bin": 100,
+          "frame": 55
+        },
+        {
+          "bin": 102,
+          "frame": 115
+        },
+        {
+          "bin": 123,
+          "frame": 163
+        },
+        {
+          "bin": 159,
+          "frame": 171
+        }
+      ],
+      "max_absolute_difference": 0.0009765625,
+      "unequal_bits": 9
+    }
+  },
+  "candidate_baseline_comparison": {
+    "elements": 76608,
+    "first_different_coordinates": [
+      {
+        "bin": 11,
+        "frame": 4
+      },
+      {
+        "bin": 34,
+        "frame": 180
+      },
+      {
+        "bin": 36,
+        "frame": 151
+      },
+      {
+        "bin": 56,
+        "frame": 46
+      },
+      {
+        "bin": 72,
+        "frame": 328
+      },
+      {
+        "bin": 100,
+        "frame": 55
+      },
+      {
+        "bin": 102,
+        "frame": 115
+      },
+      {
+        "bin": 123,
+        "frame": 163
+      },
+      {
+        "bin": 159,
+        "frame": 171
+      }
+    ],
+    "max_absolute_difference": 0.0009765625,
+    "unequal_bits": 9
+  },
+  "candidate_core_sha256": "4024b6238ef874f7f6e44a3355f384b4d2bdc881ada425d544107a5f7516023e",
+  "candidate_identity": "fused-product-separate-accumulation-v1",
+  "candidate_matches_archived_python_core": true,
+  "candidate_python_comparison": {
+    "elements": 76608,
+    "first_different_coordinates": [],
+    "max_absolute_difference": 0.0,
+    "unequal_bits": 0
+  },
+  "case": "fmak:091711",
+  "default_product_rule": "separate",
+  "executable_sha256": "016cf751111af5d61e3fef3da37c0af5ad2e6d12f97638222d76ad6f49ac9143",
+  "format": "cqt-fused-product-case-v1",
+  "historical_gaps": [
+    "scipy_fft_backend",
+    "jit_runtime",
+    "system_math",
+    "rustfft_dispatch"
+  ],
+  "manifest_sha256": "462205de24ff451e040afe45a3409cfc3fa9b74afc4f37d1725024cee59dc1fc",
+  "no_model_or_ort_invoked": true,
+  "no_release_promotion": true,
+  "pcm_sha256": "0b1234cb5e3c1ec2573d379660d7078ee7bffb1db029b87ffa58605836e2dde0",
+  "plan_source_sha256": "0cd951c51e8cb1e4dad2621faaf45c454d392ff563b6e3251f42a2356f6a6290",
+  "python_core_sha256": "4024b6238ef874f7f6e44a3355f384b4d2bdc881ada425d544107a5f7516023e",
+  "runtime_proof_sha256": "c9250c230007b2d9d0a45465bd72507ca714bc00f22c41f7776d2e8febd373f3",
+  "source_sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0"
+}

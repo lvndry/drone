@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from summarize_boundary_trace import PINS, checked, summarize
+from summarize_fused_product import summarize as summarize_candidate
 
 ROOT = Path(__file__).resolve().parent
 
@@ -33,6 +34,24 @@ class BoundaryTraceTests(unittest.TestCase):
         self.assertFalse(result["new_final_core_computed"])
         self.assertFalse(result["candidate_compiled_or_run"])
         self.assertEqual(prior["terminal.fp16"]["unequal_bits"], 9)
+
+    def test_compiled_candidate_preserves_the_negative_control(self) -> None:
+        result = summarize_candidate(ROOT)
+        self.assertEqual(result["original_differences"], 9)
+        self.assertEqual(result["candidate_differences"], 0)
+        self.assertFalse(result["new_accuracy_or_portability_claim"])
+
+    def test_candidate_claim_requires_the_original_result_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ("fused-product-results.json", "fused-product-provenance.json"):
+                shutil.copyfile(ROOT / name, root / name)
+            path = root / "fused-product-results.json"
+            result = json.loads(path.read_bytes())
+            result["baseline"]["python_comparison"]["unequal_bits"] = 0
+            path.write_text(json.dumps(result))
+            with self.assertRaisesRegex(ValueError, "identity changed"):
+                summarize_candidate(root)
 
     def test_archived_failure_is_localized_not_promoted(self) -> None:
         result = summarize(ROOT)
@@ -73,6 +92,8 @@ class BoundaryTraceTests(unittest.TestCase):
             *PINS,
             "csr-product-rounding-results.json",
             "csr-product-rounding-provenance.json",
+            "fused-product-results.json",
+            "fused-product-provenance.json",
         ]:
             raw = (ROOT / name).read_text()
             for private in ("/Users/", "/home/", "/private/", "/tmp/", '"pid"', '"start_abstime"'):
