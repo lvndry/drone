@@ -13,16 +13,16 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "e8b0d4ae6a7631816c619f2435c42517c629b945db76b98dfd7bbaeed3bc3980",
+      "current_sha256": "c9740f70fbe2fb9088eecdef617a0f8f8d5c0f72a42306ede3f5a604d7ea7c83",
       "git_mode": "100644",
       "reason": "Append fixed-case boundary observer methods, preserved failed build and successful build qualification; original measurements remain identified as historical."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
       "migrated_sha256": "88393dd2e3ca216363b23ed54540646722fbd8881b35dcb84140b1573554226d",
-      "current_sha256": "0b973fec8c9356254c8b21812b4850526824bde888a57f86f370206e417de251",
+      "current_sha256": "dc5a393cadd7b8bfdb610f8e4e7075acbc13c7576ccb784bf7441c4f4d45ac81",
       "git_mode": "100644",
-      "reason": "Expose existing plan cache data to the separate fixed-case boundary observer; no numerical frontend tolerance change."
+      "reason": "Expose observation-only stage boundaries and name the result tuple for Clippy; no numerical frontend operation or tolerance change. Earlier built binary remains bound to its archived pre-lint source."
     }
   ],
   "additions": [

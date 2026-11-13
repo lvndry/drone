@@ -180,6 +180,8 @@ fn observed_error(root: &Path, actual: &[f32], observation: &Value) -> Result<Va
     Ok(json!({"full_hash_equal":exact,"probes":probes}))
 }
 
+type StageResponse = (usize, Vec<Complex<f32>>, Option<Vec<Complex<f32>>>);
+
 struct StageKernel {
     n: usize,
     hop: usize,
@@ -228,11 +230,7 @@ impl StageKernel {
             fft,
         })
     }
-    fn response(
-        &self,
-        samples: &[f32],
-        capture_spectrum: bool,
-    ) -> Result<(usize, Vec<Complex<f32>>, Option<Vec<Complex<f32>>>)> {
+    fn response(&self, samples: &[f32], capture_spectrum: bool) -> Result<StageResponse> {
         let (n, hop, rows) = (self.n, self.hop, self.rows);
         let (indptr, indices, basis) = (&self.indptr, &self.indices, &self.basis);
         let frames = 1 + samples.len() / hop;

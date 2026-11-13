@@ -424,3 +424,16 @@ new model accuracy result. No audio was decoded, no model or ORT session was
 initialized, and no tolerance changed. The next numerical trace still needs the
 pinned PCM witness and an unambiguous Python import/runtime closure described in
 [the trace protocol](BOUNDARY_TRACE_PROTOCOL.md). Euphoria remains untouched.
+
+
+### Source identity after CI lint repair
+
+The successful v2 receipt above qualifies the archived `f9d51bc` source snapshot
+and binary, before the later CI repair that names the stage-response tuple type
+in `src/plan.rs`. That repair addresses Clippy's type-complexity diagnostic; it
+does not alter the FFT, accumulation, normalization, magnitude or log operations.
+The original archive and built binary are preserved unchanged. The current source
+has a different hash and is subject to CI validation; the old build receipt must
+not be presented as a build of that newer source. Any numerical trace must bind
+the actual executable to its archived source, or separately qualify a newly built
+executable. This lint repair did not rebuild or execute either native binary.
