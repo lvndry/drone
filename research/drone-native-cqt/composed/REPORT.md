@@ -10,11 +10,14 @@ The M5 is a test host, not a hardware requirement for Drone or Euphoria.
 
 The later fused-product repair now reproduces **all 376 archived Mac feature cores exactly**;
 see the [completed frontend validation](#completed-public-panel-frontend-validation--november-13).
-The subsequent [native model regression](#retained-core-native-model-regression--november-13)
+The subsequent [native prediction parity check](#retained-core-native-prediction-parity--november-13)
 also passes all 376 cases through the unchanged full and chunked adapters, closing
 the historical native-versus-Mac strict logit failure. This is numerical identity,
 not classifier accuracy; the separate Linux references still differ, and the
 production arithmetic is unchanged.
+A later [catalog join](#retrospective-source-metadata-description--november-13)
+now describes native genre fields and sparse publisher BPM for this exact panel;
+it was descriptive and did not guide case selection.
 
 The original Mac diagnostic covers all **376 public tracks**, composed from
 disjoint 305- and 71-case phases. Strict logit qualification failed: native full
@@ -29,8 +32,8 @@ now reproduces all 76,608 reference core values on this one recording. The
 original control still reproduces its nine differences. A separately frozen
 [nine-golden expansion](#all-nine-retained-goldens-pass-including-a-28-minute-recording-november-13)
 then matched all 2,048,256 reference core values, including a 28-minute recording.
-That historical failed run remains preserved. The later retained-core model
-regression qualifies the repaired Mac path; it does not erase the unresolved
+That historical failed run remains preserved. The later retained-core prediction
+parity check qualifies the repaired Mac path; it does not erase the unresolved
 Mac-versus-Linux differences.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
@@ -900,7 +903,7 @@ steps before a production default change. No higher classifier-accuracy claim
 follows from this frontend result.
 
 
-### Retained-core native model regression — November 13
+### Retained-core native prediction parity — November 13
 
 **All 376 corrected feature cores pass all three strict native model comparisons.**
 The unchanged full-model logits are bitwise equal to the archived Mac reference.
@@ -973,3 +976,68 @@ uv run --script research/drone-native-cqt/composed/plot_fused_product.py --model
 on the fixed duration panel, and qualify any intended Linux arithmetic change
 separately. This result authorizes no model replacement or production-default
 change and supplies no new musical-accuracy evidence.
+
+### Retrospective source-metadata description — November 13
+
+**The fixed panel now has a reproducible genre and tempo description, joined
+after the numerical experiments.** The frozen run packets did not carry these
+fields; their historical unknowns are not rewritten. This later, descriptive
+join uses existing target-free Beatport and FMAK collection catalogs, matching
+both track ID and recorded source-audio hash for all of the same 376 entries.
+It changes neither panel membership nor any numerical result. No audio, models
+or key labels were accessed to produce it.
+
+![Source-specific native genre fields by retained decoded duration](public376-metadata.png)
+
+| Source | Panel recordings | Native top/workbook genre present | Any native genre tags present | Publisher BPM present |
+|---|---:|---:|---:|---:|
+| Beatport | 126 | 126 | 126 | 60, range 86–175 |
+| FMAK | 250 | 125 | 249 | 0 |
+
+The heatmaps show native top fields against the original decoded-duration bins,
+with separate color scales for the two sources. They retain missing values and
+do not merge taxonomies. Beatport's workbook categories include Techno (14),
+Deep House (12), House (9), Progressive House (8), Tech House (6) and
+Hip-Hop / R&B (6); the complete distribution appears in the figure and data.
+Archived API genre tags exist on 61 Beatport entries and API subgenre tags on
+two; these are retained separately from the workbook categories.
+
+FMAK's native top field names Rock on 69 recordings, Electronic on 30 and Pop on
+12, with **125 missing top fields**. That does not mean those 125 recordings have
+no genre information: **249 of 250 have at least one native tag**. FMA's tag list
+includes hierarchy, and direct tags versus ancestors are not disambiguated in
+the source. It must not be treated as an exclusive replacement for the top field.
+
+All 41 recordings lasting 5–10 minutes in this panel are FMAK; Beatport contributes
+none in that duration band. Their native top fields are Rock (12), Electronic
+(6), Pop (1), and missing (22). The broader raw-tag view is different:
+
+| FMA native tag among the 41 recordings lasting 5–10 minutes | Recordings carrying that tag |
+|---|---:|
+| Electronic | 22 |
+| Rock | 18 |
+| Pop | 10 |
+
+These tag counts overlap and may include ancestors. **Do not add them as
+exclusive genre totals.** They describe the panel, not the classifier's strengths
+or weaknesses. A numerical agreement test cannot establish genre-specific key
+accuracy, even when the recordings have useful genre metadata.
+
+The 60 Beatport BPM values come from archived publisher metadata and were **not
+independently verified**. The other 66 Beatport entries and all 250 FMAK entries
+remain missing; no tempo is inferred from genres or titles. Likewise, publisher
+recording durations are retained separately from the actual decoded sample
+support. Full-song versus preview provenance remains unverified. Genre and tempo
+coverage therefore make the limitations more explicit; they do not establish
+complete-song coverage or accuracy on long club tracks.
+
+The [metadata evidence](public376-metadata.json.gz) preserves every joined row,
+original native tags/taxonomies/relations, publisher measurement methods and
+missing reasons, catalog identities, and nonexclusive tag summaries for each
+duration band. The join uses the existing typed collection-catalog reader. The
+following command verifies the stored result without inference; `--plot` redraws
+the inline figure, and `--write` explicitly regenerates the metadata projection.
+
+```sh
+python -m tools.describe_native_panel
+```
