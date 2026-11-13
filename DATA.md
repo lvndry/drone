@@ -234,6 +234,15 @@ Future acquisition should fill a measured coverage gap with documented
 identity, labels, metadata and use terms; it should not be chosen to rescue a
 particular observed score.
 
+## Prospective commercial-comparator panel
+
+The [Drone versus Mixed In Key protocol](experiments/studies/v2-data-contract/MIK_COMPARISON_PROTOCOL.md)
+defines a future independent, full-length comparison. No panel has been admitted
+or scored. Existing exposed corpora and the private DJ library are not silently
+reclassified as its final test set. Audio identity, label-source independence,
+blinded annotation, genre/length coverage and comparator access must be established
+before freezing the execution packet.
+
 ## Reference trust and use terms
 
 Beatport human annotations by Eduard Mas Marín, revised/expanded by Ángel Faraldo,
