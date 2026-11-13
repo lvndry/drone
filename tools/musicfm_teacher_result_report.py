@@ -6,6 +6,7 @@ import argparse
 import gzip
 import json
 import math
+import tarfile
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,90 @@ from experiments.k10_v2_pilot import selection_key
 from tools.musicfm_teacher_cost_report import INITIAL, LIMIT, STUDY, digest, require
 
 DOMAINS = (("beatport", 126), ("fmak", 250))
+
+
+def verify_bn_budget(report: dict[str, Any], study: Path = STUDY) -> dict[str, Any]:
+    """Keep technical qualification separate from a never-opened accuracy result."""
+    path = study / "data/bn-diagnostic/terminal-metadata.tar.gz"
+    require(
+        digest(path.read_bytes())
+        == "8aabe764ce6a49ce1615bb526c9390a3628d4690b0153b1afb716d1b043fb1c1",
+        "BN terminal metadata changed",
+    )
+    with tarfile.open(path) as archive:
+
+        def read(name: str) -> dict[str, Any]:
+            member = archive.extractfile(name)
+            require(member is not None, "Missing BN evidence: " + name)
+            assert member is not None
+            return json.load(member)
+
+        config = read("sealed-config.json")
+        controller = read("run-v1/controller.json")
+        result = read("run-v1/worker/result.json")
+        qualification = read("run-v1/worker/qualification.json")
+        admission = read("run-v1/worker/admission.json")
+    require(
+        config["source_commit"] == "6ea7ab810d2c42dde1ed761b7b723c41d30ab6d0",
+        "Unexpected diagnostic source",
+    )
+    require(
+        controller["complete"]
+        and controller["error"] is None
+        and controller["cleanup_error"] is None
+        and controller["worker_exit"] == 0,
+        "BN owner did not retire successfully",
+    )
+    require(
+        result["status"] == "BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING"
+        and result["selection_scored"] is False
+        and result["training_performed"] is False
+        and result["promotion_authorized"] is False,
+        "Do not reinterpret budget qualification as an accuracy result",
+    )
+    require(
+        result["qualification"] == qualification and result["admission"] == admission,
+        "BN result and separate receipts disagree",
+    )
+    projected = 512 * sum(qualification["site_max_seconds"])
+    require(
+        len(qualification["site_max_seconds"]) == 18
+        and math.isclose(projected, admission["projected_calibration_seconds"], abs_tol=1e-9),
+        "Calibration projection mismatch",
+    )
+    remaining, required = admission["remaining_seconds"], admission["required_seconds"]
+    overhead = (
+        required - 2 * projected - 2 * report["prospective_complete_comparison_seconds"] - 120
+    )
+    require(0 <= overhead <= controller["wall_seconds"], "Inconsistent measured overhead")
+    require(
+        required > remaining and admission["fits_budget"] is False,
+        "Budget refusal must retain the declared safety factors",
+    )
+    require(
+        qualification["max_absolute_difference"] == 0.0
+        and qualification["correctness_prefixes"] == 36
+        and qualification["full_traces"] == 2
+        and qualification["timing_prefixes"] == 288,
+        "Unexpected qualification evidence",
+    )
+    require(
+        controller["wall_seconds"] <= config["caps"]["wall_seconds"]
+        and controller["peaks"]["cpu"] <= config["caps"]["cpu_seconds"]
+        and controller["peaks"]["rss"] <= config["caps"]["rss_bytes"],
+        "Observed BN resource cap breach",
+    )
+    return dict(
+        status=result["status"],
+        required_seconds=required,
+        remaining_seconds=remaining,
+        projected_calibration_seconds=projected,
+        wall_seconds=controller["wall_seconds"],
+        peaks=controller["peaks"],
+        correctness_prefixes=36,
+        timing_prefixes=288,
+        accuracy_opened=False,
+    )
 
 
 def load_evidence(study: Path = STUDY) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -448,6 +533,7 @@ def main() -> None:
     concise = {
         k: v for k, v in report.items() if k not in ("history", "metrics", "b16_event_seconds")
     }
+    concise["bn_diagnostic"] = verify_bn_budget(report)
     print(json.dumps(concise, indent=2, allow_nan=False))
 
 
