@@ -76,6 +76,9 @@ second, including live FFmpeg children. Final worker CPU includes waited childre
 One shared invocation budget begins before input admission and accumulates the
 controller's CPU, already-reaped children and currently live worker/decoder CPU.
 It is never reset between cases; monitoring subprocesses count toward this budget.
+The execution alarm is installed before configuration reading and admission hashes;
+an admission failure retains an incomplete invocation receipt. Metadata-only
+validation is a separate, non-executing mode.
 Worker-only OS high-water RSS is separate from sampled aggregate RSS; neither is
 an exact simultaneous process-tree high-water measurement. Admission and
 diagnostic work remains in whole-worker resource totals, with stage boundaries
@@ -91,6 +94,8 @@ actual process start identities, refreshes descendant ownership before each sign
 and rechecks each identity before signaling an individual PID. It never signals
 a whole possibly reused process group. A reused PID and descendants rooted only
 in that unrelated process are not adopted. Retain
+untracked group survivors as a cleanup failure; an empty captured identity set
+alone is not evidence that the group disappeared. Retain
 failure logs/receipts; do not process later cases. Successful passes delete their
 temporary WAV after reading it. Failure WAVs remain only in the finite owned
 output directory for diagnosis.

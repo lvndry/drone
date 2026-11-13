@@ -381,7 +381,7 @@
     {
       "path": "research/drone-native-cqt/composed/original_file.py",
       "git_mode": "100644",
-      "sha256": "191a58cd2d485cd7fe61b5310e62c610f64648f834153ef06ef9234e8f49be03",
+      "sha256": "222af88ed0fec7161018fa3ad8b6c2d8fe33afa6708dd08807dbf6bab7e72053",
       "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     },
     {
@@ -393,7 +393,7 @@
     {
       "path": "research/drone-native-cqt/composed/END_TO_END_PROTOCOL.md",
       "git_mode": "100644",
-      "sha256": "01e07ee364fa24c07578c61e9a7ee0b57a6e3dedb53d2090dbb876cbcc611496",
+      "sha256": "27d8ac27d990a3d7e978af74a3ab1013fd5c1a6da452ec6b9b457281ab07bc49",
       "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     }
   ]

@@ -89,6 +89,10 @@ def matching_identity(pid: int, start: int) -> bool:
         return False
 
 
+def group_members(group: int) -> set[int]:
+    return {pid for pid, (_, pgid) in process_table().items() if pgid == group}
+
+
 def refresh_owned(group: int, identities: dict[int, int]) -> set[int]:
     """Refresh live descendants, rooted only in still-matching captured identities."""
     table = process_table()
@@ -296,9 +300,11 @@ def retire(child: subprocess.Popen[bytes], identities: dict[int, int]) -> None:
         except subprocess.TimeoutExpired:
             continue
         if not refresh_owned(child.pid, identities):
+            if group_members(child.pid):
+                raise RuntimeError("Untracked group survivors remain; ownership not proven")
             return
     child.wait(timeout=5)
-    if refresh_owned(child.pid, identities):
+    if refresh_owned(child.pid, identities) or group_members(child.pid):
         raise RuntimeError("Owned process group survived retirement")
 
 
@@ -429,6 +435,12 @@ def run_case(
                 remaining = sorted(refresh_owned(child.pid, identities))
             except BaseException as error:
                 failure = f"{failure or ''}; retirement: {type(error).__name__}: {error}"
+                try:
+                    remaining = sorted(
+                        refresh_owned(child.pid, identities) | group_members(child.pid)
+                    )
+                except (OSError, subprocess.SubprocessError):
+                    remaining = None  # Unknown is not an empty cleanup certificate.
                 raise
             finally:
                 receipt = {
@@ -463,14 +475,13 @@ def main() -> None:
         "--execute", action="store_true", help="Run the frozen five-case measurement"
     )
     args = parser.parse_args()
-    config = object_value(json.loads(args.config.read_text()))
-    rows = validate_config(config)
     if not args.execute:
+        config = object_value(json.loads(args.config.read_text()))
+        rows = validate_config(config)
         print(json.dumps({"validated": True, "cases": len(rows), "executed": False}))
         return
     args.output.mkdir(parents=False, exist_ok=False)
     snapshot = args.output / "config.json"
-    snapshot.write_text(json.dumps(config, indent=2) + "\n")
 
     def interrupted(signum: int, _frame: object) -> None:
         raise InterruptedError(f"Received signal {signum}")
@@ -479,8 +490,13 @@ def main() -> None:
         signal.signal(sig, interrupted)
     signal.alarm(max(1, math.ceil(MAX_WALL_SECONDS - budget.usage()[0])))
     receipts: list[dict[str, object]] = []
+    rows: list[dict[str, object]] = []
     failure: str | None = None
     try:
+        budget.check()
+        config = object_value(json.loads(args.config.read_text()))
+        snapshot.write_text(json.dumps(config, indent=2) + "\n")
+        rows = validate_config(config)
         budget.check()
         for index in range(len(rows)):
             receipts.append(run_case(config, snapshot, args.output, index, budget))
@@ -494,7 +510,7 @@ def main() -> None:
         terminal_violation = failure is None and (wall > MAX_WALL_SECONDS or cpu > MAX_CPU_SECONDS)
         if terminal_violation:
             failure = "Terminal whole-invocation measurement budget exceeded"
-        complete = failure is None and len(receipts) == len(rows)
+        complete = failure is None and len(receipts) == len(rows) == 5
         numerical = complete and all(row["numerical_pass"] is True for row in receipts)
         keys = complete and all(row["unchanged_key"] is True for row in receipts)
         result = {
@@ -509,7 +525,7 @@ def main() -> None:
                 "wall_seconds": MAX_WALL_SECONDS,
                 "aggregate_cpu_seconds": MAX_CPU_SECONDS,
             },
-            "config_sha256": sha256(snapshot),
+            "config_sha256": sha256(snapshot) if snapshot.is_file() else None,
             "panel_sha256": sha256(PANEL_PATH),
             "platform": platform.platform(),
             "cases": receipts,

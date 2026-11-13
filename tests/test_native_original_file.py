@@ -170,7 +170,8 @@ def test_cleanup_never_signals_reused_pid_or_its_new_descendants(
         def wait(self, timeout: float) -> int:
             return 0
 
-    measurement.retire(cast(subprocess.Popen[bytes], Finished()), {10: 1})
+    with pytest.raises(RuntimeError, match="Untracked group survivors"):
+        measurement.retire(cast(subprocess.Popen[bytes], Finished()), {10: 1})
     assert killed == []
 
 
@@ -247,3 +248,61 @@ def test_linux_start_identity_handles_parentheses_in_process_name(
     line = "123 (name) with spaces) " + " ".join(["S"] + ["0"] * 18 + ["9876"])
     monkeypatch.setattr(Path, "read_text", lambda _path: line)
     assert measurement.process_start(123) == 9876
+
+
+def test_execution_alarm_covers_admission_and_retains_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config = tmp_path / "config.json"
+    config.write_text("{}")
+    output = tmp_path / "run"
+    monkeypatch.setattr(
+        sys, "argv", ["measurement", "--config", str(config), "--output", str(output), "--execute"]
+    )
+    previous = {
+        sig: signal.getsignal(sig)
+        for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGALRM)
+    }
+
+    def interrupted_admission(_config: dict[str, object]) -> list[dict[str, object]]:
+        assert signal.alarm(0) > 0
+        signal.raise_signal(signal.SIGALRM)
+        raise AssertionError("Admission should have been interrupted")
+
+    monkeypatch.setattr(measurement, "validate_config", interrupted_admission)
+    try:
+        with pytest.raises(InterruptedError):
+            measurement.main()
+    finally:
+        signal.alarm(0)
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+    receipt = json.loads((output / "result.json").read_text())
+    assert receipt["complete"] is False
+    assert receipt["benchmark_qualified"] is False
+    assert "InterruptedError" in receipt["failure"]
+
+
+def test_unseen_child_after_leader_exit_is_not_certified_as_empty_cleanup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(measurement, "process_table", lambda: {11: (1, 10)})
+
+    def start(pid: int) -> int:
+        if pid == 10:
+            raise ProcessLookupError(pid)
+        return 2
+
+    monkeypatch.setattr(measurement, "process_start", start)
+    killed: list[int] = []
+    monkeypatch.setattr(os, "kill", lambda pid, _sig: killed.append(pid))
+
+    class Finished:
+        pid = 10
+
+        def wait(self, timeout: float) -> int:
+            return 0
+
+    with pytest.raises(RuntimeError, match="Untracked group survivors"):
+        measurement.retire(cast(subprocess.Popen[bytes], Finished()), {10: 1})
+    assert killed == []
