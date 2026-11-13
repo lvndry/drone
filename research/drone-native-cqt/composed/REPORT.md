@@ -321,3 +321,54 @@ accuracy, calibrated Drone confidence, bounded warm sessions, and engine/model
 cache identity require separate evidence. Existing libkeyfinder confidence
 thresholds cannot be applied to softmax top1-minus-top2 margins without calibration. No final-result cache, Euphoria production key detector,
 default dependency/MSRV, model weights or training changed.
+
+## Boundary observer import closure and failed build qualification (November 13)
+
+Source commit `081e160` adds exact bindings for all local Python trace-support
+imports and package initializers, the interpreter pathname, and the absence of
+PYTHONPATH/PYTHONHOME. Thirteen tiny synthetic checks, Ruff format/lint and ty pass.
+No transform or model runs in those tests. The shared editable test environment
+contributes an extra `tools` namespace; actual trace admission correctly rejects
+that environment. Tests isolate their import search without modifying shared pth
+files. A complete actual Python trace runtime remains unqualified.
+
+The separately [frozen build protocol](BOUNDARY_BUILD_PROTOCOL.md) authorized one
+local offline build, with a private cache rather than shared Cargo mutations.
+The 68-package lockfile has two local packages and 66 registry packages. All
+required cached crates, archives and sparse-index entries were copied and
+hashed; their private copy occupied 70,764,137 bytes within the total 512 MiB cap.
+The macOS ownership probe verified exact process-start identities, live resident
+memory and reaped-child CPU counters before compilation. The initial metadata
+preparation launcher, `/usr/bin/python3`, lacked tomllib and exited before target
+creation or any compiler process; the existing `/usr/local/bin/python3` 3.14.5
+then performed preparation and was pinned in the actual build plan. No package
+was installed and no environment was changed.
+
+**The single build attempt failed operationally; build qualification was not
+achieved.** Plan SHA256:
+`af4c313c99fafad60b7e3282b2aa7dd1812153a9f248332a259033db60b37b9c`.
+The window began at 07:37:56 UTC. Guardian PID 24710/start-abstime 12444153175429
+launched owned worker 24717/start 12444173968602 and Cargo 24742/start 12444198043827.
+After 2.692619 seconds, the guardian's owned-output scan attempted to stat a
+transient Cargo `.rcgu.o` file that had just been removed. It treated that
+FileNotFoundError as a failure and terminated only its verified owned process
+group. This is not a compiler, numerical parity or CPU-portability finding.
+No retry, cap extension, trace execution, PCM transfer, decoding or model call
+followed. The loader inspection stage was not reached.
+
+At failure, sampled aggregate RSS was 255,049,728 bytes, conservatively sampled
+CPU usage was 2.381104 seconds, and owned outputs totaled 76,464,031 bytes. These
+are sampled measurements, not an exact transient peak or complete final CPU
+accounting. Post-failure verification found no remaining owned-group processes;
+all bound source/toolchain files, copied shared-cache inputs and shared Cargo
+metadata remained byte-identical. The old pipeline retained SHA256
+`9a5b7fc9887e7cf160a95614d26b86f2e65df98d837260177c16ca95841893ad`.
+
+The [evidence archive](boundary-build-v1-evidence.tar.gz) contains the prospective
+plan, complete input/copy hash inventory, source commit, exact build argv and
+clean environment, launch identities, original logs/controller and post-failure
+checks. It contains neither audio nor compiled artifacts. Archive SHA256:
+`3e5a570cd0850da1c0c1bd7363bd6c219a2c05848d347019e8e16aaff4a4d37d`.
+The [executed guardian](qualify_boundary_build.py.txt) remains unchanged. Any later
+build needs a separately reviewed fix for transient-file disappearance during
+size sampling, new source bindings and its own bounded prospective window.
