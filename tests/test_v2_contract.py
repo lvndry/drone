@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 import random
 from dataclasses import replace
@@ -187,11 +188,15 @@ def test_committed_study_reproduces_and_panels_stay_frozen() -> None:
     assert result["quarantined_rows"] == 2
 
 
-def test_protocol_amendment_chain_rejects_unconnected_step(tmp_path: Path) -> None:
+def test_protocol_amendment_chain_checks_bytes_and_connections(tmp_path: Path) -> None:
     from tools.check_v2_contract import amended_hash
 
-    pinned = "a" * 64
-    current = "b" * 64
+    data = tmp_path / "data"
+    data.mkdir()
+    before, after = b"Original frozen rules.\n", b"Original frozen rules.\nAppendix.\n"
+    pinned, current = hashlib.sha256(before).hexdigest(), hashlib.sha256(after).hexdigest()
+    (data / "original.md").write_bytes(before)
+    (tmp_path / "PROTOCOL.md").write_bytes(after)
     chain = {
         "assignment_artifacts_changed": False,
         "amendments": [
@@ -199,14 +204,39 @@ def test_protocol_amendment_chain_rejects_unconnected_step(tmp_path: Path) -> No
                 "artifact": "PROTOCOL.md",
                 "from_sha256": pinned,
                 "to_sha256": current,
+                "from_snapshot": "data/original.md",
+                "to_snapshot": "PROTOCOL.md",
                 "fma_assignment_artifacts_changed": False,
             }
         ],
     }
-    data = tmp_path
-    (data / "protocol-amendments.json").write_text(json.dumps(chain))
+    receipt = data / "protocol-amendments.json"
+    receipt.write_text(json.dumps(chain))
     assert amended_hash(data, "PROTOCOL.md", pinned, current)
     assert not amended_hash(data, "PROTOCOL.md", current, pinned)
-    chain["amendments"][0]["fma_assignment_artifacts_changed"] = True
-    (data / "protocol-amendments.json").write_text(json.dumps(chain))
+    (data / "original.md").write_bytes(b"Invented ancestor.\n")
     assert not amended_hash(data, "PROTOCOL.md", pinned, current)
+    (data / "original.md").write_bytes(before)
+    chain["amendments"][0]["fma_assignment_artifacts_changed"] = True
+    receipt.write_text(json.dumps(chain))
+    assert not amended_hash(data, "PROTOCOL.md", pinned, current)
+
+
+def test_protocol_amendment_rejects_whole_rewrite_even_with_updated_receipt(tmp_path: Path) -> None:
+    import shutil
+
+    from tools.check_v2_contract import STUDY, check
+
+    study = tmp_path / "study"
+    shutil.copytree(STUDY, study)
+    witness = study / "data/before-label-witness.json"
+    original_witness = witness.read_bytes()
+    protocol = study / "PROTOCOL.md"
+    protocol.write_bytes(b"Replacement: fitting and selection may overlap.\n")
+    path = study / "data/protocol-amendments.json"
+    chain = json.loads(path.read_text())
+    chain["amendments"][-1]["to_sha256"] = hashlib.sha256(protocol.read_bytes()).hexdigest()
+    path.write_text(json.dumps(chain))
+    with pytest.raises(ValueError, match="Before-label assignment artifact changed"):
+        check(study)
+    assert witness.read_bytes() == original_witness

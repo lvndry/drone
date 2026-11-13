@@ -4,13 +4,25 @@
   "assignment_artifacts_changed": false,
   "amendments": [
     {
-      "utc": "2026-11-13T06:17:54+00:00",
+      "artifact": "PROTOCOL.md",
+      "source_commit": "eea21f5eaa00feab184cda96ba09dcae71319b39",
+      "pull_request": 37,
+      "from_snapshot": "data/protocol-snapshots/before-label-PROTOCOL.md",
+      "to_snapshot": "data/protocol-snapshots/after-pr37-PROTOCOL.md",
+      "from_sha256": "f723ad4989fba7fb109d5640ab8126d6d38b84840ab8fa8aeb2fc93ab2fdbb41",
+      "to_sha256": "16d986b4f3c3450b00717ac20323634d790f19d2214d6cd5300dd20ba865641c",
+      "change": "Appended the metadata-only GTZAN reference eligibility stage; retained the original FMA protocol bytes.",
+      "fma_assignment_artifacts_changed": false
+    },
+    {
+      "artifact": "PROTOCOL.md",
       "source_commit": "cdb353ed8c7ce8bdbc6c5978014db80508efdf3d",
       "pull_request": 39,
-      "artifact": "PROTOCOL.md",
-      "from_sha256": "f723ad4989fba7fb109d5640ab8126d6d38b84840ab8fa8aeb2fc93ab2fdbb41",
+      "from_snapshot": "data/protocol-snapshots/after-pr37-PROTOCOL.md",
+      "to_snapshot": "PROTOCOL.md",
+      "from_sha256": "16d986b4f3c3450b00717ac20323634d790f19d2214d6cd5300dd20ba865641c",
       "to_sha256": "0227c64ca07ab862d22199f072c5bfca275506a05cf44d396c43485610b86046",
-      "change": "Appended the GTZAN archive-integrity stage, which runs before any GTZAN score and does not touch the FMA assignment, ledger, input, labels or role rules.",
+      "change": "Appended the GTZAN archive-integrity stage before GTZAN scoring; retained the preceding protocol bytes.",
       "fma_assignment_artifacts_changed": false
     }
   ]

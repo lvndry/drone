@@ -17,24 +17,49 @@ STUDY = Path(__file__).resolve().parents[1] / "experiments/studies/v2-data-contr
 
 
 def amended_hash(data: Path, artifact: str, pinned: str, current: str) -> bool:
-    """Follow an append-only amendment chain from the pinned to the current hash.
+    """Verify witness-bound bytes and every append-only protocol transition.
 
-    Only the named artifact may move, every step must connect, and any amendment
-    that claims to have changed an FMA assignment artifact is rejected.
+    Receipt assertions describe the amendment; snapshot hashes and byte prefixes
+    establish that the original before-label protocol was retained unchanged.
     """
     chain = json.loads((data / "protocol-amendments.json").read_text())
-    if chain.get("assignment_artifacts_changed"):
+    if artifact != "PROTOCOL.md" or chain.get("assignment_artifacts_changed") is not False:
         return False
+    study = data.parent.resolve()
+
+    def snapshot(relative: str) -> bytes:
+        path = Path(relative)
+        if path.is_absolute() or ".." in path.parts or "\\" in relative:
+            raise ValueError("Protocol snapshot must be study-relative")
+        resolved = (study / path).resolve()
+        if not resolved.is_relative_to(study):
+            raise ValueError("Protocol snapshot escapes study")
+        return resolved.read_bytes()
+
     digest = pinned
-    for step in chain["amendments"]:
-        if step["artifact"] != artifact:
-            continue
-        if step["from_sha256"] != digest:
+    previous: bytes | None = None
+    steps = chain["amendments"]
+    if not steps:
+        return False
+    for step in steps:
+        if (
+            step["artifact"] != artifact
+            or step["from_sha256"] != digest
+            or step.get("fma_assignment_artifacts_changed") is not False
+        ):
             return False
-        if step.get("fma_assignment_artifacts_changed"):
+        before = snapshot(step["from_snapshot"])
+        after = snapshot(step["to_snapshot"])
+        if (
+            sha(before) != digest
+            or sha(after) != step["to_sha256"]
+            or (previous is not None and before != previous)
+            or not after.startswith(before)
+        ):
             return False
+        previous = after
         digest = step["to_sha256"]
-    return digest == current
+    return digest == current and previous == (study / artifact).read_bytes()
 
 
 def check(study: Path = STUDY) -> dict[str, Any]:
