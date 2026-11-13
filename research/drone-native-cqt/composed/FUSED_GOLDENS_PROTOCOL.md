@@ -13,8 +13,8 @@ impulses, tone, major chord, minor chord, noise, `fmak-110544`, `fmak-107354`,
 of PCM; the six synthetic signals span 1.30–5.76 seconds. The manifest identity,
 all PCM/core/CSR identities and each original native core identity are bound
 before launch. The entrypoint hard-codes membership, order, manifest identity
-and original native control identities. No new audio, resampling, reference
-regeneration, classifier, label, or genre inference belongs to this stage.
+and original native control identities. No new audio acquisition, reference regeneration, classifier, label, or genre
+inference belongs to this stage. The existing frontend resampler is exercised.
 
 For each case, sequentially:
 
