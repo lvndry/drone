@@ -8,6 +8,7 @@ import io
 import json
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -124,3 +125,136 @@ def test_resealed_wrong_fresh_prediction_rejected(tmp_path: Path) -> None:
     (data / "artifact-index.json").write_bytes(encode(seal(data, "corrected")))
     with pytest.raises(ValueError, match="Published KF row differs"):
         analyze(data)
+
+
+def slice_fixture(
+    *, seconds: float | None = 120.0, ref: int = 0, status: str = "key", ident: str = "a"
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    row: dict[str, Any] = {
+        "track_id": ident,
+        "ref": ref,
+        "genre": "drum-and-bass",
+        "bucket": "dubstep",
+    }
+    for name in ("drone", "madmom", "libkeyfinder"):
+        row[name + "_pred"] = ref if status == "key" else None
+        row[name + "_status"] = status
+        row[name + "_rel"] = "exact" if status == "key" else status
+    track: dict[str, Any] = {
+        "track_id": ident,
+        "corpus_id": "synthetic",
+        "genre": {"raw": "drum-and-bass", "bucket": "dubstep"},
+        "key_label": {"class_id": ref},
+        "duration": {"analyzed": {"value": seconds}, "full_recording": {"value": None}},
+        "bpm": {"value": None},
+        "grouping": {"work_id": "one-repeated-work", "performance_id": ident},
+    }
+    return row, track
+
+
+def test_slice_empty_is_na_and_failures_keep_full_denominator() -> None:
+    from tools.report_key_references import descriptive_slices, slice_csv
+
+    fixtures = [
+        slice_fixture(status=status, ident=str(i))
+        for i, status in enumerate(("key", "error", "abstain"))
+    ]
+    result = descriptive_slices([r for r, _ in fixtures], [t for _, t in fixtures])
+    group = result["slices"]["analyzed_duration"]["<3m"]
+    for metrics in group["detectors"].values():
+        assert metrics["n_total"] == 3
+        assert metrics["n_valid"] == metrics["n_error"] == metrics["n_abstain"] == 1
+        assert metrics["exact"] == metrics["mirex"] == 0.3333
+    empty = result["slices"]["analyzed_duration"]["8m+"]
+    assert empty["n"] == 0
+    assert empty["detectors"]["drone"]["exact"] is None
+    assert empty["detectors"]["drone"]["mirex"] is None
+    assert "NA" in slice_csv(result)
+    assert result["coverage"]["bpm"] == {"known": 0, "unknown": 3}
+    assert result["grouping_by_corpus"]["synthetic"]["known_work_ids"] == ["one-repeated-work"]
+
+
+def test_slice_edges_raw_genre_and_key_encoding_are_fixed() -> None:
+    from tools.report_key_references import DURATION_SLICES, descriptive_slices
+
+    fixtures = [
+        slice_fixture(seconds=seconds, ref=i, ident=str(i))
+        for i, seconds in enumerate((179.999, 180.0, 300.0, 480.0, None))
+    ]
+    result = descriptive_slices([r for r, _ in fixtures], [t for _, t in fixtures])
+    assert list(result["slices"]["analyzed_duration"]) == list(DURATION_SLICES)
+    assert [v["n"] for v in result["slices"]["analyzed_duration"].values()] == [1] * 5
+    assert list(result["slices"]["genre_original"]) == ["drum-and-bass"]
+    assert list(result["slices"]["genre_legacy_group"]) == ["dubstep"]
+    assert result["slices"]["key"]["C# minor"]["n"] == 1
+    assert result["slices"]["key"]["B minor"]["n"] == 0
+    assert result["slices"]["mode"]["major"]["n"] == 3
+    assert result["slices"]["mode"]["minor"]["n"] == 2
+    assert result["corpus_by_duration"]["synthetic"]["8m+"]["n"] == 1
+
+
+def test_slice_catalog_must_join_all_rows_and_original_labels() -> None:
+    from tools.report_key_references import descriptive_slices
+
+    row, track = slice_fixture()
+    with pytest.raises(ValueError, match="complete unique"):
+        descriptive_slices([row], [])
+    with pytest.raises(ValueError, match="complete unique"):
+        descriptive_slices([row], [track, track])
+    with pytest.raises(ValueError, match="label"):
+        descriptive_slices([{**row, "ref": 1}], [track])
+    with pytest.raises(ValueError, match="genre"):
+        descriptive_slices([{**row, "genre": "different"}], [track])
+    invalid, metadata = slice_fixture(seconds=float("nan"))
+    with pytest.raises(ValueError, match="positive and finite"):
+        descriptive_slices([invalid], [metadata])
+
+
+def test_catalog_slices_replay_complete_panel_and_leave_historical_artifacts_unchanged() -> None:
+    from tools.report_key_references import CATALOG, analyze_slices
+
+    watched = [
+        DATA / name
+        for name in (
+            "bench.csv",
+            "bench.json",
+            "manifest.json",
+            "artifact-index.json",
+            "metadata-analysis.json",
+        )
+    ]
+    before = {path: sha(path.read_bytes()) for path in watched}
+    result = analyze_slices()
+    assert result["n"] == 93
+    assert result["provenance"]["catalog_sha256"] == sha(CATALOG.read_bytes())
+    assert result["coverage"]["bpm"] == {"known": 0, "unknown": 93}
+    assert result["coverage"]["full_recording_duration"] == {"known": 0, "unknown": 93}
+    assert [v["n"] for v in result["slices"]["analyzed_duration"].values()] == [71, 20, 2, 0, 0]
+    assert result["corpus_by_duration"]["giantsteps"]["3-5m"]["n"] == 0
+    assert result["corpus_by_duration"]["swd-v2.1"]["3-5m"]["n"] == 20
+    assert len(result["grouping_by_corpus"]["swd-v2.1"]["known_work_ids"]) == 24
+    assert (
+        result["slices"]["genre_original"]["trance"]["detectors"]["drone"]["counts"].get("exact", 0)
+        == 0
+    )
+    assert result["slices"]["genre_original"]["trance"]["n"] == 4
+    assert result["slices"]["mode"]["minor"]["n"] == 64
+    assert result["corpus_by_mode"]["swd-v2.1"]["major"]["n"] == 16
+    assert {path: sha(path.read_bytes()) for path in watched} == before
+
+
+def test_slice_rejects_structurally_valid_but_unwitnessed_bpm(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    from experiments.corpus_catalog import catalog_bytes, load_catalog
+    from tools.report_key_references import CATALOG, analyze_slices
+
+    catalog = load_catalog(CATALOG)
+    row = catalog.tracks[0]
+    invented = replace(
+        row, bpm=replace(row.bpm, value=128.0, method="unwitnessed", missing_reason=None)
+    )
+    path = tmp_path / "catalog.json"
+    path.write_bytes(catalog_bytes(replace(catalog, tracks=(invented, *catalog.tracks[1:]))))
+    with pytest.raises(ValueError, match="source adapter"):
+        analyze_slices(catalog_path=path)

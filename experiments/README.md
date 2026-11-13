@@ -4,6 +4,12 @@ Each study keeps its research question, method, results, figures and decision
 together. Start with its report; the adjacent protocol records the rules fixed
 before evaluation, and `data/` retains measured evidence and provenance.
 
+Start dataset work with the [corpus inventory](../DATA.md). It records which
+genres, analyzed durations and tempo metadata are actually available, along with
+split roles, reference provenance and missing coverage. The first structured
+catalog covers the 93-recording reference panel; the broader BP/FMA/GTZAN adapters
+are listed there as outstanding work.
+
 | Study | Problem | Result and decision |
 |---|---|---|
 | [K10 CPU baseline](studies/k10-cpu/REPORT.md) | What actually costs CPU time and memory? | Frontend median 353 ms versus ONNX 35.6 ms; long-track activation memory warrants optimization. |
@@ -37,6 +43,14 @@ Use `studies/<name>/REPORT.md` for the problem, method/comparison, measured
 results and discussion/decision. Place figures beside that report, with captions
 where the results are discussed. State metrics, units, sample size, uncertainty,
 selection policy and limitations. Keep negative results and failed gates.
+
+Every accuracy report must identify its corpus/version and fixed cohort, show
+genre and analyzed-duration coverage, and report available tempo metadata plus
+unknowns. Include per-slice recording counts and failures alongside accuracy;
+retain original tags when showing derived genre groups. Separate full-song
+metadata from the audio actually analyzed, and repeated recordings from distinct
+works. State missing slices directly rather than implying all-genre or long-track
+coverage from an aggregate score.
 
 Store the frozen protocol as `PROTOCOL.md`, small JSON evidence under `data/`,
 and figures under `figures/`. Do not commit audio, caches or training checkpoints.
