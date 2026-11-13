@@ -60,6 +60,18 @@ def test_duplicate_member_rejected(tmp_path: Path) -> None:
         )
 
 
+def test_archive_link_rejected_without_following_target(tmp_path: Path) -> None:
+    path = tmp_path / "link.tar.gz"
+    name = "genres/blues/blues.00000.wav"
+    with tarfile.open(path, "w:gz") as stream:
+        entry = tarfile.TarInfo(name)
+        entry.type = tarfile.SYMTYPE
+        entry.linkname = "/outside/recording.wav"
+        stream.addfile(entry)
+    with pytest.raises(ValueError, match="Unexpected archive member or link"):
+        check.inspect_members(path, {name: "0" * 32})
+
+
 def test_wrong_recording_identity_rejected(tmp_path: Path) -> None:
     name, raw = "genres/blues/blues.00000.wav", wav()
     with pytest.raises(ValueError, match="MD5 mismatch"):

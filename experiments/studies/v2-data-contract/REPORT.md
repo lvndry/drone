@@ -2,8 +2,9 @@
 
 The assignment sections below retain their original proposal-time scope and counts.
 The [current coverage/provenance chapter](#current-genre-duration-and-reference-provenance)
-uses the later frozen eligibility amendment and metadata only. It changes no split,
-reference key, model outcome or running experiment.
+uses the later frozen eligibility amendment. The November 13 recording-integrity
+results below supersede the metadata-only acquisition status in older sections.
+They change no split, reference key or model outcome.
 
 **Original proposal decision (historical): no new role assignment or training
 activation; v1 data, weights and gates remained unchanged.** The original study
@@ -469,3 +470,73 @@ The [protocol amendment](PROTOCOL.md#gtzan-reference-metadata-amendment-2026-11-
 fixes rules before scores. Regressions cover all 24 class mappings and unknowns,
 malformed labels, source-byte/tree tampering including unselected members,
 filtered-list overlap, exact counts, corruption status and zero admission.
+
+
+## November 13: recording integrity, before classifier evaluation
+
+**Problem.** The public mirror has a different archive hash from the historical
+UVic download. Metadata alone could not establish whether its recordings matched
+the pinned reference index. A fresh score on different audio would be misleading.
+
+**Method.** Download the single pinned archive once, then stream its members
+without extraction. Verify its exact byte length and SHA256, compare every WAV's
+MD5 with the independently pinned mirdata index, and inspect WAV encoding and
+payload structure. No classifier, keyfinder, feature extraction or score selection
+ran. Audio remains on the research server and is not redistributed here.
+
+**Result.** The 1,226,192,050-byte archive matches publisher SHA256
+`b28cc067ff6199bd826f5d1a6931458586d64acae7f44b2e882b7a97af057531`.
+All recordings in both frozen reference cohorts match their expected recording
+identities and parse as mono 22,050-Hz, 16-bit PCM WAVs.
+
+| Frozen cohort | Recordings | Matching MD5 | Parseable WAV |
+|---|---:|---:|---:|
+| Complete inventory | 1,000 | 999 | 999 |
+| Raw single-key references | 837 | 837 | 837 |
+| Named fault-filtered intersection | 769 | 769 | 769 |
+
+The sole identity/format failure is `jazz.00054`, already excluded by the
+previously frozen metadata rule. Its acquired MD5 is
+`320218e302b1807c70cb7f6d660409f4`, versus the index witness
+`8f0ab76fff2d2c6bc80eb9c9362318ca`. Its bytes do not begin with a RIFF identifier.
+This finding does not create a new exclusion or establish that every byte in the
+mirror is equivalent to the historical archive. The full-universe strict audit
+remains failed. **No recording is admitted for classifier scoring yet.**
+
+The first verifier stopped on bundled AppleDouble/Finder metadata. A parser
+correction allows only bounded metadata companions at exact known paths. The
+second strict audit stopped on the corrupt jazz recording's MD5 mismatch. A
+separate diagnostic inventory then recorded all 1,000 outcomes without weakening
+the strict audit. All three controllers, logs, source versions, configuration
+receipts and per-recording outcomes are preserved in the
+[metadata evidence bundle](data/gtzan-audio-integrity/evidence.tar.gz), SHA256
+`0c3b991306d84d3e9c9b90be55c9b22e83d6c41a4750245b6718619f2fa0ffb0`.
+It contains no audio. Failed audits are not presented as successful runs.
+
+The download took **13.04 seconds**. The diagnostic inventory took **6.96 seconds**,
+used **6.93 aggregate CPU seconds**, and peaked at **47,501,312 bytes** of process-tree
+RSS. It used CPU 10–11 at nice 19, with no GPU. The acquisition and two audit
+controllers all stayed within their recorded resource bounds; the existing vLLM
+process identities were protected. These are data-checking costs, not inference
+benchmarks.
+
+**Remaining gate.** Audit recording overlap against the actual released model's
+Beatport fitting and selection sources, lock model/keyfinder versions and scoring
+rules, then open one paired evaluation. MusicFM pretraining independence, recording
+rights and contemporary Afrobeats/long-song coverage remain unresolved. The 73
+hip-hop excerpts in the 769 cohort are short, historical samples; they do not
+represent all modern DJ music.
+
+Reproduce the counts from metadata without downloading audio or running models:
+
+```sh
+python -m tools.check_gtzan_audio_report
+python -m pytest -q tests/test_gtzan_audio.py tests/test_gtzan_reference.py
+```
+
+For the retained archive, `python -m tools.check_gtzan_audio ARCHIVE --output FILE`
+performs the strict check and fails on the mismatched recording. Adding
+`--inventory-only` records all mismatches explicitly; it never grants scoring
+admission. Synthetic tests cover archive path/link boundaries, duplicates,
+missing members, byte caps, recording mismatch, WAV truncation and the distinction
+between inventory completion and a strict pass.
