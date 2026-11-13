@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from summarize_fused_product import summarize, summarize_goldens
+from summarize_fused_product import summarize, summarize_goldens, summarize_public
 
 
 def plot(root: Path) -> None:
@@ -109,9 +109,56 @@ def plot_goldens(root: Path) -> None:
     plt.close(fig)
 
 
+def plot_public(root: Path) -> None:
+    result = summarize_public(root)
+    totals = result["totals"]
+    plt.rcParams["svg.hashsalt"] = "cqt-fused-public376-v1"
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6), layout="constrained")
+    values = [totals["original_mac_exact"], totals["candidate_mac_exact"]]
+    axes[0].bar(
+        ["Original native", "Fused candidate"], values, color=["#a4582c", "#277f67"], width=0.55
+    )
+    for index, value in enumerate(values):
+        axes[0].text(index, value + 8, f"{value} / 376", ha="center", weight="bold", fontsize=13)
+    axes[0].set_ylim(0, 430)
+    axes[0].set_ylabel("Entire feature arrays with exact Mac reference bytes")
+    axes[0].set_title("Numerical identity: all original controls preserved", fontsize=11, pad=12)
+    bands = ["under_2_min", "2_to_under_5_min", "5_to_under_10_min", "10_min_or_longer"]
+    # Duration bins were fixed before candidate execution; no genre inference.
+    rows = result["cases"]
+    counts = [
+        [sum(r["source"] == source and r["duration_band"] == band for r in rows) for band in bands]
+        for source in ["beatport", "fmak"]
+    ]
+    axes[1].bar(range(4), counts[0], label="Beatport (126)", color="#336b8e")
+    axes[1].bar(range(4), counts[1], bottom=counts[0], label="FMAK (250)", color="#a58b47")
+    for index, (a, b) in enumerate(zip(*counts, strict=True)):
+        axes[1].text(index, a + b + 5, str(a + b), ha="center", fontsize=11)
+    axes[1].set_xticks(range(4), ["<2 min", "2–<5 min", "5–<10 min", "≥10 min"])
+    axes[1].set_ylim(0, 350)
+    axes[1].set_ylabel("Recordings (all pass the fixed Mac reference)")
+    axes[1].set_title("Decoded length coverage: 40 seconds to 28 minutes", fontsize=11, pad=12)
+    axes[1].legend(frameon=False)
+    for axis in axes:
+        axis.spines[["top", "right"]].set_visible(False)
+    fig.suptitle("Fused products reproduce all 376 archived Mac feature cores", fontsize=15)
+    fig.supxlabel(
+        "82,562,688 values checked; primary Mac identity 376/376, separate Linux identity 0/376.\n"
+        "Feature identity is not classifier accuracy: the original already predicted the same key on 376/376.\n"
+        "Genre, BPM and full-song provenance unknown here; no new model inference or latency benchmark.",
+        fontsize=9,
+    )
+    fig.savefig(root / "fused-376.png", dpi=180)
+    svg = root / "fused-376.svg"
+    fig.savefig(svg, metadata={"Date": None})
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--goldens", action="store_true")
+    parser.add_argument("--public376", action="store_true")
     args = parser.parse_args()
-    function = plot_goldens if args.goldens else plot
+    function = plot_public if args.public376 else plot_goldens if args.goldens else plot
     function(Path(__file__).resolve().parent)

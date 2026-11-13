@@ -8,7 +8,12 @@ captured CQT frontend with the unchanged full and chunked ONNX paths, and tests
 whether the platform math transfers to an Apple M5 CPU without x86 SVML.
 The M5 is a test host, not a hardware requirement for Drone or Euphoria.
 
-The expanded Mac diagnostic now covers all **376 public tracks**, composed from
+The later fused-product repair now reproduces **all 376 archived Mac feature cores exactly**;
+see the [completed frontend validation](#completed-public-panel-frontend-validation--november-13).
+This is numerical identity, not classifier accuracy; the separate Linux references
+still differ, and the production arithmetic is unchanged.
+
+The original Mac diagnostic covers all **376 public tracks**, composed from
 disjoint 305- and 71-case phases. Strict logit qualification failed: native full
 and chunk each passed 375/376 against the actual Mac reference. All six comparison
 families nevertheless had **zero argmax disagreements**. The original tolerances
@@ -737,9 +742,9 @@ python3 research/drone-native-cqt/composed/summarize_fused_product.py --goldens 
 uv run --script research/drone-native-cqt/composed/plot_fused_product.py --goldens
 ```
 
-### Next finite validation: the existing 376 public recordings
+### Frozen proposal: the existing 376 public recordings
 
-**Proposal only; no 376-case candidate run has occurred.** Freeze the original
+**Pre-execution proposal, preserved below; the completed result follows.** Freeze the original
 panel, order and sample identities: **126 Beatport and 250 FMAK** recordings,
 40.12–1,682.26 seconds of decoded input. Select the completed first 305 records
 and the completed remaining 71 records from the two historical phases; do not
@@ -792,3 +797,94 @@ metadata for genre/BPM if available, and report unknowns explicitly; never turn
 these parity checks into accuracy claims. Only a successful, separately reviewed
 frontend expansion can justify subsequent unchanged-model full/chunked checks,
 Linux regression qualification and ordinary-PC performance measurements.
+
+### Completed public-panel frontend validation — November 13
+
+**The unchanged fused-product candidate now reproduces all 376 archived Mac
+Python feature cores exactly: 82,562,688 values, with all 376 original native
+controls preserved.** The earlier prospective expansion above is complete. The
+[fixed protocol](FUSED_376_PROTOCOL.md) and [ordered membership](FUSED_376_MEMBERSHIP.json)
+were sealed before execution; no case was dropped or reference regenerated.
+
+![Exact Mac feature identity and decoded-duration coverage on 376 public recordings](fused-376.png)
+
+The problem was numerical fidelity, not incorrect musical labels. The original
+native frontend has **0/376 byte-identical whole feature arrays**, yet its earlier
+unchanged-model comparison passed strict logit tolerances on **375/376** and
+predicted the **same key on 376/376**. Small feature differences can coexist with
+nearly identical logits and identical decisions. Neither feature identity nor
+agreement between two implementations measures accuracy against human key labels.
+This new run invoked **no classifier**, so it does not update those historical
+logit results or claim a key-accuracy improvement.
+
+| Source | Under 2 min | 2–under 5 min | 5–under 10 min | 10 min or longer | Exact Mac cores |
+|---|---:|---:|---:|---:|---:|
+| Beatport | 5 | 121 | 0 | 0 | 126 / 126 |
+| FMAK | 16 | 184 | 41 | 9 | 250 / 250 |
+| Total | 21 | 305 | 41 | 9 | **376 / 376** |
+
+Decoded durations range from **40.12 seconds to 28 minutes 2 seconds**. This
+includes 41 inputs lasting 5–10 minutes and nine longer inputs. **Genre, BPM and
+preview-versus-complete-song provenance remain unknown in this numerical packet**;
+duration alone does not establish that a recording is a complete song. These are
+public retained research recordings, not the user's private DJ crate.
+
+**Method.** Recover only each original PCM through the archived producer on the
+server, require its historical identity on both hosts, and reuse the captured Mac
+CSR constants. For every fixed case, run and retain the ordinary separate-product
+control first; admit the candidate only when that control reproduces its archived
+native identity. Then run the same previously qualified fused complex-product
+rule, retaining both new cores. Compare the candidate against the archived Mac
+reference identity. The absent old reference arrays were not reconstructed: exact
+hash equality establishes exact bytes; a mismatch would have remained a failure
+with unavailable error magnitude. Transfer uses an exact signed-16 representation
+with verified FP32 reconstruction, one outstanding case and acknowledged spool
+cleanup. No model, new Python reference, alternate backend or tolerance search
+was involved.
+
+**Cross-platform limit.** The separately reported canonical Linux core comparison
+is **0/376 exact**. Those Linux and archived Mac references already differed on
+all 376 before this experiment. Matching the fixed Mac reference therefore cannot
+also match the differing Linux reference. The result qualifies this product rule
+for the captured Mac frontend; it does not establish universal numerical
+portability, explain the Linux difference or justify replacing the reference.
+The four historical runtime-provenance gaps remain open. The default native
+arithmetic remains unchanged and all historical binaries and failures are retained.
+
+| Supervised diagnostic | Wall time | Aggregate CPU time | Sampled process-tree RSS |
+|---|---:|---:|---:|
+| Mac: transport, two native passes and verification | 495.22 s | 233.52 s | 515.56 MiB |
+| Server: original decode, verification and transport | 491.11 s | 308.34 s | 418.38 MiB |
+
+Both guardians completed within the predeclared limits, with no errors or surviving
+owned processes. The overlapping host times must not be added as elapsed latency.
+Mac process sampling was every two seconds; server sampling was every half second,
+with forced terminal checks. **Sampled RSS can miss short peaks.** These measurements
+include decode, transfer, hash checks, both native paths, evidence writes and
+monitoring. They are a bounded diagnostic cost, not an ordinary-PC inference
+benchmark or a warmed per-track runtime. The separate offline build took 66.60
+seconds wall and 98.26 aggregate CPU seconds. No GPU services were changed.
+
+The [per-case results](fused-376-results.json), original small
+[Mac](fused-376-controller.json) and [server](fused-376-server-controller.json)
+terminal receipts, and [technical provenance](fused-376-provenance.json) preserve
+membership, original controls, both reference identities, source/build/runtime
+pins and hashes of every retained new core. Operational paths are omitted from
+the public projection; full execution packets remain retained. Publication edits
+do not change the separately archived executed source snapshot. The existing
+checker verifies the projection and can rehash all retained case artifacts
+without numerical computation; the existing plot tool renders this inline figure.
+
+```sh
+python3 research/drone-native-cqt/composed/summarize_fused_product.py --public376
+python3 research/drone-native-cqt/composed/summarize_fused_product.py --public376 --run-root "$PUBLIC_RUN"
+uv run --script research/drone-native-cqt/composed/plot_fused_product.py --public376
+```
+
+**Next gate.** Reuse these exact retained candidate cores for a separately frozen
+unchanged-model full/chunked comparison against the archived Mac logits, preserving
+the original tolerances and all 376 cases. That can test whether the original
+logit failure is removed without another decode or CQT pass. Linux regression
+qualification and ordinary-PC end-to-end resource measurements remain separate
+steps before a production default change. No higher classifier-accuracy claim
+follows from this frontend result.

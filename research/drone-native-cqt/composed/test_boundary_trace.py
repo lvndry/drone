@@ -11,7 +11,7 @@ from pathlib import Path
 
 from summarize_boundary_trace import PINS, checked, summarize
 from summarize_fused_product import summarize as summarize_candidate
-from summarize_fused_product import summarize_goldens
+from summarize_fused_product import summarize_goldens, summarize_public
 
 ROOT = Path(__file__).resolve().parent
 
@@ -75,6 +75,25 @@ class BoundaryTraceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "identity changed"):
                 summarize_goldens(root)
 
+    def test_public_panel_keeps_both_references_and_long_inputs(self) -> None:
+        result = summarize_public(ROOT)
+        self.assertEqual(result["totals"]["candidate_mac_exact"], 376)
+        self.assertEqual(result["totals"]["controls_preserved"], 376)
+        self.assertEqual(result["totals"]["candidate_linux_exact_secondary"], 0)
+        self.assertEqual(result["totals"]["core_elements"], 82562688)
+        self.assertEqual(result["groups"]["10_min_or_longer"]["cases"], 9)
+        self.assertFalse(result["new_accuracy_or_portability_claim"])
+
+    def test_public_panel_cannot_drop_a_mismatching_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            path = root / "fused-376-results.json"
+            result = json.loads((ROOT / path.name).read_bytes())
+            result["cases"][0]["candidate_linux_exact_secondary"] = True
+            path.write_text(json.dumps(result))
+            with self.assertRaisesRegex(ValueError, "identity changed"):
+                summarize_public(root)
+
     def test_archived_failure_is_localized_not_promoted(self) -> None:
         result = summarize(ROOT)
         arrays = result["complete_array_comparisons"]
@@ -118,6 +137,11 @@ class BoundaryTraceTests(unittest.TestCase):
             "fused-product-provenance.json",
             "fused-goldens-results.json",
             "fused-goldens-provenance.json",
+            "fused-376-results.json",
+            "fused-376-provenance.json",
+            "fused-376-controller.json",
+            "fused-376-server-controller.json",
+            "FUSED_376_MEMBERSHIP.json",
         ]:
             raw = (ROOT / name).read_text()
             for private in ("/Users/", "/home/", "/private/", "/tmp/", '"pid"', '"start_abstime"'):
