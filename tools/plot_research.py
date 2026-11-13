@@ -656,6 +656,98 @@ def k10_v2() -> None:
     save(figure, "k10-v2-pilot", "duration-coverage")
 
 
+def context() -> None:
+    from tools.check_k10_context_report import check
+
+    check()
+    read("studies/k10-context/data/archive-index.json")
+    arms = [read(f"studies/k10-context/data/arm-{n}.json.gz") for n in (320, 65)]
+    pair = read("studies/k10-context/data/pair-result.json.gz")
+    figure, axes = canvas(
+        "K10 shorter crops: one extra FMA case misses the fixed gate",
+        2,
+        "Same seed, sampler and 8,280 updates; full-song inner selection in both arms.\n"
+        "65 versus 320 frames changes context AND sampled audio exposure. No continuation or promotion.",
+    )
+    for j, domain in enumerate(("beatport", "fmak")):
+        for arm, color in zip(arms, (BLUE, ORANGE), strict=True):
+            history = arm["history"]
+            axes[j].plot(
+                [r["update"] for r in history],
+                [100 * r["metrics"][domain]["exact"] for r in history],
+                label=f"{arm['crop_frames']} frames",
+                color=color,
+                linewidth=1.5,
+            )
+            selected = next(r for r in history if r["update"] == arm["best_update"])
+            axes[j].scatter(
+                [selected["update"]],
+                [100 * selected["metrics"][domain]["exact"]],
+                color=color,
+                edgecolors="white",
+                zorder=4,
+            )
+        axes[j].set(
+            title="BP previews (126)" if domain == "beatport" else "FMA full tracks (250)",
+            xlabel="Optimizer updates",
+            ylabel="Inner exact accuracy (%)",
+        )
+        axes[j].legend(frameon=False)
+    save(figure, "k10-context", "selection-curves")
+    figure, axes = canvas(
+        "The selected short-crop difference is small and uncertain",
+        2,
+        "10,000 paired metadata-cluster bootstrap replicates; one seed and adaptively selected checkpoints.\n"
+        "Descriptive development intervals, not independent test or training-seed uncertainty. FMA gain gate: +2 pp.",
+    )
+    labels = ["Exact", "Symmetric MIREX", "Asymmetric MIREX"]
+    for ax, domain in zip(axes, ("beatport", "fmak"), strict=True):
+        ms = pair["uncertainty"]["domains"][domain]["metrics"]
+        values = [100 * ms[k]["delta"] for k in ("exact", "symmetric", "asymmetric")]
+        lo = [
+            values[i] - 100 * ms[k]["ci95"][0]
+            for i, k in enumerate(("exact", "symmetric", "asymmetric"))
+        ]
+        hi = [
+            100 * ms[k]["ci95"][1] - values[i]
+            for i, k in enumerate(("exact", "symmetric", "asymmetric"))
+        ]
+        ax.errorbar(range(3), values, yerr=[lo, hi], fmt="o", color=ORANGE, capsize=5)
+        ax.axhline(0, color="#64748b", linewidth=1)
+        if domain == "fmak":
+            ax.hlines(2, -0.25, 0.25, colors=RED, linestyles="--", label="Exact continuation gate")
+            ax.legend(frameon=False, fontsize=8)
+        ax.set(
+            xticks=range(3),
+            xticklabels=labels,
+            ylabel="65 minus 320 (percentage points)",
+            title="BP: 126 singleton groups" if domain == "beatport" else "FMA: 100 groups",
+        )
+        ax.tick_params(axis="x", labelrotation=12)
+    save(figure, "k10-context", "paired-differences")
+    figure, axes = canvas(
+        "Shorter crops reduce CPU training cost and sampled frames",
+        2,
+        "Same full-song validation and fixed updates. Actual task-arm wall includes selected reload proof.\n"
+        "This is training cost on one server, not a product inference comparison or pure context effect.",
+    )
+    axes[0].bar(
+        ["320 frames", "65 frames"],
+        [a["elapsed_seconds"] / 3600 for a in arms],
+        color=[BLUE, ORANGE],
+    )
+    axes[0].set(ylabel="Completed arm wall (hours)", title="Fixed 8,280-update arms")
+    axes[1].bar(
+        ["320 frames", "65 frames"],
+        [sum(a["actual_frames"].values()) / 1e6 for a in arms],
+        color=[BLUE, ORANGE],
+    )
+    axes[1].set(
+        ylabel="Sampled non-padding CQT frames (millions)", title="4.908× actual audio exposure"
+    )
+    save(figure, "k10-context", "cost-and-exposure")
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -680,6 +772,7 @@ def main() -> None:
     )
     paired_result("k10-capacity", "Wider K10: no gain under the fixed recipe", "K10 width 2")
     capacity_history()
+    context()
     bp_gs_overlap()
     k10_v2()
     temporal()
@@ -694,6 +787,9 @@ def main() -> None:
     ensemble_summary()
     exact_movements("k10-sam")
     exact_movements("k10-ensemble")
+    INPUTS["_context_checker_sha256"] = hashlib.sha256(
+        (ROOT / "tools/check_k10_context_report.py").read_bytes()
+    ).hexdigest()
     INPUTS["_optimizer_checker_sha256"] = hashlib.sha256(
         (ROOT / "tools/check_optimizer_reports.py").read_bytes()
     ).hexdigest()

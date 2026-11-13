@@ -1,5 +1,6 @@
 {
-  "_generator_sha256": "ccd3a536001095fd9af9b029da3a9a09afe378fb373e3ba0a5b388837cf03e5a",
+  "_context_checker_sha256": "d9cd7ad72fc3b5da6539df12198682dae1a9756a1c7fc4f8c2a8f60e8e66a7d6",
+  "_generator_sha256": "d83ebd5ede6dc0aaf67d14414accf3066d07121694dbc1c9019f5a70f902425d",
   "_matplotlib_version": "3.11.2",
   "_optimizer_checker_sha256": "a6f54d99318c8108b32c71f4dcf32b48b826542575bb7ae676f3a72967ec37db",
   "_uv_lock_sha256": "fe885e19c1faecd53d229842303d16af57807629129b6464e646373343c3f9e0",
@@ -9,6 +10,10 @@
   "studies/k10-chunked/data/memory-curve.json": "dd4ff5b19ea57cd26c9e352ef36111b5d755c6ea9cb4c3d7a98fdad35fe8f2c5",
   "studies/k10-chunked/data/v2/chunked-benchmark.json": "a8ac28910f885b2b76405df4a2dafb26cad540d9276f74e76cb3195b4750fa10",
   "studies/k10-chunked/data/v2/full-benchmark.json": "0db8ccdedc0a0d8837bee9c2d906c33b472a677e890781423981d3a05095a1a2",
+  "studies/k10-context/data/archive-index.json": "e050725fb9973b917312d44ed00b497f82b634fbb750e3803d32931e2471765d",
+  "studies/k10-context/data/arm-320.json.gz": "3b2fdc27138cf1c202684f9f11575f472600abcd42f6e42f1947967d93fe39f3",
+  "studies/k10-context/data/arm-65.json.gz": "fb3b9192ae671884c90bb607c8399e95b1aa8b1c7b9024969796b468bb4aeb85",
+  "studies/k10-context/data/pair-result.json.gz": "ea177924f53fdd85ea33343a456058b35084f4d5f9cf6ed3f9168ac9870629d8",
   "studies/k10-cpu/data/pipeline.json": "9967e7d982fe22b13463c7c7edb94f34bd47c574e704c52ced07ea5aefd31317",
   "studies/k10-ema/data/ema-result.json": "cea1d50c4f16a39b59b7b1ee9c57edc39d5cd35b9e16009b3f64e1c2eb2a7784",
   "studies/k10-ensemble/data/result.json": "3e96b06d26dd6bb5d06b2c5f645ab5d2d774b6d3f6d281b3bb0abbb284346808",
