@@ -1,0 +1,136 @@
+{
+  "audio_read": false,
+  "collections": {
+    "Beatport": {
+      "availability": {
+        "album_release": {
+          "known": 676,
+          "unknown": 679
+        },
+        "artist": {
+          "known": 676,
+          "unknown": 679
+        },
+        "bpm": {
+          "known": 716,
+          "unknown": 639
+        },
+        "genre_tags": {
+          "known": 1355,
+          "unknown": 0
+        },
+        "native_top": {
+          "known": 1355,
+          "unknown": 0
+        },
+        "publisher_duration": {
+          "known": 676,
+          "unknown": 679
+        },
+        "recorded_cache_duration": {
+          "known": 1355,
+          "unknown": 0
+        },
+        "source_duration": {
+          "known": 0,
+          "unknown": 1355
+        }
+      },
+      "collection_id": "beatport1355-current-plan",
+      "distinct_recorded_source_hashes": 1355,
+      "frozen_group_counts": {
+        "frozen_uncertainty_proxy_not_verified_artist_component": 1355
+      },
+      "genre_methods": {
+        "native_workbook_and_archived_api_taxonomies_kept_separate_no_normalization": 1355
+      },
+      "recorded_cache_duration_bands": {
+        "2\u2013<5m": 1315,
+        "30s\u2013<2m": 40,
+        "5\u201310m": 0,
+        "<30s": 0,
+        ">10m": 0,
+        "unknown": 0
+      },
+      "rows": 1355,
+      "support_kinds": {
+        "recorded24khztrainingcache": 1355
+      },
+      "unknown_cache_reasons": {}
+    },
+    "FMA": {
+      "availability": {
+        "album_release": {
+          "known": 5459,
+          "unknown": 30
+        },
+        "artist": {
+          "known": 5489,
+          "unknown": 0
+        },
+        "bpm": {
+          "known": 0,
+          "unknown": 5489
+        },
+        "genre_tags": {
+          "known": 5405,
+          "unknown": 84
+        },
+        "native_top": {
+          "known": 2424,
+          "unknown": 3065
+        },
+        "publisher_duration": {
+          "known": 5489,
+          "unknown": 0
+        },
+        "recorded_cache_duration": {
+          "known": 4283,
+          "unknown": 1206
+        },
+        "source_duration": {
+          "known": 0,
+          "unknown": 5489
+        }
+      },
+      "collection_id": "fmak5489-source-metadata",
+      "distinct_recorded_source_hashes": 5442,
+      "frozen_group_counts": {
+        "existing_FMA_frozen_component_v1_not_recomputed": 1157
+      },
+      "genre_methods": {
+        "source_track_genres_all_includes_hierarchy; direct_vs_ancestor_not_disambiguated; top_field_separate": 5489
+      },
+      "recorded_cache_duration_bands": {
+        "2\u2013<5m": 3058,
+        "30s\u2013<2m": 543,
+        "5\u201310m": 630,
+        "<30s": 18,
+        ">10m": 34,
+        "unknown": 1206
+      },
+      "rows": 5489,
+      "support_kinds": {
+        "recorded_24khz_training_cache": 5489
+      },
+      "unknown_cache_reasons": {
+        "no_analyzed_support_for_reserved_or_excluded_ID": 1206
+      }
+    }
+  },
+  "generator_sha256": "ab7739f158741eae40993873447fb25671095580da974e75cec82d597f1050b8",
+  "inference_performed": false,
+  "interpretation": "Metadata availability only; row counts are not independent-song counts or model accuracy.",
+  "schema": "drone.collection-coverage-report.v1",
+  "sources": {
+    "Beatport": {
+      "path": "data/beatport1355-collection.json.gz",
+      "sha256": "24a09353dc4e653bfc62898a0ca61ee2ff4838d62c3ea07ee261a2fe4f00b11f"
+    },
+    "FMA": {
+      "path": "data/fmak5489-collection.json.gz",
+      "sha256": "a626b886b61e94a6296e6160a672be54797b62a7f8f60916c82905f2c34a73b2"
+    }
+  },
+  "targets_selected": false
+}

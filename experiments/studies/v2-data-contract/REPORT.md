@@ -414,6 +414,127 @@ and metadata-only scope. Reader regressions exercise column/field allowlists,
 quoted-nan preservation and formula rejection. These are metadata checks, not
 musical-key accuracy, sample-support equivalence or corpus-wide licence clearance.
 
+## Organized collection coverage: Beatport and FMA (November 13)
+
+### Problem
+
+To identify where Drone is strong or weak by genre, duration or BPM, we first
+need to know what each dataset row represents and which metadata is actually
+available. A missing tempo, a publisher's recording length and the duration of
+a cached preview answer different questions. Mixing them would make later
+accuracy slices misleading even if the scores themselves were calculated correctly.
+
+The new collection catalogs organize **1,355 current-plan Beatport rows** and
+**5,489 FMA rows** with stable IDs, source identities, native genre tags, observed
+artist/album/release relationships, frozen memberships, grouping witnesses and
+model-scoped exposure. They contain no key targets or predictions. This chapter
+measures metadata coverage; it does not measure or improve model accuracy.
+
+### Method
+
+The report loads the committed [Beatport catalog](data/beatport1355-collection.json.gz)
+and [FMA catalog](data/fmak5489-collection.json.gz), verifies their exact compressed
+SHA256 identities, and applies the shared typed collection validator before
+counting fields. Its [derived counters](data/collection-coverage-analysis.json)
+and [figure receipt](data/collection-coverage-figures.json) bind these catalogs,
+the report source, plotting version and output hashes. The original audit data,
+execution receipts and earlier figures are retained unchanged.
+
+Every availability count uses the complete source collection denominator. An
+absent value stays unknown; a missing audio-support row is not filled from
+publisher metadata. Duration bins reuse the existing coverage policy: below
+30 seconds, 30 seconds to below 2 minutes, 2 to below 5 minutes, 5 through 10
+minutes inclusive, above 10 minutes, and unknown. The plotted duration is
+**recorded 24-kHz cache sample count divided by sample rate**, from saved metadata.
+No source audio was read, decoded or newly probed for these plots.
+
+### Results
+
+![Metadata availability in the organized Beatport and FMA collections](figures/collection-metadata-availability.png)
+
+*Colored bars show rows with recorded metadata; pale bars retain the unknown or
+absent remainder. Counts are printed beside every row. Availability says nothing
+about annotation correctness or model performance. Source taxonomies and the
+meaning of their top-genre fields remain separate.*
+
+| Metadata available | Beatport, n=1,355 | FMA, n=5,489 |
+|---|---:|---:|
+| Any native genre tags | 1,355 | 5,405 |
+| Workbook / native top genre | 1,355 | 2,424 |
+| Observed artist ID | 676 | 5,489 |
+| Observed album or release ID | 676 | 5,459 |
+| Admitted publisher BPM | 716 | 0 |
+| Recorded 24-kHz cache duration | 1,355 | 4,283 |
+| Publisher recording duration | 676 | 5,489 |
+| Separately probed source-container duration | 0 | 0 |
+
+The tempo gap is explicit: **639 Beatport rows and all 5,489 FMA rows have no
+admitted BPM value**. The 716 Beatport values are archived publisher reports,
+not newly estimated tempo; half/double-time ambiguity and source correctness
+remain unresolved. Neither collection has a separately measured source-container
+duration in this view, even where a cache duration or publisher duration exists.
+
+![Recorded training-cache duration counts, retaining unknown FMA rows](figures/collection-recorded-duration.png)
+
+*Counts describe the saved training-cache support, not full-song availability
+or release-model input. Plot scales differ because the collections differ in
+size. The unknown FMA bar is retained in the full denominator.*
+
+| Recorded cache duration | Beatport rows | FMA rows |
+|---|---:|---:|
+| <30 seconds | 0 | 18 |
+| 30 seconds–<2 minutes | 40 | 543 |
+| 2–<5 minutes | 1,315 | 3,058 |
+| 5–10 minutes, inclusive | 0 | 630 |
+| >10 minutes | 0 | 34 |
+| Unknown | 0 | 1,206 |
+
+Beatport's large 2–<5-minute bar sits at the approximately 120-second preview
+boundary; it is not evidence of broad three-to-five-minute coverage. FMA has
+saved support for **4,033 expanded fitting rows and 250 inner-selection rows**.
+The other **1,206 reserved or excluded IDs** have no audio support in the selected
+cache receipt. Their publisher durations remain available as a different field;
+we do not substitute those durations or infer missing cache availability.
+
+### Limits and next use
+
+Native tags have different semantics. Beatport retains workbook genres and API
+genres/subgenres as separate taxonomies. FMA's `track_genres_all` includes its
+hierarchy; direct versus ancestor labels are **unspecified**, so the presence of
+a tag cannot be treated as an independently supplied direct label. Its native
+top field is absent on 3,065 rows despite most rows having other tags. Neither
+adapter manufactures a normalized modern genre taxonomy.
+
+Rows are not independent songs. FMA's 5,489 rows contain 5,442 distinct recorded
+source hashes and retain 1,157 frozen components. Beatport's 1,355 frozen groups
+remain singleton uncertainty proxies, not verified artist-independent groups.
+Observed artist/remixer/release relationships do not silently replace either
+collection's frozen groups or change membership. Plan roles and exposure stay
+scoped to their named plans and model witnesses; these catalogs do not create
+an independent evaluation set.
+
+This organization supports later reproducible joins to evaluations with explicit
+unknown bins and exposure accounting. It also identifies concrete metadata work:
+fill admitted tempo gaps, document direct genre semantics, distinguish available
+audio length from publisher song length, and audit recording/work relationships.
+The existing [93-recording descriptive score report](../key-sota-4way/REPORT.md)
+is separate; these larger collection counts are not new accuracy results.
+
+Reproduce the derived analysis and figures without audio or private source paths:
+
+```bash
+uv run python -m tools.report_collection_coverage
+uv run python -m tools.report_collection_coverage --write --plot
+```
+
+The first command verifies the stored counters. The second regenerates only the
+new derivative counters and figures from the pinned collection files. The local
+plot run completed in 4.48 seconds wall and 4.15 seconds CPU, with an OS-reported
+peak RSS of 238,665,728 bytes and 487,991 bytes of derivative outputs. RSS was
+monitored via repeated reads of the OS high-water mark, rather than described
+as an exact instantaneous process-tree sample. Limits were 90 seconds, 512 MiB
+RSS and 16 MiB output. No audio, target or classifier execution was performed.
+
 ## GTZAN reference metadata: prospective short-clip coverage
 
 **Decision: metadata frozen; no audio admitted and no detector scores.** This
