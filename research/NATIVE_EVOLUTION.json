@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "e8ca613710d6d14f6fbed0ef0719b87696555037b39d5f0adb5b9262f7c0d619",
+      "current_sha256": "e1073328f660f4417397ba336bee483239bb0aa5be5a594d7c24569e3be84568",
       "git_mode": "100644",
-      "reason": "Append fixed-case boundary observer methods, preserved failed build and successful build qualification; original measurements remain identified as historical. Move raw source and artifact identifiers into linked technical provenance for readable reporting."
+      "reason": "Append fixed-case boundary observer methods, failed and successful build qualifications, and completed full-array trace analysis. Preserve the failed historical portability gate; distinguish sparse-response observation from an untested arithmetic cause. Original measurements remain historical."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -75,6 +75,48 @@
       "sha256": "3860d153f62b490d6714b4ad7e908851b6a4847dda132aeb9d24d05d7e2ac7fb",
       "git_mode": "100644",
       "reason": "Research-only observer for one previously failing CQT case; never a release inference binary."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-trace-provenance.json",
+      "sha256": "d54114b97c0330f5df131b43290d7ee158d7a5b8c0fe7f8fc2a7ed1c5ceea3a9",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-trace-results.json",
+      "sha256": "d1e5f67a2644703ff22f791cbd988bf05eefc71c7ec39867540c7e6eed45a586",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-trace.png",
+      "sha256": "769a6a5dbb4b0a311253223be0303eee9fa012baeecfcaffdf4556761d570ebe",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-trace.svg",
+      "sha256": "294e360f90d96c8dcf5159e87ccb5e23cfec0ef1bef2310d14c5da4529b1c197",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_boundary_trace.py",
+      "sha256": "3db87e11daa921488187d3625048f3320449c6bef1cfb4deb8d313c12a133b61",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_boundary_trace.py",
+      "sha256": "2e65ea5da4c75e098ae2010b884e38b08c75ff813ad15cf1064ad68c7787d4ba",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_boundary_trace.py",
+      "sha256": "3ed5b9b788f7158b727de88c0b9626201c0fb4996993a857df886f5af617bbc6",
+      "git_mode": "100644",
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
     }
   ]
 }

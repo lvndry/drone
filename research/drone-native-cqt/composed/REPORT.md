@@ -13,6 +13,10 @@ disjoint 305- and 71-case phases. Strict logit qualification failed: native full
 and chunk each passed 375/376 against the actual Mac reference. All six comparison
 families nevertheless had **zero argmax disagreements**. The original tolerances
 remain unchanged; no Mac timing or promotion followed.
+A later fixed-case frontend trace reproduced both archived feature arrays and
+located the first observed difference at the sparse response, with identical input
+and FFT operands. The [boundary diagnostic below](#fixed-case-boundary-trace-november-13-1246-utc)
+reports that finding without changing the failed portability verdict.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -430,3 +434,122 @@ has a different hash and is subject to CI validation; the old build receipt must
 not be presented as a build of that newer source. Any numerical trace must bind
 the actual executable to its archived source, or separately qualify a newly built
 executable. This lint repair did not rebuild or execute either native binary.
+
+
+## Fixed-case boundary trace (November 13, 12:46 UTC)
+
+Both trace implementations reproduce their own archived final core exactly. On the fixed case
+`fmak:091711` (399 frames), the first observed difference is **stage 0’s complex64 CSR response**.
+Its complete input, pre-CSR FFT spectrum, CSR values, column indices and row pointers are bitwise
+identical between implementations. This narrows the investigation to sparse complex arithmetic; it
+does not yet identify the differing instruction or rounding rule.
+
+The trace executed the qualified frontend-only observers on the exact recovered PCM witness. Its
+Python import/runtime closure and archived pre-lint native source were bound before execution. A
+first metadata preparation attempt rejected a mismatched namespace origin; a separately recorded
+correction bound the actual source path and passed before either frontend ran. Both receipts remain
+preserved. The frozen [trace protocol](BOUNDARY_TRACE_PROTOCOL.md) is unchanged.
+
+The analysis below only reads those retained arrays. No candidate change, model, scoring, tolerance
+change or new inference measurement followed. The existing strict parity gate remains failed.
+
+### Coverage and results
+
+All 260 artifact references were checked against shape, dtype, byte length and SHA256, covering 171
+unique blobs. All 89 native records were compared, including **41 full arrays** and 48 probes. The
+27 CSR source blobs match the independently observed Python CSR blobs. The original manifest’s
+normalization lengths match Python’s captured lengths bitwise. No nonfinite values occurred.
+
+![Full-array CSR and terminal differences](boundary-trace.png)
+
+All nine complete stage inputs and all seven complete recursive resampling outputs are bitwise
+equal. Eight complete FFT spectra are bitwise equal. Stage 5 has one differing imaginary component,
+at frequency bin 251/frame 60, with absolute difference 7.45058e−9. **No row of that stage’s CSR
+matrix uses frequency bin 251**, so this observed FFT discrepancy does not enter any retained
+response.
+
+| Stage | Different complex CSR responses / total | Maximum complex absolute difference |
+| --- | ---: | ---: |
+| 0 | 6,438 / 9,576 | 5.33120e−7 |
+| 1 | 6,404 / 9,576 | 3.01578e−6 |
+| 2 | 6,332 / 9,576 | 5.72205e−6 |
+| 3 | 6,434 / 9,576 | 1.52588e−5 |
+| 4 | 6,521 / 9,576 | 1.70598e−5 |
+| 5 | 6,464 / 9,576 | 3.41197e−5 |
+| 6 | 6,361 / 9,576 | 1.25827e−4 |
+| 7 | 6,468 / 9,576 | 2.45302e−4 |
+| 8 | 3,947 / 6,384 | 3.14568e−5 |
+
+Stacking introduces no further change: each captured pre-normalization matrix is exactly the
+corresponding reversed stage-row concatenation and core-bin slice. The captured square-root scales
+differ by one float64 ULP in seven of 192 bins (maximum absolute difference 1.42109e−14). These are
+differences in the executed square roots of identical lengths, distinct from the previously observed
+cross-host length differences.
+
+| Full terminal boundary | Different values / 76,608 | Maximum absolute difference |
+| --- | ---: | ---: |
+| Stacked complex response | 51,167 | 2.45302e−4 |
+| Normalized complex response | 49,902 | 1.96605e−6 |
+| Magnitude | 28,072 | 1.90735e−6 |
+| log1p | 25,045 | 2.98023e−7 |
+| FP16 / widened final core | 9 | 9.765625e−4 |
+
+For every element where the preceding captured value is bitwise equal, the next terminal value is
+also equal: zero new differences in normalized values, magnitude, log1p or FP16 conditional on equal
+preceding values. This is an observation on this case, not proof those operations are universally
+equivalent. Magnitude and log rounding can still affect already-unequal inputs; this conditional
+check only excludes newly differing outputs where captured inputs agree.
+
+All nine unequal FP16 locations already have unequal stacked CSR responses, and **all nine use
+bitwise-equal normalization scales**. They occur at zero-based core `(bin, frame)` coordinates
+`(11,4)`, `(34,180)`, `(36,151)`, `(56,46)`, `(72,328)`, `(100,55)`, `(102,115)`, `(123,163)`,
+`(159,171)`. Their coordinates and response-stage mapping are retained in the public machine record; complete
+boundary values remain in the original private arrays. The single unused FFT-bin difference and seven scale differences do not explain these nine
+elements.
+
+### One next numerical hypothesis
+
+**Hypothesis to test:** the pinned SciPy sparse implementation and Rust’s ordered `num_complex`
+multiply/add may evaluate complex64 products or accumulations with different contraction/rounding. The executed Rust source
+performs `sum += basis[index] * spectrum[indices[index]]` in CSR order. Identical operands with
+different output make this the highest-value next numerical question; FFT or resampler replacement
+is not supported by these observations.
+
+A separately bounded follow-up should replay only the captured CSR operands and compare the complex
+product/accumulator sequence, beginning with stage 0, to determine whether product evaluation or
+accumulation is responsible. It should preserve the current reference, thresholds and failure, and
+load no audio transform or model. This analysis has **not** performed that replay and does not claim
+that FMA, summation order or a particular library is proven responsible.
+
+### Scope and provenance
+
+The original trace controller reports 6.3265 seconds wall, 6.4622 CPU seconds, 338,526,208 bytes
+sampled peak process-tree RSS (322.84 MiB), and 34,165,163 owned output bytes (32.58 MiB). These are
+instrumented diagnostic costs, not inference performance or ordinary-PC qualification. Both workers
+completed with no model/scoring invocation.
+
+The runtime proof retains all four historical gaps: actual historical SciPy FFT backend, JIT
+runtime, system math and RustFFT dispatch. Reproducing both archived cores admits this diagnostic
+for the historical counterexample; it does not retroactively close those gaps or establish general
+parity.
+
+The [aggregate evidence](boundary-trace-results.json) retains all full-array/probe error summaries
+and final difference coordinates without publishing audio or feature values. [Technical
+provenance](boundary-trace-provenance.json) binds the original traces, runtime proof, preparation
+failures, exact source files, executable and private receipts without exposing operational paths.
+The original arrays and receipts remain immutable; this sanitized publication is not a lossless
+replacement for them.
+
+The [checker](summarize_boundary_trace.py) verifies the published metadata without NumPy or model
+dependencies. With the original private trace root and NumPy available, its optional replay rechecks
+all array hashes and comparisons, CSR input identities, stacking, conditional terminal differences,
+final coordinates, scales and the unused FFT bin. No transform or model is imported. The [figure
+script](plot_boundary_trace.py) reads only verified aggregate metadata.
+
+```sh
+python3 research/drone-native-cqt/composed/summarize_boundary_trace.py
+python3 -m unittest discover -s research/drone-native-cqt/composed -p 'test_*.py'
+uv run --script research/drone-native-cqt/composed/plot_boundary_trace.py
+# Optional: replay retained arrays in the original private trace root (needs NumPy).
+python3 research/drone-native-cqt/composed/summarize_boundary_trace.py --trace-root "$TRACE_ROOT"
+```
