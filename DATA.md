@@ -88,7 +88,7 @@ must preserve these distinctions rather than change the meaning to fit a table:
   acquisition receipt and adapter/version. Retain original native genre IDs and
   taxonomy hierarchy and source-native tag lists without duplicating recordings.
   The schema supports source-native tag lists with direct/ancestor relations;
-  broader FMA adapters must populate them. Any display bucket is an explicitly
+  the FMA adapter preserves hierarchy-inclusive source tags without inventing direct-versus-ancestor assignments. Any display bucket is an explicitly
   versioned derivation.
 - **Analysis support:** full catalog duration, actual supplied audio duration,
   analyzed start/end/support, codec, sample rate, channel handling, preprocessing
@@ -186,9 +186,11 @@ not fill those unknowns. Existing 24-kHz cache observations describe that traini
 preparation; they are not a claim that released Drone used those exact PCM bytes.
 
 Reproduce with [the BP adapter](tools/export_beatport_collection.py) or
-[the FMA adapter](tools/export_fma_collection.py). Each accepts an external-source
-JSON mapping to local metadata files and checks the pinned source hashes. No
-source audio is opened. Recorded source-file and PCM identities remain identified
+[the FMA adapter](tools/export_fma_collection.py). The BP adapter accepts an
+`--external-sources` JSON mapping with `workbook`, `store_json_zip` and
+`canonical_counts` paths. The FMA adapter accepts explicit `--master-metadata`,
+`--taxonomy` and `--cache-metadata` paths. Both verify the pinned source hashes;
+no source audio is opened. Recorded source-file and PCM identities remain identified
 as historical witnesses, not newly verified files.
 
 Next work:
