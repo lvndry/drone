@@ -1,7 +1,8 @@
 # Prospective MusicFM key teacher
 
-Status: implementation in progress; no real teacher fit or task scores. The
-completed synthetic resource probe is not an accuracy result or a whole-fit cost.
+Status update, November 13, 2026: the fixed fit completed all 8,280 updates /
+120 events and failed its continuation gate. See the consolidated [report](REPORT.md).
+The prospective rules below remain unchanged; no confirmation, distillation or release follows.
 This file supersedes the obsolete `/tmp/musicfm-v2-real-pilot-proposal.md` draft.
 
 ## Question and fixed comparison
