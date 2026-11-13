@@ -2,7 +2,7 @@
   "artist_ID_known": 0,
   "audio_read": false,
   "bpm_known": 0,
-  "catalog_sha256": "6ed347a7abdbcf1af390e0bfadd6d061cec8af86d783df7f7ee3bb00893390b9",
+  "catalog_sha256": "d1b5365fe8a5418c11a298397e80ef637f6f0886132f6443ca5297603eee03ca",
   "collection_id": "giantsteps604-source-metadata",
   "distinct_decoded_pcm_sha256": 602,
   "distinct_source_sha256": 604,
@@ -10,7 +10,7 @@
   "fingerprint_decode_seconds_min": 44.700045351473925,
   "fingerprint_decode_support_known": 604,
   "full604_release_evaluation_exposed": 604,
-  "generator_sha256": "2eb49164d1724e66945f17112b481212d4d51e7e10b1f0642fcc39db7614bb05",
+  "generator_sha256": "793bee914222bebf0c18f1a7315443bd42c2906a80db007bc1b7877051d82918",
   "inference_performed": false,
   "interpretation": "Metadata coverage only; saved11025Hz fingerprint decode and publisher preview duration are distinct witnesses, neither proves full-song support. Duplicate PCM identities retained; no new independence or accuracy claim.",
   "native_genres": {
@@ -38,7 +38,7 @@
     "techno": 34,
     "trance": 58
   },
-  "publisher_preview_duration_known": 604,
+  "publisher_full_recording_duration_known": 0,
   "schema": "drone.collection-coverage.v1",
   "targets_selected": false,
   "tracks": 604,

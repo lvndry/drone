@@ -68,6 +68,7 @@ def test_native_genres_not_legacy_buckets_or_guessed_metadata(catalog: Collectio
 def test_saved_decode_not_source_probe_training_cache_or_fullsong(
     catalog: CollectionCatalog,
 ) -> None:
+    assert coverage(catalog)["publisher_full_recording_duration_known"] == 0
     reference, _ = receipts()
     expected = {row["id"]: row for row in reference["records"] if row["domain"] == "giantsteps"}
     for row in catalog.tracks:
@@ -78,9 +79,9 @@ def test_saved_decode_not_source_probe_training_cache_or_fullsong(
         assert support.samples is not None
         assert support.seconds == support.samples / 11025
         assert row.source_duration.value is None
-        assert (
-            row.catalog_recording_duration.method
-            == "publisher_JAMS_available_preview_duration_not_full_song"
+        assert row.catalog_recording_duration.value is None
+        assert row.catalog_recording_duration.missing_reason == (
+            "publisher_JAMS_describes_preview_not_full_catalog_recording"
         )
         assert "no_new_audio_read" in support.witness_kind
 

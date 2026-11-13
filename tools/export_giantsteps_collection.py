@@ -195,10 +195,10 @@ def build(root: Path, external_paths: dict[str, Path]) -> CollectionCatalog:
                     origin,
                 ),
                 Measurement(
-                    float(native["duration"]["value"]),
-                    "seconds",
-                    "publisher_JAMS_available_preview_duration_not_full_song",
                     None,
+                    "seconds",
+                    "not_established_from_preview_metadata",
+                    "publisher_JAMS_describes_preview_not_full_catalog_recording",
                     duration_ev,
                 ),
                 Measurement(None, "bpm", "not_admitted", "no_admitted_BPM_source", genre_ev),
@@ -259,7 +259,7 @@ def coverage(catalog: CollectionCatalog) -> dict[str, Any]:
             {r.analyzed_audio.pcm_identity.sha256 for r in catalog.tracks}
         ),
         native_genres=dict(sorted(Counter(r.native_genre_top for r in catalog.tracks).items())),
-        publisher_preview_duration_known=sum(
+        publisher_full_recording_duration_known=sum(
             r.catalog_recording_duration.value is not None for r in catalog.tracks
         ),
         fingerprint_decode_support_known=sum(
