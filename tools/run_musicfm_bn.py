@@ -33,7 +33,7 @@ ORIGINAL_FILES = {
     "success": "run-v1/held-success.json",
     "launch": "run-v1/launch.json",
 }
-CAPS = dict(wall_seconds=1800, cpu_seconds=10800, rss_bytes=8 * GIB, output_bytes=8 * GIB)
+CAPS = dict(wall_seconds=3600, cpu_seconds=10800, rss_bytes=8 * GIB, output_bytes=8 * GIB)
 STATUSES = {
     "COMPLETE_SINGLE_BN_DIAGNOSTIC_NOT_PROMOTED",
     "BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING",
@@ -92,7 +92,7 @@ def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha
         or config["torch_threads"] != 2
         or len(config["cpus"]) != 2
         or len(set(config["cpus"])) != 2
-        or not 0 < config["deadline_epoch"] - config["not_before_epoch"] <= 1800
+        or not 0 < config["deadline_epoch"] - config["not_before_epoch"] <= CAPS["wall_seconds"]
         or not config["not_before_epoch"] <= time.time() < config["deadline_epoch"]
     ):
         raise ValueError("Require an exact finite, source-bound diagnostic-only permit")
@@ -141,7 +141,10 @@ def verify_import_paths(source_sha256: dict[str, str]) -> None:
 
 
 def check_deadline(config: dict[str, Any], started: float) -> None:
-    if time.monotonic() - started > 1800 or time.time() >= config["deadline_epoch"]:
+    if (
+        time.monotonic() - started > config["caps"]["wall_seconds"]
+        or time.time() >= config["deadline_epoch"]
+    ):
         raise TimeoutError("Diagnostic wall/lease cutoff")
 
 
