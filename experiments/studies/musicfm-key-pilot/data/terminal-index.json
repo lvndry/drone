@@ -1,0 +1,31 @@
+{
+  "audit_captured_utc": "2026-11-13T05:15:40.872106+00:00",
+  "audit_source": "read_terminal.py",
+  "authoritative_config_sha256": "069d1afc396c65fcaa1d7cb993db7d4c930aec93eae377a0a611842dfcbbac28",
+  "authoritative_result_sha256": "d922b15739ac6bbe8e12110d0c2eb97944010ad61b490dc3112be33a9ae2e490",
+  "controls": {
+    "expanded": {
+      "path": "../k10-v2-pilot/data/results/expanded.json.gz",
+      "sha256": "940e3978d1f1340f8a82414a2fbb11555acf27a0ba9a723612bdfae199a5e38e"
+    },
+    "restricted": {
+      "path": "../k10-v2-pilot/data/results/restricted.json.gz",
+      "sha256": "24f8ef879e10b31dcde01c91de93c48e04659a78342a1d4a40314dec6b04b868"
+    }
+  },
+  "decoded_sha256": "681780ca629e8ea0f3d7e90da334b9ba8440aaa61fe52b3bfcd5d72e13b097ad",
+  "executed_source": "051e4adaf5207abd5f83ad822dbf60f7c7abf412",
+  "files": {
+    "audit.json": "272cda97c6d6b7888e08a93cafb8ebcfa1ecf11c59352d51ad11067cd2894e8e",
+    "config.json": "069d1afc396c65fcaa1d7cb993db7d4c930aec93eae377a0a611842dfcbbac28",
+    "controller.json": "b07bba233b099646c29e4af8dac3d2e342ab0f9089dba8abd6bdd233938418ae",
+    "launch.json": "866e10fb0a61f3419d3e5b31e155d52aa718d810b11d5653ecb252f70cfed6f5",
+    "read_terminal.py": "7b33b168fc0c317878c87176be74a457130e9d5b2c49e0d9ab044668a9d6d636",
+    "result.json": "d922b15739ac6bbe8e12110d0c2eb97944010ad61b490dc3112be33a9ae2e490",
+    "success.json": "d41f1b92a8e4c0a15838b0f8231eb450d8ba1f4b7dbb970c18ca11a8cb4f3829"
+  },
+  "format": "musicfm-terminal-index-v1",
+  "model_audio_or_reference_label_exports_included": false,
+  "path": "terminal-raw.json.gz",
+  "sha256": "3c91e98b027696817eb72bb943884b9ff5f6d2afb6268c08c1ccf4974ac6f2cb"
+}

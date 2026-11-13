@@ -123,6 +123,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     tracked: dict[int, int] = {}
     transferred = False
     state = "GUARDING_BEFORE_WORKER"
+    failure: dict[str, Any] = {}
     lastdisk = lastgpu = 0.0
     peaks: dict[str, float] = {"rss": 0, "cpu": 0.0}
     config["_config_sha256"] = cfgsha
@@ -217,39 +218,45 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                     )
                     if result["status"] != expected:
                         raise ValueError("Incomplete worker result")
-                    state = "COMPLETE_NO_RAM_OWNERSHIP"
-                    save(
-                        root / "held-success.json",
-                        {
-                            "mode": mode,
-                            "result_sha256": sha(root / "worker/result.json"),
-                            "epoch": time.time(),
-                            "training_approved": False,
-                        },
-                    )
-            if time.monotonic() - lastdisk >= 1:
+                    state = "WORKER_COMPLETE_PENDING_CHECKS"
+            if state == "WORKER_COMPLETE_PENDING_CHECKS" or time.monotonic() - lastdisk >= 1:
                 lastdisk = time.monotonic()
                 if disk_bytes(root) > config["caps"]["output_bytes"]:
                     raise RuntimeError("Output disk cap")
                 save_or_replace(
                     root / "progress.json", {"state": state, "epoch": time.time(), "peaks": peaks}
                 )
-            if state == "COMPLETE_NO_RAM_OWNERSHIP":
+            if state == "WORKER_COMPLETE_PENDING_CHECKS":
+                owned_resources(config, peaks)
+                save(
+                    root / "held-success.json",
+                    {
+                        "mode": mode,
+                        "result_sha256": sha(root / "worker/result.json"),
+                        "epoch": time.time(),
+                        "training_approved": False,
+                    },
+                )
+                state = "COMPLETE_NO_RAM_OWNERSHIP"
                 break
             time.sleep(0.05)
     except BaseException as error:
-        if worker is not None:
-            stop_and_wait(worker, tracked)
-        save(
-            root / "failure.json",
-            {"state": state, "error": repr(error), "worker_started": transferred},
-        )
+        state = "FAILED"
+        failure = {"state": state, "error": repr(error), "worker_started": transferred}
+        try:
+            if worker is not None:
+                stop_and_wait(worker, tracked)
+        except BaseException as cleanup_error:
+            failure["cleanup_error"] = repr(cleanup_error)
+        save(root / "failure.json", failure)
         raise
     finally:
         save(
             root / "controller.json",
             {
                 "state": state,
+                "error": failure.get("error"),
+                "cleanup_error": failure.get("cleanup_error"),
                 "worker_started": transferred,
                 "peaks": peaks,
                 "terminal_resources": owned_resources(config, peaks, enforce=False),

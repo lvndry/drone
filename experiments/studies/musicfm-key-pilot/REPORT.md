@@ -1,6 +1,281 @@
-# MusicFM whole-song cost qualification exposed and repaired a precision cache bug
+# MusicFM fine-tuning did not qualify a stronger key teacher
 
-## Problem and decision
+The fixed MusicFM-MSD pilot completed **8,280 updates and all 120 selection
+events**. Its selected checkpoint, update **828 / event 12**, scored **83/126
+Beatport** and **166/250 FMA** exact keys, below both matched K10 controls. It
+failed the predeclared continuation gate. There was **no confirmation evaluation,
+distillation or release change**. This is a negative result for this one frozen
+teacher recipe, not a general rejection of pretrained music representations.
+
+The fit ran on November 12, 2026, from 15:06:54 to 23:59:09 UTC. A separate
+read-only terminal audit on November 13 verified metadata, the actual saved
+checkpoint bytes, job retirement and protected service identities. The completed
+fit results appear first below. The earlier disposable cost study and its failed
+numerical gate remain intact in the dated historical appendix.
+
+## Research question and frozen methods
+
+Can full fine-tuning of MusicFM-MSD produce a teacher worth pursuing beyond the
+compact K10 model? The [prospective protocol](PROTOCOL.md) fixes this as a system
+comparison: architecture, context, augmentation, pretraining and optimizer differ
+from K10. It does not isolate a representation effect. The product remains the
+small CPU model; a 328,957,080-parameter teacher is a research/training candidate,
+not a proposed ordinary-PC deployment.
+
+Source `051e4adaf5207abd5f83ad822dbf60f7c7abf412` fitted the approved **1,229 Beatport
++ 4,033 FMA recordings**. Selection used the same **126 Beatport + 250 FMA
+recordings** as the two completed K10 controls. No calibration, confirmation,
+GiantSteps or private DJ audio was evaluated. The run preserved the original
+per-domain identity streams and nominal Beatport draw mass `1230/2206`, with a
+frozen within-update interleave. It made 264,960 fitting draws: 32 microbatches
+of size one per optimizer update, rather than a true batch of 32 for BatchNorm.
+
+Uniform whole-recording 12-second waveform crops used the original 24-kHz mono
+frontend and MSD statistics, without waveform pitch augmentation. The final
+Conformer hidden layer was time-averaged into a linear 24-key head. All active
+backbone parameters were trainable. Parameters, frontend, gradients and Adam
+moments were FP32; training encoder/head autocast was BF16, evaluation FP32,
+TF32 disabled and attention eager. AdamW used backbone/head rates `1e-5`/`1e-4`,
+weight decay `0.01` and cosine decay over 120 events. Training RNGs were reset to
+13 after strict loading and upstream construction's reset to 142. There was no
+early stopping, resume, seed search, EMA or recipe change during the fit.
+
+Every 69 updates, evaluation covered all 376 songs using disjoint 12-second
+contexts plus actual tails, with FP64 sample-support-weighted logits. This is
+whole-recording coverage with local contexts, not whole-song attention. The
+frontend ran at B1; equal-shape FP32 encoder batches were at most 16, with
+separate Beatport/FMA schedules. The selector maximized equal-domain exact
+accuracy, then equal-domain symmetric MIREX, then retained the earliest tie.
+The complete horizon ran even though its winning checkpoint was early.
+
+## Completed results and fixed decision
+
+![All 120 events: training loss, Beatport/FMA exact and symmetric MIREX](figures/teacher-learning.png)
+
+**Figure 1.** Every point is a recorded event; the loss is the mean over the
+preceding 69 updates. The dashed line marks the selected checkpoint, not a
+stopping decision. Final-update exact scores were 61/126 Beatport and 146/250 FMA,
+while interval-mean training cross-entropy fell from 3.077 at the first event to
+0.477 at the last. The divergence is an observation, not proof of a particular
+normalization, capacity or domain mechanism. [SVG](figures/teacher-learning.svg).
+
+| Selected system | Best update | BP exact | BP symmetric MIREX | BP asymmetric MIREX | FMA exact | FMA symmetric MIREX | FMA asymmetric MIREX |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| K10 restricted fitting pool | 3,864 | 86/126 · 68.25% | 76.43% | 72.86% | 172/250 · 68.80% | 74.00% | 73.60% |
+| K10 expanded fitting pool | 5,796 | 89/126 · 70.63% | 77.14% | 75.16% | 176/250 · 70.40% | 75.84% | 75.04% |
+| MusicFM expanded fitting pool | 828 | 83/126 · 65.87% | 73.25% | 71.27% | 166/250 · 66.40% | 73.36% | 71.36% |
+
+These are the **matched joint-training controls** from the
+[K10 v2 pilot](../k10-v2-pilot/REPORT.md), not the released K10 model's separate
+GiantSteps results. The expanded K10 control also failed its own fixed improvement
+gate and was not promoted. Table values are recorded metrics whose integer
+numerators and denominators are checked by the reproducer; this report does not
+reopen reference labels or rescore them.
+
+![Selected MusicFM exact accuracy against both K10 controls and fixed thresholds](figures/teacher-controls.png)
+
+**Figure 2.** The teacher needed at least five additional FMA exact cases versus
+**each** control, hence at least **181/250 (72.40%)**, plus no Beatport decline in
+exact, symmetric or asymmetric MIREX versus either control. It reached 166 FMA
+cases and declined on all three Beatport measures. Both requirements failed
+against both controls. The thresholds and comparison scope are unchanged.
+[SVG](figures/teacher-controls.svg).
+
+The saved decision is `continuation_earned: false`,
+`confirmation_scored: false`, and `release_or_distillation_authorized: false`.
+No selected-seed retry, reinterpretation of the gate or release claim follows.
+
+## Checkpoint correctness and terminal evidence
+
+The fit's **recorded selected-checkpoint proof** strictly reloaded `best.pt`,
+evaluated B1 and B16 across all 376 songs / 5,893 contexts, and passed the unchanged
+`1e-5` absolute pooled-logit tolerance. Maximum error was
+**1.2904405593e-6**, with **zero changed keys**. The metadata reproducer checks
+all saved 24-class vectors, their order and actual context lengths, and verifies
+that B1 predictions equal the selected metrics' predictions.
+
+The later **independent byte audit** hashed the real checkpoint files in place
+without Torch loading, inference or downloading weights. Both hashes matched the
+fit result, with stable file identities before and after hashing:
+
+| Artifact | Bytes | SHA256 |
+|---|---:|---|
+| Selected `best.pt` | 1,316,945,166 | `2b5a34916eea78e4b452c25cf1a5141a21375808c09014b301e44ee80524f8d4` |
+| Last-update `final.pt` | 1,316,945,639 | `cdc99aff7475848ab9887567a709098a25fe1daeb67288cd037e23c543b8b04f` |
+
+These are distinct claims: the original worker recorded a successful reload and
+numerical comparison; the independent audit established which bytes remained on
+disk. It did not perform a second independent model reload.
+
+At `2026-11-13T05:15:40Z`, both original guardian/worker processes were absent,
+neither failure artifact existed (including as a dangling symlink), and all four
+protected vLLM processes retained their exact PID/start-time identities. The
+terminal snapshot showed 22,971 MiB free on the teacher GPU and about 139.44 GiB
+host memory available. This snapshot establishes observed retirement/recovery;
+it is not continuous GPU-memory telemetry or an inference-service latency audit.
+
+A separate source review identified a guardian bookkeeping flaw: the frozen
+`run_musicfm_teacher.py` writes its completion marker before a subsequent
+output/progress check in the loop. An exception there can write a failure receipt while retaining the
+completion marker. Therefore **the marker alone is insufficient**. This audit
+also checked failure-file absence, actual artifacts and caps; no evidence shows
+that the completed run took that failure path. The old guardian remains unchanged
+in this publication. Correcting that lifecycle ordering belongs in a separate
+change, and prospective admission must reject conflicting failure receipts.
+
+## Measured cost and its scope
+
+![Whole-job wall and CPU cost, memory peaks and recorded validation timings](figures/teacher-cost.png)
+
+**Figure 3.** Whole-job accounting includes the guardian and all owned live or
+reaped descendants, including GPU queries. Memory bars show observed peaks; the
+right panel uses the 120 actual B16 event timings. The selected B1 proof is a
+separate phase, so its dashed reference is not a paired acceleration estimate.
+No per-step GPU-utilization or memory trace was retained or reconstructed.
+[SVG](figures/teacher-cost.svg).
+
+| Resource | Observed | Fixed cap / scope |
+|---|---:|---|
+| Whole-job wall time | 31,934.96 s · **8 h 52 m 15 s** | 20 h |
+| Aggregate owned CPU time | **33,450.7 s** · 9.29 CPU h | 100,000 s |
+| Peak owned host RSS | **3.080 GiB** | 8 GiB |
+| Torch peak allocated / reserved CUDA memory | 11.326 / 11.492 GiB | 12 GiB allocator ceiling |
+| Audited output files | 2,650,589,359 bytes · 2.469 GiB | 8 GiB |
+
+This was a contended GPU-server experiment. These are neither compact-model CPU
+inference costs nor isolated training-kernel measurements. The earlier 10.92-hour
+cost projection was planning evidence; the observed 8.87-hour whole job does not
+establish a controlled speedup over that disposable probe.
+
+The selected B1 proof's per-song times sum to **208.280 s**. The largest complete
+B16 event in the 120-event history is **157.320 s** (update 5,934). The final B16
+proof's separate elapsed time was not retained. If a future diagnostic requires
+a fresh untouched B1 baseline plus candidate B1/B16, the recorded conservative
+comparison basis is `2 × 208.280 + 157.320 = 573.880 s`, before any safety factor,
+calibration work, loading, hashing, serialization or contingency. This arithmetic
+is a prospective budget input, not a measurement or authorization of that work.
+
+## Limits and next research decision
+
+This is one seed and one recipe, selected repeatedly on the same adaptive
+376-recording panel. It provides neither seed uncertainty nor an independent
+estimate of full-length DJ performance. The
+[existing coverage audit](../k10-v2-pilot/REPORT.md#primary-use-gap-full-length-house)
+records the limited long-house panel and predominantly two-minute Beatport
+previews. No new coverage, fresh-suite or state-of-the-art claim follows from
+using a larger pretrained model. Label ambiguity, dataset provenance and
+pretraining/comparator overlap remain relevant; the original role ledger remains
+binding.
+
+The result is sufficient to reject automatic distillation from this candidate.
+It does not identify why the fit lost selection accuracy. Microbatch-one
+BatchNorm train/eval behavior is a plausible prospective diagnostic target, not
+a confirmed defect or causal explanation. A separately prepared fitting-only
+BatchNorm-statistics diagnostic would need its own source, resource and terminal
+admission, a sealed candidate before scoring, and the unchanged comparison gate.
+**This report records no execution or result for that diagnostic.** Preparation
+of such a test does not alter the completed negative outcome or require another
+large fit.
+
+## Reproduce the completed-result report
+
+[Terminal evidence index](data/terminal-index.json) binds a compressed archive of
+five byte-preserved original JSON receipts, the read-only audit script and a
+lossless audit projection that removes duplicate base64 copies of those JSONs.
+The archive contains metadata, predictions and proof vectors, not audio,
+checkpoints or reference-label exports. Original configuration and result hashes
+are `069d1afc396c65fcaa1d7cb993db7d4c930aec93eae377a0a611842dfcbbac28` and
+`d922b15739ac6bbe8e12110d0c2eb97944010ad61b490dc3112be33a9ae2e490`.
+The executed source is frozen `051e4ad`; the publication commit is not the
+training source.
+
+From the repository root:
+
+```bash
+python -m tools.musicfm_teacher_result_report
+python -m tools.musicfm_teacher_result_report --plot
+python -m pytest -q tests/test_musicfm_teacher_result_report.py tests/test_musicfm_teacher_cost_report.py
+```
+
+[The verifier and figure source](../../../tools/musicfm_teacher_result_report.py)
+uses standard-library metadata checks; plotting additionally needs the existing
+`plots` dependencies. It verifies raw-byte integrity, exact-first selection,
+control hashes/membership, the fixed gate, numerical vectors, checkpoint audit,
+retirement and recorded caps. Tamper tests cover those boundaries. No command
+above runs inference, reads audio or exports labels. Hash consistency proves the
+archive is internally bound to the retained receipts, not a cryptographically
+independent attestation of the original runtime.
+
+## November 13: BatchNorm diagnostic qualification, no accuracy result
+
+**Question.** Could replacing the selected teacher's 18 BatchNorm input
+populations improve this fixed checkpoint? The prospective
+[BN protocol](BN_PROTOCOL.md) protects all learned parameters, counters and
+unrelated buffers. It uses fitting audio only, deterministic crops, FP64 weighted
+population moments and sequential upstream-to-downstream replacement. Candidate
+state must be sealed before validation audio or reference keys are opened.
+
+**Technical result.** A corrected, source-bound qualification started at 06:10 UTC
+with the original isolated overlay. Two full traces and 36 stopped-prefix
+comparisons had **zero maximum absolute difference**. Timing covered 288 stopped
+prefixes across 16 fixed clips and all 18 sites. These checks support the
+implementation's prefix equivalence on those inputs; they do not measure a
+calibrated candidate's accuracy or establish population-estimator sufficiency.
+
+| Budget item | Seconds | Interpretation |
+|---|---:|---|
+| Projected full calibration | 675.66 | 512 times the sum of per-site maximum observed clip costs |
+| Required total safety margin | 2,638.41 | Doubled calibration and complete comparison costs, measured overhead, 120-second contingency |
+| Remaining fixed window | 1,753.43 | Time available at admission |
+| Actual qualification run | 47.63 | Complete guardian wall time; not full calibration time |
+
+The required margin exceeded the remaining window. The worker returned
+`BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING`; no complete calibration,
+validation comparison, retraining or promotion occurred. Peak owned RSS was
+**3,550,330,880 bytes** and aggregate CPU was **51.04 seconds**. The owner recorded
+exit zero, no cleanup error and compliant observed caps. Both vLLM instances
+retained their original process identities after completion.
+
+An earlier 05:45 attempt failed before calibration with missing `einops`: the
+launcher used shared Python instead of the original isolated overlay. Its
+preflight had missed the upstream dependency closure. The launcher guard now
+requires the original interpreter path, and a bounded CPU-only check verified
+all nine original module hashes before the corrected attempt. Neither startup
+failure nor budget refusal is a negative BN-accuracy result.
+
+The [terminal metadata bundle](data/bn-diagnostic/terminal-metadata.tar.gz), SHA256
+`8aabe764ce6a49ce1615bb526c9390a3628d4690b0153b1afb716d1b043fb1c1`,
+preserves configuration, approval, source binding, process launch, qualification,
+admission, fitting-panel and final controller receipts. It contains no audio or
+model weights. Actual diagnostic source was
+`6ea7ab810d2c42dde1ed761b7b723c41d30ab6d0`; the original teacher source and
+failed continuation gate are unchanged. The existing report command now also
+checks these receipts and recomputes the calibration projection:
+
+```sh
+python -m tools.musicfm_teacher_result_report
+```
+
+**Allocation decision.** Defer another GPU window for this teacher. Sequential
+population recalculation has a direct methodological precedent in Appendix A.3 of
+[Rethinking “Batch” in BatchNorm](https://arxiv.org/pdf/2105.07576). That establishes
+plausibility, not an expected MusicFM gain. A minimum useful-signal pass would
+reach only 171/250 FMA with BP allowed to remain 83/126, still below the expanded
+K10 control's 176/250 and 89/126. The joint intervention also cannot establish why
+training plateaued. Retain the implementation and measured cost, but prioritize
+cross-corpus exposure checks and broader evaluation of deployable candidates.
+No larger resource window or follow-on training is scheduled.
+
+## Historical preparation — November 12, 2026
+
+The original cost-qualification report follows, preserved as written. Its
+statements that no task fit or accuracy result was established refer to those
+**disposable pre-fit executions**, not the completed fit above. Its failed gate,
+controlled stop, cache repair and cost projection remain part of the evidence.
+
+### MusicFM whole-song cost qualification exposed and repaired a precision cache bug
+
+### Problem and decision
 
 A short-window resource probe cannot establish the cost or correctness of a real
 MusicFM key-training pipeline. The next step exercised actual cached fitting
@@ -31,7 +306,7 @@ it is not a single-window forward benchmark. [SVG](cost-results.svg) and the
 [verified plotting source](../../../tools/musicfm_teacher_cost_report.py) are
 available; reproduction commands appear below.
 
-## Method
+### Method
 
 Both complete runs use the original pinned MusicFM-MSD checkpoint, original
 24-kHz mono mel frontend and MSD global statistics, original Conformer encoder
@@ -85,7 +360,7 @@ checked by the guardian. This is instrumented work on a shared serving host;
 throughout-run foreign GPU utilization was not measured, so these are not isolated
 throughput numbers.
 
-## Results and timing boundaries
+### Results and timing boundaries
 
 | Measurement | Original `ef3a735` | Corrected `051e4ada` |
 | --- | ---: | ---: |
@@ -127,7 +402,7 @@ fully represented. No training horizon, full-song coverage or validation cadence
 may be shortened to fit that estimate. Actual full-fit resource use and duration remain separately measured outcomes. The expensive per-draw full-decode projection
 belongs to the explicit streaming fallback, not this ordinary-disk cache path.
 
-## The failed gate and precision-cache repair
+### The failed gate and precision-cache repair
 
 The original five failures were exactly the first five Beatport songs:
 `1059355`, `1077935`, `11077`, `1147737`, `1274431`. Three have no tail; the other
@@ -171,7 +446,7 @@ inputs, module receipts and settings; only `experiments/musicfm_teacher.py` chan
 within the bound numerical source closure. Its new passing result supports this
 repair without rewriting the old failure. No disposable weights carry into a fit.
 
-## Evidence and reproduction
+### Evidence and reproduction
 
 [Evidence index](data/cost-index.json) binds deterministic gzip containing13
 original small UTF-8 JSON files, each preserved byte-for-byte with its own SHA256.
@@ -203,7 +478,7 @@ initialization bindings, source/data invariants, and controlled-stop status.
 Tests damage vectors, contexts, schedules and evidence bytes to exercise rejection.
 The inline PNG/SVG derive from verified evidence, not transcribed figure labels.
 
-## Limits and next decision
+### Limits and next decision
 
 There are no real task-training results here. Full12s contexts tile the entire song
 but do not provide long-range attention. Beatport120s previews and broad FMA
