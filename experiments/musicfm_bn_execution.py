@@ -144,12 +144,16 @@ def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: i
     for key in (
         "deadline_epoch",
         "caps",
-        "protected_starts",
+        "authorized_stopped_pids",
         "allocator_bytes",
         "torch_threads",
         "cpus",
     ):
         runtime[key] = config[key]
+    stopped = set(config.get("authorized_stopped_pids", ()))
+    runtime["protected_starts"] = [
+        row for row in config["protected_starts"] if row["pid"] not in stopped
+    ]
     runtime["_config_sha256"] = config_sha
     watch, watch_statistics = worker_watch(runtime, output.parent, guardian_pid)
     watch()
