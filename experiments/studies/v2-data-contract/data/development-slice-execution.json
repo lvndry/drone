@@ -1,0 +1,65 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "interpretation": "The synchronous outer shell completed after the Python command returned, with no output artifact or stdout/stderr. The inner exit status was not preserved. Internal resource guard termination is plausible, not proven; no successful resource qualification is claimed.",
+      "limits": {
+        "cpu_seconds": 60,
+        "rss_bytes": 268435456,
+        "wall_seconds": 120
+      },
+      "os_peak_rss_bytes": null,
+      "returncode": null,
+      "source_sha256": "74ff192a10d7f0ad29ce950942584cdded5a27c550f715ff827db36925aa19e1",
+      "status": "no_completion_receipt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_seconds": null
+    },
+    {
+      "artifact_sha256": "22a92faa0e8492faf32dacf82bf06fd854395af38c48cab3d940e27a9ef08451",
+      "attempt": 2,
+      "audio_read": false,
+      "caps": {
+        "cpu_seconds": 60,
+        "rss_bytes": 268435456,
+        "wall_seconds": 120
+      },
+      "cpu_seconds": 1.4670509999999999,
+      "inference_performed": false,
+      "interpretation": "Completed streamed analysis before review added terminal cap postconditions and strict array-separator validation. Superseded generator artifact; recorded result retained.",
+      "os_peak_rss_bytes": 101433344,
+      "returncode": 0,
+      "source_sha256": "fb063294ebecb502c6374ecce3d388358cfae80ade29a297efccdb4af23f4a92",
+      "status": "complete",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "7557d7d3becf80641e56d28d437ab1786b480eeed4db74eac14a7f29d8d8d5bf",
+      "wall_seconds": 1.679641916998662
+    },
+    {
+      "artifact_sha256": "914f74586804b627c70f0866c1751990c574fb1df12574c07dc5945df17222e5",
+      "attempt": 3,
+      "audio_read": false,
+      "caps": {
+        "cpu_seconds": 60,
+        "rss_bytes": 268435456,
+        "wall_seconds": 120
+      },
+      "cpu_seconds": 1.408818,
+      "inference_performed": false,
+      "interpretation": "Final source with terminal RSS/CPU/wall/output postconditions and strict track separators. Original caps retained.",
+      "os_peak_rss_bytes": 108986368,
+      "returncode": 0,
+      "source_sha256": "3314667c606226cc41b1ad992bc90c2004a7e1c8c3ecbd79945d593c8f8f9bc3",
+      "status": "complete",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "faa9ba0ddbee4014c4e89983775f1aeaf765f66430e8d96addf6bfe2c7c7b68f",
+      "wall_seconds": 1.7515041659935378
+    }
+  ],
+  "audio_read": false,
+  "confirmation_references_materialized": false,
+  "inference_performed": false,
+  "repair": "Stream canonical source catalog rows, retaining only376 development records while preserving native metadata universe; reuse shared validated dict constructor. No cap increase.",
+  "schema": "drone.development-slice-execution.v1"
+}

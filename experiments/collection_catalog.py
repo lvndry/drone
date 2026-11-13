@@ -337,6 +337,11 @@ def resolve_sources(
 def load_collection(path: Path) -> CollectionCatalog:
     raw = path.read_bytes()
     data = json.loads(gzip.decompress(raw) if raw.startswith(b"\x1f\x8b") else raw)
+    return collection_from_dict(data)
+
+
+def collection_from_dict(data: dict[str, Any]) -> CollectionCatalog:
+    """Validate a decoded collection using the same constructor as file loading."""
 
     def ev(item: dict[str, Any]) -> tuple[Evidence, ...]:
         return tuple(Evidence(**record) for record in item["evidence"])
@@ -363,20 +368,17 @@ def load_collection(path: Path) -> CollectionCatalog:
             converted[name] = tuple(make(cls, item) for item in row[name])
         converted["relation_missing_reasons"] = tuple(row["relation_missing_reasons"])
         tracks.append(CollectionTrack(**converted))
+    if set(data) != {"schema", "collection_id", "sources", "external_sources", "tracks"}:
+        raise ValueError("Unexpected collection fields")
     return validate_collection(
         CollectionCatalog(
-            **(
-                data
-                | dict(
-                    sources=tuple(SourceRecord(**source) for source in data["sources"]),
-                    external_sources=tuple(
-                        ExternalSource(
-                            **(source | {"descriptor": Evidence(**source["descriptor"])})
-                        )
-                        for source in data["external_sources"]
-                    ),
-                    tracks=tuple(tracks),
-                )
-            )
+            schema=data["schema"],
+            collection_id=data["collection_id"],
+            sources=tuple(SourceRecord(**source) for source in data["sources"]),
+            external_sources=tuple(
+                ExternalSource(**(source | {"descriptor": Evidence(**source["descriptor"])}))
+                for source in data["external_sources"]
+            ),
+            tracks=tuple(tracks),
         )
     )
