@@ -97,7 +97,8 @@ in that unrelated process are not adopted. Retain
 untracked group survivors as a cleanup failure; an empty captured identity set
 alone is not evidence that the group disappeared. Retain
 failure logs/receipts; do not process later cases. Successful passes delete their
-temporary WAV after reading it. Failure WAVs remain only in the finite owned
+temporary WAV only after PCM length and hash admission. Its retirement belongs to
+the identity-verification stage, not decode timing. Failure WAVs remain only in the finite owned
 output directory for diagnosis.
 
 ## Interpretation and portability

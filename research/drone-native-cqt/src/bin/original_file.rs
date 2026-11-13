@@ -142,9 +142,21 @@ fn decoder_command(ffmpeg: &Path, audio: &Path, output: &Path) -> Command {
 fn decode(ffmpeg: &Path, audio: &Path, output: &Path) -> Result<Vec<f32>> {
     let status = decoder_command(ffmpeg, audio, output).status()?;
     ensure!(status.success(), "FFmpeg failed");
-    let pcm = wav_pcm(&fs::read(output)?)?;
-    fs::remove_file(output)?;
-    Ok(pcm)
+    wav_pcm(&fs::read(output)?)
+}
+
+fn admit_decoded_pcm(pcm: &[f32], expected: &Value, wav: &Path) -> Result<()> {
+    ensure!(
+        Some(pcm.len() as u64) == expected["pcm_samples"].as_u64(),
+        "PCM length changed"
+    );
+    ensure!(
+        float_hash(pcm) == expected["pcm_sha256"].as_str().context("PCM hash")?,
+        "decoded PCM changed"
+    );
+    // Keep failed decoder evidence; only admitted PCM permits retirement.
+    fs::remove_file(wav)?;
+    Ok(())
 }
 
 fn main() -> Result<()> {
@@ -229,14 +241,7 @@ fn main() -> Result<()> {
         let pcm = decode(&ffmpeg, &audio, &wav)?;
         let decode_stage = json!({"wall_seconds":stage.elapsed().as_secs_f64(),"cpu_seconds":cpu_seconds()?-stage_cpu});
         let verify = Instant::now();
-        ensure!(
-            Some(pcm.len() as u64) == expected["pcm_samples"].as_u64(),
-            "PCM length changed"
-        );
-        ensure!(
-            float_hash(&pcm) == expected["pcm_sha256"].as_str().context("PCM hash")?,
-            "decoded PCM changed"
-        );
+        admit_decoded_pcm(&pcm, expected, &wav)?;
         let verify_seconds = verify.elapsed().as_secs_f64();
         let stage = Instant::now();
         let stage_cpu = cpu_seconds()?;
@@ -348,5 +353,30 @@ mod tests {
             float_hash(&values),
             drone_native_cached::bytes_sha256(&bytes)
         );
+    }
+
+    #[test]
+    fn decoder_evidence_is_retained_until_canonical_pcm_admission() -> Result<()> {
+        use std::io::Write;
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)?
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "drone-decoder-admission-{}-{nonce}.wav",
+            std::process::id()
+        ));
+        fs::OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .open(&path)?
+            .write_all(b"retained decoder evidence")?;
+        let pcm = [0.0f32, 1.0];
+        let wrong = json!({"pcm_samples":2,"pcm_sha256":"wrong"});
+        assert!(admit_decoded_pcm(&pcm, &wrong, &path).is_err());
+        assert_eq!(fs::read(&path)?, b"retained decoder evidence");
+        let right = json!({"pcm_samples":2,"pcm_sha256":float_hash(&pcm)});
+        admit_decoded_pcm(&pcm, &right, &path)?;
+        assert!(!path.exists());
+        Ok(())
     }
 }
