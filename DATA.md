@@ -14,7 +14,10 @@ Two related views now organize the existing evidence:
   [FMA collection](experiments/studies/v2-data-contract/data/fmak5489-collection.json.gz)
   contains all 5,489 source-reference IDs. The
   [GiantSteps collection](experiments/studies/v2-data-contract/data/giantsteps604-collection.json.gz)
-  now covers all 604 source previews. These collection views contain metadata,
+  now covers all 604 source previews, and the
+  [GTZAN collection](experiments/studies/v2-data-contract/data/gtzan1000-collection.json.gz)
+  joins all 1,000 inventory records to their frozen reference memberships and
+  recorded source-integrity observations. These collection views contain metadata,
   frozen role history and exposure witnesses, **without key targets or predictions**.
 
 Both reuse typed identity, measurement, native-genre and evidence primitives.
@@ -23,7 +26,8 @@ missing observations; the [reference contract](experiments/corpus_catalog.py)
 retains the stricter identity requirements of the scored panel. Source archives
 are resolved by explicit local mappings and verified hashes. A local path is not
 an identity. See the [coverage study](experiments/studies/v2-data-contract/REPORT.md)
-for methods, figures and limitations. The GTZAN collection adapter remains outstanding.
+for methods, figures and limitations. GTZAN integrity observations remain separate
+from reference eligibility, overlap status and scoring admission.
 
 ## Current corpus inventory
 
@@ -201,14 +205,25 @@ records historical 11,025-Hz fingerprint decode support, not the BP/FMA 24-kHz
 cache support in the table above. All 604 GS recordings are marked as already
 evaluated in release development; that does not assert direct fitting membership.
 
+The [GTZAN adapter](tools/export_gtzan_collection.py) needs only bundled metadata:
+`uv run python -m tools.export_gtzan_collection` verifies the committed catalog.
+Named membership scopes keep raw/filtered reference inclusion, saved MD5 match,
+WAV-header parsing and scoring admission separate. The failed `jazz.00054` source
+retains its actual acquired SHA256 and both failure observations. Source duration
+comes from recorded WAV headers for 999 excerpts; all model-analyzed support,
+full-song duration and BPM remain unknown. None of these observations establishes
+decoded-audio usability, overlap clearance or a fresh evaluation set.
+
 Next work:
 
 1. Use the completed [development slice report](experiments/studies/musicfm-key-pilot/REPORT.md#retrospective-diagnosis-by-genre-recording-duration-and-bpm)
    to identify coverage and error patterns for the next prospective experiment.
    The 376-record K10/MusicFM joins are descriptive analysis of exposed data,
    not independent confirmation; all small, empty and unknown cells are retained.
-2. Add GTZAN's frozen 837/769 membership, integrity and overlap status without
-   changing its cohorts. GiantSteps metadata now covers all 604 previews.
+2. Complete the separately bounded GTZAN overlap audit and publish its terminal
+   evidence before any scoring admission. The new catalog already preserves all
+   1,000 source IDs, the frozen 837/769 reference memberships and the recorded
+   999 matching file identities; no current catalog row is admitted for scoring.
 3. Assess gaps in long DJ recordings and contemporary genre coverage before
    choosing additional public data or an annotation effort. Preserve native
    taxonomies and distinguish reported tempo from measured or verified tempo.

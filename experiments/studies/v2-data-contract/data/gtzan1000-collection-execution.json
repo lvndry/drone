@@ -1,0 +1,65 @@
+{
+  "attempts": [
+    {
+      "attempt": 1,
+      "audio_read": false,
+      "caps": {
+        "cpu_seconds": 60,
+        "output_bytes": 16777216,
+        "rss_bytes": 268435456,
+        "wall_seconds": 120
+      },
+      "child_cpu_seconds": 0.6706359999999999,
+      "child_os_peak_rss_bytes": 46219264,
+      "exit_code": 0,
+      "inference_performed": false,
+      "owner_timeout": false,
+      "owner_wall_seconds": 0.8304479159414768,
+      "purpose": "Initial complete GTZAN catalog export",
+      "source_sha256": "fb55084d0538f7caceafd242db4909f5e7b069dd8cfdd7715def105f7dcf0b9c",
+      "stderr": "",
+      "worker": {
+        "cpu_seconds": 0.6527909999999999,
+        "os_peak_rss_bytes": 46219264,
+        "output_bytes": 127483,
+        "tracks": 1000,
+        "wall_seconds": 0.6975844579283148
+      }
+    },
+    {
+      "attempt": 2,
+      "audio_read": false,
+      "caps": {
+        "cpu_seconds": 60,
+        "output_bytes": 16777216,
+        "rss_bytes": 268435456,
+        "wall_seconds": 120
+      },
+      "child_cpu_seconds": 0.69106,
+      "child_os_peak_rss_bytes": 44515328,
+      "exit_code": 0,
+      "inference_performed": false,
+      "owner_timeout": false,
+      "owner_wall_seconds": 0.7567494580289349,
+      "purpose": "Regenerate coverage after retaining explicit zero classical-reference counts; catalog bytes must remain unchanged",
+      "source_sha256": "12de0a7b27b31e5d0ca1dc4b51639eaf4b75f9a56a16bc5cce053f6c1be7ff9b",
+      "stderr": "",
+      "worker": {
+        "cpu_seconds": 0.6726070000000001,
+        "os_peak_rss_bytes": 44498944,
+        "output_bytes": 127531,
+        "tracks": 1000,
+        "wall_seconds": 0.6304852500325069
+      }
+    }
+  ],
+  "catalog_sha256": "e232221b49fbd5acbfc37bfa1ec17ecb502f92e51528fdbc862fba4d1ec347fa",
+  "interpretation": "Both exports succeeded within original limits. The second retained explicit zero-reference genre counts in the coverage summary; catalog bytes did not change. Worker and owner-scoped timing/RSS measurements remain separate. Local interpreter paths are omitted.",
+  "portable_invocation": [
+    "python",
+    "-m",
+    "tools.export_gtzan_collection",
+    "--write"
+  ],
+  "schema": "drone.metadata-export-execution.v1"
+}
