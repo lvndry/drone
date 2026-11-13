@@ -213,6 +213,30 @@
       "sha256": "d596c514ddee11cfd6b364d4edef618380ee0f2e845001d6c5742d36f418c244",
       "git_mode": "100644",
       "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/fused_public_case.rs",
+      "sha256": "2c9e1a9d7dc2dd8f35aab26706bddd865819f85f6771e84af51ea3c73357ccf3",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_376_MEMBERSHIP.json",
+      "sha256": "08a90fd7686ca354a6fecd30e65a5dca90a666d16fdd336590ba78b60b6459c2",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_376_PROTOCOL.md",
+      "sha256": "bacb55072e1fedde8c0de9cea9178bf7fe67c17708a7dfd93e20f5d020e42fef",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused376_transport.py",
+      "sha256": "3dc6c2ee1f0affd4c64b553249e5e60fd687339da49bb4d441b6284d78ea97a5",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
     }
   ]
 }
