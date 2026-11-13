@@ -1,0 +1,69 @@
+{
+  "analyzed_audio_support_known": 0,
+  "audio_read": false,
+  "bpm_known": 0,
+  "catalog_sha256": "e232221b49fbd5acbfc37bfa1ec17ecb502f92e51528fdbc862fba4d1ec347fa",
+  "cohorts": {
+    "named_filtered": {
+      "native_genres": {
+        "blues": 98,
+        "classical": 0,
+        "country": 97,
+        "disco": 91,
+        "hiphop": 73,
+        "jazz": 67,
+        "metal": 84,
+        "pop": 78,
+        "reggae": 83,
+        "rock": 98
+      },
+      "tracks": 769
+    },
+    "raw_single_key": {
+      "native_genres": {
+        "blues": 98,
+        "classical": 0,
+        "country": 99,
+        "disco": 98,
+        "hiphop": 81,
+        "jazz": 79,
+        "metal": 93,
+        "pop": 94,
+        "reggae": 97,
+        "rock": 98
+      },
+      "tracks": 837
+    }
+  },
+  "collection_id": "gtzan1000-source-integrity-metadata",
+  "generator_sha256": "12de0a7b27b31e5d0ca1dc4b51639eaf4b75f9a56a16bc5cce053f6c1be7ff9b",
+  "inference_performed": false,
+  "interpretation": "Historical reference eligibility, acquired-member identity and WAV-header parsing are separate observations; no classifier admission, overlap clearance, decoded-audio usability or full-song coverage is inferred.",
+  "native_genres": {
+    "blues": 100,
+    "classical": 100,
+    "country": 100,
+    "disco": 100,
+    "hiphop": 100,
+    "jazz": 100,
+    "metal": 100,
+    "pop": 100,
+    "reggae": 100,
+    "rock": 100
+  },
+  "not_admitted_for_scoring": 1000,
+  "overlap_not_established": 1000,
+  "publisher_full_recording_duration_known": 0,
+  "recorded_format_failures": [
+    "gtzan:jazz.00054"
+  ],
+  "recorded_identity_failures": [
+    "gtzan:jazz.00054"
+  ],
+  "recorded_identity_matches": 999,
+  "recorded_parseable_WAV_headers": 999,
+  "recorded_source_excerpt_duration_known": 999,
+  "schema": "drone.collection-coverage.v1",
+  "targets_selected": false,
+  "tracks": 1000
+}

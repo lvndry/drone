@@ -744,6 +744,65 @@ admission. Synthetic tests cover archive path/link boundaries, duplicates,
 missing members, byte caps, recording mismatch, WAV truncation and the distinction
 between inventory completion and a strict pass.
 
+## GTZAN catalog: joining frozen roles to recorded integrity (November 13)
+
+The frozen reference ledger and the later integrity inventory describe different
+stages. Leaving them as separate report paragraphs makes it easy to mistake an
+old `audio_verified: false` field for the latest source observation, or a matching
+MD5 for classifier admission. The [1,000-row collection](data/gtzan1000-collection.json.gz)
+now joins both snapshots by exact native ID and archive member without rewriting
+the historical ledger or selecting its key targets.
+
+The adapter verifies the pinned ledger, independent recording index, integrity
+evidence archive and its diagnostic JSON member, and release checkpoint witness.
+It requires exact population membership, matching expected MD5 identities and the
+original failed-controller history. The existing catalog contract represents
+reference inclusion, file-identity observation, WAV-header observation and scoring
+admission as separate named membership scopes. Every field retains its source
+pointer. The [coverage summary](data/gtzan1000-collection-coverage.json) binds the
+catalog and generator; its genre counts retain zero-reference categories.
+
+| Observation | Rows |
+|---|---:|
+| Complete source inventory | 1,000 |
+| Included in frozen raw single-key references | 837 |
+| Included in frozen named filtered references | 769 |
+| Saved acquired-member MD5 matches the index | 999 |
+| Saved WAV header is parseable | 999 |
+| Recorded source-excerpt duration available | 999 |
+| Model-analyzed audio support established | 0 |
+| Admitted for classifier scoring | 0 |
+
+The matching-identity and parseable-header counts happen to coincide; they are
+independent observations, and a regression checks that identity matching does not
+imply a parseable header. The bad `jazz.00054` bytes retain their actual SHA256,
+MD5-mismatch observation and header failure. Its pre-existing exclusion from both
+reference cohorts remains unchanged. The 769-row cohort contains 73 native
+`hiphop` excerpts; its classical count is explicitly zero.
+
+The known durations come from saved 22,050-Hz WAV-header frame counts, not a new
+audio probe or model pass. Full-song duration, admitted BPM, verified artist/work
+groups and model-analyzed PCM remain unknown. Released-model overlap is explicitly
+not established by these bundled integrity observations. No pending overlap run
+or uncommitted continuation evidence is imported, and no row is promoted to
+scoring admission. Short historical excerpts do not fill the full DJ-track or
+contemporary Afrobeats coverage gap.
+
+Reproduce without source audio, network access or model loading:
+
+```bash
+uv run python -m tools.export_gtzan_collection
+```
+
+The [execution receipt](data/gtzan1000-collection-execution.json) preserves both
+successful export attempts, source identities, exit codes and resource limits.
+The final guarded generation completed in 0.76 seconds including process startup
+and cleanup, used 0.69 CPU seconds and peaked at 44,515,328 bytes of child-process
+RSS, within 120-second wall / 60-second CPU / 256 MiB RSS / 16 MiB output limits.
+It wrote 127,531 bytes across catalog and coverage outputs. A preceding successful
+export was regenerated after retaining explicit zero classical-reference counts;
+the catalog bytes remained unchanged. No audio or classifier execution occurred.
+
 ## KeyFinder enum conversion repaired and qualified (November 13)
 
 The new standalone reference CLI correctly maps every libkeyfinder 2.2.8 key enum
