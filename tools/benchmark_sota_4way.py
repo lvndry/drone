@@ -529,32 +529,16 @@ class Detectors:
 
 
 def musicfm_status() -> dict[str, Any]:
-    """MusicFM-MLP: reported blocked, not run.
-
-    The MIREX 2026 submission repo (Hugging Face
-    jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection) is public: every
-    file of code (predict.py, model.py, musicfm/ package, requirements)
-    fetches without a token. But the repo contains no weight file at all:
-    the recursive tree listing has zero .pt/.bin/.safetensors entries, and
-
-    ```
-    curl -I https://huggingface.co/jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection/resolve/main/weights/best_model.pt
-    -> HTTP 404 "Entry not found"
-    ```
-
-    predict.py requires weights/best_model.pt (the complete fine-tuned state
-    dict; it does not need the base pretrained_msd.pt at inference), so
-    inference cannot run. A locally trained pilot checkpoint uses a different
-    architecture (mel-spectrogram backbone) and is not the published
-    submission, so it is excluded to avoid conflating models.
-    """
+    """Report a dated artifact inspection, without claiming live availability checks."""
     return {
         "status": "blocked",
+        "checked_revision": "6b7fc0fbd47fa28762e2f7ca26534f4e392080f6",
+        "checked_date_utc": "2026-11-13",
         "reason": (
-            "HF repo jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection is "
-            "public (code fetches, no 401), but the required weights file "
-            "weights/best_model.pt is ABSENT: resolve -> HTTP 404 'Entry not found'; "
-            "recursive tree/main lists no .pt/.bin/.safetensors. Cannot run inference."
+            "No fine-tuned weights in the inspected revision of "
+            "jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection. "
+            "No inference adapter is configured; availability is not rechecked at runtime. "
+            "The locally trained pilot is a different checkpoint and recipe."
         ),
         "published_gs": "72.19% exact / 77.62% MIREX (per repo README)",
     }
