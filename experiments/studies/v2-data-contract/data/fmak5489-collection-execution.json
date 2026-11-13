@@ -1,0 +1,41 @@
+{
+  "artifacts": {
+    "fmak5489-collection-coverage.json": "dc06f9d7f9c2a186fb5a350efac91d73491cdf8142e245cb9da3c7e1fc492637",
+    "fmak5489-collection.json.gz": "a626b886b61e94a6296e6160a672be54797b62a7f8f60916c82905f2c34a73b2"
+  },
+  "attempts": [
+    {
+      "actual_worker_ru_maxrss_bytes": 309362688,
+      "attempt": 1,
+      "limitation": "The first invocation had a CPU limit but no active RSS watchdog; observed actual peak exceeded the proposed RSS budget. Output is retained as failed-attempt evidence.",
+      "measurement_source": "observed /usr/bin/time -l output",
+      "process_completed": true,
+      "rss_budget_bytes": 268435456,
+      "status": "budget_failed",
+      "system_cpu_seconds": 0.09,
+      "user_cpu_seconds": 2.78,
+      "wall_seconds": 3.01
+    },
+    {
+      "actual_worker_ru_maxrss_bytes": null,
+      "actual_worker_ru_maxrss_missing_reason": "not captured by the existing parent process; no rerun performed solely for this receipt",
+      "attempt": 2,
+      "limitation": "Sampled worker RSS is not the same measurement as actual ru_maxrss and can miss sub-poll peaks. Parent and ps subprocess RSS were not included in this sampled worker figure.",
+      "nice": 19,
+      "operation": "source-derived --check of unchanged first-attempt artifact bytes after streaming serializer repair",
+      "process_exit": 0,
+      "rss_budget_bytes": 268435456,
+      "rss_poll_target_seconds": 0.025,
+      "sampled_worker_rss_bytes": 125665280,
+      "status": "sampled_guard_passed",
+      "wall_limit_seconds": 120,
+      "wall_seconds": 5.903177207976114,
+      "worker_cpu_rlimit_seconds": 60
+    }
+  ],
+  "audio_read": false,
+  "inference_performed": false,
+  "schema": "drone.collection-export-execution.v1",
+  "scope": "local_existing_metadata_only",
+  "targets_selected": false
+}

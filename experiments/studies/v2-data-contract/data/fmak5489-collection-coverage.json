@@ -1,0 +1,33 @@
+{
+  "analyzed_support_known": 4283,
+  "analyzed_support_unknown": 1206,
+  "audio_read": false,
+  "bpm_known": 0,
+  "collection_id": "fmak5489-source-metadata",
+  "empty_native_all_tags": 84,
+  "frozen_components": 1157,
+  "inference_performed": false,
+  "memberships": {
+    "canonical-eligibility-v2:confirmation_reserved_container_unique": 997,
+    "canonical-eligibility-v2:expanded_fma_fit": 4033,
+    "canonical-eligibility-v2:fma_inner_selection": 250,
+    "canonical-eligibility-v2:restricted_fma_fit": 976,
+    "fma-exposure-ledger-v1:PROPOSED_calibration": 159,
+    "fma-exposure-ledger-v1:PROPOSED_development_confirmation": 998,
+    "fma-exposure-ledger-v1:PROPOSED_expanded_fit": 4082,
+    "fma-exposure-ledger-v1:PROPOSED_inner_selection": 250,
+    "fma-original-partition-v1:calibration": 159,
+    "fma-original-partition-v1:final": 1000,
+    "fma-original-partition-v1:fit": 976,
+    "fma-original-partition-v1:quarantined_development": 3104,
+    "fma-original-partition-v1:validation": 250
+  },
+  "missing_album": 30,
+  "missing_artist": 0,
+  "missing_native_top": 3065,
+  "schema": "drone.collection-coverage.v1",
+  "source_hash_distinct": 5442,
+  "source_hash_known": 5489,
+  "targets_selected": false,
+  "tracks": 5489
+}

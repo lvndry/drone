@@ -1,0 +1,11 @@
+{
+  "analysis_sha256": "f68b893de5fd647e7d86dda5cd48305dcbbd39486c656773dd80f42200a87367",
+  "generator_sha256": "ab7739f158741eae40993873447fb25671095580da974e75cec82d597f1050b8",
+  "matplotlib_version": "3.11.2",
+  "outputs": {
+    "collection-metadata-availability.png": "7353d6ae158842792dc7f25d1715f83bcbf74faa51395fbae079349711472c33",
+    "collection-metadata-availability.svg": "a05c3182fcf03b1f77c67dac29ed70ff0b274bb8d0b0ab4fffa78c3249cde23e",
+    "collection-recorded-duration.png": "4dc92d39bcfc8f04139144521d13ff61c7225921d9dff77b90731528ac42d544",
+    "collection-recorded-duration.svg": "b3fdace5ed2adce61ac558ccf4608ed0008ab893ac345e62968970189024bd71"
+  }
+}

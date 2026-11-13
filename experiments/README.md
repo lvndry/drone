@@ -6,9 +6,9 @@ before evaluation, and `data/` retains measured evidence and provenance.
 
 Start dataset work with the [corpus inventory](../DATA.md). It records which
 genres, analyzed durations and tempo metadata are actually available, along with
-split roles, reference provenance and missing coverage. The first structured
-catalog covers the 93-recording reference panel; the broader BP/FMA/GTZAN adapters
-are listed there as outstanding work.
+split roles, reference provenance and missing coverage. The scored-reference catalog covers 93 recordings; separate metadata collections
+now cover 1,355 current Beatport development IDs and all 5,489 FMA source IDs.
+Full GiantSteps and GTZAN collection adapters remain outstanding.
 
 | Study | Problem | Result and decision |
 |---|---|---|

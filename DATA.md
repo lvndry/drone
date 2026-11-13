@@ -5,15 +5,24 @@ strong or weak by genre, analyzed length, BPM and other supported attributes**,
 and distinguish an accuracy result from a hole in our data. Bundled-model
 provenance remains in [weights/README.md](weights/README.md).
 
-The corpora are not yet one fully unified dataset. The shared
-[catalog contract](experiments/corpus_catalog.py) and
-[exporter](tools/export_corpus_catalog.py) provide the organization boundary.
-The initial [reference-panel catalog](experiments/studies/v2-data-contract/data/reference-panel-catalog.json.gz)
-and [CSV](experiments/studies/v2-data-contract/data/reference-panel-catalog.csv) cover **the existing 93-recording reference panel only**: 48 Winterreise
-recordings and 45 GiantSteps previews. They do not represent full BP, FMA,
-GiantSteps or GTZAN admission. See the
-[coverage/provenance study](experiments/studies/v2-data-contract/REPORT.md) for
-the broader existing metadata and its limitations.
+Two related views now organize the existing evidence:
+
+- The [reference-panel catalog](experiments/studies/v2-data-contract/data/reference-panel-catalog.csv)
+  describes the exact 93 scored recordings and joins their existing predictions.
+- The [Beatport collection](experiments/studies/v2-data-contract/data/beatport1355-collection.json.gz)
+  contains all 1,355 current development IDs; the
+  [FMA collection](experiments/studies/v2-data-contract/data/fmak5489-collection.json.gz)
+  contains all 5,489 source-reference IDs. These collection views contain metadata,
+  frozen role history and exposure witnesses, **without key targets or predictions**.
+
+Both reuse typed identity, measurement, native-genre and evidence primitives.
+The [collection contract](experiments/collection_catalog.py) permits explicitly
+missing observations; the [reference contract](experiments/corpus_catalog.py)
+retains the stricter identity requirements of the scored panel. Source archives
+are resolved by explicit local mappings and verified hashes. A local path is not
+an identity. See the [coverage study](experiments/studies/v2-data-contract/REPORT.md)
+for methods, figures and limitations. Full GiantSteps and GTZAN collection
+adapters remain outstanding.
 
 ## Current corpus inventory
 
@@ -79,7 +88,7 @@ must preserve these distinctions rather than change the meaning to fit a table:
   acquisition receipt and adapter/version. Retain original native genre IDs and
   taxonomy hierarchy and source-native tag lists without duplicating recordings.
   The schema supports source-native tag lists with direct/ancestor relations;
-  broader FMA adapters must populate them. Any display bucket is an explicitly
+  the FMA adapter preserves hierarchy-inclusive source tags without inventing direct-versus-ancestor assignments. Any display bucket is an explicitly
   versioned derivation.
 - **Analysis support:** full catalog duration, actual supplied audio duration,
   analyzed start/end/support, codec, sample rate, channel handling, preprocessing
@@ -143,9 +152,9 @@ already separates Winterreise from development-exposed GS and preserves the
 corrected comparator evidence. This is an initial coverage/accuracy map, not an
 all-genre diagnosis. Its legacy GS buckets also merge drum-and-bass into
 `dubstep` and glitch-hop into `hip-hop`; the latter is not broad hip-hop coverage.
-Preserve native tags alongside these historical display buckets. The current
-pilot catalog does not justify a full-corpus BPM, artist-independent or long-track
-accuracy claim.
+Preserve native tags alongside these historical display buckets. The reference panel does not justify a full-corpus BPM, artist-independent or
+long-track accuracy claim. Collection metadata must be joined to the appropriate
+scored cohort before interpreting model strengths or weaknesses.
 
 ## Coverage gaps and next adapters
 
@@ -162,22 +171,38 @@ Keep those names and coverage questions distinct. Missing tags are not proof
 that no relevant music exists, and a few available recordings do not establish
 broad contemporary coverage.
 
-Concrete next adapters, using existing sources before any acquisition:
+The BP and FMA adapters now join the existing sources without changing roles:
 
-1. **BP:** join the complete current ID/genre workbook, admitted store BPM and
-   source artists/remixers/release metadata to actual preview support. Publish
-   join coverage, conflicting taxonomies and missing values by role. Keep released
-   and current research exposures separate.
-2. **FMA:** join all 5,489 pinned key-reference IDs to the existing master metadata,
-   native genre hierarchy, component/exposure ledger and actual analyzed support.
-   Preserve current eligibility exclusions. Admit tempo features only through an
-   explicit independent source adapter if such features are already available.
-3. **GS/SWD:** expand the 93-row pilot using the exact source cohorts and references;
-   preserve GS development exposure and SWD work/performance grouping. Inspect
-   existing publisher metadata for additional fields without guessing their meaning.
-4. **GTZAN:** join the frozen 837/769 membership to its integrity and overlap
-   evidence; retain eligibility and unknown identity status regardless of outcomes.
-   Do not turn the artist/fault lists into a claim of complete independence.
+| Collection | Source rows | Native genre metadata | Artist / album or release IDs | Recorded 24-kHz cache support | Admitted BPM |
+|---|---:|---|---|---|---|
+| Current Beatport development cohort | 1,355 | All workbook genres; API taxonomy remains separate | 676 with artists and release IDs; 145 with remixers | 1,355 | 716 publisher-reported; 639 unknown |
+| FMA source-reference cohort | 5,489 | 5,405 with hierarchy-inclusive tags; top-level field missing for 3,065 | 5,489 with artist IDs; 5,459 with album IDs | 4,283; 1,206 unknown | 0; no admitted tempo source |
+
+FMA has 5,442 distinct saved source-container hashes and 1,157 existing frozen
+components. Multiple rows therefore need not be independent recordings. The
+1,206 missing cache-support witnesses comprise 998 reserved confirmation rows,
+159 calibration rows and 49 excluded fitting candidates. Publisher duration does
+not fill those unknowns. Existing 24-kHz cache observations describe that training
+preparation; they are not a claim that released Drone used those exact PCM bytes.
+
+Reproduce with [the BP adapter](tools/export_beatport_collection.py) or
+[the FMA adapter](tools/export_fma_collection.py). The BP adapter accepts an
+`--external-sources` JSON mapping with `workbook`, `store_json_zip` and
+`canonical_counts` paths. The FMA adapter accepts explicit `--master-metadata`,
+`--taxonomy` and `--cache-metadata` paths. Both verify the pinned source hashes;
+no source audio is opened. Recorded source-file and PCM identities remain identified
+as historical witnesses, not newly verified files.
+
+Next work:
+
+1. Join already-recorded development predictions to the corresponding metadata
+   and input identities, reporting small and missing slices explicitly. This is
+   descriptive analysis of exposed data, not independent confirmation.
+2. Expand GiantSteps beyond the 45-row reference sample and add GTZAN's frozen
+   837/769 membership, integrity and overlap status without changing its cohorts.
+3. Assess gaps in long DJ recordings and contemporary genre coverage before
+   choosing additional public data or an annotation effort. Preserve native
+   taxonomies and distinguish reported tempo from measured or verified tempo.
 
 These adapters preserve the existing fitting roles and reference labels. The
 private DJ library remains reserved for performance testing and manual review.
