@@ -1,12 +1,20 @@
 {
-  "purpose": "Sanitized run metadata. The raw sealed config and approval are retained privately; their hashes bind them.",
-  "config_sha256": "c2ddf3049a6763eb26ed2029d0aaa817c2bce7bdb0e75c0e3fb8bbfe08273f93",
-  "approval_sha256": "e48d3b9a65b097e15e1db9f8f2e604dd9d427c5bc1d19d95e2262feb010a9ba1",
-  "source_commit": "094d735ac9c206913be27d854221a9a7e0d24449",
-  "window_utc": "2026-11-13 10:00:54 -> 11:00:54",
-  "wall_seconds": 3600,
   "allocator_bytes": 17179869184,
-  "result_sha256": "36b8dcbac5332f39daf7f6cb4b1af6b0f8d24f08abd6b5769a1ee41a21faf42f",
+  "approval_sha256": "e48d3b9a65b097e15e1db9f8f2e604dd9d427c5bc1d19d95e2262feb010a9ba1",
+  "base_commit": "094d735ac9c206913be27d854221a9a7e0d24449",
+  "caps": {
+    "cpu_seconds": 10800,
+    "output_bytes": 8589934592,
+    "rss_bytes": 8589934592,
+    "wall_seconds": 3600
+  },
+  "config_sha256": "c2ddf3049a6763eb26ed2029d0aaa817c2bce7bdb0e75c0e3fb8bbfe08273f93",
+  "controller_sha256": "3a2b6a143d5ff6976e7fe9db282c8e6473f05b7e69d7a87b2fe659b707212532",
   "outcome": "negative",
-  "promotion_authorized": false
+  "promotion_authorized": false,
+  "purpose": "Sanitized run metadata. Raw sealed config and approval remain private and are hash-bound; the public controller is byte-identical to the raw terminal receipt. base_commit requires the source-lock overrides.",
+  "result_sha256": "36b8dcbac5332f39daf7f6cb4b1af6b0f8d24f08abd6b5769a1ee41a21faf42f",
+  "source_lock_sha256": "8f4da2620cc0fbdeecce89ed869779a8404b879ac8cfb468d585ad7d3c40fb48",
+  "wall_limit_seconds": 3600,
+  "window_utc": "2026-11-13 10:00:54 -> 11:00:54"
 }

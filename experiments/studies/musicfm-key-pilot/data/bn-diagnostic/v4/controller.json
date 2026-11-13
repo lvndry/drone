@@ -1,0 +1,17 @@
+{
+  "cleanup_error": null,
+  "complete": true,
+  "config_sha256": "c2ddf3049a6763eb26ed2029d0aaa817c2bce7bdb0e75c0e3fb8bbfe08273f93",
+  "error": null,
+  "peaks": {
+    "cpu": 843.28,
+    "rss": 6219206656
+  },
+  "terminal_resources": {
+    "cpu_seconds": 843.28,
+    "rss_bytes": 44675072
+  },
+  "wall_seconds": 707.6067512661684,
+  "worker_exit": 0,
+  "worker_started": true
+}

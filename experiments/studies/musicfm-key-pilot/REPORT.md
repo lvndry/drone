@@ -424,9 +424,11 @@ does not rescue this checkpoint: it costs seven Beatport exact answers and gains
 only three FMA exact answers. This is a genuine negative result, not a budget
 refusal or infrastructure failure.
 
-**Interpretation.** The train/eval BatchNorm mismatch is not a standalone cause
-of the pilot's plateau, and a sequential population refresh is not a useful
-intervention for this teacher. The avenue is closed for this checkpoint. The
+**Interpretation.** This fixed sequential population refresh failed to rescue
+this selected checkpoint under the declared gate. It does not rule out a causal
+contribution from BatchNorm mismatch, or establish what a different calibration
+population, estimator or checkpoint would do. We close this tested intervention;
+we do not generalize the negative result to BatchNorm adaptation as a whole. The
 result also bounds the earlier speculation: even the minimum-signal bar would
 have left the candidate below the expanded K10 control's 176/250 FMA and 89/126
 Beatport.
@@ -434,10 +436,31 @@ Beatport.
 Evidence is in [data/bn-diagnostic/v4](data/bn-diagnostic/v4/), with hashes in
 its `SHA256SUMS`. The raw sealed config and approval are retained privately;
 their hashes are `c2ddf304…` and `e48d3b9a…`. Result `36b8dcba…`, moments
-`82e6832a…`. The run used source commit
-`094d735ac9c206913be27d854221a9a7e0d24449` and the 3,600 s / 16 GiB bounds
-recorded in the owner amendment above. The co-resident inference service was
-restored immediately after the run.
+`82e6832a…`. The exact terminal `controller.json` (`3a2b6a14…`) records the
+707.606751 s measured wall, 6,219,206,656-byte peak owned RSS, 843.28 s aggregate
+CPU, zero worker exit and absent errors. The 3,600 s wall **limit** is separate
+from measured wall. The host RSS cap was 8 GiB; the CUDA allocator allowance was
+16 GiB. The controller does not record a terminal output-byte measurement, so
+the output-cap statement rests on the executed guard, not a published size receipt.
+
+Source commit `094d735ac9c206913be27d854221a9a7e0d24449` was the **base**,
+not the complete executed tree. The nominal archive (`13eed4e5…`) also precedes
+two overrides: `tools/plot_research.py` and `tools/run_musicfm_teacher.py`.
+`source-overrides.patch` reproduces their exact sealed bytes; `source-lock.json`
+publishes all 132 sealed source hashes. These historical overrides are evidence,
+not changes to today's runner. Reproduce the evidence and source pins without
+loading models or audio from a clone containing the base commit:
+
+```sh
+python -m tools.check_musicfm_bn_v4 --reconstruct-source
+```
+
+The verifier reconstructs in a temporary directory, leaving the checkout untouched.
+Without `--reconstruct-source`, it verifies the archived metadata and patch hashes
+without requiring old Git history. The raw sealed config and approval are not
+published; their hashes identify the retained private originals rather than
+allowing independent recovery of their redacted contents. The co-resident
+inference service was restored immediately after the run.
 
 ## Historical preparation — November 12, 2026
 
