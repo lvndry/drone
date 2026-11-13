@@ -1,0 +1,34 @@
+{
+  "ANNOTATION-MIT-LICENSE.txt": {
+    "bytes": 1081,
+    "sha256": "74f7c1b5d1a16ce0af0c94d55f1549cc42f94ae37b6094a608603a1473edd04b"
+  },
+  "reference-ledger.json.gz": {
+    "bytes": 37846,
+    "sha256": "35249d256681670b368ca2463673c36f87d57b19b641cf1edca558b7da354b48"
+  },
+  "sources/annotation-commit.json": {
+    "bytes": 2148,
+    "sha256": "5b4c1aeee215438739f9a1945911145471620fada8eb10204859a0d7cfcb00f6"
+  },
+  "sources/annotation.zip": {
+    "bytes": 325417,
+    "sha256": "2df9326b758c696d5097e80cb561b7baf172da392a4d42300c6dbb945baabe42"
+  },
+  "sources/faults-commit.json": {
+    "bytes": 2309,
+    "sha256": "2c146d7824bc2bebce1d95a8675a11ec95210af759f8d9a3b87382acc915eaf7"
+  },
+  "sources/faults.zip": {
+    "bytes": 25351,
+    "sha256": "ea65dfdeb0e2f2944c077b402ce5b3318402dce686c9b65119c22df7a07c33f8"
+  },
+  "sources/recording-index.json.gz": {
+    "bytes": 76599,
+    "sha256": "f770e0b8e9200ab298c17f15c607470ece98467d5b34780507a535f589d2b8d6"
+  },
+  "summary.json": {
+    "bytes": 2695,
+    "sha256": "67e5e20004477ffd6825e57ecc053047f66a71437edb255e843e7bd16bcd31ee"
+  }
+}

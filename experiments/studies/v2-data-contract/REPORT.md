@@ -388,3 +388,84 @@ role and genre-band totals, native workbook completeness, preview/store separati
 and metadata-only scope. Reader regressions exercise column/field allowlists,
 quoted-nan preservation and formula rejection. These are metadata checks, not
 musical-key accuracy, sample-support equivalence or corpus-wide licence clearance.
+
+## GTZAN reference metadata: prospective short-clip coverage
+
+**Decision: metadata frozen; no audio admitted and no detector scores.** This
+addition prepares a released Drone-v1 versus rerun-libkeyfinder diagnostic.
+It does not evaluate the new teacher or alter the internal v2 experiment.
+The [primary DAFx annotation paper](https://www.dafx.de/paper-archive/2013/papers/03.dafx2013_submission_48.pdf)
+describes manual annotation, with classical and ambiguous/modulating excerpts
+excluded. It does not document an inter-annotator consensus/error rate. The
+[annotation release](https://zenodo.org/records/5813199) and
+[pinned repository](https://github.com/audiocontentanalysis/dataset-gtzan-key/tree/9ef1591f81ee2f7821c7ce41e774ea7ac7f94cbe)
+now reproduce **837 single-key references, including 81 hip-hop excerpts**.
+
+| Genre | Raw single-key references | Sturm filtered union | Named intersection / metadata eligible |
+|---|---:|---:|---:|
+| Blues | 98 | 100 | 98 |
+| Classical | 0 | 99 | 0 |
+| Country | 99 | 98 | 97 |
+| Disco | 98 | 93 | 91 |
+| Hip-hop | 81 | 92 | 73 |
+| Jazz | 79 | 87 | 67 |
+| Metal | 93 | 91 | 84 |
+| Pop | 94 | 84 | 78 |
+| Reggae | 97 | 86 | 83 |
+| Rock | 98 | 100 | 98 |
+| **Total** | **837** | **930** | **769** |
+
+The [author's fault metadata](https://github.com/boblsturm/GTZAN/tree/fedc781026cf1a20034830f8071c98d93a422016)
+has disjoint filtered filename lists of 443, 197 and 290 IDs; their union is an
+eligibility restriction here, not a new training split. The frozen intersection
+excludes 68 of the 837 raw references. Across all 1,000 IDs, 163 have annotation
+−1 (including all 100 classical excerpts), and 70 fall outside the filtered
+union; these reason counts overlap. `jazz.00054` is explicitly flagged by the
+published loader as corrupted, but already has annotation −1, so the fixed
+flag adds no exclusion to the 769. The complete compressed
+[reference/exclusion ledger](data/gtzan-reference/reference-ledger.json.gz)
+retains all 1,000 IDs, exact annotation-byte hashes, numeric mapping, expected
+archive members, mirdata per-member MD5 witnesses and independent status fields.
+No recording has been decoded or verified. The raw 837 and filtered 769 remain
+separate denominators; neither can be changed after seeing detector outputs.
+
+The compact [source packet and summary](data/gtzan-reference/summary.json)
+contains pinned metadata only. Annotation and fault archives have SHA-256
+`2df9326b758c696d5097e80cb561b7baf172da392a4d42300c6dbb945baabe42`
+and `ea65dfdeb0e2f2944c077b402ce5b3318402dce686c9b65119c22df7a07c33f8`.
+The importer reconstructs both complete Git trees against pinned identities;
+no floating branch or archive filename is treated as version proof. The mirdata
+[index 1.0](https://zenodo.org/records/13993311/files/gtzan_genre_index_1.0.json?download=1)
+checks against publisher MD5 `533ca050855f22acf2feb283d9957fe3` and acquired
+SHA-256 `fd9655a35aebbdd09b120ec53d6bd36056b24f4b161ed21d9571364ecdc1f5ea`.
+Its checksums are **expected** audio identities, not evidence our audio matches.
+Acquired source bodies total under 1 MiB; the compressed packet remains small.
+The preserved MIT annotation notice supplies no blanket audio clearance;
+public hosting and code licenses do not resolve recording rights.
+
+A reachable [public audio mirror](https://huggingface.co/datasets/marsyas/gtzan/tree/d2146561ecc7df707d9e6b8318885fe6a39668a2/data)
+exists, but its archive hash differs from the historical Torchaudio archive and
+its audio license is unspecified. Neither a different recording nor equivalent
+recordings can be inferred from that archive-hash difference. A separately
+bounded audio/version/research-use review and cross-corpus audit must precede
+any score opening. Published Drone-v1 is BP-only; its declared release fitting
+and selection identities, including aliases, are the relevant primary exposure
+reference. Joint FMA candidates are different models. Earlier BP→GS review
+flags are unresolved, not confirmed overlap. No GTZAN loader/scoring artifact
+was found in the inspected Drone code/report/history scope; this documentary
+finding does not prove absence of every outside use. MusicFM/MSD pretraining
+freshness is not asserted. The old 30-second genre excerpts, including 73
+metadata-eligible hip-hop clips, do not establish contemporary Afrobeats or
+5–10 minute house/deep-house/melodic-house accuracy.
+
+Reproduce the metadata without network, audio libraries or detector execution:
+
+```sh
+python -m tools.import_gtzan_reference --check
+python -m pytest -q tests/test_gtzan_reference.py
+```
+
+The [protocol amendment](PROTOCOL.md#gtzan-reference-metadata-amendment-2026-11-12)
+fixes rules before scores. Regressions cover all 24 class mappings and unknowns,
+malformed labels, source-byte/tree tampering including unselected members,
+filtered-list overlap, exact counts, corruption status and zero admission.

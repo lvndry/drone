@@ -1,0 +1,35 @@
+{
+  "sha": "fedc781026cf1a20034830f8071c98d93a422016",
+  "node_id": "C_kwDOLB922toAKGZlZGM3ODEwMjZjZjFhMjAwMzQ4MzBmODA3MWM5OGQ5M2E0MjIwMTY",
+  "url": "https://api.github.com/repos/boblsturm/GTZAN/git/commits/fedc781026cf1a20034830f8071c98d93a422016",
+  "html_url": "https://github.com/boblsturm/GTZAN/commit/fedc781026cf1a20034830f8071c98d93a422016",
+  "author": {
+    "name": "Bob L. T. Sturm",
+    "email": "boblsturm@gmail.com",
+    "date": "2024-04-03T06:56:16Z"
+  },
+  "committer": {
+    "name": "GitHub",
+    "email": "noreply@github.com",
+    "date": "2024-04-03T06:56:16Z"
+  },
+  "tree": {
+    "sha": "35c4f075c4bd3c8a8dfe772fb08acbc6080d80e5",
+    "url": "https://api.github.com/repos/boblsturm/GTZAN/git/trees/35c4f075c4bd3c8a8dfe772fb08acbc6080d80e5"
+  },
+  "message": "Update README.md",
+  "parents": [
+    {
+      "sha": "5f331de4616d3da6ff03bdde8e78578a21f935de",
+      "url": "https://api.github.com/repos/boblsturm/GTZAN/git/commits/5f331de4616d3da6ff03bdde8e78578a21f935de",
+      "html_url": "https://github.com/boblsturm/GTZAN/commit/5f331de4616d3da6ff03bdde8e78578a21f935de"
+    }
+  ],
+  "verification": {
+    "verified": true,
+    "reason": "valid",
+    "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJmDP2QCRC1aQ7uu5UhlAAANlkQAJqd5JHaB9sKkn7D0HidJe3Z\nHY7Ohs/vutjRTWR//OmPb7PvwLU0b6cmK+JhXnTRy5GLVveOF1H0GSkPzPQOF5Hv\nWWvscoHjVSiJ2nM8FbSQtd8j1iW9kPfaznfvyw6M+m2H7bvYVeSmU7fKtMS8fkKv\nvFehjFRquHOcWkdvkruuzoGHZlc3XEFaBmiBXMbua5ZysPu5IcpYONzMIXsGsutv\n/lyRnPxvXS+Jg439JTmV1CscuzxRMO1CPlA+25YsHe1u1F5FEY7vD+KtOcgwDGQz\nyIIV5uwHVRzBuEPb26CSA91njqHebi9xZV6tSb+sFco9JgLeDg9lxhQF1Lpifdsz\ny4doYMwpE4zbuwWWjYUPydratLSBnlfKzrskWC2tIUKkIEsg6eBMn6TriPPB7rNz\nXIbWHaBM5bwWppaTne4p+Kmkx+mmJkGM0ytIpwE/kqHb5IFejOc5ZXoW9pd/8g+W\n3VvmB40i154VPCXbG06KWz65jRhmEVMo9M8eJK7IsUFmuhd94gnc4ofzbTy3d14K\nTXRe969eOGeqZORjzhRg41+E02U31vsDWEgGqSr6hsjJ1I0CHlfRSAHSw6r7wvvX\nWtnz1sSvIYvVXppNyFlwoBrQbL0L2oFW/S9V2nu24wXDAmWQj1Q/6w1+vX8CoSU8\ne/4BMZFM15i1p/X9kkx+\n=/+7c\n-----END PGP SIGNATURE-----\n",
+    "payload": "tree 35c4f075c4bd3c8a8dfe772fb08acbc6080d80e5\nparent 5f331de4616d3da6ff03bdde8e78578a21f935de\nauthor Bob L. T. Sturm <boblsturm@gmail.com> 1712127376 +0200\ncommitter GitHub <noreply@github.com> 1712127376 +0200\n\nUpdate README.md",
+    "verified_at": "2024-11-25T07:57:00Z"
+  }
+}
