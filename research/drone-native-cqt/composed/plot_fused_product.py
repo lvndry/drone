@@ -6,12 +6,13 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from summarize_fused_product import summarize
+from summarize_fused_product import summarize, summarize_goldens
 
 
 def plot(root: Path) -> None:
@@ -61,5 +62,56 @@ def plot(root: Path) -> None:
     plt.close(fig)
 
 
+def plot_goldens(root: Path) -> None:
+    result = summarize_goldens(root)
+    rows = result["cases"]
+    plt.rcParams["svg.hashsalt"] = "cqt-fused-goldens-v1"
+    fig, axes = plt.subplots(1, 2, figsize=(11.4, 6.3), layout="constrained")
+    for index, row in enumerate(rows):
+        count = row["original_differences"]
+        axes[0].barh(index, count, color="#a4582c", height=0.6)
+        axes[0].plot(0, index, "o", color="#277f67", clip_on=False)
+        axes[0].text(count + 4, index, str(count), va="center", fontsize=9)
+        axes[1].barh(index, row["decoded_seconds"], color="#336b8e", height=0.6)
+        axes[1].text(
+            row["decoded_seconds"] * 1.12,
+            index,
+            f"{row['decoded_seconds']:,.2f} s",
+            va="center",
+            fontsize=9,
+        )
+    axes[0].set_yticks(range(9), [row["id"] for row in rows])
+    axes[0].set_xlim(0, 250)
+    axes[0].set_title("All original controls preserved; candidates exact", fontsize=11, pad=12)
+    axes[0].set_xlabel("Final-core values differing from archived Mac Python")
+    axes[0].plot([], [], color="#a4582c", linewidth=8, label="Original separate-product control")
+    axes[0].plot([], [], "o", color="#277f67", label="Fused candidate: zero in every case")
+    axes[0].legend(loc="lower left", fontsize=8, frameon=False)
+    axes[1].set_yticks(range(9), [""] * 9)
+    axes[1].set_xscale("log")
+    axes[1].set_xlim(1, 6000)
+    axes[1].set_title("Six synthetic signals and three recordings", fontsize=11, pad=12)
+    axes[1].set_xlabel("Decoded duration in seconds (log scale)")
+    for axis in axes:
+        axis.set_ylim(10.2, -0.7)
+        axis.spines[["top", "right"]].set_visible(False)
+    fig.suptitle("The same product rule passes all nine retained golden cases", fontsize=14)
+    fig.supxlabel(
+        "303 original differences → 0 candidate differences across 2,048,256 final-core values.\n"
+        "The longest recording is 28 min 2 s; genre and BPM coverage are not established here.\n"
+        "Frontend-only numerical validation on one Mac runtime, not key accuracy or a latency benchmark.",
+        fontsize=9,
+    )
+    fig.savefig(root / "fused-goldens.png", dpi=180)
+    svg = root / "fused-goldens.svg"
+    fig.savefig(svg, metadata={"Date": None})
+    svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
-    plot(Path(__file__).resolve().parent)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--goldens", action="store_true")
+    args = parser.parse_args()
+    function = plot_goldens if args.goldens else plot
+    function(Path(__file__).resolve().parent)

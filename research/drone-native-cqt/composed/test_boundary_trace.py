@@ -11,6 +11,7 @@ from pathlib import Path
 
 from summarize_boundary_trace import PINS, checked, summarize
 from summarize_fused_product import summarize as summarize_candidate
+from summarize_fused_product import summarize_goldens
 
 ROOT = Path(__file__).resolve().parent
 
@@ -53,6 +54,27 @@ class BoundaryTraceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "identity changed"):
                 summarize_candidate(root)
 
+    def test_golden_candidate_preserves_all_original_controls(self) -> None:
+        result = summarize_goldens(ROOT)
+        self.assertEqual(len(result["cases"]), 9)
+        self.assertEqual(result["core_elements"], 2048256)
+        self.assertEqual(result["original_differences"], 303)
+        self.assertEqual(result["candidate_differences"], 0)
+        self.assertGreater(result["cases"][-1]["decoded_seconds"], 1682)
+        self.assertFalse(result["new_accuracy_or_portability_claim"])
+
+    def test_golden_membership_cannot_drop_the_long_case(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in ("fused-goldens-results.json", "fused-goldens-provenance.json"):
+                shutil.copyfile(ROOT / name, root / name)
+            path = root / "fused-goldens-results.json"
+            result = json.loads(path.read_bytes())
+            result["cases"].pop()
+            path.write_text(json.dumps(result))
+            with self.assertRaisesRegex(ValueError, "identity changed"):
+                summarize_goldens(root)
+
     def test_archived_failure_is_localized_not_promoted(self) -> None:
         result = summarize(ROOT)
         arrays = result["complete_array_comparisons"]
@@ -94,6 +116,8 @@ class BoundaryTraceTests(unittest.TestCase):
             "csr-product-rounding-provenance.json",
             "fused-product-results.json",
             "fused-product-provenance.json",
+            "fused-goldens-results.json",
+            "fused-goldens-provenance.json",
         ]:
             raw = (ROOT / name).read_text()
             for private in ("/Users/", "/home/", "/private/", "/tmp/", '"pid"', '"start_abstime"'):

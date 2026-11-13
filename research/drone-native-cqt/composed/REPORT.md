@@ -18,8 +18,10 @@ located the first observed difference at the sparse response, with identical inp
 and FFT operands. The [boundary diagnostic below](#fixed-case-boundary-trace-november-13-1246-utc)
 reports that finding. A subsequent [fused-product candidate](#compiled-fused-product-candidate-removes-the-fixed-case-error-november-13)
 now reproduces all 76,608 reference core values on this one recording. The
-original control still reproduces its nine differences; the 376-track portability
-verdict is unchanged until the new candidate undergoes wider qualification.
+original control still reproduces its nine differences. A separately frozen
+[nine-golden expansion](#all-nine-retained-goldens-pass-including-a-28-minute-recording-november-13)
+then matched all 2,048,256 reference core values, including a 28-minute recording.
+The historical 376-track portability verdict is unchanged pending full expansion.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -668,33 +670,125 @@ python3 research/drone-native-cqt/composed/summarize_fused_product.py --run-root
 uv run --script research/drone-native-cqt/composed/plot_fused_product.py
 ```
 
-### Next finite validation: the nine retained golden cases
+## All nine retained goldens pass, including a 28-minute recording (November 13)
 
-The next proposed step is to freeze **all nine existing golden cases**, rather
-than choosing a favorable subset: silence, impulses, tone, major chord, minor
-chord, noise, and FMAK recordings `110544`, `107354`, `087373`. The three recordings
-contain **40.12, 240.40 and 1,682.26 seconds** of decoded input (about 40 seconds,
-4 minutes and 28 minutes); the six synthetic inputs span 1.30–5.76 seconds. These
-are numerical fixtures, not a genre-balanced accuracy panel. No genre or BPM
-coverage is inferred from their names.
+**Result.** The same fused-product arithmetic matches every archived Mac Python
+core across the complete nine-case golden set: **2,048,256 values, zero differing
+bits** after the existing FP16 roundtrip. All nine ordinary separate-product
+controls reproduce their original native cores exactly. Their 303 original
+reference differences become zero in the candidate.
 
-Their existing Mac manifests, PCM, CSR banks, archived Python cores and original
-native cores are retained locally. Before execution, bind all identities in a
-new packet and admit a new frontend-only nine-case entrypoint. Keep the arithmetic
-exactly as tested here; retain the original control and candidate core for every
-case. Report every per-case exact hash, differing count and maximum difference,
-using the archived **Mac** Python cores as the primary reference. Existing Linux
-cores may be reported separately, never substituted to obtain a pass.
+![Original differences removed and decoded duration coverage](fused-goldens.png)
 
-Proposed bounds are one sequential worker, numeric threads one, **120 seconds
-wall, 90 aggregate CPU seconds, 1 GiB sampled process-tree RSS and 64 MiB owned
-outputs/logs**. Existing input artifacts remain read-only; process only one case
-at a time. A cap violation or mismatch is a retained failure, not permission to
-retry, change arithmetic, drop the long fixture or relax thresholds. The exact
-packet and source must be reviewed before execution; no such run is reported here.
+**Method and coverage.** Membership was fixed before execution: six synthetic
+signals and three public FMAK recordings. The new entrypoint processes the
+original order, retains the original control before candidate admission, and
+holds only one case's plan and buffers at a time. It reads retained PCM, Mac
+reference cores and CSR kernels; no decoder, new reference computation, model or
+label is used. The [frozen nine-case protocol](FUSED_GOLDENS_PROTOCOL.md) preserves
+the prospective rule and bounds. The product rule, accumulated sum, FFT,
+resampler, normalization, magnitude, logarithm and FP16 boundary are exactly the
+same as in the successful single-case candidate.
 
-Passing these nine cases would justify a separately frozen expansion over the
-existing 376 public recordings and cross-platform validation. It would still
-not establish improved key accuracy, broad genre coverage, a deployment memory
-budget or parity on arbitrary PCs. Full classifier checks and paired performance
-measurements follow only after frontend qualification.
+| Fixture | Decoded input duration | CQT frames | Original differing values | Candidate differing values |
+|---|---:|---:|---:|---:|
+| Silence | 1.30 s | 8 | 0 | **0** |
+| Impulses | 1.49 s | 9 | 0 | **0** |
+| Tone | 2.79 s | 15 | 14 | **0** |
+| Major chord | 2.97 s | 17 | 29 | **0** |
+| Minor chord | 3.16 s | 18 | 25 | **0** |
+| Noise | 5.76 s | 32 | 0 | **0** |
+| FMAK 110544 | 40.12 s | 217 | 6 | **0** |
+| FMAK 107354 | 240.40 s (4 min) | 1,295 | 23 | **0** |
+| FMAK 087373 | 1,682.26 s (28 min 2 s) | 9,057 | 206 | **0** |
+
+This gives direct numerical evidence on a long recording, beyond the original
+74-second counterexample. **Genre, BPM, musical-key correctness and key changes
+within those recordings are not established by these fixtures.** Synthetic
+major/minor chords are engineering inputs, not a measure of music accuracy.
+
+The one sequential two-pass diagnostic consumed **4.087 seconds wall, 4.486
+aggregate CPU seconds and 495.64 MiB sampled process-tree RSS**. That peak covers
+the worker, reference and control/candidate buffers and guardian; it is not a
+per-track model memory measurement. The run includes file reads, verification,
+plan construction, comparisons and evidence writes; it is not a warmed latency
+benchmark or a real-time playback cost. Complete owned outputs were about
+15.75 MiB. The separate offline build used 127.24 seconds wall, 178.29 CPU seconds
+and 608.72 MiB sampled RSS. Both runs completed within their frozen limits, with
+no surviving owned processes.
+
+The [comparison record](fused-goldens-results.json) retains every case outcome.
+[Technical provenance](fused-goldens-provenance.json) binds original input and
+control identities, the new build and runtime, retained complete cores and the
+actual loaded Soxr libraries. After rebasing the publication onto the merged
+single-case study, every executed source-closure file was independently checked
+byte-identical; the original build snapshot remains retained. No result was
+reattributed to changed numerical source. Four historical runtime gaps remain
+open, and ordinary native computation still selects the original arithmetic.
+
+The existing [checker](summarize_fused_product.py) now supports these nine cases;
+its optional private replay reads complete cores and verifies hashes, geometry
+and original differing coordinates without a transform or model. The existing
+[plot tool](plot_fused_product.py) renders this inline figure from checked metadata.
+
+```sh
+python3 research/drone-native-cqt/composed/summarize_fused_product.py --goldens
+python3 research/drone-native-cqt/composed/summarize_fused_product.py --goldens --run-root "$GOLDEN_RUN"
+uv run --script research/drone-native-cqt/composed/plot_fused_product.py --goldens
+```
+
+### Next finite validation: the existing 376 public recordings
+
+**Proposal only; no 376-case candidate run has occurred.** Freeze the original
+panel, order and sample identities: **126 Beatport and 250 FMAK** recordings,
+40.12–1,682.26 seconds of decoded input. Select the completed first 305 records
+and the completed remaining 71 records from the two historical phases; do not
+count the separately retained early failure twice. The nine goldens remain a
+prerequisite, not replacements for difficult panel cases.
+
+A read-only inventory verified every retained Mac manifest and CSR bank against
+its historical identities. Original Mac Python core hashes and native control
+hashes remain available for every case. The per-track PCM and full Mac reference
+arrays were removed during the earlier streamed run. Restore only the original
+PCM through the archived bounded producer on `lysk-server`, require its exact
+archived hash again locally, and reuse the existing captured Mac constants.
+Do not regenerate or substitute Python reference cores. A per-case candidate
+hash equal to its archived reference is sufficient for exact equality; a
+mismatching hash is a failure. Where the old full reference array is absent,
+report its differing-value count and maximum error as unavailable rather than
+computing a replacement reference after seeing the outcome.
+
+Use one fixed frontend-only worker per admitted case: reproduce and retain the
+original separate-product control, then retain the unchanged fused candidate.
+Require all 376 original native controls and all 376 archived Mac Python core
+identities to match. Continue fixed membership through numerical mismatches
+within the frozen limits, retain every outcome and all newly computed cores,
+and stop on input/source/resource admission failure. No tolerance change,
+backend choice, dropped case, classifier or performance run belongs to this gate.
+
+Prepare a new executable and exact source/runtime/transport packet before
+execution. Proposed envelopes, to be confirmed before launch, are **600 aggregate
+CPU seconds / 7,200 wall seconds / 2 GiB sampled RSS / 2 GiB new owned storage on
+the Mac**, and **400 aggregate CPU seconds / 7,200 wall seconds / 1 GiB RSS /
+512 MiB new owned storage for the server producer**. Use one case at a time,
+numeric threads one and low priority; server work uses the previously designated
+CPU set, with no GPU or service changes. The wall allowance covers transfer and
+is not a promise of completion. Cache or other active work must be considered
+before assigning a launch window.
+
+The original PCM totals 6.56 GiB. Previously verified lossless int16 transport
+would send 3.28 GiB, with exact FP32 reconstruction checked on both hosts. Do not
+regenerate, download or keep a second corpus; delete only the new per-track
+transport/PCM spool after retaining its evidence. Two complete new native core
+sets total about 630 MiB and fit within the proposed Mac storage envelope.
+All historical inputs, reports and binaries remain immutable. Preserve partial
+results if a bound is reached; do not extend it automatically.
+
+Report qualification by source and predeclared decoded-duration bands: under
+2 minutes, 2 to under 5 minutes, 5 to under 10 minutes and 10 minutes or longer.
+Duration alone does not
+establish whether an input is a preview or a complete song. Use existing dataset
+metadata for genre/BPM if available, and report unknowns explicitly; never turn
+these parity checks into accuracy claims. Only a successful, separately reviewed
+frontend expansion can justify subsequent unchanged-model full/chunked checks,
+Linux regression qualification and ordinary-PC performance measurements.

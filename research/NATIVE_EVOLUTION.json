@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "330ecb9f493817b23554a898822c68df816a92ea455c83e063fb72cf35827379",
+      "current_sha256": "21eee6ec66e341a5dc6d19bd5937109f9524619937f44de51244af305398edbb",
       "git_mode": "100644",
-      "reason": "Append retained all-stage arithmetic replay and independently verified fixed-case fused-product candidate result, with inline figure. Preserve historical failure and distinguish one repaired core from wider portability or accuracy promotion."
+      "reason": "Append fixed-case arithmetic repair and completed nine-golden validation, including long-input coverage, inline results and bounded prospective 376-case expansion. Preserve historical failure and distinguish frontend qualification from classifier accuracy or full portability."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -114,9 +114,9 @@
     },
     {
       "path": "research/drone-native-cqt/composed/test_boundary_trace.py",
-      "sha256": "52b48c16a5843cd9a46b81ce8ebc5c0c57c508fbf4a79050df32a383842da2f9",
+      "sha256": "d40026d0373605daeec0996199a92366debf156e6b705f9269396c1f17fd192c",
       "git_mode": "100644",
-      "reason": "Preserve archived trace failure and check subsequent arithmetic/candidate metadata, tamper rejection and public-path privacy without numeric inference."
+      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
     {
       "path": "research/drone-native-cqt/composed/FUSED_PRODUCT_PROTOCOL.md",
@@ -162,21 +162,57 @@
     },
     {
       "path": "research/drone-native-cqt/composed/plot_fused_product.py",
-      "sha256": "9f2c8b511387b050dbdfaa44f1b9f1bf498338fe8a7b6934b79413ee5e36e893",
+      "sha256": "09c2186cbbbe9b855a1b6efd5fbff7cbd999d95267b8148c3654e5e8e45614ed",
       "git_mode": "100644",
-      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_fused_product.py",
-      "sha256": "993ff9524e1bd916a62952ce24e0bb91b591f626390b497d76beb92e3202eb39",
+      "sha256": "c2a37c54eacc17b974840c226710f861aaa670117e1038a7258530b2fabc9da9",
       "git_mode": "100644",
-      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
     {
       "path": "research/drone-native-cqt/src/bin/fused_product_case.rs",
       "sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0",
       "git_mode": "100644",
       "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_GOLDENS_PROTOCOL.md",
+      "sha256": "a6a4746d51abbcccb7b74ac23fbbcc4e51b08a614a4efdd4a76d3d661669a301",
+      "git_mode": "100644",
+      "reason": "Prospective fixed nine-golden frontend-only validation of unchanged fused-product research candidate; no build or execution asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/fused_golden_cases.rs",
+      "sha256": "58edacdb2f30908ff8e4b598e1b2990df5a3a533729781dc7f663cf8180b57ef",
+      "git_mode": "100644",
+      "reason": "Prospective fixed nine-golden frontend-only validation of unchanged fused-product research candidate; no build or execution asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-goldens-results.json",
+      "sha256": "9a77dfa043da33aef7b3e0b4b835f862ea637be37311176221037c192f05bda4",
+      "git_mode": "100644",
+      "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-goldens-provenance.json",
+      "sha256": "499cdef848cda8174b679f5eb18ff43e67615d0188237623217ca9a657e4568a",
+      "git_mode": "100644",
+      "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-goldens.png",
+      "sha256": "3e35481dc43ba527a68f8437e337dafa9f300aeba5d25441034b33728c027314",
+      "git_mode": "100644",
+      "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-goldens.svg",
+      "sha256": "d596c514ddee11cfd6b364d4edef618380ee0f2e845001d6c5742d36f418c244",
+      "git_mode": "100644",
+      "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
     }
   ]
 }
