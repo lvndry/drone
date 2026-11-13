@@ -72,11 +72,19 @@ def inspect_members(archive: Path, expected: dict[str, str]) -> list[dict[str, A
     seen: set[str] = set()
     rows = []
     total = 0
+    directories = {PurePosixPath("genres")} | {PurePosixPath(name).parent for name in expected}
+    ancillary = {
+        str(path.parent / ("._" + path.name))
+        for path in directories | {PurePosixPath(name) for name in expected}
+    } | {
+        str(directory / name) for directory in directories for name in (".DS_Store", "._.DS_Store")
+    }
+    ancillary_bytes = 0
     with tarfile.open(archive, "r|gz") as stream:
         for number, member in enumerate(stream, 1):
             path = PurePosixPath(member.name)
             if (
-                number > 1100
+                number > 2300
                 or path.is_absolute()
                 or ".." in path.parts
                 or "\\" in member.name
@@ -85,10 +93,14 @@ def inspect_members(archive: Path, expected: dict[str, str]) -> list[dict[str, A
                 raise ValueError("Unsafe, duplicate or excessive archive members")
             seen.add(member.name)
             if member.isdir():
-                if str(path) != "genres" and str(path) not in {
-                    str(PurePosixPath(name).parent) for name in expected
-                }:
+                if path not in directories:
                     raise ValueError("Unexpected archive directory")
+                continue
+            if member.isfile() and member.name in ancillary:
+                ancillary_bytes += member.size
+                if not 0 < member.size <= 16384 or ancillary_bytes > 16 * 1024**2:
+                    raise ValueError("Ancillary metadata budget exceeded")
+                # Only packaging metadata at exact known paths; no audio exclusion.
                 continue
             if not member.isfile() or member.name not in expected:
                 raise ValueError("Unexpected archive member or link")

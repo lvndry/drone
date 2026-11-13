@@ -109,3 +109,16 @@ Network reads have a 30-second timeout. Stop only owned processes on a cap or
 identity failure. Keep source, configuration, download and audit receipts. A
 passing audit proves recording identity and format only, not label correctness,
 license clearance, exposure independence or accuracy.
+
+The first acquisition downloaded the exact pinned archive, then its verifier
+stopped on bundled AppleDouble/Finder files before checking recordings. Preserve
+that failed controller and the verified archive. A packaging correction admits
+only exact `._` companions of expected recordings/directories and `.DS_Store`
+files under known directories, capped at 16 KiB per file and 16 MiB total. Links,
+unknown paths and every recording MD5 requirement remain unchanged. This changes
+archive parsing, not reference eligibility or track-failure exclusions.
+
+A separate audit-only pass may reuse those exact retained bytes without another
+download: 120 wall seconds, 90 CPU seconds, 256 MiB tree RSS and two MiB new
+outputs, CPU 10–11/nice 19/no GPU, with unchanged host/disk/service reserves.
+Keep both verifier source versions and their results; no automatic retry.

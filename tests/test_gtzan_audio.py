@@ -105,3 +105,27 @@ def test_pinned_index_contains_complete_universe() -> None:
     expected = check.expected_members()
     assert len(expected) == 1000
     assert "genres/jazz/jazz.00054.wav" in expected
+
+
+def test_packaging_metadata_does_not_skip_audio_identity(tmp_path: Path) -> None:
+    name, raw = "genres/blues/blues.00000.wav", wav()
+    members = [
+        ("._genres", b"metadata"),
+        ("genres/.DS_Store", b"finder"),
+        ("genres/blues/._blues.00000.wav", b"resource fork"),
+        (name, raw),
+    ]
+    path = archive(tmp_path, members)
+    assert len(check.inspect_members(path, {name: hashlib.md5(raw).hexdigest()})) == 1
+    with pytest.raises(ValueError, match="MD5 mismatch"):
+        check.inspect_members(path, {name: "0" * 32})
+
+
+def test_unexpected_sidecar_is_not_ignored(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unexpected archive member"):
+        check.inspect_members(archive(tmp_path, [("genres/._unknown.wav", b"metadata")]), {})
+
+
+def test_oversized_packaging_metadata_rejected(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Ancillary metadata budget"):
+        check.inspect_members(archive(tmp_path, [("._genres", b"x" * 16385)]), {})
