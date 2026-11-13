@@ -206,6 +206,66 @@ above runs inference, reads audio or exports labels. Hash consistency proves the
 archive is internally bound to the retained receipts, not a cryptographically
 independent attestation of the original runtime.
 
+## November 13: BatchNorm diagnostic qualification, no accuracy result
+
+**Question.** Could replacing the selected teacher's 18 BatchNorm input
+populations improve this fixed checkpoint? The prospective
+[BN protocol](BN_PROTOCOL.md) protects all learned parameters, counters and
+unrelated buffers. It uses fitting audio only, deterministic crops, FP64 weighted
+population moments and sequential upstream-to-downstream replacement. Candidate
+state must be sealed before validation audio or reference keys are opened.
+
+**Technical result.** A corrected, source-bound qualification started at 06:10 UTC
+with the original isolated overlay. Two full traces and 36 stopped-prefix
+comparisons had **zero maximum absolute difference**. Timing covered 288 stopped
+prefixes across 16 fixed clips and all 18 sites. These checks support the
+implementation's prefix equivalence on those inputs; they do not measure a
+calibrated candidate's accuracy or establish population-estimator sufficiency.
+
+| Budget item | Seconds | Interpretation |
+|---|---:|---|
+| Projected full calibration | 675.66 | 512 times the sum of per-site maximum observed clip costs |
+| Required total safety margin | 2,638.41 | Doubled calibration and complete comparison costs, measured overhead, 120-second contingency |
+| Remaining fixed window | 1,753.43 | Time available at admission |
+| Actual qualification run | 47.63 | Complete guardian wall time; not full calibration time |
+
+The required margin exceeded the remaining window. The worker returned
+`BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING`; no complete calibration,
+validation comparison, retraining or promotion occurred. Peak owned RSS was
+**3,550,330,880 bytes** and aggregate CPU was **51.04 seconds**. The owner recorded
+exit zero, no cleanup error and compliant observed caps. Both vLLM instances
+retained their original process identities after completion.
+
+An earlier 05:45 attempt failed before calibration with missing `einops`: the
+launcher used shared Python instead of the original isolated overlay. Its
+preflight had missed the upstream dependency closure. The launcher guard now
+requires the original interpreter path, and a bounded CPU-only check verified
+all nine original module hashes before the corrected attempt. Neither startup
+failure nor budget refusal is a negative BN-accuracy result.
+
+The [terminal metadata bundle](data/bn-diagnostic/terminal-metadata.tar.gz), SHA256
+`8aabe764ce6a49ce1615bb526c9390a3628d4690b0153b1afb716d1b043fb1c1`,
+preserves configuration, approval, source binding, process launch, qualification,
+admission, fitting-panel and final controller receipts. It contains no audio or
+model weights. Actual diagnostic source was
+`6ea7ab810d2c42dde1ed761b7b723c41d30ab6d0`; the original teacher source and
+failed continuation gate are unchanged. The existing report command now also
+checks these receipts and recomputes the calibration projection:
+
+```sh
+python -m tools.musicfm_teacher_result_report
+```
+
+**Allocation decision.** Defer another GPU window for this teacher. Sequential
+population recalculation has a direct methodological precedent in Appendix A.3 of
+[Rethinking “Batch” in BatchNorm](https://arxiv.org/pdf/2105.07576). That establishes
+plausibility, not an expected MusicFM gain. A minimum useful-signal pass would
+reach only 171/250 FMA with BP allowed to remain 83/126, still below the expanded
+K10 control's 176/250 and 89/126. The joint intervention also cannot establish why
+training plateaued. Retain the implementation and measured cost, but prioritize
+cross-corpus exposure checks and broader evaluation of deployable candidates.
+No larger resource window or follow-on training is scheduled.
+
 ## Historical preparation — November 12, 2026
 
 The original cost-qualification report follows, preserved as written. Its
