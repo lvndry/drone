@@ -438,6 +438,39 @@ def coverage(catalog: CollectionCatalog) -> dict[str, Any]:
     }
 
 
+def prepare_artifacts(
+    raw: bytes, summary: dict[str, Any], output: Path, *, write: bool
+) -> tuple[bytes, bytes]:
+    """Compare canonical content, preserve matching archives, hash actual gzip bytes.
+
+    Python 3.12 gzip.compress(mtime=0) can encode a platform-specific OS byte.
+    That transport detail is not a metadata change. Existing archives remain
+    intact when their decoded canonical JSON matches; future writes use a
+    filename-free GzipFile wrapper with the portable OS header.
+    """
+    compressed = None
+    if output.exists():
+        archived = output.read_bytes()
+        if gzip.decompress(archived) == raw:
+            compressed = archived
+        elif not write:
+            raise ValueError("Collection reproduction differs: canonical payload")
+    elif not write:
+        raise ValueError("Collection archive missing")
+    if compressed is None:
+        buffer = io.BytesIO()
+        with gzip.GzipFile(filename="", mode="wb", fileobj=buffer, mtime=0) as stream:
+            stream.write(raw)
+        compressed = buffer.getvalue()
+    bound_summary = {
+        **summary,
+        "catalog_sha256": sha(compressed),
+        "generator_sha256": sha(Path(__file__).read_bytes()),
+    }
+    summary_raw = (json.dumps(bound_summary, indent=2, sort_keys=True) + "\n").encode()
+    return compressed, summary_raw
+
+
 def main() -> None:
     import argparse
     import os
@@ -478,19 +511,15 @@ def main() -> None:
         external_paths = {name: Path(path) for name, path in mapping.items()}
     catalog = export_collection(external_paths=external_paths)
     raw = collection_bytes(catalog)
-    compressed = gzip.compress(raw, mtime=0)
-    summary = coverage(catalog)
-    summary["catalog_sha256"] = sha(compressed)
-    summary["generator_sha256"] = sha(Path(__file__).read_bytes())
-    summary_raw = (json.dumps(summary, indent=2, sort_keys=True) + "\n").encode()
-    if len(compressed) + len(summary_raw) > 16 * 1024**2:
-        raise ValueError("Output budget exceeded")
     output = ROOT / OUTPUT
     summary_path = output.with_name("beatport1355-collection-coverage.json")
+    compressed, summary_raw = prepare_artifacts(raw, coverage(catalog), output, write=args.write)
+    if len(compressed) + len(summary_raw) > 16 * 1024**2:
+        raise ValueError("Output budget exceeded")
     if args.write:
         output.write_bytes(compressed)
         summary_path.write_bytes(summary_raw)
-    elif output.read_bytes() != compressed or summary_path.read_bytes() != summary_raw:
+    elif summary_path.read_bytes() != summary_raw:
         raise ValueError("Collection reproduction differs")
     use = resource.getrusage(resource.RUSAGE_SELF)
     stop.set()

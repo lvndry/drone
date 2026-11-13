@@ -133,3 +133,49 @@ def test_external_source_relocation_preserves_pins_and_descriptor_bytes(tmp_path
     replacements["workbook"].write_bytes(b"different version")
     with pytest.raises(ValueError, match="source mismatch: workbook"):
         pinned_inputs(tmp_path, replacements)
+
+
+@pytest.mark.parametrize("os_byte", [3, 19, 255])
+def test_gzip_wrapper_portability_preserves_archive_and_reports_actual_sha(
+    tmp_path: Path, os_byte: int
+) -> None:
+    import gzip
+
+    from tools.export_beatport_collection import prepare_artifacts, sha
+
+    raw = b'{"stable_metadata": true}\n'
+    archived = bytearray(gzip.compress(raw, mtime=0))
+    archived[9] = os_byte  # Linux, macOS, portable/unknown gzip OS markers.
+    output = tmp_path / "catalog.json.gz"
+    output.write_bytes(archived)
+    for write in (False, True):
+        compressed, summary = prepare_artifacts(raw, {"tracks": 1}, output, write=write)
+        assert compressed == bytes(archived) == output.read_bytes()
+        assert json.loads(summary)["catalog_sha256"] == sha(bytes(archived))
+    with pytest.raises(ValueError, match="canonical payload"):
+        prepare_artifacts(b'{"stable_metadata": false}\n', {}, output, write=False)
+
+
+def test_future_gzip_writes_use_portable_header(tmp_path: Path) -> None:
+    import gzip
+
+    from tools.export_beatport_collection import prepare_artifacts, sha
+
+    raw = b'{"new_collection": true}\n'
+    compressed, summary = prepare_artifacts(raw, {}, tmp_path / "new.json.gz", write=True)
+    assert compressed[9] == 255
+    assert gzip.decompress(compressed) == raw
+    assert json.loads(summary)["catalog_sha256"] == sha(compressed)
+
+
+def test_existing_archived_catalog_sha_is_reported_without_recompression() -> None:
+    import gzip
+
+    from tools.export_beatport_collection import OUTPUT, ROOT, prepare_artifacts, sha
+
+    output = ROOT / OUTPUT
+    archived = output.read_bytes()
+    compressed, summary = prepare_artifacts(gzip.decompress(archived), {}, output, write=False)
+    assert compressed == archived
+    assert sha(archived) == "24a09353dc4e653bfc62898a0ca61ee2ff4838d62c3ea07ee261a2fe4f00b11f"
+    assert json.loads(summary)["catalog_sha256"] == sha(archived)
