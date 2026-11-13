@@ -88,6 +88,8 @@ class Exposure:
     direct_fit_status: str
     overlap_audit_status: str
     evidence: tuple[Evidence, ...]
+    subject_model_id: str
+    other_model_exposure_status: str
 
 
 @dataclass(frozen=True)
@@ -267,6 +269,8 @@ def validate_catalog(catalog: Catalog) -> Catalog:
             row.exposure.development_use,
             row.exposure.direct_fit_status,
             row.exposure.overlap_audit_status,
+            row.exposure.subject_model_id,
+            row.exposure.other_model_exposure_status,
         ):
             text(value, "exposure")
     return catalog

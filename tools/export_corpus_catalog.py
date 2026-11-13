@@ -184,6 +184,8 @@ def export_reference_panel(
                     "direct_fitting_exposure_not_established",
                     "recording_overlap_independence_not_established",
                     origin,
+                    "drone-v1",
+                    "not_assessed_for_other_models",
                 ),
             )
         )
@@ -230,6 +232,8 @@ def csv_bytes(catalog: Catalog) -> bytes:
         "development_use",
         "direct_fit_status",
         "overlap_audit_status",
+        "exposure_subject_model_id",
+        "other_model_exposure_status",
     )
     writer = csv.DictWriter(stream, columns, lineterminator="\n")
     writer.writeheader()
@@ -267,6 +271,8 @@ def csv_bytes(catalog: Catalog) -> bytes:
                 development_use=row.exposure.development_use,
                 direct_fit_status=row.exposure.direct_fit_status,
                 overlap_audit_status=row.exposure.overlap_audit_status,
+                exposure_subject_model_id=row.exposure.subject_model_id,
+                other_model_exposure_status=row.exposure.other_model_exposure_status,
             )
         )
     return stream.getvalue().encode()

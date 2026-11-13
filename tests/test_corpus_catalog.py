@@ -38,6 +38,11 @@ def test_committed93_catalog_is_metadata_only_and_deterministic(tmp_path: Path) 
     assert {row.corpus_id for row in catalog.tracks} == {"swd-v2.1", "giantsteps"}
     assert all(row.bpm.value is None and row.bpm.missing_reason for row in catalog.tracks)
     assert all(row.duration.full_recording.value is None for row in catalog.tracks)
+    assert {row.exposure.subject_model_id for row in catalog.tracks} == {"drone-v1"}
+    assert all(
+        row.exposure.other_model_exposure_status == "not_assessed_for_other_models"
+        for row in catalog.tracks
+    )
     swd = [row for row in catalog.tracks if row.corpus_id == "swd-v2.1"]
     assert len({row.grouping.work_id for row in swd}) == 24
     assert {row.grouping.performance_id for row in swd} == {"HU33", "SC06"}
