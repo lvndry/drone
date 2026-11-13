@@ -122,3 +122,11 @@ A separate audit-only pass may reuse those exact retained bytes without another
 download: 120 wall seconds, 90 CPU seconds, 256 MiB tree RSS and two MiB new
 outputs, CPU 10–11/nice 19/no GPU, with unchanged host/disk/service reserves.
 Keep both verifier source versions and their results; no automatic retry.
+
+The corrected strict parser stopped on an MD5 mismatch at jazz.00054, already
+flagged corrupt by the source metadata. This remains a failed strict audit.
+A separate `--inventory-only` mode may enumerate all recording identities and
+format faults without treating mismatches as a pass, changing exclusions, or
+admitting tracks for scoring. The same retained archive and audit-only bounds
+apply. Report full-universe and frozen eligible-subset counts separately; archive
+integrity, recording identity, parseability and scoring admission are distinct.

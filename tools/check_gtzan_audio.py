@@ -67,7 +67,9 @@ def inspect_wave(raw: bytes) -> dict[str, int | float]:
         )
 
 
-def inspect_members(archive: Path, expected: dict[str, str]) -> list[dict[str, Any]]:
+def inspect_members(
+    archive: Path, expected: dict[str, str], *, inventory_only: bool = False
+) -> list[dict[str, Any]]:
     """Bound payload size and validate every member before interpreting audio bytes."""
     seen: set[str] = set()
     rows = []
@@ -114,30 +116,33 @@ def inspect_members(archive: Path, expected: dict[str, str]) -> list[dict[str, A
             if len(raw) != member.size:
                 raise ValueError("Truncated archive payload")
             digest = hashlib.md5(raw).hexdigest()
-            if digest != expected[member.name]:
+            identity_matches = digest == expected[member.name]
+            if not identity_matches and not inventory_only:
                 raise ValueError("Recording MD5 mismatch: " + member.name)
             row: dict[str, Any] = {
                 "member": member.name,
                 "bytes": len(raw),
                 "md5": digest,
                 "sha256": hashlib.sha256(raw).hexdigest(),
-                "member_identity_verified": True,
+                "expected_md5": expected[member.name],
+                "member_identity_verified": identity_matches,
                 "overlap_cleared": False,
                 "admitted_for_scoring": False,
             }
             try:
                 row["wave"] = inspect_wave(raw)
             except (wave.Error, EOFError, ValueError) as error:
-                if member.name != "genres/jazz/jazz.00054.wav":
+                if member.name != "genres/jazz/jazz.00054.wav" and not inventory_only:
                     raise ValueError("Unexpected WAV fault: " + member.name) from error
-                row["known_fault"] = repr(error)
+                row["wave_error"] = repr(error)
+                row["previously_flagged_fault"] = member.name == "genres/jazz/jazz.00054.wav"
             rows.append(row)
     if {row["member"] for row in rows} != set(expected):
         raise ValueError("Incomplete recording universe")
     return sorted(rows, key=lambda row: row["member"])
 
 
-def audit(archive: Path) -> dict[str, Any]:
+def audit(archive: Path, *, inventory_only: bool = False) -> dict[str, Any]:
     if archive.is_symlink() or archive.stat().st_size != ARCHIVE_BYTES:
         raise ValueError("Pinned archive size/type mismatch")
     digest = hashlib.sha256()
@@ -146,13 +151,16 @@ def audit(archive: Path) -> dict[str, Any]:
             digest.update(chunk)
     if digest.hexdigest() != ARCHIVE_SHA256:
         raise ValueError("Pinned archive SHA256 mismatch")
+    rows = inspect_members(archive, expected_members(), inventory_only=inventory_only)
     return {
         "scope": "Recording identity and WAV structure only; no inference or overlap clearance",
         "source_url": URL,
         "archive_sha256": digest.hexdigest(),
         "archive_bytes": ARCHIVE_BYTES,
         "index_sha256": INDEX_SHA256,
-        "records": inspect_members(archive, expected_members()),
+        "mode": "diagnostic_inventory" if inventory_only else "strict_identity_audit",
+        "all_recording_identities_match": all(row["member_identity_verified"] for row in rows),
+        "records": rows,
         "admitted_for_scoring": False,
     }
 
@@ -161,14 +169,28 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--inventory-only",
+        action="store_true",
+        help="Record all identity/format faults; never declare a strict pass",
+    )
     args = parser.parse_args()
     if args.output.exists():
         raise ValueError("Do not overwrite an existing audit")
-    result = audit(args.archive)
+    result = audit(args.archive, inventory_only=args.inventory_only)
     with args.output.open("x") as stream:
         json.dump(result, stream, indent=2, sort_keys=True)
         stream.write("\n")
-    print(json.dumps({"verified_recordings": len(result["records"]), "scoring_admitted": False}))
+    print(
+        json.dumps(
+            {
+                "recordings_inspected": len(result["records"]),
+                "all_identities_match": result["all_recording_identities_match"],
+                "mode": result["mode"],
+                "scoring_admitted": False,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

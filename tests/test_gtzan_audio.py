@@ -77,7 +77,7 @@ def test_only_existing_named_fault_can_be_recorded(tmp_path: Path) -> None:
     rows = check.inspect_members(
         archive(tmp_path, [(known, raw)]), {known: hashlib.md5(raw).hexdigest()}
     )
-    assert "known_fault" in rows[0]
+    assert "wave_error" in rows[0] and rows[0]["previously_flagged_fault"]
     other = "genres/jazz/jazz.00053.wav"
     with pytest.raises(ValueError, match="Unexpected WAV fault"):
         check.inspect_members(
@@ -129,3 +129,16 @@ def test_unexpected_sidecar_is_not_ignored(tmp_path: Path) -> None:
 def test_oversized_packaging_metadata_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Ancillary metadata budget"):
         check.inspect_members(archive(tmp_path, [("._genres", b"x" * 16385)]), {})
+
+
+def test_diagnostic_inventory_preserves_mismatch_and_checks_remaining_files(tmp_path: Path) -> None:
+    raw = wav()
+    a, b = "genres/blues/blues.00000.wav", "genres/blues/blues.00001.wav"
+    path = archive(tmp_path, [(a, raw), (b, raw)])
+    expected = {a: "0" * 32, b: hashlib.md5(raw).hexdigest()}
+    with pytest.raises(ValueError, match="MD5 mismatch"):
+        check.inspect_members(path, expected)
+    rows = check.inspect_members(path, expected, inventory_only=True)
+    assert [r["member_identity_verified"] for r in rows] == [False, True]
+    assert rows[0]["expected_md5"] == "0" * 32
+    assert all(not r["admitted_for_scoring"] for r in rows)
