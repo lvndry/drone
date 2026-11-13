@@ -184,12 +184,76 @@ def summarize_goldens(root: Path = ROOT, run_root: Path | None = None) -> dict[s
     }
 
 
+PUBLIC_RESULT_SHA = "c4383293568b6114cfd9b688c163440feb0a33a13881cc576e6d08e4b4aa9041"
+PUBLIC_PROVENANCE_SHA = "d98249d26edef4dc0f37a6c02aef5b1c152feb53b0d4ad4bdd4216687ab208c2"
+
+
+def summarize_public(root: Path = ROOT, run_root: Path | None = None) -> dict[str, Any]:
+    """Verify fixed public membership, original controls and both reference identities."""
+    result = json.loads(read_checked(root / "fused-376-results.json", PUBLIC_RESULT_SHA))
+    provenance = json.loads(read_checked(root / "fused-376-provenance.json", PUBLIC_PROVENANCE_SHA))
+    revision = provenance["publication_support_revision"]
+    read_checked(root / revision["executed_archive"], revision["executed_sha256"])
+    if revision["executed_sha256"] != provenance["source_files"][revision["path"]]["sha256"]:
+        raise ValueError("Executed transport source identity changed")
+    membership = json.loads(
+        read_checked(root / "FUSED_376_MEMBERSHIP.json", provenance["membership"]["sha256"])
+    )["cases"]
+    if provenance["public_results"]["sha256"] != PUBLIC_RESULT_SHA:
+        raise ValueError("Public result identity changed")
+    if len(result["cases"]) != 376 or len(membership) != 376:
+        raise ValueError("Public membership incomplete")
+    for index, (row, original) in enumerate(zip(result["cases"], membership, strict=True)):
+        if (row["index"], row["id"]) != (index, original["id"]):
+            raise ValueError("Public case order changed")
+        if row["baseline_core_sha256"] != original["archived_native_core_sha256"]:
+            raise ValueError("Original native control changed")
+        if row["candidate_core_sha256"] != original["archived_mac_core_sha256"]:
+            raise ValueError("Candidate fails primary Mac identity")
+        if row["candidate_linux_exact_secondary"] != (
+            row["candidate_core_sha256"] == original["archived_linux_core_sha256"]
+        ):
+            raise ValueError("Secondary Linux comparison changed")
+        if not row["original_control_preserved"] or not row["candidate_admitted"]:
+            raise ValueError("Candidate admission failed")
+        if row["core_elements"] != original["frames"] * 192:
+            raise ValueError("Core geometry changed")
+    for name, key in [
+        ("fused-376-controller.json", "mac_controller"),
+        ("fused-376-server-controller.json", "server_controller"),
+    ]:
+        receipt = json.loads(
+            read_checked(root / name, provenance["original_receipts"][key]["sha256"])
+        )
+        if receipt.get("complete", receipt.get("status") == "complete") is not True:
+            raise ValueError("Incomplete supervised execution")
+        if receipt["error"] or receipt["remaining_owned_pids"]:
+            raise ValueError("Supervised execution failed cleanup")
+    if run_root is not None:
+        for name, record in provenance["retained_case_artifacts"].items():
+            path = run_root / name
+            if path.stat().st_size != record["bytes"]:
+                raise ValueError("Retained artifact geometry changed")
+            with path.open("rb") as stream:
+                digest = hashlib.file_digest(stream, "sha256").hexdigest()
+            if digest != record["sha256"]:
+                raise ValueError("Retained artifact identity changed")
+    return {
+        **result,
+        "retained_cores_verified": run_root is not None,
+        "new_accuracy_or_portability_claim": False,
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-root", type=Path)
     parser.add_argument(
         "--goldens", action="store_true", help="Verify all nine retained golden cases"
     )
+    parser.add_argument("--public376", action="store_true")
     args = parser.parse_args()
-    function = summarize_goldens if args.goldens else summarize
+    function = (
+        summarize_public if args.public376 else summarize_goldens if args.goldens else summarize
+    )
     print(json.dumps(function(run_root=args.run_root), indent=2))

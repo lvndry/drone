@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "21eee6ec66e341a5dc6d19bd5937109f9524619937f44de51244af305398edbb",
+      "current_sha256": "b21ec991d13669e3f76b7a76ecee5c25902c4e062734a57514cac10501ef2bbe",
       "git_mode": "100644",
-      "reason": "Append fixed-case arithmetic repair and completed nine-golden validation, including long-input coverage, inline results and bounded prospective 376-case expansion. Preserve historical failure and distinguish frontend qualification from classifier accuracy or full portability."
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -114,7 +114,7 @@
     },
     {
       "path": "research/drone-native-cqt/composed/test_boundary_trace.py",
-      "sha256": "d40026d0373605daeec0996199a92366debf156e6b705f9269396c1f17fd192c",
+      "sha256": "d2ed8a247e5da9c55326254451e1005ebefc3b6a7534d948317afecad398b457",
       "git_mode": "100644",
       "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
@@ -162,13 +162,13 @@
     },
     {
       "path": "research/drone-native-cqt/composed/plot_fused_product.py",
-      "sha256": "09c2186cbbbe9b855a1b6efd5fbff7cbd999d95267b8148c3654e5e8e45614ed",
+      "sha256": "d53a2b48aea23c4aa5563e9e512bd43b5222c5a5b851867c9d3bb77914ef77b5",
       "git_mode": "100644",
       "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_fused_product.py",
-      "sha256": "c2a37c54eacc17b974840c226710f861aaa670117e1038a7258530b2fabc9da9",
+      "sha256": "2406d0c7a4c14bfb9c2da53d5f21c5c1bc65d415094bc2f3ab1f75bfebe353d0",
       "git_mode": "100644",
       "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
@@ -213,6 +213,72 @@
       "sha256": "d596c514ddee11cfd6b364d4edef618380ee0f2e845001d6c5742d36f418c244",
       "git_mode": "100644",
       "reason": "Publish completed nine-golden frontend-only comparison, source/runtime provenance and inline figure; no audio/features, classifier or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/fused_public_case.rs",
+      "sha256": "2c9e1a9d7dc2dd8f35aab26706bddd865819f85f6771e84af51ea3c73357ccf3",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_376_MEMBERSHIP.json",
+      "sha256": "08a90fd7686ca354a6fecd30e65a5dca90a666d16fdd336590ba78b60b6459c2",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_376_PROTOCOL.md",
+      "sha256": "bacb55072e1fedde8c0de9cea9178bf7fe67c17708a7dfd93e20f5d020e42fef",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused376_transport.py",
+      "sha256": "ab870100cb389e3e9aa2e2d2b2b1a376ec90849af2f9c169ad80072ef1237e88",
+      "git_mode": "100644",
+      "reason": "Prospective fixed public376 frontend validation: original PCM/control and primary Mac reference identities, separately reported Linux hashes, bounded sequential transport; no decode/build/inference asserted."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376-results.json",
+      "sha256": "c4383293568b6114cfd9b688c163440feb0a33a13881cc576e6d08e4b4aa9041",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376-provenance.json",
+      "sha256": "d98249d26edef4dc0f37a6c02aef5b1c152feb53b0d4ad4bdd4216687ab208c2",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376-controller.json",
+      "sha256": "47b9a5a1d73331cc7888063578e6a22a120279b603b700ce87aba5b1d22721b2",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376-server-controller.json",
+      "sha256": "155025944323ea998ea009f9bcfba025bf9abc359624b545df23cb9c00c71364",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376.png",
+      "sha256": "e19afa4847ca7ec0762b175a0a31ad41d68e0e9b458b06efc5370e26a815880e",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376.svg",
+      "sha256": "a627e5362944ac9300f936dab12079906330dd4e296bd7c2a083a218b5f09aed",
+      "git_mode": "100644",
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-376-transport-executed.py.txt",
+      "sha256": "3dc6c2ee1f0affd4c64b553249e5e60fd687339da49bb4d441b6284d78ea97a5",
+      "git_mode": "100644",
+      "reason": "Preserve exact executed transport source before publication-only module-origin guard and stream typing fix; historical evidence unchanged."
     }
   ]
 }

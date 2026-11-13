@@ -1,0 +1,14 @@
+{
+  "status": "complete",
+  "error": null,
+  "wall_seconds": 491.11213994794525,
+  "owned_cpu_seconds": 308.33916,
+  "sampled_peak_host_rss_bytes": 438706176,
+  "sampled_peak_output_bytes": 223398515,
+  "final_output_bytes": 809130,
+  "cpu_only_no_gpu_queries": true,
+  "worker_exit": 0,
+  "retirement_errors": [],
+  "remaining_owned_pids": [],
+  "config_sha256": "b3d0da00e709cbd52a255af39e1d3218d6b9cb8dd3738bc86991409f8a1953c1"
+}
