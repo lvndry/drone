@@ -1,0 +1,33 @@
+{
+  "bundled": {
+    "fingerprint_decode_source": {
+      "path": "experiments/fma_fingerprints.py",
+      "sha256": "a0d315f3f6f6f62b33b7453119350807702eec35a17723b9079fca30c4328f71"
+    },
+    "fingerprint_receipt": {
+      "path": "experiments/studies/bp-gs-overlap/data/reference-result-v1.json.gz",
+      "sha256": "0690f58a09be01d5ab37acbb5b845ec77a3b77fc29411227eabc33eaae266a73"
+    },
+    "overlap_plan": {
+      "path": "experiments/studies/bp-gs-overlap/data/plan.json.gz",
+      "sha256": "c237e037df03ef0067a33cc6aad5fd952bd4e25b07d00b832fa14965bb3170ec"
+    },
+    "release_metadata": {
+      "path": "experiments/studies/bp-gs-overlap/data/release-metadata.json",
+      "sha256": "69432e5f6ddc0ad10a55de591e3174e6db9ef705355cfdca5a1f678a9bfa4c4f"
+    },
+    "release_model_card": {
+      "path": "weights/README.md",
+      "sha256": "2f85f701aef6d199e0ef68f2b72430218738c3fbb98413e6762c5264fc11e203"
+    }
+  },
+  "external": {
+    "giantsteps_annotations": {
+      "bytes": 168029,
+      "revision": "6bcd492c825ac9b8597bc650a5f6fd18b6c43d2b",
+      "sha256": "9daf611028ba8bf448c14d819fe78eca86c000992b4a5c4e6f49a3d249c5d9fe",
+      "url": "https://codeload.github.com/GiantSteps/giantsteps-key-dataset/tar.gz/6bcd492c825ac9b8597bc650a5f6fd18b6c43d2b"
+    }
+  },
+  "schema": "drone.giantsteps-collection-sources.v1"
+}
