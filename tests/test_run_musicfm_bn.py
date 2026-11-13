@@ -45,7 +45,7 @@ def permit(
     monkeypatch.setattr(guard.os, "sched_getaffinity", lambda _: {8, 9}, raising=False)
     for key in ("PYTHONPATH", "PYTHONHOME"):
         monkeypatch.delenv(key, raising=False)
-    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-9c2004f9-0d41-d7c7-7075-863335543ee8")
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-00000000-0000-0000-0000-000000000000")
     for key in (
         "OMP_NUM_THREADS",
         "MKL_NUM_THREADS",
@@ -57,7 +57,7 @@ def permit(
         mode="single-bn-diagnostic",
         caps=dict(guard.CAPS),
         allocator_bytes=16 * guard.GIB,
-        gpu_uuid="GPU-9c2004f9-0d41-d7c7-7075-863335543ee8",
+        gpu_uuid="GPU-00000000-0000-0000-0000-000000000000",
         torch_threads=2,
         cpus=[8, 9],
         not_before_epoch=995,
@@ -105,9 +105,9 @@ def test_authorized_stop_must_be_protected_and_approved(
     permit: tuple[dict[str, Any], dict[str, Any]],
 ) -> None:
     config, approval = permit
-    config["protected_starts"] = [{"pid": 3448680, "start_ticks": 111966827}]
-    config["authorized_stopped_pids"] = [3448680]
-    approval["authorized_stopped_pids"] = [3448680]
+    config["protected_starts"] = [{"pid": 999999, "start_ticks": 111966827}]
+    config["authorized_stopped_pids"] = [999999]
+    approval["authorized_stopped_pids"] = [999999]
     guard.validate_launch(config, approval, "c" * 64)
 
     approval["authorized_stopped_pids"] = []

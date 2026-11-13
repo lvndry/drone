@@ -1,0 +1,12 @@
+{
+  "purpose": "Sanitized run metadata. The raw sealed config and approval are retained privately; their hashes bind them.",
+  "config_sha256": "c2ddf3049a6763eb26ed2029d0aaa817c2bce7bdb0e75c0e3fb8bbfe08273f93",
+  "approval_sha256": "e48d3b9a65b097e15e1db9f8f2e604dd9d427c5bc1d19d95e2262feb010a9ba1",
+  "source_commit": "094d735ac9c206913be27d854221a9a7e0d24449",
+  "window_utc": "2026-11-13 10:00:54 -> 11:00:54",
+  "wall_seconds": 3600,
+  "allocator_bytes": 17179869184,
+  "result_sha256": "36b8dcbac5332f39daf7f6cb4b1af6b0f8d24f08abd6b5769a1ee41a21faf42f",
+  "outcome": "negative",
+  "promotion_authorized": false
+}
