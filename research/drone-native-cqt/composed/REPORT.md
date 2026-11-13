@@ -375,5 +375,52 @@ now ignores only `ENOENT` when an already-enumerated output file disappears duri
 size sampling. Other errors, symlink checks and the original resource caps remain.
 A regression covers both disappearance and non-ENOENT failures. The prospective
 v2 build uses a fresh `/tmp/drone-cqt-boundary-build-v2` root with new source
-bindings; it has not been prepared or executed by this change. No build success,
+bindings. At repair commit `f9d51bc`, it had not been prepared or executed. No build success,
 frontend parity or performance improvement is claimed from the scanner repair.
+
+
+## Repaired offline build qualified (November 13, 10:04–10:06 UTC)
+
+**Problem.** The first build monitor failed when Cargo removed a temporary object
+between directory enumeration and `stat`. This prevented us from qualifying the
+boundary observer; it was not a numerical CQT failure.
+
+**Method.** Commit `f9d51bcf815b9017e7eeba21618e4d08ca4767c2` ignores only `ENOENT`
+for an already-enumerated output. Permission, I/O, non-directory and symlink errors
+remain fatal. Six regressions cover these distinctions. Root prepared and reviewed
+a new private cache and hash-bound build plan, then ran one offline, locked release
+build of `boundary_trace`, with one Cargo job and nice 19. All original resource
+limits were retained; the failed v1 run remains unchanged.
+
+**Result.** The guardian recorded `COMPLETE`, with successful compilation and
+post-build dependency inspection. It verified unchanged source/toolchain bytes,
+shared Cargo cache inputs and metadata, private copied inputs, and the original
+pipeline binary. The resulting diagnostic executable was **not executed**.
+
+| Measurement | Observed | Declared limit |
+|---|---:|---:|
+| Wall time, including post-build inspection | 147.37 s | 360 s |
+| Terminal guardian/reaped-child CPU | 197.23 CPU-s | 300 CPU-s |
+| Sampled aggregate process-tree RSS peak | 482.39 MiB | 1,024 MiB |
+| Owned output at terminal scan, including private cache | 224.15 MiB | 512 MiB |
+| Private copied cache at admission | 67.49 MiB | <128 MiB |
+
+RSS is sampled, not an exact OS peak. One Cargo job does not imply one active
+thread throughout compiler/linker execution. The terminal cumulative CPU value
+includes completed children; the earlier sampled live-process counter is not
+substituted for that total.
+
+The [v2 evidence archive](boundary-build-v2-evidence.tar.gz), SHA256
+`c3f4709d80eda175a7cdca319db61336b8072a5326a43fe6363419bbfe3ea402`, preserves the
+plan, controller and worker receipts, logs, input hashes and exact source snapshots.
+Plan SHA256 is `eb252f4832cb36d50b298e93076fe0277d07d13eb31ceb300a097aea91e948d4`.
+The built binary is 1,799,584 bytes, SHA256
+`a4b5a29ce31de5a8dd87e131f7d0839487f13c0916e6487722da707283f96d94`; it remains a
+local diagnostic artifact and is not bundled in the repository.
+
+**What this establishes.** The build and inspected loader identities are now
+qualified. It does not establish frontend parity, a faster inference result or a
+new model accuracy result. No audio was decoded, no model or ORT session was
+initialized, and no tolerance changed. The next numerical trace still needs the
+pinned PCM witness and an unambiguous Python import/runtime closure described in
+[the trace protocol](BOUNDARY_TRACE_PROTOCOL.md). Euphoria remains untouched.
