@@ -1,0 +1,1617 @@
+{
+  "status": "diagnostic_complete",
+  "protocol": "exploratory_pitch_energy_v2",
+  "prior_v1_remains_failed": true,
+  "prior_result_sha256": "d250ba7b81f76b84efcdb28b311ab87a75e55f96a634ba6254cb73bb790dcb78",
+  "passes_v2": false,
+  "rows": [
+    {
+      "mode": "A_major",
+      "semitones": -6,
+      "expected_hz": [
+        38.890872965260115,
+        48.99945937706864,
+        58.2704778065617
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.3333333432674408,
+          0.3333333432674408,
+          0.333333283662796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.2776106273502137e-09,
+        "component_total_power_fractions": [
+          2.563651790854493e-10,
+          1.0916006987216065e-09,
+          1.929644666276431e-09
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          3.172892504288427e-12,
+          0.5
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.1453743875026703,
+        "component_total_power_fractions": [
+          0.0356045737862587,
+          0.06228993833065033,
+          0.047479864209890366
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8735862970352173,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7071067811865476,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": -5,
+      "expected_hz": [
+        41.20344461410874,
+        51.91311885356173,
+        61.735420726734496
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333134651184,
+          0.3333333134651184,
+          0.333333283662796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.7657747264365753e-08,
+        "component_total_power_fractions": [
+          1.7568881460761077e-08,
+          4.236990099049098e-12,
+          8.462994888214226e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          1.1754459168164533e-12,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.1455700844526291,
+        "component_total_power_fractions": [
+          0.01831192709505558,
+          0.09684385359287262,
+          0.03041430003941059
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8736230731010437,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7491535384383408,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": -4,
+      "expected_hz": [
+        43.653528929125486,
+        55.000033538436384,
+        65.40639987471911
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333134651184,
+          0.3333333134651184,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.4685370253175734e-08,
+        "component_total_power_fractions": [
+          1.21346808157341e-08,
+          2.52114062959663e-09,
+          2.9548804375556514e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999998807907104,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          9.137217892030147e-13,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.1629001796245575,
+        "component_total_power_fractions": [
+          0.028167754411697388,
+          0.09390635788440704,
+          0.04082604870200157
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8741344213485718,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7937005259840998,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": -3,
+      "expected_hz": [
+        46.2493028389543,
+        58.27050572249682,
+        69.29566680217133
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.333333283662796,
+          0.33333340287208557,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.303693902305781e-09,
+        "component_total_power_fractions": [
+          2.9067156667728078e-12,
+          1.981853570143244e-09,
+          3.1893382379521995e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          3.4967081313785897e-12,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.17273995280265808,
+        "component_total_power_fractions": [
+          0.04865402728319168,
+          0.07419996708631516,
+          0.04988594353199005
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8766047358512878,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.8408964152537145,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": -2,
+      "expected_hz": [
+        48.99942949771866,
+        61.7354503026375,
+        73.41620157591912
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.33333322405815125,
+          0.33333340287208557,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.402653659887676e-09,
+        "component_total_power_fractions": [
+          1.0763416824488559e-09,
+          8.815841806564251e-11,
+          2.3815360794543494e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.4999999701976776,
+          2.0515123074719283e-13,
+          0.5000001192092896
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.23424087464809418,
+        "component_total_power_fractions": [
+          0.06501710414886475,
+          0.08983729779720306,
+          0.07938648760318756
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.880696713924408,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.8908987181403393,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": -1,
+      "expected_hz": [
+        51.91308719749314,
+        65.40643120929683,
+        77.78175609772904
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.3333333730697632,
+          0.33333325386047363,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 5.871915453870002e-11,
+        "component_total_power_fractions": [
+          6.754753684558648e-14,
+          2.9035133672361546e-11,
+          2.961647246890742e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          1.815391099165703e-13,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.29845431447029114,
+        "component_total_power_fractions": [
+          0.08603844046592712,
+          0.12262130528688431,
+          0.08979453891515732
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.886677086353302,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.9438743126816935,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 0,
+      "expected_hz": [
+        55.0,
+        69.2957,
+        82.4069
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.333333283662796,
+          0.3333333432674408,
+          0.33333325386047363
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.878333571487701e-09,
+        "component_total_power_fractions": [
+          2.576144408905634e-09,
+          2.7844854200154145e-10,
+          2.3740436699837275e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          2.0040146300227824e-13,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.333333283662796,
+          0.3333333432674408,
+          0.33333325386047363
+        ],
+        "passes_energy_rule": true
+      },
+      "rms_ratio": 1.0,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "identity_bypass": true,
+        "input_samples": 192000,
+        "output_samples": 192000
+      },
+      "passes_v2": true
+    },
+    {
+      "mode": "A_major",
+      "semitones": 1,
+      "expected_hz": [
+        58.27047018976124,
+        73.41623674779342,
+        87.30706927055701
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999998211860657,
+        "component_total_power_fractions": [
+          0.33333322405815125,
+          0.3333333432674408,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.2267423460675673e-09,
+        "component_total_power_fractions": [
+          1.9853190202923088e-09,
+          2.395564857593513e-10,
+          1.866676951900459e-12
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.49999991059303284,
+          6.414568854383462e-13,
+          0.5000000596046448
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.29299601912498474,
+        "component_total_power_fractions": [
+          0.07951940596103668,
+          0.1103643998503685,
+          0.10311225801706314
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.903753936290741,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.0594630943592953,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 2,
+      "expected_hz": [
+        61.735412657015516,
+        77.78179336103182,
+        92.49861776882567
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.33333340287208557,
+          0.333333283662796,
+          0.33333325386047363
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.1246648751184196e-10,
+        "component_total_power_fractions": [
+          8.35461769210788e-11,
+          2.8458639958484078e-11,
+          4.616733427845188e-13
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          2.501778081573369e-13,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.41342782974243164,
+        "component_total_power_fractions": [
+          0.08802486956119537,
+          0.16084785759449005,
+          0.16455507278442383
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9199423789978027,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.122462048309373,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 3,
+      "expected_hz": [
+        65.40639132514966,
+        82.40693947909405,
+        97.99887180531772
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.3333335518836975,
+          0.3333331346511841,
+          0.33333343267440796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.623471357348194e-10,
+        "component_total_power_fractions": [
+          2.957653566504348e-11,
+          2.5084698207500367e-11,
+          1.0768588104559385e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          7.730168935515813e-12,
+          0.49999988079071045
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.44055455923080444,
+        "component_total_power_fractions": [
+          0.11204863339662552,
+          0.18385490775108337,
+          0.14465105533599854
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9297845363616943,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.189207115002721,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 4,
+      "expected_hz": [
+        69.29565774421802,
+        87.30711109720016,
+        103.82618796658181
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.33333340287208557,
+          0.33333325386047363,
+          0.33333343267440796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.842448221240801e-10,
+        "component_total_power_fractions": [
+          2.820700617522931e-10,
+          1.874635212686937e-12,
+          3.0010919422306104e-13
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999998807907104,
+        "component_total_power_fractions": [
+          0.49999991059303284,
+          3.358209326939643e-12,
+          0.5000000596046448
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.47297734022140503,
+        "component_total_power_fractions": [
+          0.07739511877298355,
+          0.23112045228481293,
+          0.16446171700954437
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9455534815788269,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.2599210498948732,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 5,
+      "expected_hz": [
+        73.4161919793519,
+        92.49866208261045,
+        110.00001437860459
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.33333349227905273,
+          0.3333331346511841,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.462197750714324e-10,
+        "component_total_power_fractions": [
+          2.384801245369772e-10,
+          7.562341594949396e-13,
+          1.069834221212318e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          1.3910045532951332e-13,
+          0.4999997913837433
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.38827624917030334,
+        "component_total_power_fractions": [
+          0.020837778225541115,
+          0.28101223707199097,
+          0.08642624318599701
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9511396884918213,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.3348398541700344,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_major",
+      "semitones": 6,
+      "expected_hz": [
+        77.78174593052023,
+        97.99891875413728,
+        116.5409556131234
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.3333333432674408,
+          0.33333346247673035,
+          0.3333333730697632
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.8379950339486584e-10,
+        "component_total_power_fractions": [
+          2.8316127220762155e-11,
+          1.0493578228576439e-10,
+          5.054760429668015e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.4999999701976776,
+          1.9399863659952388e-12,
+          0.5
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.32730063796043396,
+        "component_total_power_fractions": [
+          0.0062155956402421,
+          0.29424941539764404,
+          0.026835646480321884
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9504039287567139,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.4142135623730951,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -6,
+      "expected_hz": [
+        38.890872965260115,
+        46.249308972999806,
+        58.2704778065617
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.3333333730697632,
+          0.3333333432674408,
+          0.3333333730697632
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.248009556282682e-09,
+        "component_total_power_fractions": [
+          2.562633993896668e-10,
+          3.7041381246993854e-12,
+          1.9880419532825044e-09
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          8.995190117939977e-13,
+          0.5
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.24736623466014862,
+        "component_total_power_fractions": [
+          0.08520814776420593,
+          0.01639534905552864,
+          0.14576272666454315
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8679546117782593,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7071067811865476,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -5,
+      "expected_hz": [
+        41.20344461410874,
+        48.9994359965135,
+        61.735420726734496
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333432674408,
+          0.3333333432674408,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.8638699472717235e-08,
+        "component_total_power_fractions": [
+          1.760986734211656e-08,
+          9.40215683087331e-10,
+          8.86174814085372e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          3.454292516087698e-13,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.19859734177589417,
+        "component_total_power_fractions": [
+          0.03242023289203644,
+          0.013055470772087574,
+          0.15312163531780243
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8734257817268372,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7491535384383408,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -4,
+      "expected_hz": [
+        43.653528929125486,
+        51.91309408272643,
+        65.40639987471911
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.33333322405815125,
+          0.333333283662796,
+          0.33333349227905273
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.2174298902323244e-08,
+        "component_total_power_fractions": [
+          1.2112077563131152e-08,
+          3.240481841193521e-11,
+          2.981690588876873e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          5.20874576109831e-12,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.22541140019893646,
+        "component_total_power_fractions": [
+          0.019012680277228355,
+          0.024925189092755318,
+          0.1814735233783722
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8817826509475708,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.7937005259840998,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -3,
+      "expected_hz": [
+        46.2493028389543,
+        55.00000729465056,
+        69.29566680217133
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333730697632,
+          0.33333325386047363,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.8558320153138084e-09,
+        "component_total_power_fractions": [
+          4.242820504651856e-12,
+          2.5747926013508504e-09,
+          2.7679655789647484e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          3.0967403120973902e-12,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.20851556956768036,
+        "component_total_power_fractions": [
+          0.020665613934397697,
+          0.028864247724413872,
+          0.1589857041835785
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8848410248756409,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.8408964152537145,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -2,
+      "expected_hz": [
+        48.99942949771866,
+        58.270477918174294,
+        73.41620157591912
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.333333283662796,
+          0.3333333134651184,
+          0.3333333730697632
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.2676410466336847e-09,
+        "component_total_power_fractions": [
+          1.0966031416259625e-09,
+          1.930963389185081e-09,
+          2.40075265223183e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.4999999701976776,
+          1.0560694300391221e-13,
+          0.5000001192092896
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.2122083157300949,
+        "component_total_power_fractions": [
+          0.01578116975724697,
+          0.04791650176048279,
+          0.1485106348991394
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.887232780456543,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.8908987181403393,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": -1,
+      "expected_hz": [
+        51.91308719749314,
+        61.73542084498393,
+        77.78175609772904
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999998211860657,
+        "component_total_power_fractions": [
+          0.3333333134651184,
+          0.33333325386047363,
+          0.333333283662796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.1173645342310579e-10,
+        "component_total_power_fractions": [
+          1.2085784575812525e-13,
+          8.321627414931143e-11,
+          2.8399336701734335e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.5000000596046448,
+          3.2076899188042407e-13,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.26030170917510986,
+        "component_total_power_fractions": [
+          0.04021686688065529,
+          0.09222675114870071,
+          0.12785808742046356
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.8984478712081909,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 0.9438743126816935,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 0,
+      "expected_hz": [
+        55.0,
+        65.4064,
+        82.4069
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333432674408,
+          0.33333325386047363,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.626856954179857e-09,
+        "component_total_power_fractions": [
+          2.5709510076410425e-09,
+          2.932675630118453e-11,
+          2.6579185033459574e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          1.3038844364019614e-13,
+          0.4999999701976776
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333432674408,
+          0.33333325386047363,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "rms_ratio": 1.0,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "identity_bypass": true,
+        "input_samples": 192000,
+        "output_samples": 192000
+      },
+      "passes_v2": true
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 1,
+      "expected_hz": [
+        58.27047018976124,
+        69.29566693490182,
+        87.30706927055701
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.333333283662796,
+          0.33333340287208557,
+          0.333333283662796
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 2.2987258763151885e-09,
+        "component_total_power_fractions": [
+          1.9780124205226457e-09,
+          3.1914104692276624e-10,
+          1.5727004117407906e-12
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999998807907104,
+        "component_total_power_fractions": [
+          0.49999991059303284,
+          2.8409817900976186e-12,
+          0.5000000596046448
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.3605440557003021,
+        "component_total_power_fractions": [
+          0.10035853087902069,
+          0.130337655544281,
+          0.12984785437583923
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.913913905620575,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.0594630943592953,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 2,
+      "expected_hz": [
+        61.735412657015516,
+        73.41620171654218,
+        92.49861776882567
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.33333343267440796,
+          0.333333283662796,
+          0.33333325386047363
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.220185229579897e-10,
+        "component_total_power_fractions": [
+          8.287395769634998e-11,
+          2.384025199475559e-10,
+          7.42045314083839e-13
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          6.642935442176257e-13,
+          0.4999999403953552
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.4701157510280609,
+        "component_total_power_fractions": [
+          0.13156265020370483,
+          0.16736453771591187,
+          0.17118853330612183
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9258450269699097,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.122462048309373,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 3,
+      "expected_hz": [
+        65.40639132514966,
+        77.78175624671398,
+        97.99887180531772
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.33333340287208557,
+          0.33333325386047363,
+          0.3333333432674408
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 1.6279791403839283e-10,
+        "component_total_power_fractions": [
+          2.958759626192631e-11,
+          2.921283354107018e-11,
+          1.0399747729650244e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          1.8711377933189333e-13,
+          0.49999988079071045
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.38666000962257385,
+        "component_total_power_fractions": [
+          0.12051723152399063,
+          0.19315080344676971,
+          0.07299195230007172
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9393782615661621,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.189207115002721,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 4,
+      "expected_hz": [
+        69.29565774421802,
+        82.40690015784403,
+        103.82618796658181
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.33333325386047363,
+          0.3333333432674408,
+          0.3333333730697632
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.069585696735544e-10,
+        "component_total_power_fractions": [
+          2.828148548683629e-10,
+          2.3581218575041696e-11,
+          5.624951459476391e-13
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.49999991059303284,
+          4.685535271407859e-13,
+          0.5000000596046448
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.3132460117340088,
+        "component_total_power_fractions": [
+          0.05728432908654213,
+          0.220500186085701,
+          0.03546151518821716
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9477757215499878,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.2599210498948732,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 5,
+      "expected_hz": [
+        73.4161919793519,
+        87.30706943778694,
+        110.00001437860459
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0000001192092896,
+        "component_total_power_fractions": [
+          0.33333346247673035,
+          0.3333333432674408,
+          0.33333325386047363
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 3.4777836166455245e-10,
+        "component_total_power_fractions": [
+          2.385335817756129e-10,
+          1.9269065509863736e-12,
+          1.0731789762408184e-10
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 0.9999999403953552,
+        "component_total_power_fractions": [
+          0.5000001192092896,
+          8.278466887695624e-13,
+          0.4999997913837433
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.3073255717754364,
+        "component_total_power_fractions": [
+          0.039781734347343445,
+          0.24317334592342377,
+          0.024370461702346802
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9531099796295166,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.3348398541700344,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    },
+    {
+      "mode": "A_minor",
+      "semitones": 6,
+      "expected_hz": [
+        77.78174593052023,
+        92.49861794599961,
+        116.5409556131234
+      ],
+      "analytic_correct": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.3333333730697632,
+          0.333333283662796,
+          0.3333333134651184
+        ],
+        "passes_energy_rule": true
+      },
+      "wrong_semitone_control": {
+        "union_total_power_fraction": 8.29789570389039e-11,
+        "component_total_power_fractions": [
+          2.8742111121693448e-11,
+          5.938839914634841e-13,
+          5.364297200882717e-11
+        ],
+        "passes_energy_rule": false
+      },
+      "missing_middle_control": {
+        "union_total_power_fraction": 1.0,
+        "component_total_power_fractions": [
+          0.4999999701976776,
+          5.382260934681804e-13,
+          0.5
+        ],
+        "passes_energy_rule": false
+      },
+      "controls_pass": true,
+      "r3": {
+        "union_total_power_fraction": 0.2944588363170624,
+        "component_total_power_fractions": [
+          0.025386374443769455,
+          0.25165989995002747,
+          0.017412563785910606
+        ],
+        "passes_energy_rule": false
+      },
+      "rms_ratio": 0.9538558125495911,
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "adapter": {
+        "engine": 3,
+        "input_samples": 192000,
+        "output_samples": 192000,
+        "process_block_samples": 4096,
+        "time_ratio": 1.0,
+        "pitch_ratio": 1.4142135623730951,
+        "options": 536936448,
+        "drained": true,
+        "normalized": false
+      },
+      "passes_v2": false
+    }
+  ],
+  "rule": {
+    "band_half_width_cents": 50,
+    "union_minimum_total_power": 0.9,
+    "component_minimum_total_power": 0.2
+  },
+  "engineering_tolerance_not_perceptual_standard": true,
+  "model_loaded": false,
+  "cuda_initialized": false
+}

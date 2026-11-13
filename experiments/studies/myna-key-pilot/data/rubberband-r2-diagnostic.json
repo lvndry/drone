@@ -1,0 +1,1467 @@
+{
+  "status": "diagnostic_complete",
+  "existing_method_stage_diagnostic": {
+    "status": "diagnostic_complete",
+    "stages": [
+      {
+        "stage": "stft_istft_identity",
+        "samples": 192000,
+        "finite": true,
+        "rms_ratio": [
+          1.0,
+          1.0000001192092896,
+          1.0,
+          1.0000001192092896,
+          1.0
+        ],
+        "pure_tone_global_peak_hz": [
+          41.2,
+          55.0,
+          110.0,
+          440.0
+        ],
+        "max_abs_error": 1.043081283569336e-07
+      },
+      {
+        "stage": "after_phase_vocoder",
+        "semitones": -3,
+        "samples": 161452,
+        "finite": true,
+        "rms_ratio": [
+          0.9998010993003845,
+          1.000009536743164,
+          1.0000097751617432,
+          1.0000079870224,
+          0.7790917158126831
+        ],
+        "pure_tone_global_peak_hz": [
+          41.158112659518586,
+          55.00108148193925,
+          110.0021629638785,
+          440.008651855514
+        ]
+      },
+      {
+        "stage": "after_polyphase_resample",
+        "semitones": -3,
+        "samples": 192005,
+        "finite": true,
+        "rms_ratio": [
+          0.9998335242271423,
+          1.000011920928955,
+          1.0000700950622559,
+          1.0008180141448975,
+          0.7813462018966675
+        ],
+        "pure_tone_global_peak_hz": [
+          34.59891878378801,
+          46.19855629511578,
+          92.4971094653292,
+          369.9884378613168
+        ]
+      },
+      {
+        "stage": "after_phase_vocoder",
+        "semitones": 3,
+        "samples": 228328,
+        "finite": true,
+        "rms_ratio": [
+          0.379605770111084,
+          0.638160765171051,
+          0.5966525673866272,
+          0.32421013712882996,
+          0.7813888192176819
+        ],
+        "pure_tone_global_peak_hz": [
+          41.23711340206186,
+          55.009983293264334,
+          110.01996658652867,
+          439.9983700745691
+        ]
+      },
+      {
+        "stage": "after_polyphase_resample",
+        "semitones": 3,
+        "samples": 192004,
+        "finite": true,
+        "rms_ratio": [
+          0.37962499260902405,
+          0.6382537484169006,
+          0.5967325568199158,
+          0.32454341650009155,
+          0.7820872068405151
+        ],
+        "pure_tone_global_peak_hz": [
+          48.99877503062424,
+          65.39836504087398,
+          130.79673008174797,
+          523.2869178270544
+        ]
+      }
+    ],
+    "model_loaded": false,
+    "cuda_initialized": false,
+    "gate_changed": false,
+    "instrumentation_matches_preserved_method": true
+  },
+  "candidate_method": "ffmpeg_rubberband_quality",
+  "rows": [
+    {
+      "semitones": -6,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 8,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.11844348907470703,
+          "last_second_rms": 0.13564999401569366
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12505804002285004,
+          "last_second_rms": 0.13272500038146973
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13495780527591705,
+          "last_second_rms": 0.13765181601047516
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13588330149650574,
+          "last_second_rms": 0.13703639805316925
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.07202842086553574,
+          "last_second_rms": 0.07839026302099228
+        }
+      ],
+      "rms_ratio": [
+        0.947525680065155,
+        0.9194650650024414,
+        0.9851520657539368,
+        0.9827998876571655,
+        0.7763987183570862
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 13.640552730125059
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -14.257337533083762
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.5379502281764627
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -1.2157460888473752
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -7.528039016265792
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -12.068368031779436
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -14.809459978847206
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        28.5,
+        31.9,
+        78.1,
+        310.9
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -5,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12654057145118713,
+          "last_second_rms": 0.13951313495635986
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1371651142835617,
+          "last_second_rms": 0.1359829604625702
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13007068634033203,
+          "last_second_rms": 0.1374543458223343
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13920824229717255,
+          "last_second_rms": 0.13743162155151367
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08002270013093948,
+          "last_second_rms": 0.07553908973932266
+        }
+      ],
+      "rms_ratio": [
+        0.9793637990951538,
+        0.9846206903457642,
+        0.9693369269371033,
+        0.9800518751144409,
+        0.7487762570381165
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -2.143115338979169
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -9.746785810174867
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 2.956776454733232
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 1.7927958972571427
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.379030477116133
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 7.144892031339878
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 6.87771482454885
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        31.2,
+        41.0,
+        82.5,
+        330.5
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -4,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12118068337440491,
+          "last_second_rms": 0.1368601769208908
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13699355721473694,
+          "last_second_rms": 0.13948215544223785
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13292159140110016,
+          "last_second_rms": 0.13855263590812683
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13580302894115448,
+          "last_second_rms": 0.1363070011138916
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08180230110883713,
+          "last_second_rms": 0.08115972578525543
+        }
+      ],
+      "rms_ratio": [
+        0.9839590191841125,
+        0.9883454442024231,
+        0.9821436405181885,
+        0.9757267832756042,
+        0.8347818851470947
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -16.067303660062933
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -1.4797432875670682
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -5.492344498633731
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.2671136287916159
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -13.876251871788831
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.3982715148464395
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -5.730961691615648
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        32.4,
+        43.6,
+        87.0,
+        349.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -3,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12040884792804718,
+          "last_second_rms": 0.14016911387443542
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13960371911525726,
+          "last_second_rms": 0.1412915289402008
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13703863322734833,
+          "last_second_rms": 0.14128205180168152
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1371702253818512,
+          "last_second_rms": 0.13458190858364105
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08780044317245483,
+          "last_second_rms": 0.07868722081184387
+        }
+      ],
+      "rms_ratio": [
+        0.9772008061408997,
+        0.9899324774742126,
+        0.9910547733306885,
+        0.980423092842102,
+        0.8223284482955933
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 13.203312578071273
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.519672511403411
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.6643145260677781
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.23440473173383994
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -4.3347529738406445
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -5.597481752620602
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 2.450603913252868
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        34.9,
+        46.3,
+        92.5,
+        370.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -2,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1258746087551117,
+          "last_second_rms": 0.1391185075044632
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13324391841888428,
+          "last_second_rms": 0.13934792578220367
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13952068984508514,
+          "last_second_rms": 0.1393105387687683
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1356068253517151,
+          "last_second_rms": 0.13894255459308624
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08106013387441635,
+          "last_second_rms": 0.07681266963481903
+        }
+      ],
+      "rms_ratio": [
+        0.9791035652160645,
+        0.9931514263153076,
+        0.9948605298995972,
+        0.9817615747451782,
+        0.7956781387329102
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 3.256910418165843
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 6.684472292613427
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.5150772923109523
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.36361580988889897
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 2.434995156811735
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.6470720877117178
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 7.281413433758782
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        36.8,
+        49.2,
+        98.0,
+        391.9
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -1,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 7,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1352299302816391,
+          "last_second_rms": 0.14098797738552094
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13493460416793823,
+          "last_second_rms": 0.13626950979232788
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1350996047258377,
+          "last_second_rms": 0.13946139812469482
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13688687980175018,
+          "last_second_rms": 0.1372012197971344
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08800259977579117,
+          "last_second_rms": 0.07671870291233063
+        }
+      ],
+      "rms_ratio": [
+        0.9880683422088623,
+        0.986057698726654,
+        0.9886960983276367,
+        0.984651505947113,
+        0.8028934001922607
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 3.746849070326251
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -1.9595865010058722
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -4.793782515339146
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.8437953615491165
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -3.934551515579136
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 9.45190036744463
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 5.75746946712952
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        39.0,
+        52.3,
+        103.2,
+        416.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 0,
+      "boundary_records": [
+        {
+          "identity_bypass": true,
+          "samples": 192000
+        }
+      ],
+      "rms_ratio": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.011762469548133099
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.840588284529288e-05
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 1.8405870159724065e-05
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 1.8541219412863073e-05
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.8405888611460528e-05
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.008699295141783353
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.011703403238511297
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        41.2,
+        55.0,
+        110.0,
+        440.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 1,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13573196530342102,
+          "last_second_rms": 0.13498489558696747
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1358581781387329,
+          "last_second_rms": 0.1395041048526764
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13386742770671844,
+          "last_second_rms": 0.1404610425233841
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13560491800308228,
+          "last_second_rms": 0.13672563433647156
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08841224759817123,
+          "last_second_rms": 0.07670903950929642
+        }
+      ],
+      "rms_ratio": [
+        0.9664545655250549,
+        0.9868521690368652,
+        0.994433581829071,
+        0.9881762266159058,
+        0.8029592633247375
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -5.687749082112629
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.9887476482416846
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.23710623367555497
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.6975596425646917
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 6.913509604237396
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -10.81084419426932
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -3.788048072944781
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        41.2,
+        57.8,
+        116.5,
+        466.4
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 2,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12591560184955597,
+          "last_second_rms": 0.13735631108283997
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1303333193063736,
+          "last_second_rms": 0.1399248093366623
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1373506337404251,
+          "last_second_rms": 0.14023125171661377
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13642559945583344,
+          "last_second_rms": 0.13746275007724762
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08523498475551605,
+          "last_second_rms": 0.07877746224403381
+        }
+      ],
+      "rms_ratio": [
+        0.9690850973129272,
+        0.9846298098564148,
+        0.9988095760345459,
+        0.9858003258705139,
+        0.7754140496253967
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -9.924358322307892
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -3.3894278614536195
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.21589845443764846
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.2325380898379193
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 4.597704576290414
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -8.442173631925275
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -5.843137891523069
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        46.7,
+        61.1,
+        123.5,
+        493.9
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 3,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 6,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12157599627971649,
+          "last_second_rms": 0.1386054903268814
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13681787252426147,
+          "last_second_rms": 0.1379660964012146
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13668444752693176,
+          "last_second_rms": 0.13993863761425018
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1373298615217209,
+          "last_second_rms": 0.13871073722839355
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08073463290929794,
+          "last_second_rms": 0.07023739814758301
+        }
+      ],
+      "rms_ratio": [
+        0.9658389687538147,
+        0.9837600588798523,
+        0.9956817626953125,
+        0.9887991547584534,
+        0.7867135405540466
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -10.416966776601214
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 5.7967881479582095
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.6952622050809388
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.41119571483612305
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 8.108347834046182
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.6185353895918839
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -2.0407861230162294
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        48.7,
+        65.6,
+        130.8,
+        523.1
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 4,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1346495896577835,
+          "last_second_rms": 0.1352449357509613
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13750411570072174,
+          "last_second_rms": 0.13883303105831146
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13689495623111725,
+          "last_second_rms": 0.13994945585727692
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13696707785129547,
+          "last_second_rms": 0.14051835238933563
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.07707846164703369,
+          "last_second_rms": 0.07391857355833054
+        }
+      ],
+      "rms_ratio": [
+        0.9686143398284912,
+        0.9838699698448181,
+        0.99660325050354,
+        0.9959705471992493,
+        0.7546360492706299
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -11.264610953857451
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -6.487183112925791
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.8676102080622238
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.2729004726528917
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.06144078997049548
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -1.3439786518169017
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.11536729039691936
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        54.0,
+        68.2,
+        138.5,
+        554.5
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 5,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13652437925338745,
+          "last_second_rms": 0.14055414497852325
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13447138667106628,
+          "last_second_rms": 0.13791528344154358
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13747824728488922,
+          "last_second_rms": 0.13989482820034027
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13642267882823944,
+          "last_second_rms": 0.13871166110038757
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.07951608300209045,
+          "last_second_rms": 0.07200397551059723
+        }
+      ],
+      "rms_ratio": [
+        0.9887181520462036,
+        0.9828370809555054,
+        0.9972943067550659,
+        0.9884747266769409,
+        0.7598791122436523
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -6.931416702206394
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -1.666157382948522
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.49213759437711185
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.14609491890056123
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -2.3880080573231504
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 3.8841146015964934
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -2.9379000189066073
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        55.6,
+        72.8,
+        146.8,
+        587.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 6,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13418667018413544,
+          "last_second_rms": 0.1380295753479004
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 5,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1299608200788498,
+          "last_second_rms": 0.13740170001983643
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13803967833518982,
+          "last_second_rms": 0.13905635476112366
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 3,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1374237984418869,
+          "last_second_rms": 0.13912752270698547
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 4,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.0792006254196167,
+          "last_second_rms": 0.07637424021959305
+        }
+      ],
+      "rms_ratio": [
+        0.9764021635055542,
+        0.9819284677505493,
+        0.9982080459594727,
+        0.9922111630439758,
+        0.7549681067466736
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -9.933580494841829
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -3.4599375719538803
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.5117538791175167
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.19292277641225494
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.5035835966072387
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -5.7000617254785135
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 2.187203213628759
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        58.8,
+        77.6,
+        155.5,
+        622.2
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    }
+  ],
+  "qualification_pass": false,
+  "model_loaded": false,
+  "cuda_initialized": false,
+  "gate_changed": false
+}

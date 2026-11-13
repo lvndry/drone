@@ -1,0 +1,2024 @@
+{
+  "status": "diagnostic_complete",
+  "existing_method_stage_diagnostic": null,
+  "candidate_method": "rubberband_offline_r3",
+  "rows": [
+    {
+      "semitones": -6,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7071067811865476,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13883201777935028,
+          "last_second_rms": 0.1398075520992279
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7071067811865476,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13889554142951965,
+          "last_second_rms": 0.1412326544523239
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7071067811865476,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14059211313724518,
+          "last_second_rms": 0.14082209765911102
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7071067811865476,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13939937949180603,
+          "last_second_rms": 0.1399867981672287
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7071067811865476,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08425147086381912,
+          "last_second_rms": 0.0847238153219223
+        }
+      ],
+      "rms_ratio": [
+        0.9976689219474792,
+        0.9988080859184265,
+        0.9985750913619995,
+        0.9994683265686035,
+        0.8735862970352173
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.08833118101645636
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.032390909738209094
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.028999652510159454
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.008850616470117159
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -7.8858207191165395
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 8.203012684529668
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 5.7300351602544595
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        29.1,
+        38.9,
+        77.8,
+        311.1
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -5,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7491535384383408,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13901296257972717,
+          "last_second_rms": 0.14057712256908417
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7491535384383408,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12733648717403412,
+          "last_second_rms": 0.12860621511936188
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7491535384383408,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13989518582820892,
+          "last_second_rms": 0.1406683474779129
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7491535384383408,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13914407789707184,
+          "last_second_rms": 0.14087527990341187
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7491535384383408,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08479734510183334,
+          "last_second_rms": 0.08462683111429214
+        }
+      ],
+      "rms_ratio": [
+        0.9996138215065002,
+        0.9153990745544434,
+        0.9984700679779053,
+        0.9994518756866455,
+        0.8736230731010437
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.08804061391874494
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.011814953428906703
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.011671577940638382
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.008387211651147109
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 7.312912264369553
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -12.092934295438743
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -3.0832583975327865
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        30.9,
+        41.2,
+        82.4,
+        329.6
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -4,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7937005259840998,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13981063663959503,
+          "last_second_rms": 0.1407427340745926
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7937005259840998,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.12854284048080444,
+          "last_second_rms": 0.1299714744091034
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7937005259840998,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1392509639263153,
+          "last_second_rms": 0.14038240909576416
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7937005259840998,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14026343822479248,
+          "last_second_rms": 0.14057673513889313
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.7937005259840998,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08474940806627274,
+          "last_second_rms": 0.08621029555797577
+        }
+      ],
+      "rms_ratio": [
+        0.9994650483131409,
+        0.9208638072013855,
+        0.9985365271568298,
+        0.9994711875915527,
+        0.8741344213485718
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.013591874322379544
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.021381357927043848
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.011243306968757251
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.007941215052715247
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.6442094254928594
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 1.8509060854152621
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 5.59871929440252
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        32.7,
+        43.7,
+        87.3,
+        349.2
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -3,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8408964152537145,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1401909440755844,
+          "last_second_rms": 0.14016494154930115
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8408964152537145,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14013886451721191,
+          "last_second_rms": 0.1410069763660431
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8408964152537145,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13925528526306152,
+          "last_second_rms": 0.14057515561580658
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8408964152537145,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14081980288028717,
+          "last_second_rms": 0.14028266072273254
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8408964152537145,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.0823785737156868,
+          "last_second_rms": 0.08498875051736832
+        }
+      ],
+      "rms_ratio": [
+        0.999440610408783,
+        1.0000762939453125,
+        0.9985002875328064,
+        0.9994547367095947,
+        0.8766047358512878
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.017726994733542042
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.004402232329513877
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.002123613282880087
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0020965063997333755
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -2.307983256967287
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 7.588787187145559
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -2.7764422257651233
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        34.6,
+        46.2,
+        92.5,
+        370.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -2,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8908987181403393,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14061065018177032,
+          "last_second_rms": 0.14089150726795197
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8908987181403393,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14050647616386414,
+          "last_second_rms": 0.14115720987319946
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8908987181403393,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13959148526191711,
+          "last_second_rms": 0.14051766693592072
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8908987181403393,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13993260264396667,
+          "last_second_rms": 0.1402771919965744
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.8908987181403393,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08550842106342316,
+          "last_second_rms": 0.08496465533971786
+        }
+      ],
+      "rms_ratio": [
+        0.9992566704750061,
+        1.0002825260162354,
+        0.9973328709602356,
+        0.9994516968727112,
+        0.880696713924408
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.030439098787227663
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.0016487069792223506
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.0016238700905633063
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0016218069307591375
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 7.4045934123758474
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 10.712529148084252
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -10.8474272131729
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        36.7,
+        49.0,
+        98.0,
+        392.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": -1,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.9438743126816935,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14085377752780914,
+          "last_second_rms": 0.14069806039333344
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.9438743126816935,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14098942279815674,
+          "last_second_rms": 0.1412859410047531
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.9438743126816935,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14067146182060242,
+          "last_second_rms": 0.14108556509017944
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.9438743126816935,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13988111913204193,
+          "last_second_rms": 0.1399448961019516
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 0.9438743126816935,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08542340248823166,
+          "last_second_rms": 0.08549191802740097
+        }
+      ],
+      "rms_ratio": [
+        0.9976733922958374,
+        0.9997135996818542,
+        0.999451756477356,
+        0.9994605183601379,
+        0.886677086353302
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.0324292781383534
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.03344745682263233
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.02630191225951073
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.0016113366915939344
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -1.4895683130634232
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.9550295100525591
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 16.084030574123712
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        38.9,
+        51.9,
+        103.8,
+        415.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 0,
+      "boundary_records": [
+        {
+          "identity_bypass": true,
+          "samples": 192000
+        }
+      ],
+      "rms_ratio": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.011762469548133099
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.840588284529288e-05
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 1.8405870159724065e-05
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 1.8541219412863073e-05
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.8405888611460528e-05
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.008699295141783353
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.011703403238511297
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        41.2,
+        55.0,
+        110.0,
+        440.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 1,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.0594630943592953,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14075131714344025,
+          "last_second_rms": 0.14070123434066772
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.0594630943592953,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.140315443277359,
+          "last_second_rms": 0.14023660123348236
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.0594630943592953,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14064384996891022,
+          "last_second_rms": 0.1408689171075821
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.0594630943592953,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13987736403942108,
+          "last_second_rms": 0.14047008752822876
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.0594630943592953,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.08915547281503677,
+          "last_second_rms": 0.08703804016113281
+        }
+      ],
+      "rms_ratio": [
+        0.9992498159408569,
+        0.9948890805244446,
+        0.9985467791557312,
+        0.9994458556175232,
+        0.903753936290741
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.021040964231992098
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.047524848679802716
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.016936597381791648
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.005342069934435925
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -6.421835212654409
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 2.7821897419637165
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -2.142382729840827
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        43.7,
+        58.3,
+        116.5,
+        466.2
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 2,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.122462048309373,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14080606400966644,
+          "last_second_rms": 0.14070475101470947
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.122462048309373,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13920648396015167,
+          "last_second_rms": 0.1397286206483841
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.122462048309373,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14017853140830994,
+          "last_second_rms": 0.14119572937488556
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.122462048309373,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14077000319957733,
+          "last_second_rms": 0.1404070407152176
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.122462048309373,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.09005846083164215,
+          "last_second_rms": 0.08889654278755188
+        }
+      ],
+      "rms_ratio": [
+        0.9992127418518066,
+        0.9891721606254578,
+        0.9994136095046997,
+        0.9992815256118774,
+        0.9199423789978027
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.004763379767994478
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.04151843702128916
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.022438521962730166
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0042668932715129206
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -2.556850698476954
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -5.330423833390956
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 3.712192804141856
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        46.2,
+        61.7,
+        123.5,
+        493.9
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 3,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.189207115002721,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14080384373664856,
+          "last_second_rms": 0.14011889696121216
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.189207115002721,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13315483927726746,
+          "last_second_rms": 0.1324957013130188
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.189207115002721,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13970129191875458,
+          "last_second_rms": 0.14071819186210632
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.189207115002721,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14005345106124878,
+          "last_second_rms": 0.14089204370975494
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.189207115002721,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.09053540229797363,
+          "last_second_rms": 0.0896892249584198
+        }
+      ],
+      "rms_ratio": [
+        0.9977627992630005,
+        0.9464784264564514,
+        0.9975922703742981,
+        0.9992237687110901,
+        0.9297845363616943
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.0018125501980493783
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.013775348010930555
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.01298837370232775
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.000604284633680744
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 7.409245677377977
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 4.201983194126796
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -3.4109718947054652
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        49.0,
+        65.4,
+        130.8,
+        523.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 4,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.2599210498948732,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14087805151939392,
+          "last_second_rms": 0.1407937854528427
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.2599210498948732,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13893519341945648,
+          "last_second_rms": 0.1396731436252594
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.2599210498948732,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13978251814842224,
+          "last_second_rms": 0.14054031670093536
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.2599210498948732,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1408006101846695,
+          "last_second_rms": 0.14028289914131165
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.2599210498948732,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.09131389111280441,
+          "last_second_rms": 0.092230886220932
+        }
+      ],
+      "rms_ratio": [
+        0.9991143345832825,
+        0.9908698201179504,
+        0.9980806112289429,
+        0.999451756477356,
+        0.9455534815788269
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.03349718871927794
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.008841349299653713
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.008615308962266876
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.004681083799133855
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -4.076373196609027
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -3.852353029532581
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -1.2723773574501258
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        51.9,
+        69.3,
+        138.6,
+        554.4
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 5,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.3348398541700344,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14088717103004456,
+          "last_second_rms": 0.14019332826137543
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.3348398541700344,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13772471249103546,
+          "last_second_rms": 0.13873639702796936
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.3348398541700344,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.1403331309556961,
+          "last_second_rms": 0.14135952293872833
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.3348398541700344,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14064612984657288,
+          "last_second_rms": 0.14099514484405518
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.3348398541700344,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.09207174926996231,
+          "last_second_rms": 0.09284113347530365
+        }
+      ],
+      "rms_ratio": [
+        0.9985682964324951,
+        0.9825122952461243,
+        0.9996538758277893,
+        0.9980641007423401,
+        0.9511396884918213
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.00020002234654407556
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.02818742271052655
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 0.018521179363777254
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 0.004734137002382599
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 6.751612481785205
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.6109872887500707
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 4.587000526976474
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        55.0,
+        73.4,
+        146.8,
+        587.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": false
+    },
+    {
+      "semitones": 6,
+      "boundary_records": [
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.4142135623730951,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14069582521915436,
+          "last_second_rms": 0.14035557210445404
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.4142135623730951,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.13613413274288177,
+          "last_second_rms": 0.13633477687835693
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.4142135623730951,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14053335785865784,
+          "last_second_rms": 0.14016805589199066
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.4142135623730951,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.14101922512054443,
+          "last_second_rms": 0.1404808759689331
+        },
+        {
+          "samples_before_length_fix": 192000,
+          "engine_details": {
+            "engine": 3,
+            "input_samples": 192000,
+            "output_samples": 192000,
+            "process_block_samples": 4096,
+            "time_ratio": 1.0,
+            "pitch_ratio": 1.4142135623730951,
+            "options": 536936448,
+            "drained": true,
+            "normalized": false
+          },
+          "input_samples": 192000,
+          "tail_trimmed_samples": 0,
+          "tail_zero_padded_samples": 0,
+          "active_support_threshold": 1e-05,
+          "first_active_sample": 0,
+          "last_active_sample": 191999,
+          "first_second_rms": 0.09256157279014587,
+          "last_second_rms": 0.09256219863891602
+        }
+      ],
+      "rms_ratio": [
+        0.9984369277954102,
+        0.9701659083366394,
+        0.9980518817901611,
+        0.9997984170913696,
+        0.9504039287567139
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.04738563541888721
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.029023366876735558
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.015899388530772388
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0016468145036890214
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -4.614445424090343
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.6968873967467227
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -2.2045026870999025
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        58.3,
+        77.8,
+        155.6,
+        622.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    }
+  ],
+  "qualification_pass": false,
+  "model_loaded": false,
+  "cuda_initialized": false,
+  "gate_changed": false
+}

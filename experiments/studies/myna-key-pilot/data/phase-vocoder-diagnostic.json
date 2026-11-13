@@ -1,0 +1,672 @@
+{
+  "status": "diagnostic_complete",
+  "rows": [
+    {
+      "semitones": -6,
+      "rms_ratio": [
+        1.000137448310852,
+        0.9999430179595947,
+        1.000023603439331,
+        1.0008150339126587,
+        0.7219858169555664
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.016401840622936155
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.14839157483276333
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.14186205768483126
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.10494770468788936
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.2672003496264591
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 2.4789210900231136
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.7410923938387816
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        29.1,
+        38.9,
+        77.8,
+        311.1
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": -5,
+      "rms_ratio": [
+        0.9997925162315369,
+        1.000036597251892,
+        1.0000535249710083,
+        1.0008270740509033,
+        0.8432409167289734
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.15238113652547286
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.05941794030155903
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.05947967569217712
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0599257781330985
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.06353609014401528
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.08386231940203118
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.009502702663432701
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        30.9,
+        41.2,
+        82.4,
+        329.6
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": -4,
+      "rms_ratio": [
+        1.0,
+        1.0000321865081787,
+        1.0000821352005005,
+        1.0008268356323242,
+        0.7171716690063477
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.016912661005124414
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.045805530760199574
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.019315773287087844
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.020943127742247155
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.11055096497362812
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.5023096863424227
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.07371362281360067
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        32.7,
+        43.7,
+        87.3,
+        349.2
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": -3,
+      "rms_ratio": [
+        0.9998346567153931,
+        0.9999966025352478,
+        1.000084638595581,
+        1.0008190870285034,
+        0.78135746717453
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.0199423112526815
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.032700921576010226
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.049767532989871625
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.049232757474919626
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.11443936860584508
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.028802217556390904
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.5112614460273244
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        34.6,
+        46.2,
+        92.5,
+        370.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": -2,
+      "rms_ratio": [
+        1.0000407695770264,
+        1.0000356435775757,
+        1.000083565711975,
+        1.0008187294006348,
+        0.720068633556366
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.01908568578721792
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.051440052521914505
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.051440394746448063
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.0509321782321796
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.39116284425390613
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.3537853750328836
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.6361914083834307
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        36.7,
+        49.0,
+        98.0,
+        392.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": -1,
+      "rms_ratio": [
+        0.999891459941864,
+        0.9999418258666992,
+        1.0000324249267578,
+        1.0008070468902588,
+        0.8297033905982971
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.15374953494607776
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.08776441674602296
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.0906694460416971
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.1194520726429112
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.10312505791377932
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.8134429136091982
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.20223314799490488
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        38.9,
+        51.9,
+        103.8,
+        415.3
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 0,
+      "rms_ratio": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": 0.011762469548133099
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.840588284529288e-05
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": 1.8405870159724065e-05
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": 1.8541219412863073e-05
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 1.8405888611460528e-05
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.008699295141783353
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.011703403238511297
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        41.2,
+        55.0,
+        110.0,
+        440.0
+      ],
+      "passes_original_amplitude_gate": true,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 1,
+      "rms_ratio": [
+        0.3796365261077881,
+        0.6382384300231934,
+        0.596680223941803,
+        0.3244920074939728,
+        0.738806962966919
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.05583028370811037
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.08903627549351559
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.02184203006201665
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.04318910721986511
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.16028946260683866
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -1.0641150468302936
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.058915537085865
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        43.7,
+        58.3,
+        116.5,
+        466.2
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 2,
+      "rms_ratio": [
+        0.3796267807483673,
+        0.6382714509963989,
+        0.5967307686805725,
+        0.3245171904563904,
+        0.8046216368675232
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.024907793533580153
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": 0.005023051754870534
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.059949378067452076
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.04333678160673392
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.10872758567264698
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.07194550171182311
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.08696148697710726
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        46.2,
+        61.7,
+        123.5,
+        493.9
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 3,
+      "rms_ratio": [
+        0.379621684551239,
+        0.6382457613945007,
+        0.5967258810997009,
+        0.32454609870910645,
+        0.7820400595664978
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.03256386819909811
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.017093655155144483
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.017473137473003504
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.025142356376832504
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.2173472363945449
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.06959832644695792
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.027871043322291195
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        49.0,
+        65.4,
+        130.8,
+        523.2
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 4,
+      "rms_ratio": [
+        0.3795401453971863,
+        0.6380471587181091,
+        0.5967047810554504,
+        0.3245907425880432,
+        0.7107898592948914
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.032365773110169714
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.07753343135338407
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.0762926595723587
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.060880646780225596
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.09972224061976759
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 0.525907938373465
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.7170105790827875
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        51.9,
+        69.3,
+        138.6,
+        554.3
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 5,
+      "rms_ratio": [
+        0.3798372745513916,
+        0.6382851600646973,
+        0.5967652797698975,
+        0.32460156083106995,
+        0.8538383841514587
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.038416005413329964
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.00936102390119087
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.01655647235286324
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.03161818727261037
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.019738935427117993
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": -0.04930529947424937
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": -0.16026281994854935
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        55.0,
+        73.4,
+        146.8,
+        587.3
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    },
+    {
+      "semitones": 6,
+      "rms_ratio": [
+        0.37969914078712463,
+        0.6382893323898315,
+        0.5967382788658142,
+        0.3246065378189087,
+        0.7404031157493591
+      ],
+      "tones": [
+        {
+          "source_hz": 41.2034,
+          "error_cents": -0.0783588277240935
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.062333152263459535
+        },
+        {
+          "source_hz": 110.0,
+          "error_cents": -0.04588008519921319
+        },
+        {
+          "source_hz": 440.0,
+          "error_cents": -0.02902484280592141
+        },
+        {
+          "source_hz": 55.0,
+          "error_cents": -0.03987983803701326
+        },
+        {
+          "source_hz": 69.2957,
+          "error_cents": 4.146608935006746
+        },
+        {
+          "source_hz": 82.4069,
+          "error_cents": 0.10274003994283307
+        }
+      ],
+      "shape_matches": true,
+      "finite": true,
+      "zero_shift_identity": true,
+      "pure_tone_global_peak_hz": [
+        58.3,
+        77.8,
+        155.6,
+        622.2
+      ],
+      "passes_original_amplitude_gate": false,
+      "passes_original_pitch_gate": true
+    }
+  ],
+  "qualification_pass": false,
+  "model_loaded": false,
+  "cuda_initialized": false,
+  "gate_changed": false
+}

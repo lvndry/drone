@@ -1,0 +1,13 @@
+{
+  "status": "complete",
+  "error": null,
+  "wall_seconds": 58.65638075489551,
+  "owned_cpu_seconds": 66.44407999999999,
+  "sampled_peak_host_rss_bytes": 2933362688,
+  "sampled_peak_output_bytes": 45036,
+  "final_output_bytes": 45036,
+  "sampled_min_gpu_free_bytes": 9199157248,
+  "sampled_peak_worker_nvml_bytes": 1392508928,
+  "worker_exit": 0,
+  "config_sha256": "2e4df49c72091896ab9c0b8577ad64e3e0347ae68eac87dd3d4ae46a97fc80fb"
+}

@@ -1,0 +1,2793 @@
+{
+  "status": "diagnostic_complete",
+  "method": "pitch-by-playback-rate-polyphase-v1",
+  "passed": true,
+  "rows": [
+    {
+      "fixture": "41Hz",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9998854398727417,
+      "global_peak_hz": 29.13741136789322,
+      "error_cents": 0.13118522590606624,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0002005100250244,
+      "global_peak_hz": 30.864955535531045,
+      "error_cents": -0.15241222884888347,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000098943710327,
+      "global_peak_hz": 32.70283995494246,
+      "error_cents": -0.016955929028856693,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000065565109253,
+      "global_peak_hz": 34.64738977253437,
+      "error_cents": -0.02006590982348183,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999721646308899,
+      "global_peak_hz": 36.707650465518235,
+      "error_cents": -0.019137480662693544,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001201629638672,
+      "global_peak_hz": 38.89013564884662,
+      "error_cents": -0.030947540915024916,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "global_peak_hz": 41.2036799479276,
+      "error_cents": 0.011762469548133099,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000600814819336,
+      "global_peak_hz": 43.652044236660004,
+      "error_cents": -0.05700715688973922,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000278949737549,
+      "global_peak_hz": 46.24852827191353,
+      "error_cents": -0.027119801104623652,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000535249710083,
+      "global_peak_hz": 48.99845363451168,
+      "error_cents": -0.032604727432809434,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999589323997498,
+      "global_peak_hz": 51.91475470513105,
+      "error_cents": 0.05748286139550233,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000053882598877,
+      "global_peak_hz": 54.99871917106211,
+      "error_cents": -0.03844255976187659,
+      "passed": true
+    },
+    {
+      "fixture": "41Hz",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001404285430908,
+      "global_peak_hz": 58.26774225831032,
+      "error_cents": -0.07917506101561274,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001164674758911,
+      "global_peak_hz": 38.89122588485479,
+      "error_cents": 0.015710206536683594,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999936819076538,
+      "global_peak_hz": 41.20202900860458,
+      "error_cents": -0.05948013745544777,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000485181808472,
+      "global_peak_hz": 43.652372694015504,
+      "error_cents": -0.04585517253775656,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999961853027344,
+      "global_peak_hz": 46.24842802286148,
+      "error_cents": -0.032746995899016855,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000356435775757,
+      "global_peak_hz": 48.997971918433905,
+      "error_cents": -0.05149954694105822,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999040365219116,
+      "global_peak_hz": 51.914130724966526,
+      "error_cents": 0.03479993645736176,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "global_peak_hz": 55.0000005847402,
+      "error_cents": 1.8405857089744068e-05,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000145673751831,
+      "global_peak_hz": 58.26747181117535,
+      "error_cents": -0.08908506554873254,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.999912440776825,
+      "global_peak_hz": 61.735589906573296,
+      "error_cents": 0.004970567392187624,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999836683273315,
+      "global_peak_hz": 65.40574423372746,
+      "error_cents": -0.017127871174817157,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000510215759277,
+      "global_peak_hz": 69.29628256559371,
+      "error_cents": 0.015610028083659145,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.999943196773529,
+      "global_peak_hz": 73.41579287648202,
+      "error_cents": -0.009411307462681562,
+      "passed": true
+    },
+    {
+      "fixture": "55Hz",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001298189163208,
+      "global_peak_hz": 77.77894017547369,
+      "error_cents": -0.06245046601453404,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000152826309204,
+      "global_peak_hz": 77.78255365341901,
+      "error_cents": 0.01797787009422851,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000430345535278,
+      "global_peak_hz": 82.40405680164695,
+      "error_cents": -0.059505675308611325,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000033974647522,
+      "global_peak_hz": 87.30608170703053,
+      "error_cents": -0.019356461192830837,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000085711479187,
+      "global_peak_hz": 92.49594508558512,
+      "error_cents": -0.04979722918750746,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000084400177002,
+      "global_peak_hz": 97.99594512283802,
+      "error_cents": -0.051476828496644686,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999890327453613,
+      "global_peak_hz": 103.82782856225967,
+      "error_cents": 0.027581945599934758,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "global_peak_hz": 110.00000120387858,
+      "error_cents": 1.8947232575210748e-05,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000269412994385,
+      "global_peak_hz": 116.53946797251702,
+      "error_cents": -0.02187297645477212,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001404285430908,
+      "global_peak_hz": 123.46654761731625,
+      "error_cents": -0.05998034333197961,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000054121017456,
+      "global_peak_hz": 130.81145999655126,
+      "error_cents": -0.017504671437210687,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001267194747925,
+      "global_peak_hz": 138.59257281273602,
+      "error_cents": 0.01570598242354954,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0000630617141724,
+      "global_peak_hz": 146.8309771001339,
+      "error_cents": -0.0165877108375717,
+      "passed": true
+    },
+    {
+      "fixture": "110Hz",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001602172851562,
+      "global_peak_hz": 155.55936664044856,
+      "error_cents": -0.0459093387314226,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0007930994033813,
+      "global_peak_hz": 311.1364976912737,
+      "error_cents": 0.05293869205439821,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0007944107055664,
+      "global_peak_hz": 329.6161271378398,
+      "error_cents": -0.060031263661941815,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0007915496826172,
+      "global_peak_hz": 349.22398761957885,
+      "error_cents": -0.021038044118072273,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0008313655853271,
+      "global_peak_hz": 369.9838801860809,
+      "error_cents": -0.04933003881635321,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0008296966552734,
+      "global_peak_hz": 391.98388041257857,
+      "error_cents": -0.051035516850481875,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0008081197738647,
+      "global_peak_hz": 415.3054106220603,
+      "error_cents": 0.00297237603073269,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "global_peak_hz": 440.00000471232454,
+      "error_cents": 1.8541219797274247e-05,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0008857250213623,
+      "global_peak_hz": 466.1521085858345,
+      "error_cents": -0.04327707752264965,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0009691715240479,
+      "global_peak_hz": 493.87091177999974,
+      "error_cents": -0.043430000367816995,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0010181665420532,
+      "global_peak_hz": 523.2435028403997,
+      "error_cents": -0.025237471438433506,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0011096000671387,
+      "global_peak_hz": 554.3709124028683,
+      "error_cents": 0.01764576667128451,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0011513233184814,
+      "global_peak_hz": 587.3187719359994,
+      "error_cents": -0.031728353087095124,
+      "passed": true
+    },
+    {
+      "fixture": "440Hz",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.001218557357788,
+      "global_peak_hz": 622.2435036659241,
+      "error_cents": -0.029112552798270606,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9997045397758484,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.3333263099193573,
+          0.3333331346511841,
+          0.3333403766155243
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.33333340287208557,
+          0.3333333730697632,
+          0.3333333134651184
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.2864251320319227e-09,
+        "component_fractions": [
+          2.6108651351997025e-10,
+          1.0809771966435733e-09,
+          1.944361560646257e-09
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.4999999701976776,
+          3.4316974175524484e-12,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9995951056480408,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.3333263397216797,
+          0.33333316445350647,
+          0.3333403170108795
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33333325386047363,
+          0.3333333432674408,
+          0.3333333730697632
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.7633789539672762e-08,
+        "component_fractions": [
+          1.7549062647503888e-08,
+          2.9537665716117267e-12,
+          8.177548915799804e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.4999999403953552,
+          1.0015081212261245e-12,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.000402808189392,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333263397216797,
+          0.33333316445350647,
+          0.3333403766155243
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.333333283662796,
+          0.33333340287208557,
+          0.33333322405815125
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.4726765584782697e-08,
+        "component_fractions": [
+          1.2115559222536376e-08,
+          2.569044754707761e-09,
+          4.216196142214912e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.5000000596046448,
+          3.6153168674925296e-13,
+          0.49999991059303284
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9993758201599121,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333263695240021,
+          0.33333319425582886,
+          0.3333404064178467
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333134651184,
+          0.3333333432674408,
+          0.3333333134651184
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.293742529246856e-09,
+        "component_fractions": [
+          3.721222982533412e-12,
+          1.9835630915565616e-09,
+          3.0645799786732653e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.49999991059303284,
+          3.775253980958793e-12,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0003306865692139,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333263397216797,
+          0.3333331346511841,
+          0.3333404064178467
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.33333322405815125,
+          0.3333335220813751,
+          0.33333325386047363
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.392661985732957e-09,
+        "component_fractions": [
+          1.0702527752926017e-09,
+          8.984304966652701e-11,
+          2.3256610526267707e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.5,
+          3.861763610713692e-13,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0001863241195679,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.3333263397216797,
+          0.33333316445350647,
+          0.3333403766155243
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333730697632,
+          0.3333333432674408,
+          0.33333325386047363
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 6.154413090264654e-11,
+        "component_fractions": [
+          1.6904515710413487e-13,
+          2.9096430126385187e-11,
+          3.227865891242132e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.5000000596046448,
+          3.775454341520268e-13,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333331346511841,
+          0.33333346247673035,
+          0.33333346247673035
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333331346511841,
+          0.33333346247673035,
+          0.33333346247673035
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.8990387868077505e-09,
+        "component_fractions": [
+          2.5866313535516383e-09,
+          2.8866925516624065e-10,
+          2.3738008086970908e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999997019767761,
+          9.249469679756261e-14,
+          0.5000001788139343
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0007741451263428,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333255350589752,
+          0.33333319425582886,
+          0.33334121108055115
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333432674408,
+          0.3333333134651184,
+          0.3333333432674408
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.231688833731482e-09,
+        "component_fractions": [
+          1.9809243134716326e-09,
+          2.473757032550594e-10,
+          3.388639846155228e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.5,
+          3.565347073564845e-13,
+          0.5
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9992005228996277,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.333324670791626,
+          0.33333316445350647,
+          0.33334216475486755
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333730697632,
+          0.333333283662796,
+          0.3333333730697632
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.270901162087057e-10,
+        "component_fractions": [
+          8.398338274817618e-11,
+          3.3674979471598476e-11,
+          9.431761795186677e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999999403953552,
+          4.059095182369632e-13,
+          0.5
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999548196792603,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333236575126648,
+          0.3333330750465393,
+          0.33334314823150635
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333333432674408,
+          0.3333331346511841,
+          0.33333346247673035
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.6277117154128717e-10,
+        "component_fractions": [
+          2.992628367337602e-11,
+          2.837615906137181e-11,
+          1.0446871839819849e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.49999991059303284,
+          2.6551830178966895e-11,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9997180104255676,
+      "energy": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.33332252502441406,
+          0.3333331048488617,
+          0.33334434032440186
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333333134651184,
+          0.3333335518836975,
+          0.33333316445350647
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.887093342174296e-10,
+        "component_fractions": [
+          2.8262814311119655e-10,
+          1.6663206188136104e-12,
+          4.414890762000079e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.5000001788139343,
+          1.093460651885314e-11,
+          0.49999985098838806
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9995040893554688,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33332133293151855,
+          0.3333331048488617,
+          0.3333456516265869
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333333432674408,
+          0.33333325386047363,
+          0.3333333134651184
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.7005629116571015e-10,
+        "component_fractions": [
+          2.603497972764046e-10,
+          1.4608831722454085e-12,
+          1.0824565549460985e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.4999999701976776,
+          3.9255656559579466e-13,
+          0.4999999701976776
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_major",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.999755859375,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.33331990242004395,
+          0.33333298563957214,
+          0.33334705233573914
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.333333283662796,
+          0.33333340287208557,
+          0.3333333134651184
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.9083583324697173e-10,
+        "component_fractions": [
+          2.997453674158379e-11,
+          1.0302880076862309e-10,
+          5.783248879787095e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999999701976776,
+          5.85609902584161e-12,
+          0.49999991059303284
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 543045,
+        "up": 16000,
+        "down": 11314,
+        "actual_playback_rate": 0.707125,
+        "pitch_rounding_error_cents": 0.04460517802499453,
+        "mel_frames": 1061,
+        "complete_windows": 5,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9993540644645691,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.333327054977417,
+          0.33333176374435425,
+          0.33334097266197205
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333134651184,
+          0.3333333432674408,
+          0.3333333432674408
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.2468964466781927e-09,
+        "component_fractions": [
+          2.5808269410454443e-10,
+          2.83061985309474e-12,
+          1.9859831557056395e-09
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999999701976776,
+          1.6812619005324159e-12,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 512599,
+        "up": 16000,
+        "down": 11986,
+        "actual_playback_rate": 0.749125,
+        "pitch_rounding_error_cents": -0.06595130998817922,
+        "mel_frames": 1002,
+        "complete_windows": 5,
+        "discarded_frames": 22,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9987000823020935,
+      "energy": {
+        "union_fraction": 0.9999997615814209,
+        "component_fractions": [
+          0.3333270251750946,
+          0.33333176374435425,
+          0.33334100246429443
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333134651184,
+          0.3333333134651184,
+          0.33333340287208557
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.8852867711416366e-08,
+        "component_fractions": [
+          1.7522738815500816e-08,
+          1.2449087316568352e-09,
+          8.522128835952714e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.4999999403953552,
+          1.593048067592695e-13,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 483818,
+        "up": 16000,
+        "down": 12699,
+        "actual_playback_rate": 0.7936875,
+        "pitch_rounding_error_cents": -0.028412747012680484,
+        "mel_frames": 945,
+        "complete_windows": 4,
+        "discarded_frames": 161,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0005348920822144,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33332711458206177,
+          0.3333318531513214,
+          0.33334094285964966
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.33333322405815125,
+          0.33333340287208557,
+          0.3333333134651184
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.217896006266983e-08,
+        "component_fractions": [
+          1.2115863867734333e-08,
+          3.243842347511183e-11,
+          3.0656779198556805e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999998807907104,
+        "component_fractions": [
+          0.5000000596046448,
+          3.775313395237845e-12,
+          0.49999991059303284
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 456668,
+        "up": 16000,
+        "down": 13454,
+        "actual_playback_rate": 0.840875,
+        "pitch_rounding_error_cents": -0.044090196878926236,
+        "mel_frames": 892,
+        "complete_windows": 4,
+        "discarded_frames": 108,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9994004964828491,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333270847797394,
+          0.33333179354667664,
+          0.33334100246429443
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.3333333134651184,
+          0.3333333432674408,
+          0.33333343267440796
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.877800664435881e-09,
+        "component_fractions": [
+          3.772225153769737e-12,
+          2.5841577766527735e-09,
+          2.898705997456119e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.49999991059303284,
+          3.1365398559662916e-12,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 431037,
+        "up": 16000,
+        "down": 14254,
+        "actual_playback_rate": 0.890875,
+        "pitch_rounding_error_cents": -0.04609075969679566,
+        "mel_frames": 842,
+        "complete_windows": 4,
+        "discarded_frames": 58,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9998670220375061,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333270251750946,
+          0.33333179354667664,
+          0.3333410322666168
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.33333325386047363,
+          0.3333333730697632,
+          0.3333333432674408
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.275927973334092e-09,
+        "component_fractions": [
+          1.0852083676127222e-09,
+          1.9432142561726096e-09,
+          2.47504988726277e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.5,
+          2.1494836618084212e-13,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": -1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 406834,
+        "up": 16000,
+        "down": 15102,
+        "actual_playback_rate": 0.943875,
+        "pitch_rounding_error_cents": 0.0012606640583214812,
+        "mel_frames": 795,
+        "complete_windows": 4,
+        "discarded_frames": 11,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0011324882507324,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.333327054977417,
+          0.33333176374435425,
+          0.3333410322666168
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.333333283662796,
+          0.3333333432674408,
+          0.333333283662796
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.1450917991595588e-10,
+        "component_fractions": [
+          1.8714204990354089e-13,
+          8.347630225946645e-11,
+          3.084574262679496e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.5000000596046448,
+          4.563011752299617e-13,
+          0.4999999403953552
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 0,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 384000,
+        "up": 16000,
+        "down": 16000,
+        "actual_playback_rate": 1.0,
+        "pitch_rounding_error_cents": 0.0,
+        "mel_frames": 751,
+        "complete_windows": 3,
+        "discarded_frames": 163,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33333319425582886,
+          0.3333333432674408,
+          0.33333343267440796
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33333319425582886,
+          0.3333333432674408,
+          0.33333343267440796
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.64953614603769e-09,
+        "component_fractions": [
+          2.5828048588749652e-09,
+          4.120311383748465e-11,
+          2.5528251387796352e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.4999997019767761,
+          7.143552649370097e-14,
+          0.5000001788139343
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 1,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 362457,
+        "up": 16000,
+        "down": 16951,
+        "actual_playback_rate": 1.0594375,
+        "pitch_rounding_error_cents": -0.04182341200531425,
+        "mel_frames": 708,
+        "complete_windows": 3,
+        "discarded_frames": 120,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0008952617645264,
+      "energy": {
+        "union_fraction": 0.9999997615814209,
+        "component_fractions": [
+          0.3333263099193573,
+          0.3333315849304199,
+          0.33334189653396606
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.33333325386047363,
+          0.33333340287208557,
+          0.333333283662796
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 2.2900086271704367e-09,
+        "component_fractions": [
+          1.9809043294571893e-09,
+          3.060724174108742e-10,
+          3.0315548248810442e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.5,
+          8.903358952871976e-12,
+          0.5
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 2,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 342113,
+        "up": 16000,
+        "down": 17959,
+        "actual_playback_rate": 1.1224375,
+        "pitch_rounding_error_cents": -0.03786260197458091,
+        "mel_frames": 669,
+        "complete_windows": 3,
+        "discarded_frames": 81,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 1.0002559423446655,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333255350589752,
+          0.333331435918808,
+          0.3333429992198944
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333333730697632,
+          0.3333333432674408,
+          0.33333325386047363
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.4554248351525985e-10,
+        "component_fractions": [
+          8.466161799391969e-11,
+          2.512277885724501e-10,
+          9.653071744719632e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999999403953552,
+          6.830791357895216e-13,
+          0.5
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 3,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 322910,
+        "up": 16000,
+        "down": 19027,
+        "actual_playback_rate": 1.1891875,
+        "pitch_rounding_error_cents": -0.028555531003689794,
+        "mel_frames": 631,
+        "complete_windows": 3,
+        "discarded_frames": 43,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9996262192726135,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333245813846588,
+          0.33333128690719604,
+          0.33334407210350037
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33333340287208557,
+          0.3333330452442169,
+          0.3333335220813751
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.6633197597037963e-10,
+        "component_fractions": [
+          2.9799798045848647e-11,
+          3.356959848987984e-11,
+          1.02962589842992e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.49999991059303284,
+          9.051147852046082e-12,
+          0.5000001192092896
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 4,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 304778,
+        "up": 16000,
+        "down": 20159,
+        "actual_playback_rate": 1.2599375,
+        "pitch_rounding_error_cents": 0.022603635515849874,
+        "mel_frames": 596,
+        "complete_windows": 3,
+        "discarded_frames": 8,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9997850656509399,
+      "energy": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33332359790802,
+          0.33333101868629456,
+          0.3333453834056854
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.33333343267440796,
+          0.33333325386047363,
+          0.33333325386047363
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.1281832679752597e-10,
+        "component_fractions": [
+          2.830160550360006e-10,
+          2.477492343222476e-11,
+          5.027347028258022e-12
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0000001192092896,
+        "component_fractions": [
+          0.5000001788139343,
+          3.937401620024428e-12,
+          0.49999985098838806
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 5,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 287681,
+        "up": 16000,
+        "down": 21357,
+        "actual_playback_rate": 1.3348125,
+        "pitch_rounding_error_cents": -0.03547763099209078,
+        "mel_frames": 562,
+        "complete_windows": 2,
+        "discarded_frames": 170,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9999974370002747,
+      "energy": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.3333224952220917,
+          0.3333306908607483,
+          0.3333468437194824
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.3333333432674408,
+          0.333333283662796,
+          0.3333333730697632
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 3.532001080497338e-10,
+        "component_fractions": [
+          2.4144136689940865e-10,
+          3.6482119408765e-12,
+          1.0811057604698249e-10
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 1.0,
+        "component_fractions": [
+          0.4999999701976776,
+          5.082128836687849e-13,
+          0.4999999701976776
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    },
+    {
+      "fixture": "A_minor",
+      "semitones": 6,
+      "geometry": {
+        "input_samples": 384000,
+        "output_samples": 271535,
+        "up": 16000,
+        "down": 22627,
+        "actual_playback_rate": 1.4141875,
+        "pitch_rounding_error_cents": -0.031904999827133906,
+        "mel_frames": 531,
+        "complete_windows": 2,
+        "discarded_frames": 139,
+        "length_fixed": false,
+        "normalized": false
+      },
+      "finite": true,
+      "exact_length": true,
+      "zero_identity": true,
+      "rms_ratio": 0.9998612403869629,
+      "energy": {
+        "union_fraction": 0.9999998211860657,
+        "component_fractions": [
+          0.33332115411758423,
+          0.333330363035202,
+          0.3333483636379242
+        ],
+        "passed": true
+      },
+      "correct_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.333333283662796,
+          0.3333333730697632,
+          0.33333322405815125
+        ],
+        "passed": true
+      },
+      "wrong_control": {
+        "union_fraction": 1.0970815922384247e-10,
+        "component_fractions": [
+          3.4459803066599903e-11,
+          9.084521329638662e-12,
+          6.616384523594476e-11
+        ],
+        "passed": false
+      },
+      "missing_middle_control": {
+        "union_fraction": 0.9999999403953552,
+        "component_fractions": [
+          0.4999999701976776,
+          1.222461801925201e-12,
+          0.49999991059303284
+        ],
+        "passed": false
+      },
+      "controls_pass": true,
+      "passed": true
+    }
+  ],
+  "model_loaded": false,
+  "cuda_initialized": false,
+  "changes_tempo_and_duration": true,
+  "paper_replication": false
+}
