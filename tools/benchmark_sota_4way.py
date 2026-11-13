@@ -43,7 +43,7 @@ import numpy as np
 import torch
 
 from drone import Predictor, default_weights
-from drone.keys import FLATS, TONICS, encode_key, score_breakdown
+from drone.keys import FLATS, TONICS, WEIGHTS, encode_key, score_breakdown, score_mirex
 
 # ----------------------------------------------------------------------------
 # label normalisation -> drone 24-class id (sharp tonic * 2 + minor)
@@ -426,9 +426,8 @@ def aggregate_rows(rows: list[dict[str, Any]], name: str) -> dict[str, Any]:
         if (row[f"{name}_pred"] is None) != (status != "key"):
             raise ValueError("Detector status/prediction mismatch")
     counts = dict(score_breakdown([p for p, _ in valid], [q for _, q in valid])) if valid else {}
-    weighted = sum(
-        counts.get(k, 0) * w
-        for k, w in (("exact", 1), ("fifth", 0.5), ("relative", 0.3), ("parallel", 0.2))
+    valid_exact, valid_mirex = (
+        score_mirex([p for p, _ in valid], [q for _, q in valid]) if valid else (0.0, 0.0)
     )
     n = len(rows)
     return dict(
@@ -438,8 +437,8 @@ def aggregate_rows(rows: list[dict[str, Any]], name: str) -> dict[str, Any]:
         n_error=statuses.count("error"),
         n_abstain=statuses.count("abstain"),
         counts=counts,
-        exact=round(counts.get("exact", 0) / n, 4) if n else 0.0,
-        mirex=round(weighted / n, 4) if n else 0.0,
+        exact=round(valid_exact * len(valid) / n, 4) if n else 0.0,
+        mirex=round(valid_mirex * len(valid) / n, 4) if n else 0.0,
     )
 
 
@@ -731,12 +730,7 @@ def main() -> None:
             else:
                 bd = score_breakdown([pred], [t["ref"]])
                 rec[f"{name}_rel"] = [k for k, v in bd.items() if v][0]
-                rec[f"{name}_score"] = (
-                    bd["exact"] * 1.0
-                    + bd["fifth"] * 0.5
-                    + bd["relative"] * 0.3
-                    + bd["parallel"] * 0.2
-                )
+                rec[f"{name}_score"] = score_mirex([pred], [t["ref"]])[1]
         rec["musicfm_pred"] = None
         rec["musicfm_score"] = None
         rows.append(rec)
@@ -764,7 +758,7 @@ def main() -> None:
         },
         "scoring": {
             "convention": "drone/keys.py",
-            "weights": {"exact": 1.0, "fifth": 0.5, "relative": 0.3, "parallel": 0.2, "other": 0.0},
+            "weights": dict(WEIGHTS),
             "fifths": "symmetric (interval 5 or 7)",
         },
         "label_normalization": {
