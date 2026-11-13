@@ -14,20 +14,26 @@ Scoring uses drone's exact convention (drone/keys.py):
 exact 1.0, same-mode perfect fifth 0.5, relative major/minor 0.3,
 parallel mode 0.2, else 0.0; symmetric fifths (interval 5 or 7).
 
-libkeyfinder and madmom are optional plugins: a missing CLI binary or
-package skips that detector with a warning instead of aborting the run.
+libkeyfinder and madmom are optional. An omitted CLI or unavailable CNN is
+recorded as skipped; an explicitly supplied incompatible CLI fails qualification.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
+import importlib.metadata
 import importlib.util
 import json
+import os
+import shutil
 import statistics
 import subprocess
 import sys
+import tempfile
 import time
+import wave
 from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
@@ -37,7 +43,7 @@ import numpy as np
 import torch
 
 from drone import Predictor, default_weights
-from drone.keys import FLATS, TONICS, encode_key, score_breakdown, score_mirex
+from drone.keys import FLATS, TONICS, encode_key, score_breakdown
 
 # ----------------------------------------------------------------------------
 # label normalisation -> drone 24-class id (sharp tonic * 2 + minor)
@@ -58,7 +64,10 @@ def norm_key(text: str) -> int | None:
         mode = parts0[1] if len(parts0) > 1 else "maj"
     tonic = tonic.strip()
     mode = mode.strip().lower()
-    mode = "major" if mode.startswith("maj") else "minor"
+    modes = {"maj": "major", "major": "major", "min": "minor", "minor": "minor"}
+    if mode not in modes:
+        return None
+    mode = modes[mode]
     tonic = FLATS.get(tonic, tonic)
     if tonic not in TONICS:
         return None
@@ -257,6 +266,182 @@ def build_panel(swd_dir: Path, gs_dir: Path, n_gs: int) -> list[dict[str, Any]]:
 # ----------------------------------------------------------------------------
 # detectors
 
+KF_SCHEMA = "drone.keyfinder-reference.v1"
+KF_CLASSES = (18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
+
+
+def file_sha(path: Path) -> str:
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def artifact(path: Path) -> dict[str, str]:
+    return {"path": str(path.absolute()), "sha256": file_sha(path)}
+
+
+def package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def model_artifacts() -> Sequence[str]:
+    from madmom.models import KEY_CNN  # ty: ignore[import-not-found]
+
+    return KEY_CNN
+
+
+def keyfinder_result(raw: str) -> dict[str, Any]:
+    """Reject legacy token output, unknown enums, and inconsistent JSON fields."""
+    row = json.loads(raw)
+    if not isinstance(row, dict) or row.get("schema") != KF_SCHEMA:
+        raise ValueError("Incompatible KeyFinder JSON protocol")
+    value = row.get("raw_enum")
+    if type(value) is not int or not 0 <= value <= 24:
+        raise ValueError("Unknown KeyFinder raw enum")
+    if value == 24:
+        expected = dict(status="silence", tonic=None, mode=None, drone_class=None)
+    else:
+        code = KF_CLASSES[value]
+        expected = dict(
+            status="key",
+            tonic=TONICS[code // 2],
+            mode="minor" if code % 2 else "major",
+            drone_class=code,
+        )
+    if any(row.get(key) != value or key not in row for key, value in expected.items()):
+        raise ValueError("Inconsistent KeyFinder enum/status/key mapping")
+    if row["drone_class"] is not None and type(row["drone_class"]) is not int:
+        raise ValueError("KeyFinder class must be integer")
+    return row
+
+
+def qualify_keyfinder(path: Path) -> dict[str, Any]:
+    before = artifact(path)
+    raw = subprocess.check_output([str(path), "--self-test"], text=True, timeout=30)
+    rows = [keyfinder_result(line) for line in raw.splitlines()]
+    if [r["raw_enum"] for r in rows] != list(range(25)) or artifact(path) != before:
+        raise ValueError("KeyFinder self-test must cover all25 enums with stable binary bytes")
+    source = Path(__file__).parent / "native/keyfinder_reference.cpp"
+    return dict(
+        status="active",
+        backend="libkeyfinder JSON reference",
+        binary=before,
+        schema=KF_SCHEMA,
+        self_test_sha256=hashlib.sha256(raw.encode()).hexdigest(),
+        source=artifact(source) if source.is_file() else None,
+        source_binding="repository source witness; binary build provenance is external",
+    )
+
+
+def decode_contract() -> dict[str, Any]:
+    binary = shutil.which("ffmpeg")
+    if binary is None:
+        raise ValueError("ffmpeg unavailable")
+    return dict(
+        version="canonical-wav-v1",
+        sample_rate=44100,
+        channels=1,
+        codec="pcm_s16le",
+        loudness="none",
+        trim="none",
+        ffmpeg=artifact(Path(binary)),
+    )
+
+
+def validate_wav(path: Path) -> None:
+    with wave.open(str(path), "rb") as stream:
+        if (
+            stream.getnchannels(),
+            stream.getsampwidth(),
+            stream.getframerate(),
+            stream.getcomptype(),
+        ) != (1, 2, 44100, "NONE"):
+            raise ValueError("Invalid canonical WAV encoding")
+        frames = stream.getnframes()
+        if frames <= 0:
+            raise ValueError("Empty canonical WAV")
+        read = 0
+        while block := stream.readframes(65536):
+            read += len(block)
+        if read != frames * 2:
+            raise ValueError("Truncated canonical WAV")
+
+
+def cached_decode(
+    src: Path, directory: Path, contract: dict[str, Any]
+) -> tuple[Path, dict[str, Any]]:
+    """Only content/policy-bound, complete WAVs can enter the shared decode cache."""
+    source_sha = file_sha(src)
+    identity = dict(source_sha256=source_sha, decode_contract=contract)
+    digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+    wav, receipt = directory / f"{digest}.wav", directory / f"{digest}.json"
+    if wav.is_file() and receipt.is_file():
+        try:
+            previous = json.loads(receipt.read_text())
+            if previous["identity"] == identity and previous["wav_sha256"] == file_sha(wav):
+                validate_wav(wav)
+                return wav, dict(
+                    source=artifact(src),
+                    wav=artifact(wav),
+                    cache_hit=True,
+                    decode_identity_sha256=digest,
+                )
+        except (OSError, ValueError, KeyError, EOFError, wave.Error):
+            pass
+    directory.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=directory) as scratch:
+        pending = Path(scratch) / "decode.wav"
+        ff_decode(src, pending)
+        validate_wav(pending)
+        if file_sha(src) != source_sha:
+            raise ValueError("Source audio changed during decode")
+        metadata = Path(scratch) / "receipt.json"
+        metadata.write_text(json.dumps(dict(identity=identity, wav_sha256=file_sha(pending))))
+        os.replace(pending, wav)
+        os.replace(metadata, receipt)
+    return wav, dict(
+        source=artifact(src), wav=artifact(wav), cache_hit=False, decode_identity_sha256=digest
+    )
+
+
+def aggregate_rows(rows: list[dict[str, Any]], name: str) -> dict[str, Any]:
+    """Headline scores retain the complete panel; errors and abstentions earn zero."""
+    valid = [(r[f"{name}_pred"], r["ref"]) for r in rows if r[f"{name}_pred"] is not None]
+    statuses = [
+        r.get(
+            f"{name}_status",
+            "error"
+            if r[f"{name}_rel"] == "error"
+            else "abstain"
+            if r[f"{name}_pred"] is None
+            else "key",
+        )
+        for r in rows
+    ]
+    if any(status not in {"key", "error", "abstain"} for status in statuses):
+        raise ValueError("Unknown detector status")
+    for row, status in zip(rows, statuses, strict=True):
+        if (row[f"{name}_pred"] is None) != (status != "key"):
+            raise ValueError("Detector status/prediction mismatch")
+    counts = dict(score_breakdown([p for p, _ in valid], [q for _, q in valid])) if valid else {}
+    weighted = sum(
+        counts.get(k, 0) * w
+        for k, w in (("exact", 1), ("fifth", 0.5), ("relative", 0.3), ("parallel", 0.2))
+    )
+    n = len(rows)
+    return dict(
+        n=n,
+        n_total=n,
+        n_valid=len(valid),
+        n_error=statuses.count("error"),
+        n_abstain=statuses.count("abstain"),
+        counts=counts,
+        exact=round(counts.get("exact", 0) / n, 4) if n else 0.0,
+        mirex=round(weighted / n, 4) if n else 0.0,
+    )
+
 
 class Detectors:
     """The detector set for one run; optional ones degrade to None."""
@@ -277,35 +462,49 @@ class Detectors:
             self.drone_pred = Predictor(
                 weights=str(weights or default_weights()), device="cpu", workdir=str(cache_dir)
             )
-        self.kf_cli = kf_cli if kf_cli is not None and kf_cli.is_file() else None
-        if kf_cli is not None and self.kf_cli is None:
-            print(f"warning: {kf_cli} not found; skipping libkeyfinder", file=sys.stderr)
-        # madmom: prefer the all-conv key net (KEY_CNN, CC BY-NC-SA); fall back to DSP chroma + KK.
+        self.kf_cli = None
+        self.provenance: dict[str, Any] = {
+            "drone": {
+                "status": "active" if include_drone else "skipped",
+                "backend": "torch CPU",
+                "weights": artifact(weights or default_weights()) if include_drone else None,
+                "feature_cache": "content-bound CQT; may be warm on reruns",
+            },
+            "libkeyfinder": {"status": "skipped", "reason": "CLI omitted"},
+            "madmom": {"status": "skipped", "reason": "disabled"},
+        }
+        if kf_cli is not None:
+            if not kf_cli.is_file():
+                raise ValueError(f"Provided KeyFinder CLI missing: {kf_cli}")
+            proof = qualify_keyfinder(kf_cli)
+            self.kf_cli = kf_cli
+            self.provenance["libkeyfinder"] = proof
         self.madmom_mode: str | None = None
         self.mm_proc: Any = None
         self.mm_labels: Sequence[str] = ()
-        if include_madmom and importlib.util.find_spec("madmom") is None:
-            print("warning: madmom is not installed; skipping madmom", file=sys.stderr)
-        elif include_madmom:
+        if include_madmom:
             try:
                 from madmom.features.key import KEY_LABELS, CNNKeyRecognitionProcessor  # ty: ignore[import-not-found]
 
                 self.mm_proc = CNNKeyRecognitionProcessor()
                 self.mm_labels = KEY_LABELS
                 self.madmom_mode = "CNNKeyRecognitionProcessor (all-conv KEY_CNN)"
-            except Exception as e:
-                from madmom.audio.chroma import HarmonicPitchClassProfile  # ty: ignore[import-not-found]
-                from madmom.audio.signal import Signal  # ty: ignore[import-not-found]
-
+                self.provenance["madmom"] = {
+                    "status": "active",
+                    "backend": self.madmom_mode,
+                    "package_version": package_version("madmom"),
+                    "model_artifacts": [artifact(Path(path)) for path in model_artifacts()],
+                }
+            except Exception as error:
                 self.mm_proc = None
-                self.madmom_mode = f"HarmonicPitchClassProfile+KK (fallback: {type(e).__name__})"
-                self.mm_signal = Signal
-                self.mm_chroma = HarmonicPitchClassProfile()
-                self.mm_major = np.array(
-                    [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88]
-                )
-                self.mm_minor = np.array(
-                    [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17]
+                self.madmom_mode = None
+                self.provenance["madmom"] = {
+                    "status": "skipped",
+                    "reason": f"CNN unavailable: {type(error).__name__}: {error}",
+                }
+                print(
+                    f"warning: {self.provenance['madmom']['reason']}; skipping madmom",
+                    file=sys.stderr,
                 )
 
     def drone(self, wav: Path) -> int | None:
@@ -315,43 +514,18 @@ class Detectors:
 
     def kf(self, wav: Path) -> int | None:
         assert self.kf_cli is not None
-        out = (
-            subprocess.check_output([str(self.kf_cli), str(wav)], stderr=subprocess.DEVNULL)
-            .decode()
-            .split()
-        )
-        try:
-            return int(out[2])
-        except (IndexError, ValueError):
-            return None
+        raw = subprocess.check_output([str(self.kf_cli), str(wav)], timeout=300, text=True)
+        return keyfinder_result(raw)["drone_class"]
 
     def madmom(self, wav: Path) -> int | None:
-        if self.mm_proc is not None:
-            probs = self.mm_proc(str(wav))
-            idx = int(np.argmax(probs[0]))
-            tonic, mode = self.mm_labels[idx].split()
-            return encode_key(FLATS.get(tonic, tonic), mode)
-        sig = self.mm_signal(str(wav), sr=44100)
-        ch = np.asarray(self.mm_chroma(sig), dtype=np.float64).sum(0)
-        ch = ch - ch.mean()
-
-        def best(profile: np.ndarray) -> tuple[float, int]:
-            bc, br = -2.0, 0
-            for rot in range(12):
-                r = np.roll(ch, rot)
-                denom = np.linalg.norm(r) * np.linalg.norm(profile)
-                c = (float(r @ profile) / denom) if denom > 0 else 0.0
-                if c > bc:
-                    bc, br = c, rot
-            return bc, br
-
-        cm, rm = best(self.mm_major)
-        cn, rn = best(self.mm_minor)
-        if cm >= cn:
-            pc, minor = rm, 0
-        else:
-            pc, minor = rn, 1
-        return pc * 2 + minor
+        if self.mm_proc is None:
+            raise RuntimeError("madmom CNN unavailable")
+        probs = np.asarray(self.mm_proc(str(wav)))
+        if probs.shape != (1, 24) or not np.isfinite(probs).all():
+            raise ValueError("Expected finite madmom CNN output shape(1,24)")
+        idx = int(np.argmax(probs[0]))
+        tonic, mode = self.mm_labels[idx].split()
+        return encode_key(FLATS.get(tonic, tonic), mode)
 
 
 def musicfm_status() -> dict[str, Any]:
@@ -392,43 +566,21 @@ def summarize(
     name: str,
     ms: Sequence[float],
 ) -> dict[str, Any]:
-    pred_key, rel_key = f"{name}_pred", f"{name}_rel"
-    pred = [r[pred_key] for r in rows]
-    ref = [r["ref"] for r in rows]
-    valid = [(p, q) for p, q in zip(pred, ref) if p is not None]
-    if valid:
-        exact, mirex = score_mirex([p for p, _ in valid], [q for _, q in valid])
-        counts = dict(score_breakdown([p for p, _ in valid], [q for _, q in valid]))
-    else:
-        exact = mirex = 0.0
-        counts = {}
-    n_err = sum(1 for r in rows if r[rel_key] == "error")
-    out: dict[str, Any] = {
-        "n_valid": len(valid),
-        "n_error": n_err,
-        "exact": round(exact, 4),
-        "mirex": round(mirex, 4),
-        "counts": counts,
-        "median_ms": round(statistics.median(ms), 1) if ms else None,
-        "p95_ms": round(float(np.percentile(ms, 95)), 1) if ms else None,
-        "total_s": round(sum(ms) / 1000, 1),
+    out = aggregate_rows(rows, name)
+    out.update(
+        median_ms=round(statistics.median(ms), 1) if ms else None,
+        p95_ms=round(float(np.percentile(ms, 95)), 1) if ms else None,
+        total_s=round(sum(ms) / 1000, 1),
+    )
+    out["by_genre"] = {
+        g: aggregate_rows([r for r in rows if r["bucket"] == g], name)
+        for g in sorted({r["bucket"] for r in rows})
     }
-    # by genre bucket
-    out["by_genre"] = {}
-    for g in sorted({r["bucket"] for r in rows}):
-        sub = [r for r in rows if r["bucket"] == g]
-        pv = [(r[pred_key], r["ref"]) for r in sub if r[pred_key] is not None]
-        if pv:
-            e, m = score_mirex([p for p, _ in pv], [q for _, q in pv])
-            out["by_genre"][g] = {"n": len(sub), "exact": round(e, 3), "mirex": round(m, 3)}
-    # by duration bucket
-    out["by_duration"] = {}
-    for b in ("<3m", "3-5m", "5-8m", "8m+"):
-        sub = [r for r in rows if duration_bucket(r["duration"]) == b]
-        pv = [(r[pred_key], r["ref"]) for r in sub if r[pred_key] is not None]
-        if pv:
-            e, m = score_mirex([p for p, _ in pv], [q for _, q in pv])
-            out["by_duration"][b] = {"n": len(sub), "exact": round(e, 3), "mirex": round(m, 3)}
+    out["by_duration"] = {
+        b: aggregate_rows([r for r in rows if duration_bucket(r["duration"]) == b], name)
+        for b in ("<3m", "3-5m", "5-8m", "8m+")
+        if any(duration_bucket(r["duration"]) == b for r in rows)
+    }
     return out
 
 
@@ -551,24 +703,29 @@ def main() -> None:
     rows: list[dict[str, Any]] = []
     ms_by_detector: dict[str, list[float]] = {name: [] for name, _ in active}
     errors: dict[str, list[str]] = defaultdict(list)
+    decode_policy = decode_contract()
     for i, t in enumerate(panel):
-        wav = decode_dir / f"{t['track_id']}.wav"
-        if not wav.is_file():
-            ff_decode(Path(t["audio"]), wav)
+        wav, decode_receipt = cached_decode(Path(t["audio"]), decode_dir, decode_policy)
         rec = track_record(t)
+        rec["decode_artifact"] = decode_receipt
         for name, fn in active:
             t_s = time.perf_counter()
+            status = "key"
             try:
                 pred = fn(wav)
+                if pred is None:
+                    status = "abstain"
             except Exception as e:
                 pred = None
+                status = "error"
                 errors[f"{name}:{t['track_id']}"].append(f"{type(e).__name__}: {e}")
             ms = 1000 * (time.perf_counter() - t_s)
             ms_by_detector[name].append(ms)
             rec[f"{name}_pred"] = pred
+            rec[f"{name}_status"] = status
             rec[f"{name}_ms"] = round(ms, 1)
             if pred is None:
-                rec[f"{name}_rel"] = "error"
+                rec[f"{name}_rel"] = status
                 rec[f"{name}_score"] = 0.0
             else:
                 bd = score_breakdown([pred], [t["ref"]])
@@ -602,6 +759,7 @@ def main() -> None:
         "decode": {
             "command": "ffmpeg -ac 1 -ar 44100 -c:a pcm_s16le (once per track, shared by all detectors)",
             "loudness": "none (no normalisation)",
+            "contract": decode_policy,
         },
         "scoring": {
             "convention": "drone/keys.py",
@@ -615,8 +773,11 @@ def main() -> None:
             "musicfm_vocabulary": "sharps only (C..B#)",
         },
         "detectors": {},
+        "provenance": {"harness": artifact(Path(__file__)), "torch_version": torch.__version__},
+        "track_artifacts": [{"track_id": r["track_id"], **r["decode_artifact"]} for r in rows],
         "detectors_extra": {
             "madmom_mode": detectors.madmom_mode,
+            "provenance": detectors.provenance,
             "per_detector_errors": dict(errors) if errors else "none",
             "wall_clock_total_s": round(time.time() - t0, 1),
         },
@@ -637,6 +798,13 @@ def main() -> None:
         else {"status": "skipped"}
     )
     summary["detectors"]["musicfm-mlp"] = musicfm_status()
+    manifest.update(
+        provenance=summary["provenance"],
+        detector_provenance=detectors.provenance,
+        decode_contract=decode_policy,
+        track_artifacts=summary["track_artifacts"],
+    )
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
     (out_dir / "bench.json").write_text(json.dumps(summary, indent=2))
 
     cols = [
@@ -648,6 +816,9 @@ def main() -> None:
         "ref",
         "duration",
         "dev_contaminated",
+        "drone_status",
+        "libkeyfinder_status",
+        "madmom_status",
         "drone_pred",
         "drone_rel",
         "drone_score",
