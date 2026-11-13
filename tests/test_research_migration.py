@@ -44,7 +44,7 @@ def test_imported_research_provenance_and_local_dependency() -> None:
         byte_identical=73,
         declared_adjustments=13,
         declared_evolutions=5,
-        declared_additions=25,
+        declared_additions=29,
     )
 
 
