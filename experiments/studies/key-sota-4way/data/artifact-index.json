@@ -1,0 +1,19 @@
+{
+  "files": {
+    "bench.csv": {
+      "bytes": 13106,
+      "sha256": "5c607d1def5f301674f205d0f51ccc140fc17880b24ade625898baf5ff190922"
+    },
+    "bench.json": {
+      "bytes": 7386,
+      "sha256": "d0b2c86490777d0dc9cbc2968d4d221d7653647ac611839648ab21351feda1e3"
+    },
+    "manifest.json": {
+      "bytes": 23213,
+      "sha256": "e03ebcbafb9b111775f8278161510ac153f3177ea2c2d6b96738b77b26e11304"
+    }
+  },
+  "historical_archive_index_sha256": "8c41db829eee36de63d62473221404fa0103ab400c7bd04dc829d66519039bdc",
+  "libkeyfinder_status": "historical_invalid",
+  "schema": "key-reference-artifact-index-v1"
+}

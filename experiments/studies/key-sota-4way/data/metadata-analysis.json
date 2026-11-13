@@ -1,0 +1,538 @@
+{
+  "artifact_index_sha256": "3fbe2d798ea19dd93bb293ef69a3a9ba5a1408fee827935e19ba3cf3f5b3c037",
+  "detectors": {
+    "drone": {
+      "by_duration": {
+        "3-5m": {
+          "counts": {
+            "exact": 11,
+            "fifth": 3,
+            "other": 2,
+            "parallel": 4
+          },
+          "exact": 0.55,
+          "mirex": 0.665,
+          "n": 20,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 20,
+          "n_valid": 20
+        },
+        "5-8m": {
+          "counts": {
+            "exact": 2
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 2,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 2,
+          "n_valid": 2
+        },
+        "<3m": {
+          "counts": {
+            "exact": 50,
+            "fifth": 7,
+            "other": 8,
+            "parallel": 2,
+            "relative": 4
+          },
+          "exact": 0.7042,
+          "mirex": 0.7761,
+          "n": 71,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 71,
+          "n_valid": 71
+        }
+      },
+      "by_genre": {
+        "breaks": {
+          "counts": {
+            "exact": 4,
+            "fifth": 1
+          },
+          "exact": 0.8,
+          "mirex": 0.9,
+          "n": 5,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 5,
+          "n_valid": 5
+        },
+        "classical": {
+          "counts": {
+            "exact": 30,
+            "fifth": 7,
+            "other": 5,
+            "parallel": 5,
+            "relative": 1
+          },
+          "exact": 0.625,
+          "mirex": 0.725,
+          "n": 48,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 48,
+          "n_valid": 48
+        },
+        "dubstep": {
+          "counts": {
+            "exact": 4,
+            "other": 1
+          },
+          "exact": 0.8,
+          "mirex": 0.8,
+          "n": 5,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 5,
+          "n_valid": 5
+        },
+        "electronica": {
+          "counts": {
+            "exact": 2,
+            "other": 1,
+            "relative": 1
+          },
+          "exact": 0.5,
+          "mirex": 0.575,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "funk": {
+          "counts": {
+            "exact": 3
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 3,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 3,
+          "n_valid": 3
+        },
+        "hard": {
+          "counts": {
+            "exact": 4
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "hip-hop": {
+          "counts": {
+            "exact": 3,
+            "parallel": 1
+          },
+          "exact": 0.75,
+          "mirex": 0.8,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "house": {
+          "counts": {
+            "exact": 4
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "other": {
+          "counts": {
+            "exact": 2,
+            "fifth": 1,
+            "other": 1
+          },
+          "exact": 0.5,
+          "mirex": 0.625,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "pop": {
+          "counts": {
+            "exact": 4
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "techno": {
+          "counts": {
+            "exact": 3,
+            "other": 1
+          },
+          "exact": 0.75,
+          "mirex": 0.75,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "trance": {
+          "counts": {
+            "fifth": 1,
+            "other": 1,
+            "relative": 2
+          },
+          "exact": 0.0,
+          "mirex": 0.275,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        }
+      },
+      "by_source": {
+        "giantsteps": {
+          "counts": {
+            "exact": 33,
+            "fifth": 3,
+            "other": 5,
+            "parallel": 1,
+            "relative": 3
+          },
+          "exact": 0.7333,
+          "mirex": 0.7911,
+          "n": 45,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 45,
+          "n_valid": 45
+        },
+        "swd-v2.1": {
+          "counts": {
+            "exact": 30,
+            "fifth": 7,
+            "other": 5,
+            "parallel": 5,
+            "relative": 1
+          },
+          "exact": 0.625,
+          "mirex": 0.725,
+          "n": 48,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 48,
+          "n_valid": 48
+        }
+      },
+      "overall": {
+        "counts": {
+          "exact": 63,
+          "fifth": 10,
+          "other": 10,
+          "parallel": 6,
+          "relative": 4
+        },
+        "exact": 0.6774,
+        "mirex": 0.757,
+        "n": 93,
+        "n_abstain": 0,
+        "n_error": 0,
+        "n_total": 93,
+        "n_valid": 93
+      },
+      "status": "recorded"
+    },
+    "libkeyfinder": {
+      "status": "INVALID_HISTORICAL_WRAPPER_NOT_A_BASELINE"
+    },
+    "madmom": {
+      "by_duration": {
+        "3-5m": {
+          "counts": {
+            "exact": 20
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 20,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 20,
+          "n_valid": 20
+        },
+        "5-8m": {
+          "counts": {
+            "exact": 2
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 2,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 2,
+          "n_valid": 2
+        },
+        "<3m": {
+          "counts": {
+            "exact": 50,
+            "fifth": 5,
+            "other": 5,
+            "parallel": 7,
+            "relative": 4
+          },
+          "exact": 0.7042,
+          "mirex": 0.7761,
+          "n": 71,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 71,
+          "n_valid": 71
+        }
+      },
+      "by_genre": {
+        "breaks": {
+          "counts": {
+            "exact": 4,
+            "fifth": 1
+          },
+          "exact": 0.8,
+          "mirex": 0.9,
+          "n": 5,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 5,
+          "n_valid": 5
+        },
+        "classical": {
+          "counts": {
+            "exact": 41,
+            "parallel": 6,
+            "relative": 1
+          },
+          "exact": 0.8542,
+          "mirex": 0.8854,
+          "n": 48,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 48,
+          "n_valid": 48
+        },
+        "dubstep": {
+          "counts": {
+            "exact": 4,
+            "other": 1
+          },
+          "exact": 0.8,
+          "mirex": 0.8,
+          "n": 5,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 5,
+          "n_valid": 5
+        },
+        "electronica": {
+          "counts": {
+            "exact": 2,
+            "other": 1,
+            "relative": 1
+          },
+          "exact": 0.5,
+          "mirex": 0.575,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "funk": {
+          "counts": {
+            "exact": 3
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 3,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 3,
+          "n_valid": 3
+        },
+        "hard": {
+          "counts": {
+            "exact": 4
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "hip-hop": {
+          "counts": {
+            "exact": 3,
+            "parallel": 1
+          },
+          "exact": 0.75,
+          "mirex": 0.8,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "house": {
+          "counts": {
+            "exact": 3,
+            "fifth": 1
+          },
+          "exact": 0.75,
+          "mirex": 0.875,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "other": {
+          "counts": {
+            "exact": 3,
+            "fifth": 1
+          },
+          "exact": 0.75,
+          "mirex": 0.875,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "pop": {
+          "counts": {
+            "exact": 4
+          },
+          "exact": 1.0,
+          "mirex": 1.0,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "techno": {
+          "counts": {
+            "exact": 1,
+            "other": 3
+          },
+          "exact": 0.25,
+          "mirex": 0.25,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        },
+        "trance": {
+          "counts": {
+            "fifth": 2,
+            "relative": 2
+          },
+          "exact": 0.0,
+          "mirex": 0.4,
+          "n": 4,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 4,
+          "n_valid": 4
+        }
+      },
+      "by_source": {
+        "giantsteps": {
+          "counts": {
+            "exact": 31,
+            "fifth": 5,
+            "other": 5,
+            "parallel": 1,
+            "relative": 3
+          },
+          "exact": 0.6889,
+          "mirex": 0.7689,
+          "n": 45,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 45,
+          "n_valid": 45
+        },
+        "swd-v2.1": {
+          "counts": {
+            "exact": 41,
+            "parallel": 6,
+            "relative": 1
+          },
+          "exact": 0.8542,
+          "mirex": 0.8854,
+          "n": 48,
+          "n_abstain": 0,
+          "n_error": 0,
+          "n_total": 48,
+          "n_valid": 48
+        }
+      },
+      "overall": {
+        "counts": {
+          "exact": 72,
+          "fifth": 5,
+          "other": 5,
+          "parallel": 7,
+          "relative": 4
+        },
+        "exact": 0.7742,
+        "mirex": 0.829,
+        "n": 93,
+        "n_abstain": 0,
+        "n_error": 0,
+        "n_total": 93,
+        "n_valid": 93
+      },
+      "status": "recorded"
+    }
+  },
+  "duration_by_source": {
+    "giantsteps": {
+      "max_seconds": 120.058776,
+      "median_seconds": 120.058776,
+      "min_seconds": 62.119184,
+      "n": 45
+    },
+    "swd-v2.1": {
+      "max_seconds": 325.32898,
+      "median_seconds": 169.1167345,
+      "min_seconds": 44.068571,
+      "n": 48
+    }
+  },
+  "inference_performed": false,
+  "libkeyfinder_status": "historical_invalid",
+  "n": 93,
+  "schema": "key-reference-metadata-analysis-v1",
+  "source_counts": {
+    "giantsteps": 45,
+    "swd-v2.1": 48
+  }
+}

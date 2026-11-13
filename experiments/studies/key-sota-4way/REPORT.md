@@ -1,188 +1,152 @@
-# 4-way key detection benchmark against published SOTA — 2026-11-12
+# Key detection references on Winterreise and GiantSteps
 
-**Decision: the reference (madmom) leads the drone-v1 model on this panel; the
-gap is genre-specific, not uniform. No weights or architecture decision changes
-from this benchmark; it is measurement evidence, not a promotion gate.**
+The initial comparison mixed a valid Drone/madmom run with an invalid
+libkeyfinder wrapper. Its **37.6% exact / 47.6% weighted libkeyfinder result is
+withdrawn as a baseline**. The original artifacts remain preserved in
+[data/historical/](data/historical/); they are not silently replaced or repaired
+by relabeling predictions. A corrected wrapper rerun is pending publication.
 
-| Detector | MIREX | Exact | Notes |
-|---|---:|---:|---|
-| drone-v1 (this repo) | 75.7% | 67.7% | 109,128 parameters, K10 architecture |
-| madmom (all-conv KEY_CNN) | **82.9%** | **77.4%** | reference; CC BY-NC-SA benchmark use |
-| libkeyfinder 2.2.8 | 47.6% | 37.6% | native C++ DSP reference |
-| MusicFM + MLP (MIREX 2026) | — | — | blocked: published weights absent (below) |
+The question is whether the released compact detector agrees with established
+references on two specific populations. This is a descriptive reference comparison,
+not a state-of-the-art ranking, deployment gate or architecture decision. MusicFM
+was not run, so this is not a completed four-model comparison.
 
-Panel: 93 tracks, CPU-only, one shared ffmpeg decode per track. Scoring is
-drone's own convention imported directly (`drone.keys.score_mirex` /
-`score_breakdown`): exact 1.0, same-mode perfect fifth 0.5 (symmetric, interval
-5 or 7), relative major/minor 0.3, parallel mode 0.2, else 0.0.
+## Problem and comparison
 
-## Panel
+Drone targets ordinary-CPU inference. Before drawing conclusions about its
+coverage, compare it with madmom's pretrained KEY_CNN and libkeyfinder's native
+DSP algorithm using the same decoded recording and the same reference convention.
+Different corpora answer different questions; their combined average is not a
+population estimate of general music accuracy.
 
-- **Primary — Swiss Army (SWD) v2.1**: all 48 tracks carrying global-key labels
-  (Schubert *Winterreise*, performances HU33 and SC06;
-  `02_Annotations/ann_audio_globalkey.csv`, `WorkId;PerfId;Tonic:maj|min`).
-  Full-length, roughly 5 minutes each. Genre: classical.
-- **Secondary anchor — GiantSteps Key 604**: deterministic round-robin
-  stratified sample of 45 tracks (one per genre tag in rotation, 12 tags,
-  sorted by track id). These are marked `dev_contaminated: true` in the
-  manifest: this is drone's published development benchmark, so drone's
-  numbers on them are not an independent estimate.
+The fixed panel contains **93 recordings**:
 
-Duration coverage is limited: 71 tracks under 3 minutes, 20 in 3–5 minutes,
-2 in 5–8 minutes, 0 longer. The panel has **no 5–10 minute DJ-length tracks**;
-the classical set covers ~5 minutes only.
+| Corpus | Recordings | Coverage | Exposure and interpretation |
+|---|---:|---|---|
+| Schubert Winterreise Dataset (SWD) v2.1 | 48 | One 24-song cycle, performances HU33 and SC06 | Narrow vocal/piano classical repertoire; paired performances are not 48 independent works |
+| GiantSteps | 45 | Deterministic round-robin sample across the harness's 12 genre buckets | Development-exposed for Drone; descriptive, not independent evaluation |
 
-## Detectors
+The SWD archive's 48 available labeled recordings have a median duration of
+**169.12 seconds**, ranging from **44.07 to 325.33 seconds**. Twenty-six are
+under three minutes, twenty are three to five minutes, and two are five to eight
+minutes. All 45 GiantSteps items are under three minutes. Across the complete
+panel the duration counts are therefore 71 / 20 / 2 / 0 for under three,
+three–five, five–eight and eight-plus minutes. This panel does not establish
+accuracy on five–ten-minute DJ tracks.
 
-| # | Detector | Implementation | Status |
-|---|---|---|---|
-| 1 | drone-v1 | this repository, `drone.Predictor`, `weights/drone-v1.pt`, torch CPU | ran |
-| 2 | libkeyfinder 2.2.8 | source sha256-checked; prebuilt `libkeyfinder.so`; bench CLI `kf_cli` linked against it | ran |
-| 3 | madmom | `madmom.features.key.CNNKeyRecognitionProcessor` (all-conv KEY_CNN, weights CC BY-NC-SA — benchmark use) | ran |
-| 4 | MusicFM + MLP | HF `jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection` | **blocked** |
+The released `drone-v1` checkpoint declares **1,237 fitting IDs and 126 selection
+IDs** from Beatport. These are separate exposures, not 1,363 fitting recordings.
+GiantSteps has already been used for development reporting; a high score on this
+sample should not be interpreted as an independent generalization result.
 
-Architecture context: drone-v1 uses the K10 architecture — "K10: A Compact
-Convolutional Network for Global Key Estimation" (John Hurliman, MIREX 2026) —
-trained on 1,363 Beatport previews. madmom's KEY_CNN is a much larger
-all-convolutional network trained on a multi-genre corpus, which the panel
-results reflect.
+## Method and evidence
 
-### MusicFM block (exact evidence)
+One canonical mono 44.1-kHz PCM16 WAV is supplied to each active detector, without
+loudness normalization or trimming. Drone subsequently uses its native 22.05-kHz
+frontend. Detector-native preprocessing remains part of the comparison. Decode
+and model execution costs must be reported separately; inference latency does
+not include the initial shared decode.
 
-The HF repository is **public**: all code (`predict.py`, `model.py`, the
-`musicfm/` package, requirements) fetches without a token. But it contains
-**no weight file at all**: the recursive tree listing has zero
-`.pt/.bin/.safetensors` entries, and
+References use Drone's interleaved 24-class encoding. The existing
+`drone.keys.score_mirex` and `score_breakdown` define exact agreement and weighted
+agreement: exact 1.0, symmetric same-mode fifths 0.5, relative mode 0.3,
+parallel mode 0.2, and other 0.0. This symmetric-fifths convention is stated
+explicitly; results under different published scoring conventions need not match.
+Ambiguous GiantSteps reference strings retain their first listed key under the
+existing parser, not an outcome-dependent choice.
 
-```
-curl -I https://huggingface.co/jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection/resolve/main/weights/best_model.pt
-→ HTTP 404 "Entry not found"
-```
+The repaired harness and metadata reproducer share `aggregate_rows`. Every
+scored corpus, genre and duration slice keeps its complete input denominator;
+errors and explicit abstentions contribute zero agreement. Valid prediction,
+error and abstention counts are reported separately. A failed detector is not
+allowed to improve its score by removing difficult recordings.
 
-`predict.py` requires `weights/best_model.pt` (the complete fine-tuned state
-dict; the base `pretrained_msd.pt` is not needed at inference), so inference
-cannot run. A locally trained pilot checkpoint uses a different architecture
-(mel-spectrogram backbone) and is not the published submission; it was
-excluded to avoid conflating models. Published GiantSteps numbers per the repo
-README: 72.19% exact / 77.62% MIREX.
+The original 93-row CSV, summary and manifest are archived byte-for-byte in
+deterministic gzip files with decoded/compressed hashes. The active artifact
+index binds the published CSV, summary and manifest; the metadata analysis
+replays their joins and scores without audio or detector execution. The figure
+receipt binds its analysis, plotting source, library version and rendered files.
+These hashes establish evidence identity, not retroactive execution provenance
+that the initial run did not record.
 
-## Decode and label normalisation
+## Results and interpretation
 
-One ffmpeg decode per track, once, shared by every detector:
+The initial error-free Drone and madmom rows remain available for descriptive
+comparison: Drone recorded **63/93 exact (67.7%) and 75.7% weighted agreement**;
+madmom recorded **72/93 exact (77.4%) and 82.9% weighted agreement**. The combined
+numbers mix 48 classical performances and 45 development-exposed electronic
+tracks. Interpret the corpus breakdown first.
 
-```
-ffmpeg -ac 1 -ar 44100 -c:a pcm_s16le <track>
-```
+![Exact and weighted agreement by corpus](figures/corpus-comparison.png)
 
-No loudness normalisation or trim (documented choice). Drone re-resamples to
-22.05 kHz internally; libkeyfinder consumes 44.1 kHz directly; madmom uses its
-own internal resampling of the same file.
+*Figure 1. Exact and symmetric-fifths weighted agreement on each fixed corpus.
+Numbers above bars are percentages of all recordings in that corpus. The initial
+libkeyfinder wrapper result is excluded; a corrected result appears only after
+its new recording-level evidence is published. No confidence interval or
+independent SOTA ranking is implied.*
 
-All references normalised to drone's 24-class scheme
-`class_id = sharp_tonic_index * 2 + (minor ? 1 : 0)` with
-`TONICS = C C# D D# E F F# G G# A A# B`:
+Madmom's recorded advantage on Winterreise does not establish superiority on
+classical music generally. Conversely, the GiantSteps sample cannot establish
+Drone's independent EDM performance. Genre buckets contain only three to five
+GiantSteps recordings each. Report their counts alongside descriptive values;
+they do not justify claims such as “strong on house” or “weak on trance” for
+those genres as populations.
 
-- SWD `D:min` / `C:maj` → split on `:`, `maj`→major, `min`→minor,
-  flats→sharps (Db→C#, Eb→D#, Gb→F#, Ab→G#, Bb→A#). First key of a
-  `|`-separated list.
-- GiantSteps `D minor` / `F# major` parsed via drone's `parse_key`; two-key
-  labels (`A major | C# minor`) use the **first listed key**.
-- libkeyfinder's flat-named output and madmom `KEY_LABELS` (flats for
-  Db/Eb/Ab/Bb) mapped to sharps with the same substitution.
+![Weighted agreement by genre, with recording counts](figures/genre-comparison.png)
 
-## Results
+*Figure 2. Descriptive weighted agreement by the existing genre buckets. Every
+row shows its recording denominator. The nonclassical rows contain only three
+to five development-exposed GiantSteps recordings, so visible gaps are not
+population-level genre conclusions.*
 
-Overall:
+Duration and corpus are confounded: every three–five-minute recording is SWD,
+and the five–eight-minute bucket contains just two SWD recordings. This is not
+evidence that duration caused any accuracy difference. Both SWD performances
+also repeat the same underlying works, so recording-level uncertainty must not
+be presented as independent-work uncertainty.
 
-| Detector | Exact | MIREX | Error-free? | Median ms/track |
-|---|---:|---:|---|---:|
-| drone-v1 | 67.7% (63/93) | 75.7% | yes | 111.7 |
-| madmom | 77.4% (72/93) | 82.9% | yes | 1981.6 |
-| libkeyfinder 2.2.8 | 37.6% (35/93) | 47.6% | yes | 1878.1 |
+### Invalid historical libkeyfinder result
 
-drone-v1 breakdown: 63 exact, 10 fifth, 4 relative, 6 parallel, 10 other.
-libkeyfinder: 35 exact, 11 fifth, 2 relative, 16 parallel, 29 other — a large
-share of its misses are parallel-mode or unrelated keys.
+The original wrapper result was 35/93 exact and 47.6% weighted agreement. It is
+retained as an implementation-failure record, excluded from valid-detector
+plots, and must not support DSP-versus-neural conclusions. Corrected wrapper,
+binary/library identity, self-test and fresh per-track results must accompany
+any replacement baseline. This defect does not invalidate the separate older
+69.35% / 60.60% baseline produced through Euphoria's Rust path; its detector path
+and evaluation population differ.
 
-### By genre
+### MusicFM scope
 
-| Genre (n) | drone-v1 MIREX | madmom MIREX | libkeyfinder MIREX |
-|---|---:|---:|---:|
-| classical (48) | 72.5% | **88.5%** | 44.6% |
-| breaks (5) | 90.0% | 90.0% | 54.0% |
-| dubstep (5) | 80.0% | 80.0% | 60.0% |
-| electronica (4) | 57.5% | 57.5% | 12.5% |
-| funk (3) | 100.0% | 100.0% | 73.3% |
-| hard (4) | 100.0% | 100.0% | 100.0% |
-| hip-hop (4) | 80.0% | 80.0% | 75.0% |
-| house (4) | 100.0% | 87.5% | 87.5% |
-| other (4) | 62.5% | 87.5% | 5.0% |
-| pop (4) | 100.0% | 100.0% | 50.0% |
-| techno (4) | 75.0% | 25.0% | 12.5% |
-| trance (4) | 27.5% | 40.0% | 32.5% |
+The initial run recorded MusicFM+MLP as blocked because the published submission's
+required fine-tuned checkpoint was unavailable. Its reported literature numbers
+are not measurements on this panel. The repository's separate MusicFM teacher
+experiment is a different trained artifact and task head; it is not substituted
+for that submission. Availability can change, so a future run must record the
+actual source revision and acquired checkpoint identity rather than reuse a
+hard-coded historical availability statement.
 
-Per-genre sample sizes of 3–5 are not statistically meaningful; the classical
-row (n=48) is the only one worth reading closely. The honest summary: drone
-is strong on its EDM training domain (house, funk, hard, dubstep, breaks, pop)
-and weak on **trance and electronica** (0/4 exact on trance for both drone and
-libkeyfinder, and madmom also weak there at 0/4 exact — 40.0% MIREX). On
-classical, madmom leads drone-v1 by 16 MIREX points (88.5% vs 72.5%);
-drone-v1's 0/4 exact on trance is its most visible weakness on the panel.
+## Reproduction and remaining limits
 
-### By duration
-
-| Duration (n) | drone-v1 MIREX | madmom MIREX | libkeyfinder MIREX |
-|---|---:|---:|---:|
-| <3m (71) | 77.6% | 77.6% | 48.3% |
-| 3–5m (20) | 66.5% | 100.0% | 40.0% |
-| 5–8m (2) | 100.0% | 100.0% | 100.0% |
-
-madmom's 100.0% on the 20-track 3–5m bucket is the classical rows; the
-3–5m bucket is classical-dominated (20 SWD tracks, all ≥180 s). Drone-v1
-drops 11 points from short to medium duration, consistent with its
-~2-minute training clips. The 5–8m bucket has 2 tracks; it is not a
-measurement.
-
-## How to rerun
+Metadata and figure reproduction, without inference:
 
 ```bash
-uv sync --locked --all-extras        # torch is a core dependency
-pip install madmom                    # optional; missing -> detector skipped
-uv run python -m tools.benchmark_sota_4way \
-  --swd-dir /path/to/swd-v2.1 \
-  --giantsteps-dir /path/to/giantsteps \
-  --kf-cli /path/to/kf_cli \
-  --work-dir /path/to/work \
-  --out-dir /path/to/results
+uv run python -m tools.report_key_references
+uv run python -m tools.report_key_references --plot
 ```
 
-Options: `--n-gs 45` (stratified sample size), `--drone-weights` (default:
-drone's bundled `drone-v1.pt`), `--threads 8`, `--smoke` (2 tracks per source),
-`--limit N`, and `--skip-drone` / `--skip-libkeyfinder` / `--skip-madmom`.
-Requires `ffmpeg`/`ffprobe` on PATH. libkeyfinder needs the sha256-checked
-2.2.8 release source and the bench CLI linked against the prebuilt
-`libkeyfinder.so`; a missing
-or skipped detector degrades the run with a warning.
+The first command verifies pinned active and historical evidence and recomputes
+the stored metadata analysis. `--plot` regenerates the inline figure. A separately
+recorded execution can publish new CSV/summary/manifest evidence and reseal their
+index using `--seal-index corrected --write --plot`; resealing alone does not
+prove that a detector was corrected or rerun.
 
-The committed run artifacts are in [data/](data/): `manifest.json`
-(93-track panel: id, source, genre, duration, raw and normalised reference),
-`bench.json` (per-detector summary, by-genre, by-duration, timing) and
-`bench.csv` (per-track predictions, relations, scores, timings).
-`drone-v1` weights: the checkpoint in `weights/drone-v1.pt`.
+For a new detector run, follow `tools.benchmark_sota_4way --help` with the actual
+SWD/GiantSteps paths, explicit checkpoint and corrected CLI paths, and a fresh
+work directory. Preserve source/dependency/model/CLI and input identities, valid
+counts and failures with the run. A missing optional detector is reported as
+unavailable rather than silently replaced by another algorithm.
 
-## Limitations
-
-- **No 5–10 minute DJ-length tracks** on the panel. The README already flags
-  that reliable accuracy on 5–10 minute house/melodic-house is unestablished;
-  this benchmark cannot speak to it.
-- **SWD key labels are classical-only** (vocal art songs), so the "classical"
-  number is one narrow style, not classical in general.
-- The 45 GiantSteps tracks are **dev-contaminated for drone-v1** (its
-  published development set). drone-v1's GiantSteps numbers are optimistic;
-  madmom and libkeyfinder have no such exposure.
-- Per-genre buckets below n=10 do not support genre-specific claims beyond
-  description.
-- libkeyfinder numbers depend on the particular 2.2.8 build and bench CLI;
-  they are a native-DSP reference point, not a tuned configuration.
-- madmom KEY_CNN weights are CC BY-NC-SA: benchmark use only, not
-  redistributable with this repository.
+No weights, architecture, production model, dataset eligibility or release gate
+changes as a result of this study. Broader genre coverage, long recordings,
+independent exposure accounting and ordinary-CPU resource measurement remain
+separate work.
