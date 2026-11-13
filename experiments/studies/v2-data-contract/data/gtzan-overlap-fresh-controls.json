@@ -1,0 +1,87 @@
+{
+  "controls": [
+    {
+      "domain": "beatport",
+      "duration_seconds": 30.0,
+      "expected_identity": "beatport:298006",
+      "expected_ref_id": 456,
+      "id": "fresh30:beatport:298006",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "171d864ab70f544ec589d52e779837e5d138d1d8a1b3349192b9742eaf38442a",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    },
+    {
+      "domain": "beatport",
+      "duration_seconds": 30.0,
+      "expected_identity": "beatport:1019403",
+      "expected_ref_id": 3,
+      "id": "fresh30:beatport:1019403",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "cce8f50a6969215a6d07ae790d6de2cfd9b8002026c8d59da4836f6e6a0d7c6d",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    },
+    {
+      "domain": "fmak",
+      "duration_seconds": 30.0,
+      "expected_identity": "fmak:66873",
+      "expected_ref_id": 4157,
+      "id": "fresh30:fmak:66873",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "18f99f95e483a273a201322acfe91483f48d850a0d974d000776ade04f3917ca",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    },
+    {
+      "domain": "fmak",
+      "duration_seconds": 30.0,
+      "expected_identity": "fmak:100848",
+      "expected_ref_id": 6164,
+      "id": "fresh30:fmak:100848",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "ebf3ff736069770b303f608581c4033efaec2f6bc9daabba9bb07184e4ac48fe",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    },
+    {
+      "domain": "giantsteps",
+      "duration_seconds": 30.0,
+      "expected_identity": "giantsteps:582991",
+      "expected_ref_id": 7537,
+      "id": "fresh30:giantsteps:582991",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "63e6ebc23f09c744a493fcacafda0976d5212b2e3bb264482b6a7c78d4d0bd3a",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    },
+    {
+      "domain": "giantsteps",
+      "duration_seconds": 30.0,
+      "expected_identity": "giantsteps:2031096",
+      "expected_ref_id": 7102,
+      "id": "fresh30:giantsteps:2031096",
+      "offset_seconds": 37.125,
+      "source_container_sha256": "366565c17e69ca5405e9b12f19f379be7e9d57cfaf2073761cc331d7e4ef0791",
+      "wav_channels": 1,
+      "wav_sample_rate": 22050,
+      "wav_sample_width": 2
+    }
+  ],
+  "decode_rule": "ffmpeg crop at 37.125s for30s to mono22050Hz pcm_s16le WAV, then unchanged query=True extraction",
+  "expected_source_identity_required": true,
+  "no_new_threshold_fit": true,
+  "offset_tolerance_seconds": 0.25,
+  "publication": {
+    "original_executed_manifest_sha256": "ed91211ca3337cb835482d8665aa696a5267e9a22c8cc4e4b0864afc158dfef7",
+    "projection": "Only per-control source_path fields are omitted. Resolve them from the hash-bound operational reference descriptor; identities, crop rules and audio hashes are unchanged."
+  },
+  "reference_result_gzip_sha256": "0690f58a09be01d5ab37acbb5b845ec77a3b77fc29411227eabc33eaae266a73",
+  "schema": "gtzan-overlap-fresh-controls-v1",
+  "selection_rule": "first two SHA256(gtzan-fresh30-20261113:+id) per domain among complete reference rows with seconds>=75"
+}

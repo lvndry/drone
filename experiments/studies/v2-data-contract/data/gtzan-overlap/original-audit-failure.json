@@ -1,0 +1,11 @@
+{
+  "status": "incomplete",
+  "error": "RuntimeError('Worker exit1; remaining queries unresolved')",
+  "cleanup_error": null,
+  "remaining_are_not_negatives": true,
+  "peaks": {
+    "rss_bytes": 1184702464,
+    "cpu_seconds": 294.12,
+    "output_bytes": 14493949
+  }
+}

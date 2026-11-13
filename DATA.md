@@ -220,8 +220,11 @@ Next work:
    to identify coverage and error patterns for the next prospective experiment.
    The 376-record K10/MusicFM joins are descriptive analysis of exposed data,
    not independent confirmation; all small, empty and unknown cells are retained.
-2. Complete the separately bounded GTZAN overlap audit and publish its terminal
-   evidence before any scoring admission. The new catalog already preserves all
+2. Apply a separate blind review/disposition policy to the completed
+   [GTZAN overlap audit](experiments/studies/v2-data-contract/REPORT.md#gtzan-overlap-audit-complete-coverage-review-flags-remain-november-13)
+   before any scoring admission. All 769 primary queries completed: 602 have no
+   detected overlap and 167 need review. The 837-record sensitivity cohort keeps
+   one original incomplete query; no query was retried. The new catalog already preserves all
    1,000 source IDs, the frozen 837/769 reference memberships and the recorded
    999 matching file identities; no current catalog row is admitted for scoring.
 3. Assess gaps in long DJ recordings and contemporary genre coverage before

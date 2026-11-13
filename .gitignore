@@ -7,6 +7,8 @@ experiments/studies/*/data/**
 !experiments/studies/*/data/**/*.json
 !experiments/studies/*/data/**/*.csv
 !experiments/studies/musicfm-preflight/data/runtime-raw.json.gz
+!experiments/studies/v2-data-contract/data/gtzan-overlap-manifest.json.gz
+!experiments/studies/v2-data-contract/data/gtzan-overlap/audit.json.gz
 features/
 runs/
 __pycache__/

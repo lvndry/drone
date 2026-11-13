@@ -10,7 +10,9 @@ split roles, reference provenance and missing coverage. The scored-reference cat
 now cover 1,355 current Beatport development IDs and all 5,489 FMA source IDs.
 The GiantSteps collection covers all 604 previews. GTZAN's 1,000-row collection
 links frozen reference memberships to recorded file identities and WAV-header
-observations; overlap clearance and scoring admission remain separate.
+observations. The completed [overlap audit](studies/v2-data-contract/REPORT.md#gtzan-overlap-audit-complete-coverage-review-flags-remain-november-13)
+retains 167 review flags among 769 primary queries and one incomplete query in the
+wider cohort; scoring admission remains separate.
 
 | Study | Problem | Result and decision |
 |---|---|---|

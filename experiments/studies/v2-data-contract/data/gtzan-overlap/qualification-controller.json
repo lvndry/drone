@@ -1,0 +1,16 @@
+{
+  "status": "complete",
+  "config_sha256": "44c03085859e5922ffa09abcc26324d7d95dac9d93082c37660e4155c14fab0d",
+  "result_sha256": "b7d3536f1b2b3d112029341b0da69f61e723be92e92559d4c7ad65a4b32790de",
+  "peaks": {
+    "rss_bytes": 914890752,
+    "cpu_seconds": 309.56,
+    "output_bytes": 21708099
+  },
+  "wall_seconds": 306.2450496740639,
+  "classifier_outputs_used": false,
+  "mode": "qualification",
+  "qualification_basis": "current_source_qualification",
+  "qualification_passed": true,
+  "qualification_binding_sha256": "707636933d1ce1c6461d0d6d633f3717eece3dc4ac1d7c89da15f2cd8a45d8e2"
+}

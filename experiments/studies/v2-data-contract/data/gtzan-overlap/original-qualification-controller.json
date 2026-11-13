@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "config_sha256": "1b4a4a720a7a6c39c30c599a9b28175290db756ed6bca524fad23b1d0074e9e8",
+  "result_sha256": "12e0cdec7e2bbb06f4aeb388c25f7e167031e13ea30d8b96d615e4ee0d01602f",
+  "peaks": {
+    "rss_bytes": 912740352,
+    "cpu_seconds": 321.14,
+    "output_bytes": 21433506
+  },
+  "wall_seconds": 319.21414490393363,
+  "classifier_outputs_used": false,
+  "mode": "qualification",
+  "qualification_passed": true,
+  "qualification_binding_sha256": "3ad84ebd8bc1d927b9e36cbcdb9b5eafc730461db2ad88fb4559d718608dd80c"
+}
