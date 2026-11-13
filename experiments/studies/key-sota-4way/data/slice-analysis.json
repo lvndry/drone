@@ -1,0 +1,3600 @@
+{
+  "bpm_policy": "coverage only; no BPM estimator or unbound metadata added",
+  "corpus_by_duration": {
+    "giantsteps": {
+      "3-5m": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "5-8m": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "8m+": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "<3m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 33,
+              "fifth": 3,
+              "other": 5,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.7333,
+            "mirex": 0.7911,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 29,
+              "fifth": 5,
+              "other": 8,
+              "relative": 3
+            },
+            "exact": 0.6444,
+            "mirex": 0.72,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          },
+          "madmom": {
+            "counts": {
+              "exact": 31,
+              "fifth": 5,
+              "other": 5,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.6889,
+            "mirex": 0.7689,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          }
+        },
+        "n": 45
+      },
+      "unknown": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      }
+    },
+    "swd-v2.1": {
+      "3-5m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 11,
+              "fifth": 3,
+              "other": 2,
+              "parallel": 4
+            },
+            "exact": 0.55,
+            "mirex": 0.665,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 12,
+              "fifth": 5,
+              "other": 1,
+              "parallel": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.745,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          },
+          "madmom": {
+            "counts": {
+              "exact": 20
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          }
+        },
+        "n": 20
+      },
+      "5-8m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "8m+": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "<3m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 17,
+              "fifth": 4,
+              "other": 3,
+              "parallel": 1,
+              "relative": 1
+            },
+            "exact": 0.6538,
+            "mirex": 0.75,
+            "n": 26,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 26,
+            "n_valid": 26
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 14,
+              "fifth": 10,
+              "other": 1,
+              "parallel": 1
+            },
+            "exact": 0.5385,
+            "mirex": 0.7385,
+            "n": 26,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 26,
+            "n_valid": 26
+          },
+          "madmom": {
+            "counts": {
+              "exact": 19,
+              "parallel": 6,
+              "relative": 1
+            },
+            "exact": 0.7308,
+            "mirex": 0.7885,
+            "n": 26,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 26,
+            "n_valid": 26
+          }
+        },
+        "n": 26
+      },
+      "unknown": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      }
+    }
+  },
+  "corpus_by_mode": {
+    "giantsteps": {
+      "major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 9,
+              "fifth": 1,
+              "other": 3
+            },
+            "exact": 0.6923,
+            "mirex": 0.7308,
+            "n": 13,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 13,
+            "n_valid": 13
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 9,
+              "fifth": 2,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.6923,
+            "mirex": 0.7923,
+            "n": 13,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 13,
+            "n_valid": 13
+          },
+          "madmom": {
+            "counts": {
+              "exact": 8,
+              "fifth": 3,
+              "other": 2
+            },
+            "exact": 0.6154,
+            "mirex": 0.7308,
+            "n": 13,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 13,
+            "n_valid": 13
+          }
+        },
+        "n": 13
+      },
+      "minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 24,
+              "fifth": 2,
+              "other": 2,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.75,
+            "mirex": 0.8156,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 20,
+              "fifth": 3,
+              "other": 7,
+              "relative": 2
+            },
+            "exact": 0.625,
+            "mirex": 0.6906,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          },
+          "madmom": {
+            "counts": {
+              "exact": 23,
+              "fifth": 2,
+              "other": 3,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.7188,
+            "mirex": 0.7844,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          }
+        },
+        "n": 32
+      }
+    },
+    "swd-v2.1": {
+      "major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 7,
+              "fifth": 2,
+              "other": 2,
+              "parallel": 5
+            },
+            "exact": 0.4375,
+            "mirex": 0.5625,
+            "n": 16,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 16,
+            "n_valid": 16
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 5,
+              "fifth": 8,
+              "other": 1,
+              "parallel": 2
+            },
+            "exact": 0.3125,
+            "mirex": 0.5875,
+            "n": 16,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 16,
+            "n_valid": 16
+          },
+          "madmom": {
+            "counts": {
+              "exact": 14,
+              "parallel": 2
+            },
+            "exact": 0.875,
+            "mirex": 0.9,
+            "n": 16,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 16,
+            "n_valid": 16
+          }
+        },
+        "n": 16
+      },
+      "minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 23,
+              "fifth": 5,
+              "other": 3,
+              "relative": 1
+            },
+            "exact": 0.7188,
+            "mirex": 0.8063,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 23,
+              "fifth": 7,
+              "other": 1,
+              "parallel": 1
+            },
+            "exact": 0.7188,
+            "mirex": 0.8344,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          },
+          "madmom": {
+            "counts": {
+              "exact": 27,
+              "parallel": 4,
+              "relative": 1
+            },
+            "exact": 0.8438,
+            "mirex": 0.8781,
+            "n": 32,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 32,
+            "n_valid": 32
+          }
+        },
+        "n": 32
+      }
+    }
+  },
+  "coverage": {
+    "analyzed_duration": {
+      "known": 93,
+      "unknown": 0
+    },
+    "bpm": {
+      "known": 0,
+      "unknown": 93
+    },
+    "full_recording_duration": {
+      "known": 0,
+      "unknown": 93
+    },
+    "genre_original": {
+      "known": 93,
+      "unknown": 0
+    },
+    "work_id": {
+      "known": 48,
+      "unknown": 45
+    }
+  },
+  "duration_edges_seconds": [
+    180,
+    300,
+    480
+  ],
+  "duration_semantics": "canonical analyzed PCM frames / sample rate, not complete-song length",
+  "genre_grouping_policy": {
+    "label": "legacy benchmark grouping",
+    "methods": [
+      "legacy_benchmark_gs_bucket_not_normalized_taxonomy; drum-and-bass folded into dubstep; glitch-hop folded into hip-hop",
+      "recorded_corpus_classical_context_not_track_genre_annotation"
+    ],
+    "taxonomy_status": "not a curated modern genre taxonomy; raw tags are retained"
+  },
+  "grouping_by_corpus": {
+    "giantsteps": {
+      "known_performance_ids": [],
+      "known_work_ids": [],
+      "n": 45,
+      "unknown_work_rows": 45
+    },
+    "swd-v2.1": {
+      "known_performance_ids": [
+        "HU33",
+        "SC06"
+      ],
+      "known_work_ids": [
+        "Schubert_D911-01",
+        "Schubert_D911-02",
+        "Schubert_D911-03",
+        "Schubert_D911-04",
+        "Schubert_D911-05",
+        "Schubert_D911-06",
+        "Schubert_D911-07",
+        "Schubert_D911-08",
+        "Schubert_D911-09",
+        "Schubert_D911-10",
+        "Schubert_D911-11",
+        "Schubert_D911-12",
+        "Schubert_D911-13",
+        "Schubert_D911-14",
+        "Schubert_D911-15",
+        "Schubert_D911-16",
+        "Schubert_D911-17",
+        "Schubert_D911-18",
+        "Schubert_D911-19",
+        "Schubert_D911-20",
+        "Schubert_D911-21",
+        "Schubert_D911-22",
+        "Schubert_D911-23",
+        "Schubert_D911-24"
+      ],
+      "n": 48,
+      "unknown_work_rows": 0
+    }
+  },
+  "inference_performed": false,
+  "n": 93,
+  "provenance": {
+    "artifact_index_sha256": "3510444a3ed7b1120fc9809959314375943d856b476ba000142ab8f47ec41ce1",
+    "catalog_sha256": "6ebb9e80d519b2367c4118c4ee0cd84698bb066967d75c6019df0fb54932e698",
+    "kind": "additive_metadata_derivative_no_resealed_execution",
+    "original_metadata_analysis_sha256": "7932aa1ee1c86ef4f3f526c0e48a076f2f210383e4ce8fc120858ca364d5b0f0",
+    "slice_generator_sha256": "a86d13a293d918bdc1942d25b590e89ebd83e15573a342ba57e6e1ef30e4ab23"
+  },
+  "schema": "key-reference-descriptive-slices-v1",
+  "scoring": "existing symmetric-fifths agreement; errors/abstentions zero; empty slice null",
+  "slices": {
+    "analyzed_duration": {
+      "3-5m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 11,
+              "fifth": 3,
+              "other": 2,
+              "parallel": 4
+            },
+            "exact": 0.55,
+            "mirex": 0.665,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 12,
+              "fifth": 5,
+              "other": 1,
+              "parallel": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.745,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          },
+          "madmom": {
+            "counts": {
+              "exact": 20
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 20,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 20,
+            "n_valid": 20
+          }
+        },
+        "n": 20
+      },
+      "5-8m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "8m+": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "<3m": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 50,
+              "fifth": 7,
+              "other": 8,
+              "parallel": 2,
+              "relative": 4
+            },
+            "exact": 0.7042,
+            "mirex": 0.7761,
+            "n": 71,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 71,
+            "n_valid": 71
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 43,
+              "fifth": 15,
+              "other": 9,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.6056,
+            "mirex": 0.7268,
+            "n": 71,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 71,
+            "n_valid": 71
+          },
+          "madmom": {
+            "counts": {
+              "exact": 50,
+              "fifth": 5,
+              "other": 5,
+              "parallel": 7,
+              "relative": 4
+            },
+            "exact": 0.7042,
+            "mirex": 0.7761,
+            "n": 71,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 71,
+            "n_valid": 71
+          }
+        },
+        "n": 71
+      },
+      "unknown": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      }
+    },
+    "bpm_coverage": {
+      "known": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "unknown": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 63,
+              "fifth": 10,
+              "other": 10,
+              "parallel": 6,
+              "relative": 4
+            },
+            "exact": 0.6774,
+            "mirex": 0.757,
+            "n": 93,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 93,
+            "n_valid": 93
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 57,
+              "fifth": 20,
+              "other": 10,
+              "parallel": 3,
+              "relative": 3
+            },
+            "exact": 0.6129,
+            "mirex": 0.7366,
+            "n": 93,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 93,
+            "n_valid": 93
+          },
+          "madmom": {
+            "counts": {
+              "exact": 72,
+              "fifth": 5,
+              "other": 5,
+              "parallel": 7,
+              "relative": 4
+            },
+            "exact": 0.7742,
+            "mirex": 0.829,
+            "n": 93,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 93,
+            "n_valid": 93
+          }
+        },
+        "n": 93
+      }
+    },
+    "corpus": {
+      "giantsteps": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 33,
+              "fifth": 3,
+              "other": 5,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.7333,
+            "mirex": 0.7911,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 29,
+              "fifth": 5,
+              "other": 8,
+              "relative": 3
+            },
+            "exact": 0.6444,
+            "mirex": 0.72,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          },
+          "madmom": {
+            "counts": {
+              "exact": 31,
+              "fifth": 5,
+              "other": 5,
+              "parallel": 1,
+              "relative": 3
+            },
+            "exact": 0.6889,
+            "mirex": 0.7689,
+            "n": 45,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 45,
+            "n_valid": 45
+          }
+        },
+        "n": 45
+      },
+      "swd-v2.1": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 30,
+              "fifth": 7,
+              "other": 5,
+              "parallel": 5,
+              "relative": 1
+            },
+            "exact": 0.625,
+            "mirex": 0.725,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 28,
+              "fifth": 15,
+              "other": 2,
+              "parallel": 3
+            },
+            "exact": 0.5833,
+            "mirex": 0.7521,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "madmom": {
+            "counts": {
+              "exact": 41,
+              "parallel": 6,
+              "relative": 1
+            },
+            "exact": 0.8542,
+            "mirex": 0.8854,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          }
+        },
+        "n": 48
+      }
+    },
+    "genre_legacy_group": {
+      "breaks": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "classical": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 30,
+              "fifth": 7,
+              "other": 5,
+              "parallel": 5,
+              "relative": 1
+            },
+            "exact": 0.625,
+            "mirex": 0.725,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 28,
+              "fifth": 15,
+              "other": 2,
+              "parallel": 3
+            },
+            "exact": 0.5833,
+            "mirex": 0.7521,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "madmom": {
+            "counts": {
+              "exact": 41,
+              "parallel": 6,
+              "relative": 1
+            },
+            "exact": 0.8542,
+            "mirex": 0.8854,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          }
+        },
+        "n": 48
+      },
+      "dubstep": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "other": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "other": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.6,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "other": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "electronica": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.575,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "fifth": 1,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.25,
+            "mirex": 0.45,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.575,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "funk": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "madmom": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          }
+        },
+        "n": 3
+      },
+      "hard": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "hip-hop": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3,
+              "parallel": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.8,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "other": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.75,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 3,
+              "parallel": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.8,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "house": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "fifth": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.875,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 3,
+              "fifth": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.875,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "other": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2,
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.625,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2,
+              "other": 2
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 3,
+              "fifth": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.875,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "pop": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "techno": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3,
+              "other": 1
+            },
+            "exact": 0.75,
+            "mirex": 0.75,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "other": 2,
+              "relative": 1
+            },
+            "exact": 0.25,
+            "mirex": 0.325,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "other": 3
+            },
+            "exact": 0.25,
+            "mirex": 0.25,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "trance": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "fifth": 1,
+              "other": 1,
+              "relative": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.275,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "fifth": 2,
+              "relative": 1
+            },
+            "exact": 0.25,
+            "mirex": 0.575,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "fifth": 2,
+              "relative": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.4,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      }
+    },
+    "genre_original": {
+      "breaks": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "chill-out": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.65,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.65,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.65,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "classical": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 30,
+              "fifth": 7,
+              "other": 5,
+              "parallel": 5,
+              "relative": 1
+            },
+            "exact": 0.625,
+            "mirex": 0.725,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 28,
+              "fifth": 15,
+              "other": 2,
+              "parallel": 3
+            },
+            "exact": 0.5833,
+            "mirex": 0.7521,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          },
+          "madmom": {
+            "counts": {
+              "exact": 41,
+              "parallel": 6,
+              "relative": 1
+            },
+            "exact": 0.8542,
+            "mirex": 0.8854,
+            "n": 48,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 48,
+            "n_valid": 48
+          }
+        },
+        "n": 48
+      },
+      "dj-tools": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "fifth": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.75,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "drum-and-bass": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "other": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "other": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.6,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "other": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "electro-house": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "electronica": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "funk r&b": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "madmom": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          }
+        },
+        "n": 3
+      },
+      "glitch-hop": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "hard-dance": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "hardcore hard-techno": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "hip-hop": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "indie-dance nu-disco": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "minimal": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "pop rock": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "progressive-house": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "fifth": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "tech-house": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "techno": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.15,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "other": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "trance": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "fifth": 1,
+              "other": 1,
+              "relative": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.275,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "fifth": 2,
+              "relative": 1
+            },
+            "exact": 0.25,
+            "mirex": 0.575,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "fifth": 2,
+              "relative": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.4,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      }
+    },
+    "key": {
+      "A major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "A minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 6,
+              "fifth": 1
+            },
+            "exact": 0.8571,
+            "mirex": 0.9286,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 6,
+              "fifth": 1
+            },
+            "exact": 0.8571,
+            "mirex": 0.9286,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          },
+          "madmom": {
+            "counts": {
+              "exact": 6,
+              "fifth": 1
+            },
+            "exact": 0.8571,
+            "mirex": 0.9286,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          }
+        },
+        "n": 7
+      },
+      "A# major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "fifth": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.75,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "fifth": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "A# minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2,
+              "fifth": 3
+            },
+            "exact": 0.4,
+            "mirex": 0.7,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "fifth": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 5
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "B major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "fifth": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "B minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "fifth": 2
+            },
+            "exact": 0.6667,
+            "mirex": 0.8333,
+            "n": 6,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 6,
+            "n_valid": 6
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 5,
+              "other": 1
+            },
+            "exact": 0.8333,
+            "mirex": 0.8333,
+            "n": 6,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 6,
+            "n_valid": 6
+          },
+          "madmom": {
+            "counts": {
+              "exact": 6
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 6,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 6,
+            "n_valid": 6
+          }
+        },
+        "n": 6
+      },
+      "C major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2,
+              "parallel": 2
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 4,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 4,
+            "n_valid": 4
+          }
+        },
+        "n": 4
+      },
+      "C minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.6,
+            "mirex": 0.7,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "fifth": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.9,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "C# major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 2
+            },
+            "exact": 0.0,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "C# minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "relative": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.3,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "relative": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.3,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "relative": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.3,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "D major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3,
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.6,
+            "mirex": 0.7,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 3,
+              "fifth": 2
+            },
+            "exact": 0.6,
+            "mirex": 0.8,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          },
+          "madmom": {
+            "counts": {
+              "exact": 4,
+              "parallel": 1
+            },
+            "exact": 0.8,
+            "mirex": 0.84,
+            "n": 5,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 5,
+            "n_valid": 5
+          }
+        },
+        "n": 5
+      },
+      "D minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 4,
+              "other": 3,
+              "relative": 2
+            },
+            "exact": 0.4444,
+            "mirex": 0.5111,
+            "n": 9,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 9,
+            "n_valid": 9
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 6,
+              "fifth": 3
+            },
+            "exact": 0.6667,
+            "mirex": 0.8333,
+            "n": 9,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 9,
+            "n_valid": 9
+          },
+          "madmom": {
+            "counts": {
+              "exact": 8,
+              "relative": 1
+            },
+            "exact": 0.8889,
+            "mirex": 0.9222,
+            "n": 9,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 9,
+            "n_valid": 9
+          }
+        },
+        "n": 9
+      },
+      "D# major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 1,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 1,
+            "n_valid": 1
+          }
+        },
+        "n": 1
+      },
+      "D# minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.15,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "E major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.25,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "E minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "F major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "other": 1,
+              "parallel": 1
+            },
+            "exact": 0.0,
+            "mirex": 0.1,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "parallel": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.6,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "F minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 11
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 9,
+              "fifth": 1,
+              "other": 1
+            },
+            "exact": 0.8182,
+            "mirex": 0.8636,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          },
+          "madmom": {
+            "counts": {
+              "exact": 7,
+              "other": 1,
+              "parallel": 3
+            },
+            "exact": 0.6364,
+            "mirex": 0.6909,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          }
+        },
+        "n": 11
+      },
+      "F# major": {
+        "detectors": {
+          "drone": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "libkeyfinder": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          },
+          "madmom": {
+            "counts": {},
+            "exact": null,
+            "mirex": null,
+            "n": 0,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 0,
+            "n_valid": 0
+          }
+        },
+        "n": 0
+      },
+      "F# minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 3
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2,
+              "parallel": 1
+            },
+            "exact": 0.6667,
+            "mirex": 0.7333,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2,
+              "parallel": 1
+            },
+            "exact": 0.6667,
+            "mirex": 0.7333,
+            "n": 3,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 3,
+            "n_valid": 3
+          }
+        },
+        "n": 3
+      },
+      "G major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 5,
+              "parallel": 2
+            },
+            "exact": 0.7143,
+            "mirex": 0.7714,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2,
+              "fifth": 3,
+              "other": 1,
+              "parallel": 1
+            },
+            "exact": 0.2857,
+            "mirex": 0.5286,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          },
+          "madmom": {
+            "counts": {
+              "exact": 7
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 7,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 7,
+            "n_valid": 7
+          }
+        },
+        "n": 7
+      },
+      "G minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 9,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.8182,
+            "mirex": 0.8455,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 6,
+              "fifth": 1,
+              "other": 3,
+              "relative": 1
+            },
+            "exact": 0.5455,
+            "mirex": 0.6182,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          },
+          "madmom": {
+            "counts": {
+              "exact": 9,
+              "other": 1,
+              "relative": 1
+            },
+            "exact": 0.8182,
+            "mirex": 0.8455,
+            "n": 11,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 11,
+            "n_valid": 11
+          }
+        },
+        "n": 11
+      },
+      "G# major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 1,
+              "relative": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.65,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 1,
+              "other": 1
+            },
+            "exact": 0.5,
+            "mirex": 0.5,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      },
+      "G# minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          },
+          "madmom": {
+            "counts": {
+              "exact": 2
+            },
+            "exact": 1.0,
+            "mirex": 1.0,
+            "n": 2,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 2,
+            "n_valid": 2
+          }
+        },
+        "n": 2
+      }
+    },
+    "mode": {
+      "major": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 16,
+              "fifth": 3,
+              "other": 5,
+              "parallel": 5
+            },
+            "exact": 0.5517,
+            "mirex": 0.6379,
+            "n": 29,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 29,
+            "n_valid": 29
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 14,
+              "fifth": 10,
+              "other": 2,
+              "parallel": 2,
+              "relative": 1
+            },
+            "exact": 0.4828,
+            "mirex": 0.6793,
+            "n": 29,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 29,
+            "n_valid": 29
+          },
+          "madmom": {
+            "counts": {
+              "exact": 22,
+              "fifth": 3,
+              "other": 2,
+              "parallel": 2
+            },
+            "exact": 0.7586,
+            "mirex": 0.8241,
+            "n": 29,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 29,
+            "n_valid": 29
+          }
+        },
+        "n": 29
+      },
+      "minor": {
+        "detectors": {
+          "drone": {
+            "counts": {
+              "exact": 47,
+              "fifth": 7,
+              "other": 5,
+              "parallel": 1,
+              "relative": 4
+            },
+            "exact": 0.7344,
+            "mirex": 0.8109,
+            "n": 64,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 64,
+            "n_valid": 64
+          },
+          "libkeyfinder": {
+            "counts": {
+              "exact": 43,
+              "fifth": 10,
+              "other": 8,
+              "parallel": 1,
+              "relative": 2
+            },
+            "exact": 0.6719,
+            "mirex": 0.7625,
+            "n": 64,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 64,
+            "n_valid": 64
+          },
+          "madmom": {
+            "counts": {
+              "exact": 50,
+              "fifth": 2,
+              "other": 3,
+              "parallel": 5,
+              "relative": 4
+            },
+            "exact": 0.7812,
+            "mirex": 0.8313,
+            "n": 64,
+            "n_abstain": 0,
+            "n_error": 0,
+            "n_total": 64,
+            "n_valid": 64
+          }
+        },
+        "n": 64
+      }
+    }
+  },
+  "uncertainty_policy": "descriptive only; no independent-recording confidence intervals or significance claims"
+}

@@ -1,0 +1,241 @@
+dimension,slice,detector,n_total,n_valid,n_error,n_abstain,n_exact,exact,mirex
+corpus,giantsteps,drone,45,45,0,0,33,0.7333,0.7911
+corpus,giantsteps,madmom,45,45,0,0,31,0.6889,0.7689
+corpus,giantsteps,libkeyfinder,45,45,0,0,29,0.6444,0.72
+corpus,swd-v2.1,drone,48,48,0,0,30,0.625,0.725
+corpus,swd-v2.1,madmom,48,48,0,0,41,0.8542,0.8854
+corpus,swd-v2.1,libkeyfinder,48,48,0,0,28,0.5833,0.7521
+genre_original,breaks,drone,5,5,0,0,4,0.8,0.9
+genre_original,breaks,madmom,5,5,0,0,4,0.8,0.9
+genre_original,breaks,libkeyfinder,5,5,0,0,4,0.8,0.9
+genre_original,chill-out,drone,2,2,0,0,1,0.5,0.65
+genre_original,chill-out,madmom,2,2,0,0,1,0.5,0.65
+genre_original,chill-out,libkeyfinder,2,2,0,0,1,0.5,0.65
+genre_original,classical,drone,48,48,0,0,30,0.625,0.725
+genre_original,classical,madmom,48,48,0,0,41,0.8542,0.8854
+genre_original,classical,libkeyfinder,48,48,0,0,28,0.5833,0.7521
+genre_original,dj-tools,drone,2,2,0,0,0,0.0,0.25
+genre_original,dj-tools,madmom,2,2,0,0,1,0.5,0.75
+genre_original,dj-tools,libkeyfinder,2,2,0,0,1,0.5,0.5
+genre_original,drum-and-bass,drone,5,5,0,0,4,0.8,0.8
+genre_original,drum-and-bass,madmom,5,5,0,0,4,0.8,0.8
+genre_original,drum-and-bass,libkeyfinder,5,5,0,0,3,0.6,0.6
+genre_original,electro-house,drone,2,2,0,0,2,1.0,1.0
+genre_original,electro-house,madmom,2,2,0,0,2,1.0,1.0
+genre_original,electro-house,libkeyfinder,2,2,0,0,2,1.0,1.0
+genre_original,electronica,drone,2,2,0,0,1,0.5,0.5
+genre_original,electronica,madmom,2,2,0,0,1,0.5,0.5
+genre_original,electronica,libkeyfinder,2,2,0,0,0,0.0,0.25
+genre_original,funk r&b,drone,3,3,0,0,3,1.0,1.0
+genre_original,funk r&b,madmom,3,3,0,0,3,1.0,1.0
+genre_original,funk r&b,libkeyfinder,3,3,0,0,3,1.0,1.0
+genre_original,glitch-hop,drone,2,2,0,0,1,0.5,0.6
+genre_original,glitch-hop,madmom,2,2,0,0,1,0.5,0.6
+genre_original,glitch-hop,libkeyfinder,2,2,0,0,1,0.5,0.5
+genre_original,hard-dance,drone,4,4,0,0,4,1.0,1.0
+genre_original,hard-dance,madmom,4,4,0,0,4,1.0,1.0
+genre_original,hard-dance,libkeyfinder,4,4,0,0,4,1.0,1.0
+genre_original,hardcore hard-techno,drone,1,1,0,0,1,1.0,1.0
+genre_original,hardcore hard-techno,madmom,1,1,0,0,1,1.0,1.0
+genre_original,hardcore hard-techno,libkeyfinder,1,1,0,0,1,1.0,1.0
+genre_original,hip-hop,drone,2,2,0,0,2,1.0,1.0
+genre_original,hip-hop,madmom,2,2,0,0,2,1.0,1.0
+genre_original,hip-hop,libkeyfinder,2,2,0,0,2,1.0,1.0
+genre_original,indie-dance nu-disco,drone,2,2,0,0,2,1.0,1.0
+genre_original,indie-dance nu-disco,madmom,2,2,0,0,2,1.0,1.0
+genre_original,indie-dance nu-disco,libkeyfinder,2,2,0,0,1,0.5,0.5
+genre_original,minimal,drone,1,1,0,0,0,0.0,0.0
+genre_original,minimal,madmom,1,1,0,0,0,0.0,0.0
+genre_original,minimal,libkeyfinder,1,1,0,0,0,0.0,0.0
+genre_original,pop rock,drone,4,4,0,0,4,1.0,1.0
+genre_original,pop rock,madmom,4,4,0,0,4,1.0,1.0
+genre_original,pop rock,libkeyfinder,4,4,0,0,4,1.0,1.0
+genre_original,progressive-house,drone,1,1,0,0,1,1.0,1.0
+genre_original,progressive-house,madmom,1,1,0,0,0,0.0,0.5
+genre_original,progressive-house,libkeyfinder,1,1,0,0,1,1.0,1.0
+genre_original,tech-house,drone,1,1,0,0,1,1.0,1.0
+genre_original,tech-house,madmom,1,1,0,0,1,1.0,1.0
+genre_original,tech-house,libkeyfinder,1,1,0,0,0,0.0,0.5
+genre_original,techno,drone,2,2,0,0,2,1.0,1.0
+genre_original,techno,madmom,2,2,0,0,0,0.0,0.0
+genre_original,techno,libkeyfinder,2,2,0,0,0,0.0,0.15
+genre_original,trance,drone,4,4,0,0,0,0.0,0.275
+genre_original,trance,madmom,4,4,0,0,0,0.0,0.4
+genre_original,trance,libkeyfinder,4,4,0,0,1,0.25,0.575
+genre_legacy_group,breaks,drone,5,5,0,0,4,0.8,0.9
+genre_legacy_group,breaks,madmom,5,5,0,0,4,0.8,0.9
+genre_legacy_group,breaks,libkeyfinder,5,5,0,0,4,0.8,0.9
+genre_legacy_group,classical,drone,48,48,0,0,30,0.625,0.725
+genre_legacy_group,classical,madmom,48,48,0,0,41,0.8542,0.8854
+genre_legacy_group,classical,libkeyfinder,48,48,0,0,28,0.5833,0.7521
+genre_legacy_group,dubstep,drone,5,5,0,0,4,0.8,0.8
+genre_legacy_group,dubstep,madmom,5,5,0,0,4,0.8,0.8
+genre_legacy_group,dubstep,libkeyfinder,5,5,0,0,3,0.6,0.6
+genre_legacy_group,electronica,drone,4,4,0,0,2,0.5,0.575
+genre_legacy_group,electronica,madmom,4,4,0,0,2,0.5,0.575
+genre_legacy_group,electronica,libkeyfinder,4,4,0,0,1,0.25,0.45
+genre_legacy_group,funk,drone,3,3,0,0,3,1.0,1.0
+genre_legacy_group,funk,madmom,3,3,0,0,3,1.0,1.0
+genre_legacy_group,funk,libkeyfinder,3,3,0,0,3,1.0,1.0
+genre_legacy_group,hard,drone,4,4,0,0,4,1.0,1.0
+genre_legacy_group,hard,madmom,4,4,0,0,4,1.0,1.0
+genre_legacy_group,hard,libkeyfinder,4,4,0,0,4,1.0,1.0
+genre_legacy_group,hip-hop,drone,4,4,0,0,3,0.75,0.8
+genre_legacy_group,hip-hop,madmom,4,4,0,0,3,0.75,0.8
+genre_legacy_group,hip-hop,libkeyfinder,4,4,0,0,3,0.75,0.75
+genre_legacy_group,house,drone,4,4,0,0,4,1.0,1.0
+genre_legacy_group,house,madmom,4,4,0,0,3,0.75,0.875
+genre_legacy_group,house,libkeyfinder,4,4,0,0,3,0.75,0.875
+genre_legacy_group,other,drone,4,4,0,0,2,0.5,0.625
+genre_legacy_group,other,madmom,4,4,0,0,3,0.75,0.875
+genre_legacy_group,other,libkeyfinder,4,4,0,0,2,0.5,0.5
+genre_legacy_group,pop,drone,4,4,0,0,4,1.0,1.0
+genre_legacy_group,pop,madmom,4,4,0,0,4,1.0,1.0
+genre_legacy_group,pop,libkeyfinder,4,4,0,0,4,1.0,1.0
+genre_legacy_group,techno,drone,4,4,0,0,3,0.75,0.75
+genre_legacy_group,techno,madmom,4,4,0,0,1,0.25,0.25
+genre_legacy_group,techno,libkeyfinder,4,4,0,0,1,0.25,0.325
+genre_legacy_group,trance,drone,4,4,0,0,0,0.0,0.275
+genre_legacy_group,trance,madmom,4,4,0,0,0,0.0,0.4
+genre_legacy_group,trance,libkeyfinder,4,4,0,0,1,0.25,0.575
+analyzed_duration,<3m,drone,71,71,0,0,50,0.7042,0.7761
+analyzed_duration,<3m,madmom,71,71,0,0,50,0.7042,0.7761
+analyzed_duration,<3m,libkeyfinder,71,71,0,0,43,0.6056,0.7268
+analyzed_duration,3-5m,drone,20,20,0,0,11,0.55,0.665
+analyzed_duration,3-5m,madmom,20,20,0,0,20,1.0,1.0
+analyzed_duration,3-5m,libkeyfinder,20,20,0,0,12,0.6,0.745
+analyzed_duration,5-8m,drone,2,2,0,0,2,1.0,1.0
+analyzed_duration,5-8m,madmom,2,2,0,0,2,1.0,1.0
+analyzed_duration,5-8m,libkeyfinder,2,2,0,0,2,1.0,1.0
+analyzed_duration,8m+,drone,0,0,0,0,0,NA,NA
+analyzed_duration,8m+,madmom,0,0,0,0,0,NA,NA
+analyzed_duration,8m+,libkeyfinder,0,0,0,0,0,NA,NA
+analyzed_duration,unknown,drone,0,0,0,0,0,NA,NA
+analyzed_duration,unknown,madmom,0,0,0,0,0,NA,NA
+analyzed_duration,unknown,libkeyfinder,0,0,0,0,0,NA,NA
+key,C major,drone,4,4,0,0,2,0.5,0.6
+key,C major,madmom,4,4,0,0,4,1.0,1.0
+key,C major,libkeyfinder,4,4,0,0,4,1.0,1.0
+key,C minor,drone,5,5,0,0,4,0.8,0.9
+key,C minor,madmom,5,5,0,0,4,0.8,0.9
+key,C minor,libkeyfinder,5,5,0,0,3,0.6,0.7
+key,C# major,drone,2,2,0,0,1,0.5,0.5
+key,C# major,madmom,2,2,0,0,1,0.5,0.6
+key,C# major,libkeyfinder,2,2,0,0,0,0.0,0.5
+key,C# minor,drone,1,1,0,0,0,0.0,0.3
+key,C# minor,madmom,1,1,0,0,0,0.0,0.3
+key,C# minor,libkeyfinder,1,1,0,0,0,0.0,0.3
+key,D major,drone,5,5,0,0,3,0.6,0.7
+key,D major,madmom,5,5,0,0,4,0.8,0.84
+key,D major,libkeyfinder,5,5,0,0,3,0.6,0.8
+key,D minor,drone,9,9,0,0,4,0.4444,0.5111
+key,D minor,madmom,9,9,0,0,8,0.8889,0.9222
+key,D minor,libkeyfinder,9,9,0,0,6,0.6667,0.8333
+key,D# major,drone,1,1,0,0,1,1.0,1.0
+key,D# major,madmom,1,1,0,0,1,1.0,1.0
+key,D# major,libkeyfinder,1,1,0,0,1,1.0,1.0
+key,D# minor,drone,2,2,0,0,1,0.5,0.5
+key,D# minor,madmom,2,2,0,0,0,0.0,0.15
+key,D# minor,libkeyfinder,2,2,0,0,0,0.0,0.25
+key,E major,drone,2,2,0,0,0,0.0,0.25
+key,E major,madmom,2,2,0,0,1,0.5,0.5
+key,E major,libkeyfinder,2,2,0,0,0,0.0,0.25
+key,E minor,drone,2,2,0,0,1,0.5,0.6
+key,E minor,madmom,2,2,0,0,1,0.5,0.6
+key,E minor,libkeyfinder,2,2,0,0,1,0.5,0.5
+key,F major,drone,2,2,0,0,0,0.0,0.1
+key,F major,madmom,2,2,0,0,2,1.0,1.0
+key,F major,libkeyfinder,2,2,0,0,1,0.5,0.6
+key,F minor,drone,11,11,0,0,11,1.0,1.0
+key,F minor,madmom,11,11,0,0,7,0.6364,0.6909
+key,F minor,libkeyfinder,11,11,0,0,9,0.8182,0.8636
+key,F# major,drone,0,0,0,0,0,NA,NA
+key,F# major,madmom,0,0,0,0,0,NA,NA
+key,F# major,libkeyfinder,0,0,0,0,0,NA,NA
+key,F# minor,drone,3,3,0,0,3,1.0,1.0
+key,F# minor,madmom,3,3,0,0,2,0.6667,0.7333
+key,F# minor,libkeyfinder,3,3,0,0,2,0.6667,0.7333
+key,G major,drone,7,7,0,0,5,0.7143,0.7714
+key,G major,madmom,7,7,0,0,7,1.0,1.0
+key,G major,libkeyfinder,7,7,0,0,2,0.2857,0.5286
+key,G minor,drone,11,11,0,0,9,0.8182,0.8455
+key,G minor,madmom,11,11,0,0,9,0.8182,0.8455
+key,G minor,libkeyfinder,11,11,0,0,6,0.5455,0.6182
+key,G# major,drone,2,2,0,0,2,1.0,1.0
+key,G# major,madmom,2,2,0,0,1,0.5,0.5
+key,G# major,libkeyfinder,2,2,0,0,1,0.5,0.65
+key,G# minor,drone,2,2,0,0,2,1.0,1.0
+key,G# minor,madmom,2,2,0,0,2,1.0,1.0
+key,G# minor,libkeyfinder,2,2,0,0,2,1.0,1.0
+key,A major,drone,1,1,0,0,1,1.0,1.0
+key,A major,madmom,1,1,0,0,1,1.0,1.0
+key,A major,libkeyfinder,1,1,0,0,0,0.0,0.5
+key,A minor,drone,7,7,0,0,6,0.8571,0.9286
+key,A minor,madmom,7,7,0,0,6,0.8571,0.9286
+key,A minor,libkeyfinder,7,7,0,0,6,0.8571,0.9286
+key,A# major,drone,2,2,0,0,0,0.0,0.25
+key,A# major,madmom,2,2,0,0,0,0.0,0.5
+key,A# major,libkeyfinder,2,2,0,0,1,0.5,0.75
+key,A# minor,drone,5,5,0,0,2,0.4,0.7
+key,A# minor,madmom,5,5,0,0,5,1.0,1.0
+key,A# minor,libkeyfinder,5,5,0,0,3,0.6,0.8
+key,B major,drone,1,1,0,0,1,1.0,1.0
+key,B major,madmom,1,1,0,0,0,0.0,0.5
+key,B major,libkeyfinder,1,1,0,0,1,1.0,1.0
+key,B minor,drone,6,6,0,0,4,0.6667,0.8333
+key,B minor,madmom,6,6,0,0,6,1.0,1.0
+key,B minor,libkeyfinder,6,6,0,0,5,0.8333,0.8333
+mode,major,drone,29,29,0,0,16,0.5517,0.6379
+mode,major,madmom,29,29,0,0,22,0.7586,0.8241
+mode,major,libkeyfinder,29,29,0,0,14,0.4828,0.6793
+mode,minor,drone,64,64,0,0,47,0.7344,0.8109
+mode,minor,madmom,64,64,0,0,50,0.7812,0.8313
+mode,minor,libkeyfinder,64,64,0,0,43,0.6719,0.7625
+bpm_coverage,known,drone,0,0,0,0,0,NA,NA
+bpm_coverage,known,madmom,0,0,0,0,0,NA,NA
+bpm_coverage,known,libkeyfinder,0,0,0,0,0,NA,NA
+bpm_coverage,unknown,drone,93,93,0,0,63,0.6774,0.757
+bpm_coverage,unknown,madmom,93,93,0,0,72,0.7742,0.829
+bpm_coverage,unknown,libkeyfinder,93,93,0,0,57,0.6129,0.7366
+corpus_by_duration:giantsteps,<3m,drone,45,45,0,0,33,0.7333,0.7911
+corpus_by_duration:giantsteps,<3m,madmom,45,45,0,0,31,0.6889,0.7689
+corpus_by_duration:giantsteps,<3m,libkeyfinder,45,45,0,0,29,0.6444,0.72
+corpus_by_duration:giantsteps,3-5m,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,3-5m,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,3-5m,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,5-8m,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,5-8m,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,5-8m,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,8m+,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,8m+,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,8m+,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,unknown,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,unknown,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:giantsteps,unknown,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,<3m,drone,26,26,0,0,17,0.6538,0.75
+corpus_by_duration:swd-v2.1,<3m,madmom,26,26,0,0,19,0.7308,0.7885
+corpus_by_duration:swd-v2.1,<3m,libkeyfinder,26,26,0,0,14,0.5385,0.7385
+corpus_by_duration:swd-v2.1,3-5m,drone,20,20,0,0,11,0.55,0.665
+corpus_by_duration:swd-v2.1,3-5m,madmom,20,20,0,0,20,1.0,1.0
+corpus_by_duration:swd-v2.1,3-5m,libkeyfinder,20,20,0,0,12,0.6,0.745
+corpus_by_duration:swd-v2.1,5-8m,drone,2,2,0,0,2,1.0,1.0
+corpus_by_duration:swd-v2.1,5-8m,madmom,2,2,0,0,2,1.0,1.0
+corpus_by_duration:swd-v2.1,5-8m,libkeyfinder,2,2,0,0,2,1.0,1.0
+corpus_by_duration:swd-v2.1,8m+,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,8m+,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,8m+,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,unknown,drone,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,unknown,madmom,0,0,0,0,0,NA,NA
+corpus_by_duration:swd-v2.1,unknown,libkeyfinder,0,0,0,0,0,NA,NA
+corpus_by_mode:giantsteps,major,drone,13,13,0,0,9,0.6923,0.7308
+corpus_by_mode:giantsteps,major,madmom,13,13,0,0,8,0.6154,0.7308
+corpus_by_mode:giantsteps,major,libkeyfinder,13,13,0,0,9,0.6923,0.7923
+corpus_by_mode:giantsteps,minor,drone,32,32,0,0,24,0.75,0.8156
+corpus_by_mode:giantsteps,minor,madmom,32,32,0,0,23,0.7188,0.7844
+corpus_by_mode:giantsteps,minor,libkeyfinder,32,32,0,0,20,0.625,0.6906
+corpus_by_mode:swd-v2.1,major,drone,16,16,0,0,7,0.4375,0.5625
+corpus_by_mode:swd-v2.1,major,madmom,16,16,0,0,14,0.875,0.9
+corpus_by_mode:swd-v2.1,major,libkeyfinder,16,16,0,0,5,0.3125,0.5875
+corpus_by_mode:swd-v2.1,minor,drone,32,32,0,0,23,0.7188,0.8063
+corpus_by_mode:swd-v2.1,minor,madmom,32,32,0,0,27,0.8438,0.8781
+corpus_by_mode:swd-v2.1,minor,libkeyfinder,32,32,0,0,23,0.7188,0.8344

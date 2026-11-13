@@ -8,6 +8,7 @@ import gzip
 import hashlib
 import io
 import json
+import math
 import statistics
 import tarfile
 from collections import Counter
@@ -546,6 +547,385 @@ def plot(result: dict[str, Any], destination: Path) -> None:
     (destination / "corpus-comparison-inputs.json").write_bytes(encode(receipt))
 
 
+DURATION_SLICES = ("<3m", "3-5m", "5-8m", "8m+", "unknown")
+TONIC_SLICES = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
+CATALOG = ROOT / "experiments/studies/v2-data-contract/data/reference-panel-catalog.json.gz"
+
+
+def slice_metrics(rows: list[dict[str, Any]], detector: str) -> dict[str, Any]:
+    """Use the existing scorer; an unobserved slice is NA, not zero accuracy."""
+    from tools.benchmark_sota_4way import aggregate_rows
+
+    result = aggregate_rows(rows, detector)
+    if not rows:
+        result["exact"] = result["mirex"] = None
+    return result
+
+
+def descriptive_slices(rows: list[dict[str, Any]], tracks: list[dict[str, Any]]) -> dict[str, Any]:
+    """Fixed metadata partitions, never ranked/selected using model outcomes."""
+    from tools.benchmark_sota_4way import duration_bucket
+
+    metadata = {track["track_id"]: track for track in tracks}
+    ids = [row["track_id"] for row in rows]
+    if len(metadata) != len(tracks) or len(set(ids)) != len(ids) or set(metadata) != set(ids):
+        raise ValueError("Slice catalog must join the complete unique prediction cohort")
+    dimensions: dict[str, dict[str, list[dict[str, Any]]]] = {
+        "corpus": {},
+        "genre_original": {},
+        "genre_legacy_group": {},
+        "analyzed_duration": {key: [] for key in DURATION_SLICES},
+        "key": {f"{tonic} {mode}": [] for tonic in TONIC_SLICES for mode in ("major", "minor")},
+        "mode": {"major": [], "minor": []},
+        "bpm_coverage": {"known": [], "unknown": []},
+    }
+    cross: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    mode_cross: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    missing = Counter()
+    grouping: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        track = metadata[row["track_id"]]
+        if track["key_label"]["class_id"] != row["ref"]:
+            raise ValueError("Slice catalog label disagrees with frozen prediction reference")
+        if track["genre"]["raw"] != row["genre"] or track["genre"]["bucket"] != row["bucket"]:
+            raise ValueError("Slice catalog genre disagrees with frozen metadata")
+        duration = track["duration"]["analyzed"]["value"]
+        if duration is not None and (not math.isfinite(duration) or duration <= 0):
+            raise ValueError("Analyzed duration must be positive and finite, or explicitly unknown")
+        bucket = "unknown" if duration is None else duration_bucket(duration)
+        corpus = track["corpus_id"]
+        raw_genre = track["genre"]["raw"] or "unknown"
+        genre = track["genre"]["bucket"] or "unknown"
+        mode = "minor" if row["ref"] % 2 else "major"
+        key = f"{TONIC_SLICES[row['ref'] // 2]} {mode}"
+        bpm = "unknown" if track["bpm"]["value"] is None else "known"
+        for name, value in (
+            ("corpus", corpus),
+            ("genre_original", raw_genre),
+            ("genre_legacy_group", genre),
+            ("analyzed_duration", bucket),
+            ("key", key),
+            ("mode", mode),
+            ("bpm_coverage", bpm),
+        ):
+            dimensions[name].setdefault(value, []).append(row)
+        cross.setdefault(corpus, {band: [] for band in DURATION_SLICES})[bucket].append(row)
+        mode_cross.setdefault(corpus, {value: [] for value in ("major", "minor")})[mode].append(row)
+        for name, value in (
+            ("genre_original", track["genre"]["raw"]),
+            ("analyzed_duration", duration),
+            ("full_recording_duration", track["duration"]["full_recording"]["value"]),
+            ("bpm", track["bpm"]["value"]),
+            ("work_id", track["grouping"]["work_id"]),
+        ):
+            if value is None or value == "":
+                missing[name] += 1
+        record = grouping.setdefault(
+            corpus,
+            {
+                "n": 0,
+                "known_work_ids": set(),
+                "known_performance_ids": set(),
+                "unknown_work_rows": 0,
+            },
+        )
+        record["n"] += 1
+        if track["grouping"]["work_id"] is None:
+            record["unknown_work_rows"] += 1
+        else:
+            record["known_work_ids"].add(track["grouping"]["work_id"])
+        if track["grouping"]["performance_id"] is not None:
+            record["known_performance_ids"].add(track["grouping"]["performance_id"])
+    for name in ("corpus", "genre_original", "genre_legacy_group"):
+        dimensions[name] = dict(sorted(dimensions[name].items()))
+    for record in grouping.values():
+        record["known_work_ids"] = sorted(record["known_work_ids"])
+        record["known_performance_ids"] = sorted(record["known_performance_ids"])
+    return {
+        "schema": "key-reference-descriptive-slices-v1",
+        "n": len(rows),
+        "scoring": "existing symmetric-fifths agreement; errors/abstentions zero; empty slice null",
+        "duration_semantics": "canonical analyzed PCM frames / sample rate, not complete-song length",
+        "duration_edges_seconds": [180, 300, 480],
+        "bpm_policy": "coverage only; no BPM estimator or unbound metadata added",
+        "genre_grouping_policy": {
+            "label": "legacy benchmark grouping",
+            "methods": sorted({track["genre"].get("method", "unspecified") for track in tracks}),
+            "taxonomy_status": "not a curated modern genre taxonomy; raw tags are retained",
+        },
+        "uncertainty_policy": "descriptive only; no independent-recording confidence intervals or significance claims",
+        "coverage": {
+            name: {"known": len(rows) - missing[name], "unknown": missing[name]}
+            for name in (
+                "genre_original",
+                "analyzed_duration",
+                "full_recording_duration",
+                "bpm",
+                "work_id",
+            )
+        },
+        "grouping_by_corpus": grouping,
+        "slices": {
+            dimension: {
+                value: {
+                    "n": len(members),
+                    "detectors": {name: slice_metrics(members, name) for name in DETECTORS},
+                }
+                for value, members in groups.items()
+            }
+            for dimension, groups in dimensions.items()
+        },
+        "corpus_by_duration": {
+            corpus: {
+                band: {
+                    "n": len(members),
+                    "detectors": {name: slice_metrics(members, name) for name in DETECTORS},
+                }
+                for band, members in groups.items()
+            }
+            for corpus, groups in sorted(cross.items())
+        },
+        "corpus_by_mode": {
+            corpus: {
+                mode: {
+                    "n": len(members),
+                    "detectors": {name: slice_metrics(members, name) for name in DETECTORS},
+                }
+                for mode, members in groups.items()
+            }
+            for corpus, groups in sorted(mode_cross.items())
+        },
+        "inference_performed": False,
+    }
+
+
+def analyze_slices(data: Path = DATA, catalog_path: Path = CATALOG) -> dict[str, Any]:
+    from dataclasses import asdict
+
+    from experiments.corpus_catalog import load_catalog
+    from tools.export_corpus_catalog import verify_reference_panel
+
+    base = analyze(data)  # Preserve/replay the original chain; do not republish or reseal it.
+    if base["libkeyfinder_status"] != "corrected":
+        raise ValueError("Slice comparison requires the corrected comparator")
+    catalog = load_catalog(catalog_path)
+    _, rows, _, manifest = checked(data)
+    verify_reference_panel(catalog, ROOT)
+    sources = {source.source_id: source for source in catalog.sources}
+    if catalog.results_source_id != "benchmark_results":
+        raise ValueError("Slice catalog must bind the actual benchmark results relation")
+    for source_id, filename in (
+        ("reference_manifest", "manifest.json"),
+        ("benchmark_results", "bench.csv"),
+    ):
+        if (ROOT / sources[source_id].path).resolve() != (data / filename).resolve():
+            raise ValueError("Slice catalog must bind these actual benchmark input files")
+    tracks = [asdict(track) for track in catalog.tracks]
+    by_id = {track["track_id"]: track for track in tracks}
+    for witness in manifest["tracks"]:
+        track = by_id[witness["track_id"]]
+        if track["corpus_id"] != witness["source"]:
+            raise ValueError("Slice catalog corpus differs from frozen manifest")
+        identity = witness["input_identity"]
+        wav = identity["canonical_wav"]
+        if (
+            track["source_audio_sha256"] != identity["source_sha256"]
+            or track["canonical_wav_sha256"] != wav["container_sha256"]
+            or track["canonical_pcm_sha256"] != wav["pcm_sha256"]
+        ):
+            raise ValueError("Slice catalog audio identity differs from scored input")
+        if (
+            track["duration"]["analyzed"]["value"]
+            != wav["parameters"]["frames"] / wav["parameters"]["sample_rate"]
+        ):
+            raise ValueError("Slice duration is not derived from the scored PCM")
+    result = descriptive_slices(rows, tracks)
+    result["provenance"] = {
+        "catalog_sha256": sha(catalog_path.read_bytes()),
+        "artifact_index_sha256": base["artifact_index_sha256"],
+        "original_metadata_analysis_sha256": sha((data / "metadata-analysis.json").read_bytes()),
+        "slice_generator_sha256": sha(Path(__file__).read_bytes()),
+        "kind": "additive_metadata_derivative_no_resealed_execution",
+    }
+    return result
+
+
+def slice_csv(result: dict[str, Any]) -> str:
+    stream = io.StringIO()
+    columns = (
+        "dimension",
+        "slice",
+        "detector",
+        "n_total",
+        "n_valid",
+        "n_error",
+        "n_abstain",
+        "n_exact",
+        "exact",
+        "mirex",
+    )
+    writer = csv.DictWriter(stream, fieldnames=columns, lineterminator="\n")
+    writer.writeheader()
+    groups = list(result["slices"].items())
+    for crossing in ("corpus_by_duration", "corpus_by_mode"):
+        groups.extend(
+            (crossing + ":" + corpus, values) for corpus, values in result[crossing].items()
+        )
+    for dimension, slices in groups:
+        for label, item in slices.items():
+            for name, metrics in item["detectors"].items():
+                writer.writerow(
+                    {
+                        "dimension": dimension,
+                        "slice": label,
+                        "detector": name,
+                        **{
+                            field: metrics[field]
+                            for field in ("n_total", "n_valid", "n_error", "n_abstain")
+                        },
+                        "n_exact": metrics["counts"].get("exact", 0),
+                        "exact": "NA" if metrics["exact"] is None else metrics["exact"],
+                        "mirex": "NA" if metrics["mirex"] is None else metrics["mirex"],
+                    }
+                )
+    return stream.getvalue()
+
+
+def plot_slices(result: dict[str, Any], destination: Path) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    plt.rcParams.update(
+        {"font.family": "DejaVu Sans", "font.size": 10, "svg.hashsalt": "key-reference-slices-v1"}
+    )
+    colors = {"drone": "#267A91", "madmom": "#A35D2C", "libkeyfinder": "#666D78"}
+    labels = {"drone": "Drone v1", "madmom": "madmom KEY_CNN", "libkeyfinder": "libkeyfinder"}
+    destination.mkdir(parents=True, exist_ok=True)
+    outputs: dict[str, str] = {}
+
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+
+    def save(fig: Figure, stem: str) -> None:
+        for suffix in ("png", "svg"):
+            path = destination / f"{stem}.{suffix}"
+            fig.savefig(path, dpi=180, metadata={"Date": None} if suffix == "svg" else {})
+            if suffix == "svg":
+                path.write_text(
+                    "\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n"
+                )
+            outputs[path.name] = sha(path.read_bytes())
+        plt.close(fig)
+
+    def dots(axis: Axes, groups: dict[str, Any], metric: str) -> None:
+        for i, name in enumerate(DETECTORS):
+            values = [
+                np.nan
+                if item["detectors"][name][metric] is None
+                else 100 * item["detectors"][name][metric]
+                for item in groups.values()
+            ]
+            y = [j + (i - 1) * 0.18 for j in range(len(groups))]
+            axis.scatter(values, y, color=colors[name], label=labels[name], s=38, zorder=3)
+        for j, item in enumerate(groups.values()):
+            if item["n"] == 0:
+                axis.text(
+                    50,
+                    j,
+                    "NA — no recordings",
+                    ha="center",
+                    va="center",
+                    color="#666D78",
+                    fontsize=9,
+                )
+        axis.set(
+            yticks=range(len(groups)),
+            yticklabels=[f"{label}  (n={item['n']})" for label, item in groups.items()],
+            xlim=(-3, 105),
+            xlabel="Exact (%)" if metric == "exact" else "Symmetric-fifths agreement (%)",
+        )
+        axis.set_ylim(len(groups) - 0.5, -0.5)
+        axis.spines[["top", "right", "left"]].set_visible(False)
+        axis.grid(axis="x", alpha=0.15)
+
+    fig, axes = plt.subplots(
+        1, 3, figsize=(16, 5), layout="constrained", gridspec_kw={"width_ratios": [1.3, 1, 1]}
+    )
+    corpora = list(result["corpus_by_duration"])
+    counts = np.array(
+        [
+            [result["corpus_by_duration"][corpus][band]["n"] for band in DURATION_SLICES]
+            for corpus in corpora
+        ]
+    )
+    axes[0].imshow(counts, cmap="Blues", vmin=0, vmax=max(1, int(counts.max())), aspect="auto")
+    for (y, x), value in np.ndenumerate(counts):
+        axes[0].text(
+            x,
+            y,
+            str(value),
+            ha="center",
+            va="center",
+            color="white" if value > counts.max() / 2 else "#263746",
+            fontsize=12,
+        )
+    axes[0].set(
+        xticks=range(len(DURATION_SLICES)),
+        xticklabels=DURATION_SLICES,
+        yticks=range(len(corpora)),
+        yticklabels=corpora,
+        title="Coverage: corpus × analyzed duration",
+    )
+    for axis, metric in zip(axes[1:], ("exact", "mirex"), strict=True):
+        dots(axis, result["slices"]["analyzed_duration"], metric)
+    axes[1].legend(
+        loc="upper center", bbox_to_anchor=(0.5, 1.09), ncol=3, frameon=False, fontsize=8
+    )
+    fig.suptitle(
+        "Short previews and repeated classical performances leave long-track gaps",
+        fontsize=15,
+        fontweight="bold",
+    )
+    fig.supxlabel(
+        "Duration is analyzed audio, not full-song length. Both ≥5-minute items are performances of one SWD work.\nPoint estimates only; corpus/repertoire and duration are confounded. Empty slices are NA.",
+        fontsize=10,
+    )
+    save(fig, "duration-coverage-slices")
+
+    for dimension, stem, title, height in (
+        (
+            "genre_original",
+            "original-genre-slices",
+            "Original genre tags retain detail hidden by legacy grouping",
+            10,
+        ),
+        ("key", "key-mode-slices", "Reference-key slices are uneven and descriptive", 12),
+    ):
+        groups = result["slices"][dimension]
+        fig, axes = plt.subplots(1, 2, figsize=(13, height), layout="constrained")
+        for axis, metric in zip(axes, ("exact", "mirex"), strict=True):
+            dots(axis, groups, metric)
+        axes[0].legend(
+            loc="upper center", bbox_to_anchor=(0.5, 1.04), ncol=3, frameon=False, fontsize=8
+        )
+        fig.suptitle(title, fontsize=15, fontweight="bold")
+        fig.supxlabel(
+            "All slice denominators are shown; errors and abstentions count as zero.\nNo confidence intervals or population-level strength/weakness claims; repeated works and corpus mix remain.",
+            fontsize=10,
+        )
+        save(fig, stem)
+    receipt = {
+        "analysis_sha256": sha(encode(result)),
+        "generator_sha256": sha(Path(__file__).read_bytes()),
+        "matplotlib_version": matplotlib.__version__,
+        "outputs": outputs,
+    }
+    (destination / "slice-figure-inputs.json").write_bytes(encode(receipt))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=DATA)
@@ -553,7 +933,33 @@ def main() -> None:
     parser.add_argument("--publish-corrected", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--plot", action="store_true")
+    parser.add_argument(
+        "--slices", action="store_true", help="Replay additive catalog-based slice analysis"
+    )
+    parser.add_argument("--catalog", type=Path, default=CATALOG)
     args = parser.parse_args()
+    if args.slices:
+        if args.publish_corrected or args.seal_index:
+            raise ValueError("Slice analysis cannot republish or reseal execution artifacts")
+        result = analyze_slices(args.data, args.catalog)
+        outputs = {
+            "slice-analysis.json": encode(result),
+            "slice-analysis.csv": slice_csv(result).encode(),
+        }
+        for name, raw in outputs.items():
+            output = args.data / name
+            if args.write:
+                output.write_bytes(raw)
+            elif output.read_bytes() != raw:
+                raise ValueError("Published slice analysis differs: " + name)
+        if args.plot:
+            plot_slices(result, args.data.parent / "figures")
+        print(
+            json.dumps(
+                {"n": result["n"], "sha256": sha(encode(result)), "inference_performed": False}
+            )
+        )
+        return
     if args.publish_corrected:
         publish_corrected(args.data)
     if args.seal_index:

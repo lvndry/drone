@@ -1,0 +1,13 @@
+{
+  "analysis_sha256": "a2ad696c491e519e926a781354c3af9686ff390e04a31c393a29fd44bd1550bb",
+  "generator_sha256": "a86d13a293d918bdc1942d25b590e89ebd83e15573a342ba57e6e1ef30e4ab23",
+  "matplotlib_version": "3.11.2",
+  "outputs": {
+    "duration-coverage-slices.png": "08dc325b9326eb56eb5539ce50cc603a571461db33023be971f63421966e7ec3",
+    "duration-coverage-slices.svg": "d8ec3d1c8f698fe09713ebdff77513f448336d8c2513945f50531e3e3c33a21d",
+    "key-mode-slices.png": "5d835cdd59746b84aa905ea18f130bc2522c06a0f6a90498528018caba5254ba",
+    "key-mode-slices.svg": "a30aa5e166193dcdeda62aa84b6cbf014aa54ac4a25e8d0e5557d57b4c7a3d04",
+    "original-genre-slices.png": "e4cafcada1f928a2a4a1d913145b7a948732a3e8d71bdaba45e91713ffb370d7",
+    "original-genre-slices.svg": "b06c1ec2a5b1f4f1cac37ac9d3313654cf9522aa9e0595a445d72c3172f9af98"
+  }
+}
