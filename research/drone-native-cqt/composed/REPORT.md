@@ -10,8 +10,11 @@ The M5 is a test host, not a hardware requirement for Drone or Euphoria.
 
 The later fused-product repair now reproduces **all 376 archived Mac feature cores exactly**;
 see the [completed frontend validation](#completed-public-panel-frontend-validation--november-13).
-This is numerical identity, not classifier accuracy; the separate Linux references
-still differ, and the production arithmetic is unchanged.
+The subsequent [native model regression](#retained-core-native-model-regression--november-13)
+also passes all 376 cases through the unchanged full and chunked adapters, closing
+the historical native-versus-Mac strict logit failure. This is numerical identity,
+not classifier accuracy; the separate Linux references still differ, and the
+production arithmetic is unchanged.
 
 The original Mac diagnostic covers all **376 public tracks**, composed from
 disjoint 305- and 71-case phases. Strict logit qualification failed: native full
@@ -26,8 +29,9 @@ now reproduces all 76,608 reference core values on this one recording. The
 original control still reproduces its nine differences. A separately frozen
 [nine-golden expansion](#all-nine-retained-goldens-pass-including-a-28-minute-recording-november-13)
 then matched all 2,048,256 reference core values, including a 28-minute recording.
-The historical 376-track portability verdict remains unchanged pending
-unchanged-model full/chunked revalidation of the repaired frontend.
+That historical failed run remains preserved. The later retained-core model
+regression qualifies the repaired Mac path; it does not erase the unresolved
+Mac-versus-Linux differences.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -887,10 +891,85 @@ python3 research/drone-native-cqt/composed/summarize_fused_product.py --public37
 uv run --script research/drone-native-cqt/composed/plot_fused_product.py --public376
 ```
 
-**Next gate.** Reuse these exact retained candidate cores for a separately frozen
-unchanged-model full/chunked comparison against the archived Mac logits, preserving
-the original tolerances and all 376 cases. That can test whether the original
-logit failure is removed without another decode or CQT pass. Linux regression
+**Following gate, now completed below.** The exact retained candidate cores were
+reused for a separately frozen unchanged-model full/chunked comparison against
+the archived Mac logits, preserving the original tolerances and all 376 cases.
+It tested the original logit failure without another decode or CQT pass. Linux regression
 qualification and ordinary-PC end-to-end resource measurements remain separate
 steps before a production default change. No higher classifier-accuracy claim
 follows from this frontend result.
+
+
+### Retained-core native model regression — November 13
+
+**All 376 corrected feature cores pass all three strict native model comparisons.**
+The unchanged full-model logits are bitwise equal to the archived Mac reference.
+Chunked inference differs by at most 0.000002861, within the original elementwise
+bound. This closes the single historical strict native-versus-Mac failure for
+both adapters; it does not improve the already-identical predicted keys.
+
+![Strict native model agreement on the fixed public panel](retained-model376.png)
+
+| Comparison | Strict passes | Failed logit elements | Key agreements | Maximum absolute error |
+|---|---:|---:|---:|---:|
+| Native full / archived Mac reference | 376 / 376 | 0 | 376 / 376 | 0 (bitwise equal) |
+| Native chunked / archived Mac reference | 376 / 376 | 0 | 376 / 376 | 0.000002861 |
+| Native chunked / native full | 376 / 376 | 0 | 376 / 376 | 0.000002861 |
+
+**Question and method.** Feature identity alone did not exercise the classifier.
+A small Rust entrypoint now reads the exact retained candidate cores and calls
+the existing native `Full` and `Chunked` APIs. Their library source, released
+model, prefix/head artifacts, runtime library and settings are unchanged from
+the historical comparison. A separately supervised offline build produced the
+entrypoint; it does not invoke CQT. Every case's core and archived Mac manifest
+must match the fixed identities before prediction. References were reused,
+never regenerated. Full and chunked predictions are computed once per case;
+their direct comparison reuses those vectors.
+
+The [fixed protocol](RETAINED_MODEL_PROTOCOL.md) requires 24 finite logits,
+`abs(actual-reference) <= 1e-5 + 1e-5*abs(reference)`, and unchanged argmax,
+with the same native binary32 tolerance constants as before. Numerical failures
+would have been retained while continuing through all 376 cases; a runtime or
+resource stop would instead be incomplete. The maximum error divided by its
+allowed bound was **0.05971** for both chunked comparisons, below the failure
+boundary of one. No tolerances, weights or feature bytes were changed.
+
+**Coverage and limits.** These are the same 126 Beatport and 250 FMAK recordings
+in the source/duration table above: 40.12 seconds to 28 minutes 2 seconds,
+including 41 inputs of 5–10 minutes and nine longer inputs. Genre, BPM and
+preview-versus-complete-song provenance remain unknown in this packet. The
+private DJ crate was not used. Agreement is measured against archived model
+outputs, not human key labels, so **376/376 is not classifier accuracy**.
+The original run's 375/376 strict passes and all cross-platform failures remain
+recorded above. Canonical Linux agreement was not rerun or promoted here.
+
+**Diagnostic cost.** The supervised pass took 54.35 seconds wall and 63.49
+aggregate CPU seconds; sampled process-tree RSS peaked at 565.55 MiB.
+The native worker's own high-water counter was 469.59 MiB. These counters have
+different scopes. Both full and chunked sessions were reused in one worker,
+and the run included cached-core reads, identity checks and result writing.
+It is neither end-to-end inference latency nor a fresh-process memory comparison;
+no causal memory improvement is claimed. The guardian completed within its
+predeclared caps and reported no remaining owned processes. No server or GPU
+work was involved.
+
+The [exact compressed native result](retained-model376-results.json.gz),
+[terminal controller receipt](retained-model376-controller.json) and
+[technical provenance](retained-model376-provenance.json) retain every vector,
+comparison and executed identity. The checker recomputes all three gate families
+without running a model; the existing renderer produces the figure above.
+The [archived native entrypoint](retained-model376-entrypoint-executed.rs.txt)
+and unchanged adapter source match the executed bytes. The buildable entrypoint
+uses an equivalent array-chunk iterator spelling required by Clippy; this
+publication-only lint fix was not used to rerun or replace the recorded model
+outputs. Technical provenance checks both source versions separately.
+
+```sh
+python3 research/drone-native-cqt/composed/summarize_retained_model.py
+uv run --script research/drone-native-cqt/composed/plot_fused_product.py --model376
+```
+
+**Next work.** Measure complete original-file decoding, features and inference
+on the fixed duration panel, and qualify any intended Linux arithmetic change
+separately. This result authorizes no model replacement or production-default
+change and supplies no new musical-accuracy evidence.

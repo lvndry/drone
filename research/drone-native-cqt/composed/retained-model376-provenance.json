@@ -1,0 +1,33 @@
+{
+  "format": "drone-retained-model376-public-provenance-v1",
+  "results_gzip_sha256": "b75b9d12dc633e9a6c7c70078f6d4f3b36bb481a0b08873bb5d8999cd79fe7f8",
+  "decoded_exact_result_sha256": "98236ea8a0a9c6e4504101e31e8a4f81be45ab2e70b1321ecd43d4a8e02a5570",
+  "controller_sha256": "4c9534359f5ecaf90065b14a22369484bee6e7c7a464d40b54856477c9430062",
+  "runtime_packet_sha256": "ec294dc95b5928cde07e6d09de7b251df9ea19cded3e1a84b7392219cfa533f5",
+  "runtime_guardian_sha256": "fc5751a50b3242eb8940b600fafe206994984da443f34e7f8c9ec6f94d3cd240",
+  "model_result_scope": "Exact retained candidate cores through historical native Full and Chunked APIs; archived Mac logits unchanged",
+  "build_controller_sha256": "3e10b19609e40c756580a3db705c45eae2a0d9e8dc61668e8d3111b4ba73e09f",
+  "build": {
+    "complete": true,
+    "wall_seconds": 107.65683837502729,
+    "cpu_seconds": 161.74333700000003,
+    "sampled_peak_rss_bytes": 841220096,
+    "remaining_owned_pids": []
+  },
+  "executed_source_sha256": {
+    "research/drone-native-cqt/src/bin/retained_core.rs": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
+    "research/drone-native-cached/src/lib.rs": "a9084daa288b4744cd7bec25719f8dfad1415bdb470ecd417859e4517ce26a2e"
+  },
+  "membership_sha256": "08a90fd7686ca354a6fecd30e65a5dca90a666d16fdd336590ba78b60b6459c2",
+  "historical_reference": "Mac376 original strict native full/Mac and chunked/Mac:375/376; original key agreement376/376",
+  "new_reference_or_labels": false,
+  "accuracy_or_performance_claim": false,
+  "numerical_source_or_model_changed_after_execution": false,
+  "publication_support_revision": {
+    "path": "research/drone-native-cqt/src/bin/retained_core.rs",
+    "executed_archive": "retained-model376-entrypoint-executed.rs.txt",
+    "executed_sha256": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
+    "published_sha256": "2d9b85d471fed06d531d7ac52e373dec112ed2b30cb86f13114e49fd89bf6380",
+    "change": "Publication-only Clippy iterator spelling: as_chunks::<4>().0.iter() replaces chunks_exact(4). Native adapters, arithmetic, inputs and recorded binary remain unchanged. No model rerun."
+  }
+}

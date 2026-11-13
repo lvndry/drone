@@ -1,0 +1,14 @@
+{
+  "complete": true,
+  "error": null,
+  "cleanup_error": null,
+  "wall_seconds": 54.35421329096425,
+  "cpu_seconds": 63.493947,
+  "sampled_peak_rss_bytes": 593018880,
+  "owned_output_bytes_before_controller": 2175871,
+  "worker_exit_code": 0,
+  "remaining_owned_pids": [],
+  "result_sha256": "1784f13c6dba0b16cd4a7b9b46d8c1848db1664c031d2b71e9ad16d1e24bdd5d",
+  "no_frontend_execution": true,
+  "model_regression_only": true
+}
