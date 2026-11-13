@@ -1,0 +1,70 @@
+{
+  "protected": {
+    "1478814": 35698640,
+    "1481756": 35700162,
+    "3448680": 111966827,
+    "3451013": 111967770
+  },
+  "pins": {
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder.tar.gz": "a54fc6c5ff435bb4b447f175bc97f9081fb5abf0edd5d125e6f5215c8fff4d11",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/keyfinder-build/libkeyfinder.so.2.2.8": "f475cde06faa3e2ace1d6d8e544076b4d75d168417c303c9808b0c5397948128",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/prefix/usr/lib/x86_64-linux-gnu/libfftw3.so.3": "b5cc02c4d360b5b20111cb0a251f8368af8c9ce3145357f5ba54c51ac4ca9b35"
+  },
+  "commands": [
+    [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src",
+      "/home/lysk-admin/drone-experiments/keyfinder-reference-fix-20261113-v1/keyfinder_reference.cpp",
+      "-L",
+      "/home/lysk-admin/drone-experiments/native-baseline-20261111/keyfinder-build",
+      "-Wl,-rpath,/home/lysk-admin/drone-experiments/native-baseline-20261111/keyfinder-build",
+      "-Wl,-rpath,/home/lysk-admin/drone-experiments/native-baseline-20261111/prefix/usr/lib/x86_64-linux-gnu",
+      "-lkeyfinder",
+      "-o",
+      "/home/lysk-admin/drone-experiments/keyfinder-reference-fix-20261113-v1/keyfinder_reference"
+    ],
+    [
+      "/home/lysk-admin/drone-experiments/keyfinder-reference-fix-20261113-v1/keyfinder_reference",
+      "--self-test"
+    ]
+  ],
+  "frozen": {
+    "keyfinder_reference.cpp": "a407aebf8b877d392f526b9df9885b4fd5094153735bd5a50fa8cfa29d54a781",
+    "PROTOCOL.md": "c146535c572027d2ad26698854768959d4814ea7d9df635a49e19d3c260b3868",
+    "test_keyfinder_reference.py": "198d9a6df142d7a5751db51ca70e5008879223ac5ed53e7cda65c691b04614a4",
+    "qualify.py": "1ff47da421f0150ba2d3d5038ae059dafba8704523f168f0a4328e60d938d407"
+  },
+  "headers": {
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/audiodata.h": "d30ba6e1e1496bdaba3fcb4eef8d3e3c5937e09ad56255fd98798efce6440282",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/binode.h": "6dcc1b816022a5da637a2e65f9e96a6dc117619ce08ab0a054f14823e277b2ed",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/chromagram.h": "4833da6992f2fc9c695a60add355eba6bf5389fe54496b1b03190e7356785974",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/chromatransform.h": "e950af08bbaf2bf7abc65982e8579582e1840fd172cf0a1e37a4acdfbf4a3a6b",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/chromatransformfactory.h": "ae1405ebe83c30dddbfb4c7afc6cee8897508c2044fadcf52a56ad3c7904881d",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/constants.h": "d6f3a1fb7ae2be1522834c1341018b6657df9cde38ab600784e8ef331196c963",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/exception.h": "00ea805577e709d8f3020e0b738110cc4dd8cf715ab27d7f22d48d8c2e4ea0f5",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/fftadapter.h": "6acbf0122c053e3354e10c5f304dc757569afe693ce4faaeb95000624cf56928",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/keyclassifier.h": "f4ca5f4118398c162436dcfa4c46f36d3a0430bac58767184050c3a1992ec142",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/keyfinder.h": "72db1db9d11c4f7ca81f2f11a814088d02dfb2e2d43a5be75ae4f9b2a48625e8",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/lowpassfilter.h": "a0fe0bfac1caf695e2b7fb0dccc870b1bcbf468195420b55610c0a1b29390ae0",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/lowpassfilterfactory.h": "4ef957d911627ff497e797b7dd35ba0f223b283ee90f381773e2a11b5ae56339",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/spectrumanalyser.h": "2b828b2bbca35b70536217b41ad5c724a208ae77abc65ec2b623f7a27175a8a8",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/temporalwindowfactory.h": "59b940cf0377eaea1840fab1d9244440b159a9b9c20f2b8feb5d7601737553ee",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/toneprofiles.h": "b5fe958c220fc20dbea1dbf494879ae4d1136981d15c97474cf1601ac2284320",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/windowfunctions.h": "aee017bc321ea4c8ddace4f59c0cf4211285c645d0a172e9d8ec603e31dbbb88",
+    "/home/lysk-admin/drone-experiments/native-baseline-20261111/libkeyfinder-2.2.8/src/workspace.h": "29fb1261ae0be32896a4907df349cf3b259c87dd5763eb58a23a7b9552e70c7e"
+  },
+  "compiler_sha256": "1353e9bdd29a7295c7226bf6c63abccce056d8cac31f112e5cdbecc3f28c2769",
+  "status": "PASS",
+  "binary_sha256": "3be7ac37598aeef09af1b9f2f002e139d5b920888a6fef197f40e70c66a1764a",
+  "self_test_sha256": "0a1b10013b743fa70f32da1a397f753d64b14d820366f524cb350f6b695d58b3",
+  "cpu_seconds": 0.31331299999999995,
+  "wall_seconds": 0.6232878260780126,
+  "sampled_peak_rss": 94969856,
+  "conservative_sampled_cpu": 0.31172500000000003
+}

@@ -1,0 +1,121 @@
+"""Task-specific bounded compiler/enum-only qualification; never classify audio."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import shutil
+import signal
+import subprocess
+import time
+
+ROOT = Path(__file__).resolve().parent
+BASE = Path('/home/lysk-admin/drone-experiments/native-baseline-20261111')
+PROTECTED = {1478814: 35698640, 1481756: 35700162, 3448680: 111966827, 3451013: 111967770}
+PINS = {
+    BASE / 'libkeyfinder.tar.gz': 'a54fc6c5ff435bb4b447f175bc97f9081fb5abf0edd5d125e6f5215c8fff4d11',
+    BASE / 'keyfinder-build/libkeyfinder.so.2.2.8': 'f475cde06faa3e2ace1d6d8e544076b4d75d168417c303c9808b0c5397948128',
+    BASE / 'prefix/usr/lib/x86_64-linux-gnu/libfftw3.so.3': 'b5cc02c4d360b5b20111cb0a251f8368af8c9ce3145357f5ba54c51ac4ca9b35',
+}
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def stat(pid):
+    raw = Path(f'/proc/{pid}/stat').read_text()
+    return raw[raw.rfind(')')+2:].split()
+
+def check():
+    for pid, start in PROTECTED.items():
+        assert int(stat(pid)[19]) == start, f'protected identity {pid}'
+    mem = dict(line.split(':', 1) for line in Path('/proc/meminfo').read_text().splitlines())
+    assert int(mem['MemAvailable'].split()[0])*1024 >= 40*2**30, 'host reserve'
+    assert shutil.disk_usage(ROOT).free >= 32*2**30, 'disk reserve'
+    assert sum(p.stat().st_size for p in ROOT.rglob('*') if p.is_file()) <= 16*2**20, 'outputs'
+
+def limits():
+    os.sched_setaffinity(0, {10, 11})
+    os.nice(19)
+    resource.setrlimit(resource.RLIMIT_CPU, (120, 120))
+    resource.setrlimit(resource.RLIMIT_AS, (2**30, 2**30))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (16*2**20, 16*2**20))
+
+start = time.monotonic()
+peak_rss = 0
+peak_cpu = 0.0
+hz = os.sysconf('SC_CLK_TCK')
+page = os.sysconf('SC_PAGE_SIZE')
+commands = []
+proc = None
+receipt = {'protected': PROTECTED, 'pins': {}, 'commands': commands}
+try:
+    check()
+    frozen = json.loads((ROOT / 'frozen.json').read_text())
+    for name, digest in frozen.items():
+        assert sha(ROOT / name) == digest, f'frozen source {name}'
+    receipt['frozen'] = frozen
+    for path, digest in PINS.items():
+        assert sha(path) == digest, f'pin {path}'
+        receipt['pins'][str(path)] = digest
+    receipt['headers'] = {str(p): sha(p) for p in sorted((BASE/'libkeyfinder-2.2.8/src').glob('*.h'))}
+    receipt['compiler_sha256'] = sha(Path('/usr/bin/g++').resolve())
+    build = ['/usr/bin/g++', '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror',
+             '-I', str(BASE/'libkeyfinder-2.2.8/src'), str(ROOT/'keyfinder_reference.cpp'),
+             '-L', str(BASE/'keyfinder-build'), '-Wl,-rpath,'+str(BASE/'keyfinder-build'),
+             '-Wl,-rpath,'+str(BASE/'prefix/usr/lib/x86_64-linux-gnu'), '-lkeyfinder',
+             '-o', str(ROOT/'keyfinder_reference')]
+    for name, cmd in [('compile', build), ('self-test', [str(ROOT/'keyfinder_reference'), '--self-test'])]:
+        check()
+        commands.append(cmd)
+        with (ROOT/(name+'.stdout')).open('wb') as out, (ROOT/(name+'.stderr')).open('wb') as err:
+            proc = subprocess.Popen(cmd, stdout=out, stderr=err, start_new_session=True,
+                                    preexec_fn=limits, env={'PATH':'/usr/bin:/bin', 'LC_ALL':'C'})
+            while proc.poll() is None:
+                check()
+                assert time.monotonic()-start <= 120, 'wall cap'
+                rss = 0
+                cpu = resource.getrusage(resource.RUSAGE_CHILDREN)
+                seconds = cpu.ru_utime + cpu.ru_stime
+                for entry in Path('/proc').iterdir():
+                    if not entry.name.isdigit():
+                        continue
+                    try:
+                        fields = stat(entry.name)
+                        if int(fields[2]) == proc.pid:
+                            rss += int(fields[21])*page
+                            seconds += sum(int(fields[i]) for i in (11,12,13,14))/hz
+                    except (FileNotFoundError, ProcessLookupError, PermissionError):
+                        continue
+                peak_rss = max(peak_rss, rss)
+                peak_cpu = max(peak_cpu, seconds)
+                assert rss <= 2**30, 'aggregate RSS cap'
+                assert seconds <= 120, 'aggregate CPU cap'
+                time.sleep(0.1)
+            assert proc.returncode == 0, f'{name} exit {proc.returncode}'
+    usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    assert usage.ru_utime + usage.ru_stime <= 120, 'terminal CPU cap'
+    rows = [json.loads(line) for line in (ROOT/'self-test.stdout').read_text().splitlines()]
+    expected = [18,19,20,21,22,23,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,None]
+    assert len(rows) == 25
+    for raw, code in enumerate(expected):
+        assert rows[raw]['raw_enum'] == raw and rows[raw]['drone_class'] == code
+    for name, digest in frozen.items():
+        assert sha(ROOT/name) == digest
+    for path, digest in PINS.items():
+        assert sha(path) == digest
+    check()
+    assert time.monotonic()-start <= 120, 'terminal wall cap'
+    receipt.update(status='PASS', binary_sha256=sha(ROOT/'keyfinder_reference'),
+                   self_test_sha256=sha(ROOT/'self-test.stdout'),
+                   cpu_seconds=usage.ru_utime+usage.ru_stime)
+except BaseException as exc:
+    if proc is not None and proc.poll() is None:
+        os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+    receipt.update(status='FAIL', error=str(exc))
+finally:
+    receipt.update(wall_seconds=time.monotonic()-start, sampled_peak_rss=peak_rss,
+                   conservative_sampled_cpu=peak_cpu)
+    (ROOT/'receipt.json').write_text(json.dumps(receipt, indent=2)+'\n')
+print(json.dumps(receipt))
+raise SystemExit(0 if receipt['status']=='PASS' else 1)
