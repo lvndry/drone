@@ -13,12 +13,15 @@ import torch
 
 from drone.keys import LABEL_SCHEMA
 from experiments.myna_cache import (
+    AUGMENTATION_METHOD,
     DOMAIN_MASS,
     ENCODER_SHA,
+    PLAN_SCHEMA,
     SCHEMA,
     Contract,
     load_cache,
     loss_weight,
+    rate_geometry,
     validate_manifest,
 )
 from experiments.myna_pilot import (
@@ -55,23 +58,24 @@ def fixture(
     for identity in ids:
         role = "selection" if identity.endswith("dev") else "fit"
         domain = identity.split(":")[0]
-        windows = 3 if identity.endswith("long") else 1
+        windows = 6 if identity.endswith("long") else 2
         n16 = windows * 196 * 512
         n24 = n16 * 3 // 2
         views = []
         for shift in range(-6, 7) if role == "fit" else [0]:
             name = identity.replace(":", "-") + f"-{shift}.npy"
-            data = np.full((windows, 384), shift + 6, dtype=np.float32)
+            geometry = rate_geometry(n16, shift)
+            data = np.full((geometry["windows"], 384), shift + 6, dtype=np.float32)
             np.save(root / name, data, allow_pickle=False)
             raw = (root / name).read_bytes()
             views.append(
                 dict(
                     shift=shift,
-                    windows=windows,
+                    **geometry,
                     dtype="float32",
-                    shape=[windows, 384],
+                    shape=[geometry["windows"], 384],
                     window_order="all-complete-196-frame-windows-in-order",
-                    raw_samples=n16,
+                    raw_samples=geometry["samples_16k"],
                     trimmed_samples=0,
                     padded_samples=0,
                     path=name,
@@ -111,6 +115,7 @@ def fixture(
         )
     manifest = dict(
         schema_version=SCHEMA,
+        augmentation_method=AUGMENTATION_METHOD,
         complete=True,
         label_schema=LABEL_SCHEMA,
         identities=identities,
@@ -282,13 +287,13 @@ def test_hash_correct_but_invalid_embedding_payload_is_rejected(
 ) -> None:
     data = fixture(tmp_path)
     view = data[0]["tracks"][0]["views"][0]
-    values = np.zeros((1, 384), dtype=np.float32)
+    values = np.zeros(tuple(view["shape"]), dtype=np.float32)
     if mutation == "float64":
         values = values.astype(np.float64)
     elif mutation == "nonfinite":
         values[0, 0] = np.nan
     else:
-        values = np.zeros((2, 384), dtype=np.float32)
+        values = np.zeros((view["shape"][0] + 1, 384), dtype=np.float32)
     path = tmp_path / view["path"]
     np.save(path, values, allow_pickle=False)
     raw = path.read_bytes()
@@ -304,6 +309,7 @@ def test_failed_pitch_qualification_cannot_admit_training() -> None:
     identities = {"encoder_sha256": ENCODER_SHA, "qualification_sha256": "a" * 64}
     proof = {
         "schema_version": "drone-myna-cache-admission-v1",
+        "augmentation_method": AUGMENTATION_METHOD,
         "complete": True,
         "identities": {"encoder_sha256": ENCODER_SHA},
         "all_pitch_views_passed": False,
@@ -347,9 +353,7 @@ def test_metadata_projection_cannot_be_loaded_or_used_as_completed_cache(tmp_pat
     manifest, plan, labels, groups, waves, original_identities = fixture(tmp_path)
     identities: dict[str, str | None] = dict(original_identities)
     identities["qualification_sha256"] = None
-    manifest.update(
-        schema_version="drone-myna-window-plan-v1", complete=False, identities=identities
-    )
+    manifest.update(schema_version=PLAN_SCHEMA, complete=False, identities=identities)
     for row in manifest["tracks"]:
         for view in row["views"]:
             for key in ("raw_samples", "trimmed_samples", "padded_samples", "sha256", "bytes"):
@@ -401,3 +405,26 @@ def test_physical_waveform_relocation_preserves_roles_and_semantics(tmp_path: Pa
     physical["rows"][-1]["role"] = "selection"
     with pytest.raises(ValueError, match="role/target/support/hash differs"):
         validate_waveform_lineage(canonical, physical)
+
+
+def test_rate_geometry_changes_length_without_changing_declared_tonic_step() -> None:
+    original = 120 * 16000
+    same = rate_geometry(original, 0)
+    faster, slower = rate_geometry(original, 6), rate_geometry(original, -6)
+    assert same["samples_16k"] == original and same["windows"] == 19
+    assert faster["rate_down"] == 22627 and slower["rate_down"] == 11314
+    assert faster["samples_16k"] == (original * 16000 + 22626) // 22627
+    assert faster["samples_16k"] < original < slower["samples_16k"]
+    assert faster["windows"] < same["windows"] < slower["windows"]
+    assert all(
+        abs(rate_geometry(original, shift)["pitch_cents_error"]) < 0.1 for shift in range(-6, 7)
+    )
+
+
+def test_each_variable_length_pitch_view_has_equal_objective_mass(tmp_path: Path) -> None:
+    contract = validate(tmp_path, fixture(tmp_path))
+    views = [v for v in contract.views if v.identity == "beatport:long"]
+    assert len({v.windows for v in views}) > 1
+    masses = [v.windows * loss_weight(v, contract) / contract.fit_windows for v in views]
+    assert max(masses) == pytest.approx(min(masses))
+    assert sum(masses) == pytest.approx(DOMAIN_MASS["beatport"] / 2)

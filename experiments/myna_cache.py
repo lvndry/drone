@@ -7,17 +7,20 @@ import gzip
 import hashlib
 import io
 import json
+import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TypedDict
 
 import numpy as np
 from numpy.typing import NDArray
 
 from drone.keys import LABEL_SCHEMA, transpose_key
 
-SCHEMA = "drone-myna-complete-window-cache-v1"
+SCHEMA = "drone-myna-rate-window-cache-v2"
+PLAN_SCHEMA = "drone-myna-rate-window-plan-v2"
+AUGMENTATION_METHOD = "pitch-by-playback-rate-polyphase-v1"
 ENCODER_SHA = "5dde8aa186da0fc0bfdd2e5a7c1ea3e6c6af6cd4683089b65c4fed6af8335374"
 PINS = {
     "plan": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
@@ -76,6 +79,39 @@ def is_sha(value: object) -> bool:
     )
 
 
+class RateGeometry(TypedDict):
+    samples_16k: int
+    mel_frames: int
+    windows: int
+    discarded_frames: int
+    rate_up: int
+    rate_down: int
+    actual_rate: float
+    pitch_cents_error: float
+
+
+def rate_geometry(samples_16k: int, shift: int) -> RateGeometry:
+    """Declared playback-rate geometry only; this function never resamples audio."""
+    require(
+        type(samples_16k) is int and samples_16k > 0 and type(shift) is int and -6 <= shift <= 6,
+        "Invalid rate geometry input",
+    )
+    up, down = 16000, round(16000 * 2 ** (shift / 12))
+    output = (samples_16k * up + down - 1) // down
+    frames = output // 512 + 1
+    windows, tail = divmod(frames, 196)
+    return {
+        "samples_16k": output,
+        "mel_frames": frames,
+        "windows": windows,
+        "discarded_frames": tail,
+        "rate_up": up,
+        "rate_down": down,
+        "actual_rate": down / up,
+        "pitch_cents_error": 1200 * math.log2(down / up) - 100 * shift,
+    }
+
+
 @dataclass(frozen=True)
 class View:
     identity: str
@@ -119,11 +155,14 @@ def validate_manifest(
 ) -> Contract:
     """Exact membership/lineage/13-view validation; small fixtures may relax counts only."""
     require(
-        manifest.get("schema_version") == ("drone-myna-window-plan-v1" if metadata_only else SCHEMA)
+        manifest.get("schema_version") == (PLAN_SCHEMA if metadata_only else SCHEMA)
         and manifest.get("complete") is (False if metadata_only else True),
         "Incomplete cache/schema",
     )
     require(manifest.get("label_schema") == LABEL_SCHEMA, "Different label schema")
+    require(
+        manifest.get("augmentation_method") == AUGMENTATION_METHOD, "Different augmentation method"
+    )
     require(manifest.get("identities") == identities, "Cache source/qualification binding differs")
     require(identities.get("encoder_sha256") == ENCODER_SHA, "Different encoder")
     require(
@@ -207,10 +246,35 @@ def validate_manifest(
             "Missing/duplicate/extra pitch views",
         )
         for view in sorted(row["views"], key=lambda item: item["shift"]):
+            geometry = rate_geometry(n16, view["shift"])
+            view_windows = geometry["windows"]
+            require(view_windows > 0, "No complete shifted input window")
             require(
-                view["windows"] == windows
-                and view["dtype"] == "float32"
-                and view["shape"] == [windows, 384],
+                all(
+                    view[key] == geometry[key]
+                    for key in (
+                        "samples_16k",
+                        "mel_frames",
+                        "windows",
+                        "discarded_frames",
+                        "rate_up",
+                        "rate_down",
+                        "actual_rate",
+                    )
+                ),
+                "Per-view rate/window geometry differs",
+            )
+            require(
+                math.isclose(
+                    view["pitch_cents_error"],
+                    geometry["pitch_cents_error"],
+                    rel_tol=0,
+                    abs_tol=1e-9,
+                ),
+                "Different physical pitch rounding",
+            )
+            require(
+                view["dtype"] == "float32" and view["shape"] == [view_windows, 384],
                 "Embedding geometry/dtype differs",
             )
             require(
@@ -236,18 +300,10 @@ def validate_manifest(
                     view[k] for k in ("raw_samples", "trimmed_samples", "padded_samples")
                 )
                 require(
-                    all(type(v) is int and v >= 0 for v in (raw, trimmed, padded)),
-                    "Invalid augmentation sample ledger",
+                    all(type(v) is int for v in (raw, trimmed, padded))
+                    and (raw, trimmed, padded) == (geometry["samples_16k"], 0, 0),
+                    "Playback-rate views forbid padding, trimming or altered output lengths",
                 )
-                require(
-                    raw > 0
-                    and trimmed <= raw
-                    and not (trimmed and padded)
-                    and raw - trimmed + padded == n16,
-                    "Augmentation length ledger differs",
-                )
-                if view["shift"] == 0:
-                    require((raw, trimmed, padded) == (n16, 0, 0), "Original view was altered")
             relative = Path(view["path"])
             require(
                 not relative.is_absolute()
@@ -265,7 +321,7 @@ def validate_manifest(
                 require(
                     is_sha(view["sha256"])
                     and type(view["bytes"]) is int
-                    and view["bytes"] > windows * 384 * 4,
+                    and view["bytes"] > view_windows * 384 * 4,
                     "Invalid npy identity/size",
                 )
             views.append(
@@ -276,7 +332,7 @@ def validate_manifest(
                     row["group"],
                     view["shift"],
                     transpose_key(labels[identity], view["shift"]),
-                    windows,
+                    view_windows,
                     path,
                     view["sha256"],
                     view["bytes"],

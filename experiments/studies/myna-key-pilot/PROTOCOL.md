@@ -1,9 +1,16 @@
 # Prospective Myna frozen-embedding key pilot
 
 **Source preparation only. No extraction, fitting, scoring or release result is
-reported here.** Physical pitch-view qualification is still unresolved. The old
-phase-vocoder/polyphase candidate failed amplitude qualification; a RubberBand
-candidate is under separate review. Neither is silently admitted by this protocol.
+reported here.** Physical pitch-view qualification is still unresolved. Before
+any classifier outcomes, the initial length-preserving augmentation was stopped:
+the phase-vocoder/polyphase candidate failed amplitude qualification, RubberBand
+R2 failed bass-pitch checks, and offline R3 failed target-band energy retention.
+Those failures and the original source proposal remain preserved. They do not
+qualify a cache or reject the Myna representation.
+
+**Prospective amendment, November 13:** use a distinct playback-rate/resampling
+augmentation, intentionally changing tempo and duration along with pitch. This
+is a new local recipe, not a paper reproduction or an unreported substitution.
 The eventual qualification, cost measurements, outcomes and inline figures belong
 in this study's consolidated report, not separate visual-result reports.
 
@@ -50,17 +57,25 @@ normalization, 19-window cap or independent waveform-crop padding is introduced.
 Incomplete final mel windows are discarded and counted. All complete windows is
 not literal all-audio coverage; the tail limitation remains visible.
 
-Fit caches require every integer physical shift−6…+6, with identical final sample
-counts. Selection requires only shift 0. Both −6/+6 remain distinct physical views.
-Shift 0 must have no trimming or padding. A proposed shifter's raw output, trimming
-and padding must reconcile exactly; its method/library/options and numerical
-qualification are frozen before extraction. Qualification failures cannot be
-resolved by loosening this protocol after scoring.
+Fit caches require every integer physical shift −6…+6; selection requires only
+shift 0. Both −6/+6 remain distinct physical views. The fixed method identifier is
+`pitch-by-playback-rate-polyphase-v1`. For shift s, use SciPy `resample_poly` with
+`up=16000`, `down=round(16000*2**(s/12))`, Kaiser beta 5 and constant boundary
+padding. Shift 0 is the original identity path. Output samples are exactly
+`ceil(original_samples_16k*up/down)`. There is no output padding, trimming,
+length restoration or gain normalization. Record actual playback rate and its
+pitch-rounding error in cents. Duration and tempo change deliberately; the
+original-only selection audio does not change.
+
+Each view keeps all its own complete windows, so window counts now differ across
+shifts. Method/library/options and numerical qualification are frozen before
+extraction. No candidate is admitted merely because this metadata plan validates;
+qualification failures remain separate and cannot be waived after scoring.
 
 The complete-cache schema is agreed with the extraction owner:
 
-- Top-level `schema_version="drone-myna-complete-window-cache-v1"`, `complete=true`,
-  public `label_schema`, `identities` and `tracks`. A separately sealed config binds
+- Top-level `schema_version="drone-myna-rate-window-cache-v2"`, `complete=true`,
+  public `label_schema`, `augmentation_method`, `identities` and `tracks`. A separately sealed config binds
   the exact manifest SHA. Incomplete/extraneous/duplicate records are rejected.
 - `identities` exactly binds `encoder_sha256`, `encoder_source_sha256`,
   `environment_sha256`, `frontend_sha256`, `augmentation_sha256`,
@@ -69,24 +84,31 @@ The complete-cache schema is agreed with the extraction owner:
 - Each track records `id`, `domain`, `role` (`fit`/`selection`), frozen `group`,
   original `target`, `source_sha256`, `pcm_sha256`, `samples_24k`, `samples_16k`,
   `mel_frames`, `complete_windows`, `discarded_frames` and `views`.
-- Expected sample geometry is `samples_16k=ceil(samples_24k*2/3)`,
+- Track-level geometry describes only the original unshifted recording:
+  `samples_16k=ceil(samples_24k*2/3)`,
   `mel_frames=floor(samples_16k/512)+1`, `complete_windows=mel_frames//196`,
   `discarded_frames=mel_frames%196`. Zero complete windows is a failure, not a
   silently padded input. Actual extraction counts must match the sealed budget.
-- Each view records integer `shift`, `raw_samples`, `trimmed_samples`,
-  `padded_samples`, `windows`, `dtype="float32"`, `shape=[windows,384]`,
+- Each view records integer `shift`, its own `samples_16k`, `mel_frames`,
+  `windows`, `discarded_frames`, `rate_up`, `rate_down`, `actual_rate`,
+  `pitch_cents_error`, `raw_samples`, `trimmed_samples`, `padded_samples`,
+  `dtype="float32"`, `shape=[windows,384]`,
   `window_order="all-complete-196-frame-windows-in-order"`, relative `.npy` `path`,
   `bytes` and SHA256. No pickle/object arrays or nonfinite features are admitted.
-  All 13 fitting views preserve the track's window count/order. Labels are stored
-  once per recording; shifted targets come from `drone.keys.transpose_key`.
+  Each view's geometry derives from its actual playback-rate output; all complete
+  windows are retained in order. `raw_samples` equals that view's sample count,
+  and trimmed/padded samples must both be zero. Labels are stored once per
+  recording; shifted targets come from `drone.keys.transpose_key`.
 
 Drone already uses tonic-times-two-plus-minor, matching inspected KeyMyna's
 interleaved class order modulo enharmonic names. No nonidentity label permutation
 is needed. Preserve mode under pitch transposition.
 
-Projected counts are 161,841 original fitting windows × 13 = 2,103,933 fitting
-vectors, plus 10,892 original selection vectors. Their float32 × 384 payload is
-3,248,371,200 bytes. The trainer verifies every blob, then loads one bounded
+Under the new playback-rate recipe, projected counts are 2,152,026 fitting
+vectors across 13 views, plus 10,892 original selection vectors. Their float32 ×
+384 payload is 3,322,242,048 bytes (3.094 GiB). The former length-preserving
+projection was 2,103,933 fitting vectors and is historical, not the new budget.
+The trainer verifies every blob, then loads one bounded
 contiguous RAM matrix to avoid repeated random opens of tens of thousands of
 files. Its separate label/weight/permutation buffers, head/Adam states and
 checkpoint writes also count toward the supervisor's RSS/storage budget. The RAM
@@ -116,9 +138,13 @@ seeded NumPy generator. Keep the final short batch. Long recordings must not gai
 more objective weight merely because they contain more windows. Preserve domain
 mass BP 1230/2206, FMA 976/2206, then equal weight per recording within each domain,
 then equal weight per shift/window. For N fitting vectors, n_d recordings in
-domain d, W_i windows per view and domain mass p_d:
+domain d, W_i,s windows in track i's specific view s and domain mass p_d:
 
-`weight_i = N * p_d / (n_d * 13 * W_i)`.
+`weight_i,s = N * p_d / (n_d * 13 * W_i,s)`.
+
+The denominator is the current view's window count, not the original track's
+window count. Each of 13 views therefore has equal total objective mass despite
+its changed duration.
 
 The batch objective is `mean(weight_i * cross_entropy_i)`. Do not divide by each
 random batch's sum of weights. The reported full-pass objective uses the complete
@@ -128,8 +154,8 @@ loss weight. Component groups are used for uncertainty, not extra sampling weigh
 
 Root must seal **either 10 or 100 complete passes before any accuracy is observed**,
 using sustained head-update/evaluation timing plus extraction, verification and
-artifact costs. Ten passes are 21,039,330 presentations/328,740 updates; 100 are
-210,393,300/3,287,400 at projected counts (61 examples in each last batch). One
+artifact costs. Ten passes are 21,520,260 presentations / 336,260 updates; 100 are
+215,202,600 / 3,362,600 at projected counts (26 examples in each last batch). One
 selection event follows each complete pass. These options are different exposure
 budgets; no 10-pass result may automatically continue to 100. A 100-round one-window
 per-record sampler is only 526,200 presentations and does not cover long-record
@@ -188,7 +214,8 @@ roles or fitting horizon can be changed by adding config fields.
 
 A separately reviewed qualification summary must have schema
 `drone-myna-cache-admission-v1`, `complete=true`, identical numerical identities
-(excluding its own digest), and true `all_pitch_views_passed`,
+(excluding its own digest), the same `augmentation_method`, and true
+`all_pitch_views_passed`,
 `long_track_composed_parity_passed`, `sustained_head_cost_measured`. Its digest is
 bound in the config/cache. Root must derive that summary from the actual retained
 qualification receipts, not manually substitute pass flags for failed checks.
@@ -205,7 +232,7 @@ The external guardian adds resource and retirement receipts. No PLAN.md is track
 
 `tools.prepare_myna_cache_plan` joins the original and prepared waveform manifests
 with the fixed roles, labels and groups without opening PCM or loading a model.
-It emits `drone-myna-window-plan-v1`, `complete=false`: expected shapes and all
+It emits `drone-myna-rate-window-plan-v2`, `complete=false`: expected shapes and all
 68,782 track/views are enumerated, while unknown augmentation results, blob hashes
 and sizes remain null. The same membership/geometry checks validate this plan,
 but the loader explicitly rejects its unmeasured contract. A dry-validation pass

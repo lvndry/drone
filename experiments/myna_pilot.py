@@ -19,6 +19,7 @@ from drone.keys import score_mirex, transpose_key
 from experiments.k10_v2_pilot import selection_key
 from experiments.musicfm_pilot import metrics
 from experiments.myna_cache import (
+    AUGMENTATION_METHOD,
     PINS,
     LoadedCache,
     checked_bytes,
@@ -163,6 +164,10 @@ def validate_qualification(qualification: dict[str, Any], identities: dict[str, 
         qualification.get("schema_version") == "drone-myna-cache-admission-v1"
         and qualification.get("complete") is True,
         "Qualification incomplete",
+    )
+    require(
+        qualification.get("augmentation_method") == AUGMENTATION_METHOD,
+        "Qualification augmentation method differs",
     )
     require(
         qualification.get("identities")

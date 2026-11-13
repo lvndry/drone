@@ -11,12 +11,15 @@ from pathlib import Path
 from typing import Any
 
 from experiments.myna_cache import (
+    AUGMENTATION_METHOD,
     ENCODER_SHA,
     PINS,
+    PLAN_SCHEMA,
     checked_bytes,
     checked_json,
     group_rows,
     load_cache,
+    rate_geometry,
     validate_manifest,
     validate_waveform_lineage,
 )
@@ -59,12 +62,12 @@ def project(
                 "views": [
                     {
                         "shift": shift,
+                        **rate_geometry(n16, shift),
                         "raw_samples": None,
                         "trimmed_samples": None,
                         "padded_samples": None,
-                        "windows": windows,
                         "dtype": "float32",
-                        "shape": [windows, 384],
+                        "shape": [rate_geometry(n16, shift)["windows"], 384],
                         "window_order": "all-complete-196-frame-windows-in-order",
                         "path": "embeddings/"
                         + identity.replace(":", "-")
@@ -77,7 +80,8 @@ def project(
             }
         )
     return {
-        "schema_version": "drone-myna-window-plan-v1",
+        "schema_version": PLAN_SCHEMA,
+        "augmentation_method": AUGMENTATION_METHOD,
         "complete": False,
         "status": "METADATA_PROJECTION_NOT_EXTRACTED_NOT_TRAINABLE",
         "label_schema": "tonic-times-two-plus-minor-v1",
