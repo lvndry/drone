@@ -395,6 +395,12 @@
       "git_mode": "100644",
       "sha256": "9f5f87b0a01cf91936f924f1b1436918bd36efb1df162c4f628ada2e6881f3d9",
       "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/decoder_pair.rs",
+      "sha256": "5f29b633f1ac56120e827fc9719a1ffb126713d02eb5a1cd5100689afc4aebdd",
+      "git_mode": "100644",
+      "reason": "One explicitly admitted native canonical-versus-Mac PCM prediction comparison using the unchanged captured plan and chunked model; no decoding or default promotion."
     }
   ]
 }
