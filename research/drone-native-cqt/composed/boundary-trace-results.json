@@ -1,0 +1,1815 @@
+{
+  "format": "drone-cqt-boundary-analysis-v1",
+  "case": "fmak:091711",
+  "input_traces": {
+    "python": "a8022d9f8978ab1b053e9f222bf61671a2191804f954f11bbdd4a135df59b4ed",
+    "native": "367a9c5ea3c7af7dbece5c4bdee20c340f8f5091713f6e849ce4158dfb2ec1fe"
+  },
+  "archived_core_guards": {
+    "python": true,
+    "native": true
+  },
+  "blob_records_verified": 260,
+  "unique_blobs_verified": 171,
+  "all_native_records_compared": 89,
+  "complete_array_comparisons": {
+    "after_stage1.resampled": {
+      "shape": [
+        816677
+      ],
+      "dtype": "float32",
+      "elements": 816677,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "7bd49ec7f6ba2c4e6720632fa123fbc06047d6daaa9528fec955b2beb4863807",
+      "native_sha256": "7bd49ec7f6ba2c4e6720632fa123fbc06047d6daaa9528fec955b2beb4863807"
+    },
+    "after_stage2.resampled": {
+      "shape": [
+        408339
+      ],
+      "dtype": "float32",
+      "elements": 408339,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "f036742b05828d6707faa9e1ac077851fb78e6e6118cf92e289ccddc66b5c12c",
+      "native_sha256": "f036742b05828d6707faa9e1ac077851fb78e6e6118cf92e289ccddc66b5c12c"
+    },
+    "after_stage3.resampled": {
+      "shape": [
+        204170
+      ],
+      "dtype": "float32",
+      "elements": 204170,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "8df3f863102756e41dc19969f342cf7af741d61e742511ea4960b365d317e87d",
+      "native_sha256": "8df3f863102756e41dc19969f342cf7af741d61e742511ea4960b365d317e87d"
+    },
+    "after_stage4.resampled": {
+      "shape": [
+        102085
+      ],
+      "dtype": "float32",
+      "elements": 102085,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "b2c3a8f38ab71bdbcf47fc2b825332068e7dbeaf1b7f078a61ec3f5023fc27d8",
+      "native_sha256": "b2c3a8f38ab71bdbcf47fc2b825332068e7dbeaf1b7f078a61ec3f5023fc27d8"
+    },
+    "after_stage5.resampled": {
+      "shape": [
+        51043
+      ],
+      "dtype": "float32",
+      "elements": 51043,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "ca43686e3f1b204d529b73ea3c39bfd7b36f5fe863c2ca53b90dd5689f49e29a",
+      "native_sha256": "ca43686e3f1b204d529b73ea3c39bfd7b36f5fe863c2ca53b90dd5689f49e29a"
+    },
+    "after_stage6.resampled": {
+      "shape": [
+        25522
+      ],
+      "dtype": "float32",
+      "elements": 25522,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "2697cd3c4182d3d49abf21586b1019b672d0be8ac14454e71d1ee58f79701e63",
+      "native_sha256": "2697cd3c4182d3d49abf21586b1019b672d0be8ac14454e71d1ee58f79701e63"
+    },
+    "after_stage7.resampled": {
+      "shape": [
+        12761
+      ],
+      "dtype": "float32",
+      "elements": 12761,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "c75bfba8fd470c97ca43865fde12440556f825cc8e2391a5047600f8f2ce87db",
+      "native_sha256": "c75bfba8fd470c97ca43865fde12440556f825cc8e2391a5047600f8f2ce87db"
+    },
+    "stage0.input": {
+      "shape": [
+        1633354
+      ],
+      "dtype": "float32",
+      "elements": 1633354,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "0b1234cb5e3c1ec2573d379660d7078ee7bffb1db029b87ffa58605836e2dde0",
+      "native_sha256": "0b1234cb5e3c1ec2573d379660d7078ee7bffb1db029b87ffa58605836e2dde0"
+    },
+    "stage0.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6438,
+      "unequal_values": 6438,
+      "max_abs": 5.331201499700045e-07,
+      "mean_abs": 3.2137338097699944e-08,
+      "rmse": 5.700857630507407e-08,
+      "max_abs_location": [
+        12,
+        324
+      ],
+      "python_sha256": "67e78401f179d0093f3608d082380717286ad25fb1f5289136654171561440d3",
+      "native_sha256": "c8a0372924bcfd86b4131d6be8a2507b44594df4482b8dc062de7d2ae3d20cfb"
+    },
+    "stage0.spectrum": {
+      "shape": [
+        129,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 51471,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "3208ecf442fa0df5ea991c7520a8230f01b182434935a4e7dfe5a85baa5e63ad",
+      "native_sha256": "3208ecf442fa0df5ea991c7520a8230f01b182434935a4e7dfe5a85baa5e63ad"
+    },
+    "stage1.input": {
+      "shape": [
+        1633354
+      ],
+      "dtype": "float32",
+      "elements": 1633354,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "0b1234cb5e3c1ec2573d379660d7078ee7bffb1db029b87ffa58605836e2dde0",
+      "native_sha256": "0b1234cb5e3c1ec2573d379660d7078ee7bffb1db029b87ffa58605836e2dde0"
+    },
+    "stage1.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6404,
+      "unequal_values": 6404,
+      "max_abs": 3.015782985847835e-06,
+      "mean_abs": 1.363918743070561e-07,
+      "rmse": 2.3599100488708043e-07,
+      "max_abs_location": [
+        3,
+        116
+      ],
+      "python_sha256": "68efbc632de3adc559a57a9d265c388c540a4940243ad7973b8f128336a91ca8",
+      "native_sha256": "143b289b7a622eb73ef91f9a3621631fcd5bbbbc28a0ae8b2f5e8d8798ca65fc"
+    },
+    "stage1.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "2adb11ef3e98c16a42844aca702031275debb107c69525e724ca9f93582b47f0",
+      "native_sha256": "2adb11ef3e98c16a42844aca702031275debb107c69525e724ca9f93582b47f0"
+    },
+    "stage2.input": {
+      "shape": [
+        816677
+      ],
+      "dtype": "float32",
+      "elements": 816677,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "7bd49ec7f6ba2c4e6720632fa123fbc06047d6daaa9528fec955b2beb4863807",
+      "native_sha256": "7bd49ec7f6ba2c4e6720632fa123fbc06047d6daaa9528fec955b2beb4863807"
+    },
+    "stage2.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6332,
+      "unequal_values": 6332,
+      "max_abs": 5.7220458984375e-06,
+      "mean_abs": 3.0762756103962045e-07,
+      "rmse": 5.256408252244231e-07,
+      "max_abs_location": [
+        4,
+        156
+      ],
+      "python_sha256": "1c22d89773df853310a229bbde3d6c65d13b158f6a8076ffedd17455dcf9de52",
+      "native_sha256": "acbb63555edb08d8afe9a12edf527b4f0a411e111b5bf91ea27444f21c406388"
+    },
+    "stage2.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "b940d50c5cf2d8c1063c6fcd4b39f5c441304fdaface42cb5e9f1a62e521f489",
+      "native_sha256": "b940d50c5cf2d8c1063c6fcd4b39f5c441304fdaface42cb5e9f1a62e521f489"
+    },
+    "stage3.input": {
+      "shape": [
+        408339
+      ],
+      "dtype": "float32",
+      "elements": 408339,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "f036742b05828d6707faa9e1ac077851fb78e6e6118cf92e289ccddc66b5c12c",
+      "native_sha256": "f036742b05828d6707faa9e1ac077851fb78e6e6118cf92e289ccddc66b5c12c"
+    },
+    "stage3.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6434,
+      "unequal_values": 6434,
+      "max_abs": 1.52587890625e-05,
+      "mean_abs": 5.851585923698457e-07,
+      "rmse": 1.0683997971814667e-06,
+      "max_abs_location": [
+        2,
+        121
+      ],
+      "python_sha256": "60cafdc3f1b47754f2c37d3c8fd3555f6df9cc93e0b6e15acbb1c22e84a57ff0",
+      "native_sha256": "2c2062a23a716c19073cf0eb38fb71d15c27bbc5053c7601092739e13a6bedf7"
+    },
+    "stage3.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "c1dc93c0e987040768089a0ce0c30908cd4ed18aae98962d34b0e7be926d9562",
+      "native_sha256": "c1dc93c0e987040768089a0ce0c30908cd4ed18aae98962d34b0e7be926d9562"
+    },
+    "stage4.input": {
+      "shape": [
+        204170
+      ],
+      "dtype": "float32",
+      "elements": 204170,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "8df3f863102756e41dc19969f342cf7af741d61e742511ea4960b365d317e87d",
+      "native_sha256": "8df3f863102756e41dc19969f342cf7af741d61e742511ea4960b365d317e87d"
+    },
+    "stage4.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6521,
+      "unequal_values": 6521,
+      "max_abs": 1.7059844799040144e-05,
+      "mean_abs": 9.386081025840274e-07,
+      "rmse": 1.6745001800062463e-06,
+      "max_abs_location": [
+        2,
+        41
+      ],
+      "python_sha256": "91f9acf07933da12f50cd1d35edc96213183d621b8f337e1af8fcfb790e9a807",
+      "native_sha256": "075c48ba6af150a4c49f9dc6d35e520058840aed670b547f858d02a231db67e3"
+    },
+    "stage4.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "381b4ec5c4c0cbdcae1c0db786d7e833038f72ce1a9cc17c0a9fee1f7b8912de",
+      "native_sha256": "381b4ec5c4c0cbdcae1c0db786d7e833038f72ce1a9cc17c0a9fee1f7b8912de"
+    },
+    "stage5.input": {
+      "shape": [
+        102085
+      ],
+      "dtype": "float32",
+      "elements": 102085,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "b2c3a8f38ab71bdbcf47fc2b825332068e7dbeaf1b7f078a61ec3f5023fc27d8",
+      "native_sha256": "b2c3a8f38ab71bdbcf47fc2b825332068e7dbeaf1b7f078a61ec3f5023fc27d8"
+    },
+    "stage5.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6464,
+      "unequal_values": 6464,
+      "max_abs": 3.411968959808029e-05,
+      "mean_abs": 2.5247084245708407e-06,
+      "rmse": 4.361757870778399e-06,
+      "max_abs_location": [
+        0,
+        19
+      ],
+      "python_sha256": "80b7b282c0f65a813761fe9ab66b5b8d0bdac60b9b88e79dd9e77ac2b631b036",
+      "native_sha256": "2287737201c5d983c29cb26f21c34b291f83c3c7fbb4dd6f99da4dbdacfcced4"
+    },
+    "stage5.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 1,
+      "unequal_values": 1,
+      "max_abs": 7.450580596923828e-09,
+      "mean_abs": 7.265811022618637e-14,
+      "rmse": 2.326682415501473e-11,
+      "max_abs_location": [
+        251,
+        60
+      ],
+      "python_sha256": "7010e4b81083543f751da7a89f11856d8fe585d0b55f07d3b26e108de3f971e0",
+      "native_sha256": "c9c4366e7db0d0f22a709f41aeda08f6b64b9c5414c9109e633bd72e9878e9d5"
+    },
+    "stage6.input": {
+      "shape": [
+        51043
+      ],
+      "dtype": "float32",
+      "elements": 51043,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "ca43686e3f1b204d529b73ea3c39bfd7b36f5fe863c2ca53b90dd5689f49e29a",
+      "native_sha256": "ca43686e3f1b204d529b73ea3c39bfd7b36f5fe863c2ca53b90dd5689f49e29a"
+    },
+    "stage6.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6361,
+      "unequal_values": 6361,
+      "max_abs": 0.00012582719804741396,
+      "mean_abs": 6.78389487191757e-06,
+      "rmse": 1.1726104932118178e-05,
+      "max_abs_location": [
+        2,
+        160
+      ],
+      "python_sha256": "43857a32179b3d334a7d3f43dd64cff68fbcbb68150fdcfa867a484945cdba80",
+      "native_sha256": "c0ae09b794715ba07085656e0ad059e809a47b38c3858d653d59c5251490982d"
+    },
+    "stage6.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "21aa43d480a95bfeaa277624b2cca92c5e5b03f8eecfc40a15fff49c071a19c5",
+      "native_sha256": "21aa43d480a95bfeaa277624b2cca92c5e5b03f8eecfc40a15fff49c071a19c5"
+    },
+    "stage7.input": {
+      "shape": [
+        25522
+      ],
+      "dtype": "float32",
+      "elements": 25522,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "2697cd3c4182d3d49abf21586b1019b672d0be8ac14454e71d1ee58f79701e63",
+      "native_sha256": "2697cd3c4182d3d49abf21586b1019b672d0be8ac14454e71d1ee58f79701e63"
+    },
+    "stage7.response": {
+      "shape": [
+        24,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 9576,
+      "unequal_bits": 6468,
+      "unequal_values": 6468,
+      "max_abs": 0.0002453020158172344,
+      "mean_abs": 1.2214704899233275e-05,
+      "rmse": 2.0654475997263102e-05,
+      "max_abs_location": [
+        20,
+        60
+      ],
+      "python_sha256": "6bcf9ee45dc58f850915780a52cd73182389e046bebf6cba1515ad770a6ca85b",
+      "native_sha256": "6024c2598d3bab3f551c6f9ad5d76320787fb67d8b400fa6c42f4e385c7cb5bf"
+    },
+    "stage7.spectrum": {
+      "shape": [
+        257,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 102543,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "6022bbb4201244b3822047bfe6b7a79d3cffaf52f66577e16fda4ccca8e527e1",
+      "native_sha256": "6022bbb4201244b3822047bfe6b7a79d3cffaf52f66577e16fda4ccca8e527e1"
+    },
+    "stage8.input": {
+      "shape": [
+        12761
+      ],
+      "dtype": "float32",
+      "elements": 12761,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "c75bfba8fd470c97ca43865fde12440556f825cc8e2391a5047600f8f2ce87db",
+      "native_sha256": "c75bfba8fd470c97ca43865fde12440556f825cc8e2391a5047600f8f2ce87db"
+    },
+    "stage8.response": {
+      "shape": [
+        16,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 6384,
+      "unequal_bits": 3947,
+      "unequal_values": 3947,
+      "max_abs": 3.145679951185349e-05,
+      "mean_abs": 2.0622219280250466e-06,
+      "rmse": 3.5281088030841227e-06,
+      "max_abs_location": [
+        15,
+        117
+      ],
+      "python_sha256": "0b9d46f97904d70f22f750b6b1370dd20abd0cc398e3cec4c56c596558cf5384",
+      "native_sha256": "b19bfe2ea5213def7593db6f45c246f2d528407693b704d84f166f653ba28546"
+    },
+    "stage8.spectrum": {
+      "shape": [
+        129,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 51471,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0,
+        0
+      ],
+      "python_sha256": "32cf72dfdcb3fabcb323d7366f62ffdacc8fa871807667bdf4f06055ab495a42",
+      "native_sha256": "32cf72dfdcb3fabcb323d7366f62ffdacc8fa871807667bdf4f06055ab495a42"
+    },
+    "terminal.core": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "float32",
+      "elements": 76608,
+      "unequal_bits": 9,
+      "unequal_values": 9,
+      "max_abs": 0.0009765625,
+      "mean_abs": 1.8823297450018607e-08,
+      "rmse": 3.667760573938369e-06,
+      "max_abs_location": [
+        34,
+        180
+      ],
+      "python_sha256": "4024b6238ef874f7f6e44a3355f384b4d2bdc881ada425d544107a5f7516023e",
+      "native_sha256": "6b6efa2647bcbb63e1f0d0a3d96816ed5c43662d087795393437b02cbf46c390"
+    },
+    "terminal.fp16": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "float16",
+      "elements": 76608,
+      "unequal_bits": 9,
+      "unequal_values": 9,
+      "max_abs": 0.0009765625,
+      "mean_abs": 1.8823297450018607e-08,
+      "rmse": 3.667760573938369e-06,
+      "max_abs_location": [
+        34,
+        180
+      ],
+      "python_sha256": "c8f1e43cd2893ca60ab29caeb6112d27e32b452cfd580b177d0022580bde3e02",
+      "native_sha256": "133e2c9b71a9b6c1d4a70348d642a86e4278fc0934b65e6254b377fce4edf84d"
+    },
+    "terminal.log1p": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "float32",
+      "elements": 76608,
+      "unequal_bits": 25045,
+      "unequal_values": 25045,
+      "max_abs": 2.980232238769531e-07,
+      "mean_abs": 1.2177395682929258e-08,
+      "rmse": 3.0724748742213994e-08,
+      "max_abs_location": [
+        34,
+        74
+      ],
+      "python_sha256": "8994fd395489c53a9d1af80b062c415c85bf3185384dcc083c88a9b8518fdaf5",
+      "native_sha256": "519981f4f24eed11c85d7c591c9668c3ed3d751e5b68350d2a133fc8f306fde8"
+    },
+    "terminal.magnitude": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "float32",
+      "elements": 76608,
+      "unequal_bits": 28072,
+      "unequal_values": 28072,
+      "max_abs": 1.9073486328125e-06,
+      "mean_abs": 2.704442185763628e-08,
+      "rmse": 8.526733457966239e-08,
+      "max_abs_location": [
+        26,
+        181
+      ],
+      "python_sha256": "5022579c12da5c13abfb21abfdcaff70d9f1dad5d4bf5f040686d2f512fd6d1b",
+      "native_sha256": "60472c48fabff21043f1520ec568afd5fbef34a6404e668f6bc2e8b6763ff86c"
+    },
+    "terminal.normalized": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 76608,
+      "unequal_bits": 49902,
+      "unequal_values": 49902,
+      "max_abs": 1.966049969490843e-06,
+      "mean_abs": 3.891195556228518e-08,
+      "rmse": 9.381789921025092e-08,
+      "max_abs_location": [
+        28,
+        131
+      ],
+      "python_sha256": "a1447ef25e2d52440aef633f5205d85e938872c80534dfd43a6b5ca1bd2161e6",
+      "native_sha256": "d74cdb2b3c7c661b5b33c390947b36c8a668b771fac9aebf135a36b67b62c3ed"
+    },
+    "terminal.pre_normalization": {
+      "shape": [
+        192,
+        399
+      ],
+      "dtype": "complex64",
+      "elements": 76608,
+      "unequal_bits": 51167,
+      "unequal_values": 51167,
+      "max_abs": 0.0002453020158172344,
+      "mean_abs": 3.0429276467602314e-06,
+      "rmse": 8.611486678082286e-06,
+      "max_abs_location": [
+        28,
+        60
+      ],
+      "python_sha256": "f58a118a607b3ad243e5dd2285db6a770c6cf23efa8d8ebb38da22c1ee4171b2",
+      "native_sha256": "b228621dd12488f52976256c6719e2fcba4bbd4ebf7a3db1aad75de3f49eb3ec"
+    },
+    "terminal.scales": {
+      "shape": [
+        192
+      ],
+      "dtype": "float64",
+      "elements": 192,
+      "unequal_bits": 7,
+      "unequal_values": 7,
+      "max_abs": 1.4210854715202004e-14,
+      "mean_abs": 2.868076146948321e-16,
+      "rmse": 1.86217643163424e-15,
+      "max_abs_location": [
+        19
+      ],
+      "python_sha256": "8119dfe089ccbb125c03e600d2acd0aca2601cd9d25df28aac36865e693c09f6",
+      "native_sha256": "570f3981f4fcdde2b18f13803f358dda726fe1c7fe82570977ac16a754a33e20"
+    }
+  },
+  "probe_comparisons": {
+    "after_stage1.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "d3ae397075ad405aeb2075b4fb54ceecec3baab91443ac47b7a7fc028e7e2d1e",
+      "native_sha256": "d3ae397075ad405aeb2075b4fb54ceecec3baab91443ac47b7a7fc028e7e2d1e"
+    },
+    "after_stage1.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "b491a6590c5625b63cf21c77d607509ad89ed16752866126d1a633145ce98aba",
+      "native_sha256": "b491a6590c5625b63cf21c77d607509ad89ed16752866126d1a633145ce98aba"
+    },
+    "after_stage1.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "422334910fccffa99b4aea802f618bac3186162fa4c8ef1671530713b7631c7b",
+      "native_sha256": "422334910fccffa99b4aea802f618bac3186162fa4c8ef1671530713b7631c7b"
+    },
+    "after_stage2.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "a7de8d9afb47c19a3cc947d837e7337e42fcd4b8616ebe6c0cff2fdf8176d316",
+      "native_sha256": "a7de8d9afb47c19a3cc947d837e7337e42fcd4b8616ebe6c0cff2fdf8176d316"
+    },
+    "after_stage2.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "c5d19759d3033c769e9e87d3aedf9d062db5690757d44ff56fc4e475a87a8299",
+      "native_sha256": "c5d19759d3033c769e9e87d3aedf9d062db5690757d44ff56fc4e475a87a8299"
+    },
+    "after_stage2.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "3c88c54952d0e12688c8adb8a86aec97e560431eb65ff5b36f495a6da4165513",
+      "native_sha256": "3c88c54952d0e12688c8adb8a86aec97e560431eb65ff5b36f495a6da4165513"
+    },
+    "after_stage3.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "3c3c35e9cad71945e14e547965b4764da3c3f3d01cf2121604a58e9a6ce8907a",
+      "native_sha256": "3c3c35e9cad71945e14e547965b4764da3c3f3d01cf2121604a58e9a6ce8907a"
+    },
+    "after_stage3.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "2711673e037e4d27ae06f7e131e702aa680da92b594859f76eda0678db4609ea",
+      "native_sha256": "2711673e037e4d27ae06f7e131e702aa680da92b594859f76eda0678db4609ea"
+    },
+    "after_stage3.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "787b57c08cdaf5327abed6c22425dee5fc57953878dcc52fd5b0f02b1534ca36",
+      "native_sha256": "787b57c08cdaf5327abed6c22425dee5fc57953878dcc52fd5b0f02b1534ca36"
+    },
+    "after_stage4.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "dea76b0ad7f7f42131fb0064b0191d5035d4cfddd6f8dd438077bef19f996bf5",
+      "native_sha256": "dea76b0ad7f7f42131fb0064b0191d5035d4cfddd6f8dd438077bef19f996bf5"
+    },
+    "after_stage4.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "6e4a1891a79a714e79645b5e1f16059b2daaafe560e6f9de8cfe816680f11374",
+      "native_sha256": "6e4a1891a79a714e79645b5e1f16059b2daaafe560e6f9de8cfe816680f11374"
+    },
+    "after_stage4.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "34173a7ef842190148a8a649043b78750a2d2825bb9ac95a8c11c2ed26b5eb7a",
+      "native_sha256": "34173a7ef842190148a8a649043b78750a2d2825bb9ac95a8c11c2ed26b5eb7a"
+    },
+    "after_stage5.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "7b2bb2845826cdb5413d91108182a6d630cff5a3c70bb3ab36246c7ef2d2f9ef",
+      "native_sha256": "7b2bb2845826cdb5413d91108182a6d630cff5a3c70bb3ab36246c7ef2d2f9ef"
+    },
+    "after_stage5.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "7aba890f8ebc10925912c9b6cbc674c27c89768d8c7a4f329df0dbf39fc55714",
+      "native_sha256": "7aba890f8ebc10925912c9b6cbc674c27c89768d8c7a4f329df0dbf39fc55714"
+    },
+    "after_stage5.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "f64d8c6599296fd351f203b22d6772e622acfcd86995b002981030795c4a681a",
+      "native_sha256": "f64d8c6599296fd351f203b22d6772e622acfcd86995b002981030795c4a681a"
+    },
+    "after_stage6.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "1fb2aa0b47078ab9bba988fda24bd6d3ed8a5365a335706b67dbe3ea17a69684",
+      "native_sha256": "1fb2aa0b47078ab9bba988fda24bd6d3ed8a5365a335706b67dbe3ea17a69684"
+    },
+    "after_stage6.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "a3f856597fd0f57a4308d556063685fb0df05359205d94b04045d226b6204045",
+      "native_sha256": "a3f856597fd0f57a4308d556063685fb0df05359205d94b04045d226b6204045"
+    },
+    "after_stage6.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "f8a8a3f312639e24d134849cab4eddc82502745461728c5dcffb9bf088f17615",
+      "native_sha256": "f8a8a3f312639e24d134849cab4eddc82502745461728c5dcffb9bf088f17615"
+    },
+    "after_stage7.resampled.probe0": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "5a23dcb0dada0c242d5d7b9ad54ef843033afc1dc8be37210654525d10d823db",
+      "native_sha256": "5a23dcb0dada0c242d5d7b9ad54ef843033afc1dc8be37210654525d10d823db"
+    },
+    "after_stage7.resampled.probe1": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "2f75a5d131943b555a704a17a106032449ac3df8c22e6c9dd8379e6f8a577d62",
+      "native_sha256": "2f75a5d131943b555a704a17a106032449ac3df8c22e6c9dd8379e6f8a577d62"
+    },
+    "after_stage7.resampled.probe2": {
+      "shape": [
+        256
+      ],
+      "dtype": "float32",
+      "elements": 256,
+      "unequal_bits": 0,
+      "unequal_values": 0,
+      "max_abs": 0.0,
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "max_abs_location": [
+        0
+      ],
+      "python_sha256": "2bbd206261c9bafc62c1c52125411aa836e8d6b935702aa94637fd8831198cf7",
+      "native_sha256": "2bbd206261c9bafc62c1c52125411aa836e8d6b935702aa94637fd8831198cf7"
+    },
+    "stage0.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 277,
+      "unequal_values": 277,
+      "max_abs": 2.5463115409962923e-07,
+      "mean_abs": 2.446061087699663e-08,
+      "rmse": 5.407622999374541e-08,
+      "max_abs_location": [
+        10,
+        11
+      ],
+      "python_sha256": "5962d5d2804bc18f6c444c11c1a66d21ba6be97cb1975df21443f68d6bcb3106",
+      "native_sha256": "34093785385fa31f401bdaa17a2b0ea0e84fe1aade506632b1a6cc39b3d5afc6"
+    },
+    "stage0.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 255,
+      "unequal_values": 255,
+      "max_abs": 3.371747880871523e-07,
+      "mean_abs": 3.299618128105322e-08,
+      "rmse": 5.5675519265930286e-08,
+      "max_abs_location": [
+        5,
+        11
+      ],
+      "python_sha256": "fcd7bf17820a017434e6330ac0dbf4cc924734557f396a882b06e18f206e3ebb",
+      "native_sha256": "d95e72c4b5aec46d349618744eb71aaad2dfde1753f00d82a4e83c6c1b282b21"
+    },
+    "stage0.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 270,
+      "unequal_values": 270,
+      "max_abs": 2.3688801733223527e-10,
+      "mean_abs": 2.8352779423973636e-11,
+      "rmse": 4.302298967728468e-11,
+      "max_abs_location": [
+        20,
+        0
+      ],
+      "python_sha256": "a9ff94880952e4d1ce3789929992c98fb15d17a582ddb9729afa99219b1942de",
+      "native_sha256": "e045ee7634a2a6a981881e00f5e3c02a7071460c664f1b37c5fa7846252e6c53"
+    },
+    "stage1.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 268,
+      "unequal_values": 268,
+      "max_abs": 9.830249847454215e-07,
+      "mean_abs": 9.346213247350368e-08,
+      "rmse": 1.9172141709213405e-07,
+      "max_abs_location": [
+        2,
+        15
+      ],
+      "python_sha256": "a8ebd7cd3690b16fad2c61bdc86d7dbe7d257a302e65880cbd467fdbc4d2b03d",
+      "native_sha256": "575c38a9057d186681fe525460a33e1464efa17183c7ab9777d44c2ff64ad9c8"
+    },
+    "stage1.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 265,
+      "unequal_values": 265,
+      "max_abs": 1.066240299940009e-06,
+      "mean_abs": 1.555041362332314e-07,
+      "rmse": 2.462737081983794e-07,
+      "max_abs_location": [
+        1,
+        9
+      ],
+      "python_sha256": "66eb881691939f20f99efb0423e7862256bc08b8244bce3e98d69c264ecfd34f",
+      "native_sha256": "c4034f733eb7ab8b04231cd48f4aaf9f62762ec0b2816a8f7aab00d2860a0d30"
+    },
+    "stage1.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 278,
+      "unequal_values": 278,
+      "max_abs": 2.3283064365386963e-10,
+      "mean_abs": 3.415090419033244e-11,
+      "rmse": 5.145327079656019e-11,
+      "max_abs_location": [
+        2,
+        1
+      ],
+      "python_sha256": "96a0b37196abe0b1ad4672f1ea463e9250b07750412f1fe40be927a54595cd87",
+      "native_sha256": "ae8e43de4a2e2d28a8c51c4434b270c7193e378d12e43a236f9e21fad43b8523"
+    },
+    "stage2.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 250,
+      "unequal_values": 250,
+      "max_abs": 3.814697265625e-06,
+      "mean_abs": 2.2869448801056257e-07,
+      "rmse": 5.128321618969226e-07,
+      "max_abs_location": [
+        1,
+        15
+      ],
+      "python_sha256": "f698aad4c507862f694d9d46d8d526004091ebd5ebcfa4fea523e65ddf80680f",
+      "native_sha256": "eb7b372fd56a3b65d001403c35ae692abb9bda599b7e294b67d76c8903cc439d"
+    },
+    "stage2.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 257,
+      "unequal_values": 257,
+      "max_abs": 2.132480599880018e-06,
+      "mean_abs": 3.221821600668768e-07,
+      "rmse": 5.001652402478691e-07,
+      "max_abs_location": [
+        8,
+        12
+      ],
+      "python_sha256": "18b6f1af3355c7998e76b977e1f6fe704947e6ff0d3260f20fa7ed5d7e8989b7",
+      "native_sha256": "4e561056b46e12164760b10bba7806c8dde3b2706ce2a3eb442eb0d400dce018"
+    },
+    "stage2.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 264,
+      "unequal_values": 264,
+      "max_abs": 1.3170890159654386e-09,
+      "mean_abs": 6.155553442507355e-11,
+      "rmse": 1.2611966150759112e-10,
+      "max_abs_location": [
+        0,
+        1
+      ],
+      "python_sha256": "053b76253cef097d12287c6877373c47dc75645cd04f4a7698b3620d08b0acb2",
+      "native_sha256": "e97ef1b5f35ad88569c0254ed605521c4d4a6c94cfcaaf9749ad535eb26086e0"
+    },
+    "stage3.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 265,
+      "unequal_values": 265,
+      "max_abs": 3.932099938981686e-06,
+      "mean_abs": 3.1023995499981847e-07,
+      "rmse": 6.552936008609233e-07,
+      "max_abs_location": [
+        14,
+        10
+      ],
+      "python_sha256": "17acfb91abc3f553a7e5fe07907f330367bb271618e141a1437933d72162d04e",
+      "native_sha256": "c6753f968dcf68e945332949c2a1bb663d64212bd7dc09af74939b0fb1dc13d5"
+    },
+    "stage3.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 260,
+      "unequal_values": 260,
+      "max_abs": 7.62939453125e-06,
+      "mean_abs": 7.252420532507352e-07,
+      "rmse": 1.1753008920884862e-06,
+      "max_abs_location": [
+        6,
+        2
+      ],
+      "python_sha256": "4269c1554f4cddbb3ea2bebe65f00cc1392d08f439ad5756b2716689aa04176e",
+      "native_sha256": "a22064315b896dd2c084fc720e6ea0f511f08425d2f4d9f4face7e8b45608d0d"
+    },
+    "stage3.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 271,
+      "unequal_values": 271,
+      "max_abs": 7.679882693323606e-09,
+      "mean_abs": 4.015984609545886e-10,
+      "rmse": 1.0191044944597193e-09,
+      "max_abs_location": [
+        5,
+        0
+      ],
+      "python_sha256": "a1334fed928f047be76624f60772e96dbba309e12f6971fdd8bac58bb1a1ae63",
+      "native_sha256": "782c6627dc67b42e24c241b63615738b7861430fef4d443f9ab998bc75d0b4a2"
+    },
+    "stage4.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 270,
+      "unequal_values": 270,
+      "max_abs": 1.52587890625e-05,
+      "mean_abs": 6.505047450284947e-07,
+      "rmse": 1.5758132597689962e-06,
+      "max_abs_location": [
+        0,
+        11
+      ],
+      "python_sha256": "2459203f8f7ad8cd7b6fff63769e2c0c1cc16d6df54f9d2320b209dd84b57509",
+      "native_sha256": "3f61c3bf09aaaeddc64f7a6abb0ea040fd538415ba60b8573b50faaf4d6f00fd"
+    },
+    "stage4.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 253,
+      "unequal_values": 253,
+      "max_abs": 7.864199877963372e-06,
+      "mean_abs": 1.0710984726750818e-06,
+      "rmse": 1.7404461321247006e-06,
+      "max_abs_location": [
+        12,
+        11
+      ],
+      "python_sha256": "caeb56f448b0a783bb1f7115949de1f00eb960fe3830247ddd148c15ee0ca474",
+      "native_sha256": "52baa01e82c1a893eb54193bf9926fc15d73ac2f87dbdba40a6da08f5ded91e9"
+    },
+    "stage4.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 260,
+      "unequal_values": 260,
+      "max_abs": 1.4901161193847656e-08,
+      "mean_abs": 1.010507664762319e-09,
+      "rmse": 2.2287832112118306e-09,
+      "max_abs_location": [
+        7,
+        0
+      ],
+      "python_sha256": "5a31d5924d84ff799486759b48bd1f6dc7ca478798fd2a002bbb13e8606d4413",
+      "native_sha256": "0a6ac08e3c4293107be230a3a0420af2f306248e1799e6a0d3735061fff7a7c0"
+    },
+    "stage5.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 273,
+      "unequal_values": 273,
+      "max_abs": 3.0517578125e-05,
+      "mean_abs": 1.4645619270687445e-06,
+      "rmse": 3.0747638440462144e-06,
+      "max_abs_location": [
+        9,
+        13
+      ],
+      "python_sha256": "086f90608fe5988a3403f5fb49422af776b1341e4fec7ff0a45b1b6a617dc378",
+      "native_sha256": "40e8bc6498d9276aab80be81f5b995ead02fb3ed151f3973d52cd4ba3d2bce53"
+    },
+    "stage5.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 261,
+      "unequal_values": 261,
+      "max_abs": 3.088786075725869e-05,
+      "mean_abs": 3.3399006472159624e-06,
+      "rmse": 5.208515899735117e-06,
+      "max_abs_location": [
+        11,
+        2
+      ],
+      "python_sha256": "340868ede744def229b3dc65c3a08ade82901789f9c5a95ccef3f8563d49240b",
+      "native_sha256": "3eeff07f4dd5ed662ac3149a9bc9de79c20425089d00f6490a7e149a4e3b1c5d"
+    },
+    "stage5.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 250,
+      "unequal_values": 250,
+      "max_abs": 6.664001874625056e-08,
+      "mean_abs": 4.234926930798664e-09,
+      "rmse": 9.642665141534939e-09,
+      "max_abs_location": [
+        10,
+        1
+      ],
+      "python_sha256": "dd627969e6dfaac429dc50bf77f9476f74d37e63c812948eda520cc861022bc1",
+      "native_sha256": "6694153b8e000f25cea3c1b4bc9fa765569e4879dec85fbf8e7dfba87e04bc80"
+    },
+    "stage6.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 278,
+      "unequal_values": 278,
+      "max_abs": 3.411968959808029e-05,
+      "mean_abs": 4.184544954841255e-06,
+      "rmse": 7.843238779493444e-06,
+      "max_abs_location": [
+        9,
+        8
+      ],
+      "python_sha256": "89e8a5f5e385a7b9bd461edd2cb22d10c17531e606bebf6463c0f9a4748486f2",
+      "native_sha256": "edeb016334407b1ae3a026ff4e4062dfe86d77cec0723f586b690d60b7182415"
+    },
+    "stage6.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 246,
+      "unequal_values": 246,
+      "max_abs": 0.0001220703125,
+      "mean_abs": 8.247416954818376e-06,
+      "rmse": 1.4516026936140985e-05,
+      "max_abs_location": [
+        6,
+        8
+      ],
+      "python_sha256": "45ec8df0ace4041a95d228397c7071b1ee3628267f1bc461675d5c3cec7e7fc3",
+      "native_sha256": "117db91bfa5a0bcf438f32cd4f813fcbddb7e0132fa529b867ffd2d1703e4f90"
+    },
+    "stage6.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 261,
+      "unequal_values": 261,
+      "max_abs": 1.3328003749250113e-07,
+      "mean_abs": 1.059972075756603e-08,
+      "rmse": 2.4395306680685476e-08,
+      "max_abs_location": [
+        10,
+        0
+      ],
+      "python_sha256": "a043077ccc4e6f08ad8a7d723e37a5b8eba06cf3cad0769dba6e2e6d628781e7",
+      "native_sha256": "f889b32a67eab816d6993cd146af40e036f454dc2aefcc3cc9423bd263560d54"
+    },
+    "stage7.response.probe0": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 293,
+      "unequal_values": 293,
+      "max_abs": 9.1552734375e-05,
+      "mean_abs": 8.22544846223909e-06,
+      "rmse": 1.5359505420118446e-05,
+      "max_abs_location": [
+        14,
+        13
+      ],
+      "python_sha256": "4189bfb9bc012d487578a0f55ef649d743b86f7c3a5be371967e97a47847abe5",
+      "native_sha256": "477c3823a6eab0b0cbd6e0c2278701279edc0d7d11fc5fe68f91ad54fd650ec2"
+    },
+    "stage7.response.probe1": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 260,
+      "unequal_values": 260,
+      "max_abs": 6.823937919616058e-05,
+      "mean_abs": 1.0716033719350732e-05,
+      "rmse": 1.5944754261421853e-05,
+      "max_abs_location": [
+        20,
+        3
+      ],
+      "python_sha256": "460ada1d7152c41a688123c1db84cf6c2d34333f3d1190c9b990ef58f066fa20",
+      "native_sha256": "8fa697814cc89d8b3fb4c14b122e545ed74a3f9f553f9a8f123e251249a8a869"
+    },
+    "stage7.response.probe2": {
+      "shape": [
+        24,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 384,
+      "unequal_bits": 312,
+      "unequal_values": 312,
+      "max_abs": 2.092887186840571e-08,
+      "mean_abs": 1.777595536729919e-09,
+      "rmse": 3.3088215204978663e-09,
+      "max_abs_location": [
+        22,
+        0
+      ],
+      "python_sha256": "adb428dec23ba29b54c24c3f44624c32a6e160e82572d95784c0c58a3eb20811",
+      "native_sha256": "3cd97617e79251da0f97933f3b2f0c384570ecb46d8a3c9075183652c08b0348"
+    },
+    "stage8.response.probe0": {
+      "shape": [
+        16,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 256,
+      "unequal_bits": 180,
+      "unequal_values": 180,
+      "max_abs": 1.52587890625e-05,
+      "mean_abs": 1.3136112064010695e-06,
+      "rmse": 2.494803788511581e-06,
+      "max_abs_location": [
+        15,
+        12
+      ],
+      "python_sha256": "e38e4505f82e923706694a33dffdcc4d9b0cf175598f30b8c5c704e170469d13",
+      "native_sha256": "4b497b6d6e94bb27b55bacbb683a747e73be383b29dc8c1d098fcffab76d9c72"
+    },
+    "stage8.response.probe1": {
+      "shape": [
+        16,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 256,
+      "unequal_bits": 158,
+      "unequal_values": 158,
+      "max_abs": 1.9097313303471363e-05,
+      "mean_abs": 2.325896580789238e-06,
+      "rmse": 3.904491033526132e-06,
+      "max_abs_location": [
+        14,
+        7
+      ],
+      "python_sha256": "8dcca9d67ac30f0546a763f43a64f168d1f5bae6bca2b1aae32d5cb4414b00f7",
+      "native_sha256": "d2d951c2c455a54890b26326b533bb2379930e025083a4d4f007576e9f137313"
+    },
+    "stage8.response.probe2": {
+      "shape": [
+        16,
+        16
+      ],
+      "dtype": "complex64",
+      "elements": 256,
+      "unequal_bits": 170,
+      "unequal_values": 170,
+      "max_abs": 4.16500117164066e-09,
+      "mean_abs": 4.731938405244476e-10,
+      "rmse": 8.399704593738959e-10,
+      "max_abs_location": [
+        9,
+        0
+      ],
+      "python_sha256": "737fbc25e17e8a662c0ed8ecb03987d7cef94a5927a78c402777d49b47e94ef0",
+      "native_sha256": "4ee6d31e201e86bb9916f79785d48b52409dcb3e5b7834ff970c070ac0a366fe"
+    }
+  },
+  "conditional_terminal_comparisons": {
+    "pre_normalization -> normalized": {
+      "equal_input_elements": 25441,
+      "unequal_output_given_equal_input": 0,
+      "unequal_input_equal_output": 1265,
+      "unequal_output_locations_given_equal_input": []
+    },
+    "normalized -> magnitude": {
+      "equal_input_elements": 26706,
+      "unequal_output_given_equal_input": 0,
+      "unequal_input_equal_output": 21830,
+      "unequal_output_locations_given_equal_input": []
+    },
+    "magnitude -> log1p": {
+      "equal_input_elements": 48536,
+      "unequal_output_given_equal_input": 0,
+      "unequal_input_equal_output": 3027,
+      "unequal_output_locations_given_equal_input": []
+    },
+    "log1p -> fp16": {
+      "equal_input_elements": 51563,
+      "unequal_output_given_equal_input": 0,
+      "unequal_input_equal_output": 25036,
+      "unequal_output_locations_given_equal_input": []
+    }
+  },
+  "different_core_elements": [
+    {
+      "bin": 11,
+      "frame": 4,
+      "response_stage": 7,
+      "response_row": 3,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 34,
+      "frame": 180,
+      "response_stage": 6,
+      "response_row": 2,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 36,
+      "frame": 151,
+      "response_stage": 6,
+      "response_row": 4,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 56,
+      "frame": 46,
+      "response_stage": 5,
+      "response_row": 0,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 72,
+      "frame": 328,
+      "response_stage": 5,
+      "response_row": 16,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 100,
+      "frame": 55,
+      "response_stage": 4,
+      "response_row": 20,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 102,
+      "frame": 115,
+      "response_stage": 4,
+      "response_row": 22,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 123,
+      "frame": 163,
+      "response_stage": 3,
+      "response_row": 19,
+      "normalization_scale_equal_bits": true
+    },
+    {
+      "bin": 159,
+      "frame": 171,
+      "response_stage": 1,
+      "response_row": 7,
+      "normalization_scale_equal_bits": true
+    }
+  ],
+  "scope": "Read-only retained array comparisons; no transforms, model, audio decode or candidate execution.",
+  "native_plan_csr_files_verified_against_observed_python": [
+    "stage0.basis",
+    "stage0.indices",
+    "stage0.indptr",
+    "stage1.basis",
+    "stage1.indices",
+    "stage1.indptr",
+    "stage2.basis",
+    "stage2.indices",
+    "stage2.indptr",
+    "stage3.basis",
+    "stage3.indices",
+    "stage3.indptr",
+    "stage4.basis",
+    "stage4.indices",
+    "stage4.indptr",
+    "stage5.basis",
+    "stage5.indices",
+    "stage5.indptr",
+    "stage6.basis",
+    "stage6.indices",
+    "stage6.indptr",
+    "stage7.basis",
+    "stage7.indices",
+    "stage7.indptr",
+    "stage8.basis",
+    "stage8.indices",
+    "stage8.indptr"
+  ],
+  "normalization_lengths_equal_bits": true,
+  "differing_scales": [
+    {
+      "bin": 19,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 28,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 32,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 96,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 164,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 181,
+      "ulp_distance": 1
+    },
+    {
+      "bin": 182,
+      "ulp_distance": 1
+    }
+  ],
+  "stage5_fft_difference": [
+    {
+      "frequency_bin": 251,
+      "frame": 60
+    }
+  ],
+  "stage5_fft_difference_csr_support_rows": [],
+  "stacking_matches_stage_responses_both": true,
+  "resource_receipt": {
+    "complete": true,
+    "error": null,
+    "wall_seconds": 6.326537291985005,
+    "cpu_seconds": 6.462198,
+    "sampled_peak_rss_bytes": 338526208,
+    "owned_output_bytes": 34165163,
+    "no_model_or_scoring": true
+  },
+  "historical_gaps": [
+    "scipy_fft_backend",
+    "jit_runtime",
+    "system_math",
+    "rustfft_dispatch"
+  ],
+  "interpretation": {
+    "earliest_observed_difference": "stage0.response (CSR boundary), with complete bitwise-equal stage0 input, STFT, and all three CSR buffers",
+    "secondary_differences": "one stage5 pre-CSR spectrum value and seven float64 sqrt scales; no output-level terminal-only difference observed conditional on equal preceding complex/scalar values",
+    "next_hypothesis": "The complex64 CSR multiply/add evaluation or contraction differs between the pinned SciPy sparse implementation and ordered Rust num_complex arithmetic. A future separately bounded response-only replay should compare exactly the captured identical operands; no FFT/resampler/model or tolerance change is justified by this observation."
+  },
+  "publication_scope": "Metadata and aggregate numerical diagnostics only. Original arrays remain local; optional replay requires those hash-bound arrays."
+}

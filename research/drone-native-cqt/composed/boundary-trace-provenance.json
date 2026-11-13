@@ -1,0 +1,157 @@
+{
+  "format": "drone-cqt-boundary-publication-v1",
+  "original_receipts": {
+    "trace-controller.json": {
+      "sha256": "01bf641245eec4995063bc7d462416f379b1eb7421d57a184d77c29e5693a679",
+      "bytes": 529
+    },
+    "trace-plan.json": {
+      "sha256": "b01509b30a7e812461b0cec9dd05c2899a8763e58d94793b5a66b66691d2d0bb",
+      "bytes": 1736
+    },
+    "runtime-proof-v2.json": {
+      "sha256": "5e1549fce527337f17e3bf7fde1441edad423ea8a1c9c1331f64901e50352563",
+      "bytes": 7685
+    },
+    "runtime-proof.json": {
+      "sha256": "d2ec030719d7c2a1fedc2d5524af7ae7f2d6e27b83d785ac6036c1ffff76e028",
+      "bytes": 6917
+    },
+    "python-launch.json": {
+      "sha256": "37ca49007a7a88da7d17f199bf5aef69ef6de502c52bb80a1e89f293229c133b",
+      "bytes": 74
+    },
+    "native-launch.json": {
+      "sha256": "6251821c7267956cf368d84581ded69741a05048d5ba7928c4738429e3a4c309",
+      "bytes": 74
+    },
+    "preparation/current-dispatch.json": {
+      "sha256": "21c77fe3516df608f1553b25d93a3953e994ed4964fc0eee17176176aea4b1f0",
+      "bytes": 6005
+    },
+    "preparation/pcm-controller.json": {
+      "sha256": "884bb65cad45cb5758cd0b08920e0064b2180381580a5ee0c6509d7053cd7744",
+      "bytes": 267
+    },
+    "preparation/run_trace.py": {
+      "sha256": "6bfea939c86b89a528c13f8abf832bd654f6f637ff633883f810d98e8799cba5",
+      "bytes": 7784
+    },
+    "preparation/prepare_runtime.py": {
+      "sha256": "332bcf2bbc9aa3f261350011d7e1ff1d559b847c34ecdfcbb3e8c51568d43141",
+      "bytes": 3428
+    },
+    "preparation/prepare_runtime_v2.py": {
+      "sha256": "f4dfbe37bb0430a95644071fcb8891465104872f6f30487d8f8b2a4cac879bbc",
+      "bytes": 3687
+    },
+    "preparation/runtime-prepare.json": {
+      "sha256": "20ca7d85214b2bc241af19e9dd460636ca1696b4d9a596e95f3568d84c67c963",
+      "bytes": 140
+    },
+    "preparation/runtime-prepare-v2.json": {
+      "sha256": "784e0f3ec476f6ea2206c8b177847d60431f51da126d0ffff879affc07f74e0a",
+      "bytes": 159
+    },
+    "preparation/runtime-prepare.stderr": {
+      "sha256": "79702717c8537e9cce27ef12e6cac9c9b8e1db54d087cb888b09ddb0ec93a744",
+      "bytes": 452
+    },
+    "preparation/runtime-prepare-v2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "trace_identities": {
+    "python": {
+      "format": "cqt-boundary-trace-v1",
+      "implementation": "python",
+      "case": "fmak:091711",
+      "manifest_sha256": "462205de24ff451e040afe45a3409cfc3fa9b74afc4f37d1725024cee59dc1fc",
+      "runtime_proof_sha256": "5e1549fce527337f17e3bf7fde1441edad423ea8a1c9c1331f64901e50352563",
+      "source_sha256": "d1b6014b91f155bef373bb50e70d27a8fcc34bcc0051729488d76f9546625aaa",
+      "historical_gaps": [
+        "scipy_fft_backend",
+        "jit_runtime",
+        "system_math",
+        "rustfft_dispatch"
+      ],
+      "core_sha256": "4024b6238ef874f7f6e44a3355f384b4d2bdc881ada425d544107a5f7516023e",
+      "archived_core_preserved": true,
+      "no_model_or_ort_invoked": true
+    },
+    "native": {
+      "archived_core_preserved": true,
+      "case": "fmak:091711",
+      "core_sha256": "6b6efa2647bcbb63e1f0d0a3d96816ed5c43662d087795393437b02cbf46c390",
+      "executable_sha256": "a4b5a29ce31de5a8dd87e131f7d0839487f13c0916e6487722da707283f96d94",
+      "format": "cqt-boundary-trace-v1",
+      "implementation": "native",
+      "manifest_sha256": "462205de24ff451e040afe45a3409cfc3fa9b74afc4f37d1725024cee59dc1fc",
+      "no_model_or_ort_invoked": true,
+      "plan_source_sha256": "0b973fec8c9356254c8b21812b4850526824bde888a57f86f370206e417de251",
+      "runtime_proof_sha256": "5e1549fce527337f17e3bf7fde1441edad423ea8a1c9c1331f64901e50352563",
+      "source_sha256": "3860d153f62b490d6714b4ad7e908851b6a4847dda132aeb9d24d05d7e2ac7fb"
+    }
+  },
+  "native_files": {
+    "executable": {
+      "sha256": "a4b5a29ce31de5a8dd87e131f7d0839487f13c0916e6487722da707283f96d94"
+    },
+    "trace_source": {
+      "sha256": "3860d153f62b490d6714b4ad7e908851b6a4847dda132aeb9d24d05d7e2ac7fb"
+    },
+    "plan_source": {
+      "sha256": "0b973fec8c9356254c8b21812b4850526824bde888a57f86f370206e417de251"
+    },
+    "cargo_lock": {
+      "sha256": "a2113290218729da788bcc59ad78cf51b892fcfdc46c2a2c0ec4e4548133a05d"
+    },
+    "rustc": {
+      "sha256": "302dacde7af194bebcdd7d45c821fefed52e5b96eacc00de80e4b32863def01b"
+    },
+    "cargo": {
+      "sha256": "f6f1ae30e327d6ee1df89485871ec7a971d7c3bc34616fc8cd17ddded0489fbc"
+    },
+    "soxr_wrapper": {
+      "sha256": "49c7903d21711aff76afaaef122f7e71120f901427acb314f721f5b663b53880"
+    },
+    "soxr_library": {
+      "sha256": "b98d5dcb7214509496968e72f42b1fa18a3365dce251f6eb56331c0c7f618445"
+    },
+    "soxr_wrapper_source": {
+      "sha256": "31e6bb44cca10ef5f4ecb5b4fe59fe0ea4b51a9ac765e9b1d437d5118877c8f4"
+    },
+    "soxr_source_receipt": {
+      "sha256": "abf9439d1ca99915d005001b7a8f04671988bb7fc33a7d0df9976376a1742668"
+    }
+  },
+  "current_module_sha256": {
+    "scipy.fft._basic_backend": "79dd71754fe19520cc4963c9e774bb6bc939795e451624bec104597e335c1b8c",
+    "scipy.fft._duccfft.basic": "ccfc7b2ebc2e47cd0232910230c40bd8d2ecc0e80277183a4af4995882b6b5a7",
+    "scipy.fft._duccfft.pyduccfft": "1d38cbdec88af07005a72f70b295ef85e9bdacc0f035f3e44cd8ce4b67263cdb",
+    "numba": "d6c3a21423072fcd3d00d5445f97f62de79744b6f351a3800eac8bcd2cf85420",
+    "numba._helperlib": "0c7cfa627ad0bcd335ff6ec432e5514b188d9f7bedae360aee930fa39b50f568",
+    "llvmlite": "fd4c05b036b6c225f1d562f1d17515d9692b3d9a50c235d3478b0f48d4369c33"
+  },
+  "trace_support_sha256": {
+    "tools": null,
+    "experiments": "44924a60401eefc90646530dba324ad0c11d5fb98d9c51586d45bb387ce16815",
+    "tools.research": "c134b7d141dadc4832d519c4570e6e153eb45ffc0e8298fa7892cee05db57f08",
+    "experiments.chunked": "9af51310d5fc2532ec0d6d1974e583b7bcd57ce3647da7e29d94f3af9752decf",
+    "tools.research.contracts": "2f647777979fdecf32b950123b918177d10c4f058cd1849b8c5c4d5a65f717a0",
+    "tools.research.measurements": "4815020da2f904346e3cd6f37353cbef1547e2acf3adfdefb7f07af65788dc59",
+    "tools.export_cqt_goldens": "294448be720f8f597a263b1a6785d47dca5e2a30b394a8dbc66c69561be0c9f9"
+  },
+  "jit_library_sha256": [
+    "0dbd1ffab43f10f8ca3e27d10739bcab902d0bfddcb2c3762e1ea37dc5d85a5e"
+  ],
+  "historical_gaps": [
+    "scipy_fft_backend",
+    "jit_runtime",
+    "system_math",
+    "rustfft_dispatch"
+  ],
+  "scope": "Original receipts and raw traces remain immutable and local. This public projection omits operational paths and launch process identities; it is not a lossless replacement for the receipts. The runtime-proof v1 preparation failed, v2 completed; see retained original preparation receipt hashes.",
+  "results_sha256": "d1e5f67a2644703ff22f791cbd988bf05eefc71c7ec39867540c7e6eed45a586"
+}
