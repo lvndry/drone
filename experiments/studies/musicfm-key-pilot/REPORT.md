@@ -401,6 +401,42 @@ The gate, checkpoint, panel, estimator and interpretation are unchanged. The
 diagnostic still reports `BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING` if the
 measured margin does not fit.
 
+## November 13: BatchNorm diagnostic result — negative
+
+The diagnostic completed on the compute-idle RTX 5090 at 10:12 UTC. The worker
+exited zero with no cleanup error; wall was **707.6 s**, peak owned RSS
+**6,219,206,656 bytes** and aggregate CPU **843.28 s**. All caps held, the
+candidate state reloaded strictly, and the composed B1/B16 proof had **zero
+argmax disagreements**. No training, confirmation scoring or promotion occurred.
+
+| Panel | Untouched selected checkpoint | BN-refreshed candidate | Change |
+|---|---:|---:|---:|
+| Beatport exact, 126 | 83 (65.87 %) | 76 (60.32 %) | **−7 (−5.56 pp)** |
+| FMA exact, 250 | 166 (66.40 %) | 169 (67.60 %) | **+3 (+1.20 pp)** |
+| Beatport symmetric MIREX | 73.25 | 68.25 | −5.00 |
+| FMA symmetric MIREX | 73.36 | 74.40 | +1.04 |
+
+The frozen gate required at least **171/250** FMA exact (+5) with **no**
+Beatport decline. The candidate failed both conditions (`useful_signal: false`,
+`promotion_authorized: false`). Refreshing the 18 BatchNorm input populations
+does not rescue this checkpoint: it costs seven Beatport exact answers and gains
+only three FMA exact answers. This is a genuine negative result, not a budget
+refusal or infrastructure failure.
+
+**Interpretation.** The train/eval BatchNorm mismatch is not a standalone cause
+of the pilot's plateau, and a sequential population refresh is not a useful
+intervention for this teacher. The avenue is closed for this checkpoint. The
+result also bounds the earlier speculation: even the minimum-signal bar would
+have left the candidate below the expanded K10 control's 176/250 FMA and 89/126
+Beatport.
+
+Evidence is in [data/bn-diagnostic/v4](data/bn-diagnostic/v4/), with hashes in
+its `SHA256SUMS`: sealed config `c2ddf304…`, approval `e48d3b9a…`, result
+`36b8dcba…`, moments `82e6832a…`. The run used source commit
+`094d735ac9c206913be27d854221a9a7e0d24449` and the 3,600 s / 16 GiB bounds
+recorded in the owner amendment above. Mistral was restarted immediately after
+the run and is healthy.
+
 ## Historical preparation — November 12, 2026
 
 The original cost-qualification report follows, preserved as written. Its
