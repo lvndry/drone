@@ -1,0 +1,62 @@
+{
+  "cost_source_commit": "804b21c",
+  "files": {
+    "arm-320.json.gz": {
+      "decoded_bytes": 2227891,
+      "decoded_sha256": "008dd4ccbfb5de492c8a5c852125b3400927bc6753b516b8d9168677af11d3c2",
+      "sha256": "3b2fdc27138cf1c202684f9f11575f472600abcd42f6e42f1947967d93fe39f3"
+    },
+    "arm-65.json.gz": {
+      "decoded_bytes": 2227669,
+      "decoded_sha256": "53aa8b69b7c8411bc74ce12cdb59cc0d7da146166217d0054ad61914c135c12e",
+      "sha256": "fb3b9192ae671884c90bb607c8399e95b1aa8b1c7b9024969796b468bb4aeb85"
+    },
+    "controller.json.gz": {
+      "decoded_bytes": 1019,
+      "decoded_sha256": "9adeb4ef29ee48fa3be8545e953b808796c7089727ed7096cefb794438f2d4e9",
+      "sha256": "2932d1eec30d8041ced54019167a73ce9b113ecaac45fe85d7727114103c491c"
+    },
+    "cost-controller.json.gz": {
+      "decoded_bytes": 345,
+      "decoded_sha256": "418e6919ceb0a1464d26b41aa4df4c3005454db9d6fe6af8736d30f3a7195c35",
+      "sha256": "19f57b89067dfa2cb7d1d9ea5159a33a073fa292102fbe3e9dcd5ca34c361ef3"
+    },
+    "cost-receipt.json.gz": {
+      "decoded_bytes": 1611,
+      "decoded_sha256": "f77f1d43221e73bb1c834ecbd81490917e12e59a936f3231dc64ec720b3500a1",
+      "sha256": "1a4e86181b03f9731121b72de43ebe77d94a0392a54d68036eb62f747eb3f7a1"
+    },
+    "cost-result.json.gz": {
+      "decoded_bytes": 122181,
+      "decoded_sha256": "6c04aa1b138f5ebf4483e0fd58a064cc13685f3507d72b738837e7d45a27dc4b",
+      "sha256": "3627998d5361c64832318924752bce408d934e09a5c35d5b876a8cb72b2cba52"
+    },
+    "executed-context-source.py.gz": {
+      "decoded_bytes": 27869,
+      "decoded_sha256": "8fcad9e50f1ad3a4d122715f0620426753819a0098555488dd42c834c8eed3c9",
+      "sha256": "92c847fa3744a7fbb501aeae83676cfffc9004debc0c38d1866c3283f1f9efa6"
+    },
+    "pair-approval.json.gz": {
+      "decoded_bytes": 519,
+      "decoded_sha256": "b1f581bb06578a7b0df753135fb1abb15b7660bd3de1823eefd4c879ac7f0a7d",
+      "sha256": "82f7c0a1b5a7c6fa5e751bd44938846cc399a9cf3fef5e7a279306a3c29d674e"
+    },
+    "pair-config.json.gz": {
+      "decoded_bytes": 6389909,
+      "decoded_sha256": "da13456c0bb8d992b81a73e422ce4cf74bc8c1b8afb126adb4cbcdfc55f72925",
+      "sha256": "16009606aec691133f727d5364ee57ed372458617ed884d8fd911f3b958cae7f"
+    },
+    "pair-result.json.gz": {
+      "decoded_bytes": 134272,
+      "decoded_sha256": "43482eb61d079b97be2bb73bdc151adc8417069234c22cb272fff869c45e155e",
+      "sha256": "ea177924f53fdd85ea33343a456058b35084f4d5f9cf6ed3f9168ac9870629d8"
+    },
+    "postflight.json.gz": {
+      "decoded_bytes": 3460,
+      "decoded_sha256": "d26a6c44efb799f1c8364446203eb186609224d942ca7777e5fa0cfc5ff13123",
+      "sha256": "181f986dc49d73b6717dc9a33d0718709ae436941f0c1c76e6443e707276cd15"
+    }
+  },
+  "original_terminal_archive_sha256": "bce2f350062249ccbe963803be82243034bd0f2f6f8b4662eb89d979fa7f234a",
+  "source_commit": "90a318e069ed63a3bc1f3af639dcdf7c3255b93f"
+}
