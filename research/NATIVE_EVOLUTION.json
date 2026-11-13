@@ -13,16 +13,16 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "e1073328f660f4417397ba336bee483239bb0aa5be5a594d7c24569e3be84568",
+      "current_sha256": "330ecb9f493817b23554a898822c68df816a92ea455c83e063fb72cf35827379",
       "git_mode": "100644",
-      "reason": "Append fixed-case boundary observer methods, failed and successful build qualifications, and completed full-array trace analysis. Preserve the failed historical portability gate; distinguish sparse-response observation from an untested arithmetic cause. Original measurements remain historical."
+      "reason": "Append retained all-stage arithmetic replay and independently verified fixed-case fused-product candidate result, with inline figure. Preserve historical failure and distinguish one repaired core from wider portability or accuracy promotion."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
       "migrated_sha256": "88393dd2e3ca216363b23ed54540646722fbd8881b35dcb84140b1573554226d",
-      "current_sha256": "dc5a393cadd7b8bfdb610f8e4e7075acbc13c7576ccb784bf7441c4f4d45ac81",
+      "current_sha256": "0cd951c51e8cb1e4dad2621faaf45c454d392ff563b6e3251f42a2356f6a6290",
       "git_mode": "100644",
-      "reason": "Expose observation-only stage boundaries and name the result tuple for Clippy; no numerical frontend operation or tolerance change. Earlier built binary remains bound to its archived pre-lint source."
+      "reason": "Preserve default separate-product compute/trace behavior while adding an explicit research-only fused complex-product method and analytical cancellation regression. Executed historical and candidate sources remain separately pinned."
     },
     {
       "path": "research/drone-native-cqt/REPORT.md",
@@ -114,9 +114,69 @@
     },
     {
       "path": "research/drone-native-cqt/composed/test_boundary_trace.py",
-      "sha256": "3ed5b9b788f7158b727de88c0b9626201c0fb4996993a857df886f5af617bbc6",
+      "sha256": "52b48c16a5843cd9a46b81ce8ebc5c0c57c508fbf4a79050df32a383842da2f9",
       "git_mode": "100644",
-      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+      "reason": "Preserve archived trace failure and check subsequent arithmetic/candidate metadata, tamper rejection and public-path privacy without numeric inference."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/FUSED_PRODUCT_PROTOCOL.md",
+      "sha256": "617c59baed4e4968acd3d4517b295f207537d61a4ee4904265332a0054a78b75",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/csr-product-rounding-provenance.json",
+      "sha256": "bbbd648041d42f92f56f89ee7118f50ac6a044501b4dd7eef0fcb08d2680ab7e",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/csr-product-rounding-results.json",
+      "sha256": "6122fe14094deb342531d8fd864aeadce02e1c259364dc852d1d8c598e4418a8",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-product-provenance.json",
+      "sha256": "510912743857307eea257161ab9f72633ba1fa8c21f0ed8cff1d0a67a1fd5050",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-product-results.json",
+      "sha256": "919a50bf44fc099d97353d070ee02095f94332032a099911fd3ef4fc3214978a",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-product.png",
+      "sha256": "3d562bd1dffd3e31a932fd4fd2ad9b5f1462ef1024ed650da8d83b94fe5813b7",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/fused-product.svg",
+      "sha256": "f45cf7e59a982fef80736fb8fc8383b1e92b9f6f0a16e58fe62626c86f5ba260",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_fused_product.py",
+      "sha256": "9f2c8b511387b050dbdfaa44f1b9f1bf498338fe8a7b6934b79413ee5e36e893",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_fused_product.py",
+      "sha256": "993ff9524e1bd916a62952ce24e0bb91b591f626390b497d76beb92e3202eb39",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/fused_product_case.rs",
+      "sha256": "b8b95df9d5571f71cd21fd51057d6a3f981ee63b4ecfd72ecd3d7ea3856e78d0",
+      "git_mode": "100644",
+      "reason": "Research-only fused-product candidate, frozen prospective protocol, and checked publication of retained arithmetic/core evidence; no default change or corpus promotion."
     }
   ]
 }

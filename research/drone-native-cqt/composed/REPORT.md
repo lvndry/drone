@@ -16,7 +16,10 @@ remain unchanged; no Mac timing or promotion followed.
 A later fixed-case frontend trace reproduced both archived feature arrays and
 located the first observed difference at the sparse response, with identical input
 and FFT operands. The [boundary diagnostic below](#fixed-case-boundary-trace-november-13-1246-utc)
-reports that finding without changing the failed portability verdict.
+reports that finding. A subsequent [fused-product candidate](#compiled-fused-product-candidate-removes-the-fixed-case-error-november-13)
+now reproduces all 76,608 reference core values on this one recording. The
+original control still reproduces its nine differences; the 376-track portability
+verdict is unchanged until the new candidate undergoes wider qualification.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -450,8 +453,9 @@ first metadata preparation attempt rejected a mismatched namespace origin; a sep
 correction bound the actual source path and passed before either frontend ran. Both receipts remain
 preserved. The frozen [trace protocol](BOUNDARY_TRACE_PROTOCOL.md) is unchanged.
 
-The analysis below only reads those retained arrays. No candidate change, model, scoring, tolerance
-change or new inference measurement followed. The existing strict parity gate remains failed.
+At this trace-analysis stage, only retained arrays were read: no candidate change, model,
+scoring or tolerance change followed. The later arithmetic replay and compiled candidate are
+reported separately below. The original strict parity gate remains failed.
 
 ### Coverage and results
 
@@ -553,3 +557,144 @@ uv run --script research/drone-native-cqt/composed/plot_boundary_trace.py
 # Optional: replay retained arrays in the original private trace root (needs NumPy).
 python3 research/drone-native-cqt/composed/summarize_boundary_trace.py --trace-root "$TRACE_ROOT"
 ```
+
+## Sparse-product rounding explains the retained responses (November 13)
+
+The follow-up isolated the difference **inside complex multiplication**, before
+the completed product is added to the accumulator. The installed SciPy sparse
+kernel uses a fused multiply-add within each complex product. The native source
+rounds its component products separately. Both then add the completed complex
+product to the running sum separately.
+
+**Method.** Static inspection of the installed sparse kernel justified exactly
+two arithmetic paths. An exact integer implementation of binary32 rounding
+evaluated both on the captured operands, without a transform, decoder or model.
+The first bounded run covered stage 0 and two fixed coordinates: the first
+archived mismatch and the first equal nonzero response. All 22 isolated products
+and all 22 prefix responses agreed with the fused model. At the mismatch
+coordinate, the first product already differed. The equal-output control also
+had differing products, but its accumulators later converged; intermediate
+differences do not always survive to an output.
+
+A second, prospectively fixed run covered **all eight remaining stages** using
+the same two arithmetic implementations. Each model consumed its implementation's
+own captured spectrum. Every CSR-used spectrum value was identical; the single
+stage-5 FFT difference remained outside the matrix's column support. Each stage's
+installed SciPy replay reproduced its archived response before interpretation.
+
+Across all nine stages, the replay covered 1,260,042 complex terms per arithmetic
+path and 82,992 response elements, including bins outside the final core:
+
+| Arithmetic model | Differences from archived native responses | Differences from archived Python responses |
+|---|---:|---:|
+| Separate component products, separate accumulation | **0** | 55,369 |
+| Fused operation within product, separate accumulation | 55,369 | **0** |
+
+The response coordinates feeding all nine original FP16 differences also matched
+their respective archived responses. This establishes the product-rounding
+explanation for this case's sparse responses. This arithmetic-only replay did not establish a corrected whole frontend. The
+subsequent compiled-candidate test below answers that question for this one case;
+reference behavior on other CPUs and SciPy builds remains unqualified.
+
+| Diagnostic | Wall time | Aggregate CPU | Sampled process-tree RSS |
+|---|---:|---:|---:|
+| Stage 0 and fixed term checks | 5.44 s | 6.20 CPU-s | 84.33 MiB |
+| Fixed stages 1–8 extension | 43.29 s | 47.20 CPU-s | 105.78 MiB |
+
+These are instrumented arithmetic-replay costs, not inference benchmarks. Both
+controllers completed within their declared limits and found no surviving owned
+processes. [Aggregate results](csr-product-rounding-results.json) and
+[technical provenance](csr-product-rounding-provenance.json) retain coverage,
+exact-match counts, term-check outcomes and original evidence identities without
+publishing operational paths or raw operands.
+
+## Compiled fused-product candidate removes the fixed-case error (November 13)
+
+**Result.** A separately built native frontend reproduces the archived Python
+core **bit for bit across all 76,608 values**, after the existing FP16 roundtrip.
+Changing only the complex product evaluation removes all nine original
+feature differences. The original separate-product control is reproduced
+exactly by the same new executable before the candidate is admitted.
+
+![All-stage arithmetic explanation and whole-core candidate result](fused-product.png)
+
+**Problem and method.** The retained counterexample is `fmak:091711`: 1,633,354
+samples at 22,050 Hz, **74.08 seconds**, and 399 CQT frames. Its genre and BPM are
+not established by this numerical packet; it is not evidence about a DJ genre or
+long tracks. Both passes read the same retained PCM, captured CSR kernels and
+normalization lengths. The candidate rounds the cross terms separately, uses a
+fused multiply-add inside each complex product, then adds the completed product
+to the accumulator separately. FFT, resampling, accumulation order, magnitude,
+logarithm, FP16 boundary and reference all stay fixed. No model is loaded.
+
+| Complete final core against archived Python | Different values / total | Maximum absolute difference |
+|---|---:|---:|
+| Rebuilt original separate-product control | 9 / 76,608 | 0.0009765625 |
+| Explicit fused-product candidate | **0 / 76,608** | **0** |
+
+This closes the causal loop for the retained failure: source inspection predicts
+the product-rounding difference; exact arithmetic explains every captured stage;
+a minimal native change then removes every final-core difference. The candidate
+is exposed only through the explicitly named research method and
+[`fused_product_case`](../src/bin/fused_product_case.rs). The ordinary compute,
+trace and diagnostic paths retain their original arithmetic. The frozen
+[build and fixed-case protocol](FUSED_PRODUCT_PROTOCOL.md) remains an unchanged
+record of what was proposed before execution.
+
+The offline build and the single analytical cancellation test passed. The test
+also distinguishes fused products from incorrectly fusing the accumulator.
+The supervised build used 126.44 seconds wall, 197.65 aggregate CPU seconds and
+499.17 MiB sampled process-tree RSS. The two-pass frontend diagnostic used
+**0.552 seconds wall, 0.461 aggregate CPU seconds and 58.89 MiB sampled process-tree
+RSS**. These include diagnostic work and supervision; they are **not** warmed
+per-track inference timings or an ordinary-PC memory guarantee. Both supervised
+runs completed within their frozen limits with no surviving owned processes.
+
+The [exact comparison record](fused-product-results.json) and [technical
+provenance](fused-product-provenance.json) bind the executed source, private build
+snapshot, executable, actual loaded Soxr libraries, input identities, logs and
+resource receipts. They contain no operational paths or raw audio/features.
+The four historical runtime gaps remain declared. The original negative result
+is preserved, and **no classifier accuracy or full-corpus portability result is
+claimed**. This is one numerical repair candidate, not a release promotion.
+
+The [checker](summarize_fused_product.py) verifies the published comparison and
+can independently read the retained core bytes without a transform or model.
+The [figure source](plot_fused_product.py) reads checked aggregate results only.
+
+```sh
+python3 research/drone-native-cqt/composed/summarize_fused_product.py
+python3 research/drone-native-cqt/composed/summarize_fused_product.py --run-root "$FIXED_CASE_RUN"
+uv run --script research/drone-native-cqt/composed/plot_fused_product.py
+```
+
+### Next finite validation: the nine retained golden cases
+
+The next proposed step is to freeze **all nine existing golden cases**, rather
+than choosing a favorable subset: silence, impulses, tone, major chord, minor
+chord, noise, and FMAK recordings `110544`, `107354`, `087373`. The three recordings
+contain **40.12, 240.40 and 1,682.26 seconds** of decoded input (about 40 seconds,
+4 minutes and 28 minutes); the six synthetic inputs span 1.30–5.76 seconds. These
+are numerical fixtures, not a genre-balanced accuracy panel. No genre or BPM
+coverage is inferred from their names.
+
+Their existing Mac manifests, PCM, CSR banks, archived Python cores and original
+native cores are retained locally. Before execution, bind all identities in a
+new packet and admit a new frontend-only nine-case entrypoint. Keep the arithmetic
+exactly as tested here; retain the original control and candidate core for every
+case. Report every per-case exact hash, differing count and maximum difference,
+using the archived **Mac** Python cores as the primary reference. Existing Linux
+cores may be reported separately, never substituted to obtain a pass.
+
+Proposed bounds are one sequential worker, numeric threads one, **120 seconds
+wall, 90 aggregate CPU seconds, 1 GiB sampled process-tree RSS and 64 MiB owned
+outputs/logs**. Existing input artifacts remain read-only; process only one case
+at a time. A cap violation or mismatch is a retained failure, not permission to
+retry, change arithmetic, drop the long fixture or relax thresholds. The exact
+packet and source must be reviewed before execution; no such run is reported here.
+
+Passing these nine cases would justify a separately frozen expansion over the
+existing 376 public recordings and cross-platform validation. It would still
+not establish improved key accuracy, broad genre coverage, a deployment memory
+budget or parity on arbitrary PCs. Full classifier checks and paired performance
+measurements follow only after frontend qualification.

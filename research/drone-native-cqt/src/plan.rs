@@ -182,6 +182,34 @@ fn observed_error(root: &Path, actual: &[f32], observation: &Value) -> Result<Va
 
 type StageResponse = (usize, Vec<Complex<f32>>, Option<Vec<Complex<f32>>>);
 
+#[derive(Clone, Copy, Default)]
+enum SparseProduct {
+    #[default]
+    Separate,
+    FusedWithinProduct,
+}
+impl SparseProduct {
+    #[inline]
+    fn multiply(self, a: Complex<f32>, b: Complex<f32>) -> Complex<f32> {
+        match self {
+            Self::Separate => a * b,
+            Self::FusedWithinProduct => {
+                // Match the observed complex64 sparse product, not Complex::mul_add:
+                // round the cross terms first; accumulation remains a separate add.
+                let cross_re = (-a.im) * b.im;
+                let cross_im = a.im * b.re;
+                Complex::new(a.re.mul_add(b.re, cross_re), a.re.mul_add(b.im, cross_im))
+            }
+        }
+    }
+}
+
+#[derive(Default)]
+struct RunOptions {
+    capture_boundaries: bool,
+    product: SparseProduct,
+}
+
 struct StageKernel {
     n: usize,
     hop: usize,
@@ -230,7 +258,12 @@ impl StageKernel {
             fft,
         })
     }
-    fn response(&self, samples: &[f32], capture_spectrum: bool) -> Result<StageResponse> {
+    fn response(
+        &self,
+        samples: &[f32],
+        capture_spectrum: bool,
+        product: SparseProduct,
+    ) -> Result<StageResponse> {
         let (n, hop, rows) = (self.n, self.hop, self.rows);
         let (indptr, indices, basis) = (&self.indptr, &self.indices, &self.basis);
         let frames = 1 + samples.len() / hop;
@@ -269,7 +302,7 @@ impl StageKernel {
                 let mut sum = Complex::new(0.0f32, 0.0);
                 for index in indptr[row]..indptr[row + 1] {
                     ensure!(indices[index] < spectrum.len(), "CSR index");
-                    sum += basis[index] * spectrum[indices[index]];
+                    sum += product.multiply(basis[index], spectrum[indices[index]]);
                 }
                 response[row * frames + frame] = sum;
             }
@@ -351,7 +384,14 @@ impl PreparedPlan {
         math: Option<&NumpyMath>,
         numpy_magnitude: bool,
     ) -> Result<(Vec<f32>, usize)> {
-        self.run(pcm, soxr, math, numpy_magnitude, None, false)
+        self.run(
+            pcm,
+            soxr,
+            math,
+            numpy_magnitude,
+            None,
+            RunOptions::default(),
+        )
     }
     /// Observation-only frontend diagnostic: original FMA magnitude/platform log1p.
     /// No model/runtime is constructed. Extra arrays exist only on this path.
@@ -361,7 +401,36 @@ impl PreparedPlan {
         soxr: &Soxr,
         observer: &mut Observer<'_>,
     ) -> Result<(Vec<f32>, usize)> {
-        self.run(pcm, soxr, None, true, Some(observer), true)
+        self.run(
+            pcm,
+            soxr,
+            None,
+            true,
+            Some(observer),
+            RunOptions {
+                capture_boundaries: true,
+                ..RunOptions::default()
+            },
+        )
+    }
+    /// Explicit research candidate only; ordinary compute/trace keep separate products.
+    /// Uses the existing Mac FMA magnitude/platform log1p path, with no math backend choice.
+    pub fn research_fused_product_core(
+        &self,
+        pcm: &[f32],
+        soxr: &Soxr,
+    ) -> Result<(Vec<f32>, usize)> {
+        self.run(
+            pcm,
+            soxr,
+            None,
+            true,
+            None,
+            RunOptions {
+                product: SparseProduct::FusedWithinProduct,
+                ..RunOptions::default()
+            },
+        )
     }
     fn run(
         &self,
@@ -370,8 +439,9 @@ impl PreparedPlan {
         math: Option<&NumpyMath>,
         numpy_magnitude: bool,
         mut observe: Option<&mut Observer<'_>>,
-        capture_boundaries: bool,
+        options: RunOptions,
     ) -> Result<(Vec<f32>, usize)> {
+        let capture_boundaries = options.capture_boundaries;
         ensure!(
             !pcm.is_empty() && pcm.iter().all(|v| v.is_finite()),
             "invalid PCM"
@@ -382,7 +452,8 @@ impl PreparedPlan {
             if capture_boundaries && let Some(observer) = observe.as_mut() {
                 observer(Intermediate::Input(index, &samples))?;
             }
-            let (frames, response, spectrum) = stage.response(&samples, capture_boundaries)?;
+            let (frames, response, spectrum) =
+                stage.response(&samples, capture_boundaries, options.product)?;
             if let Some(observer) = observe.as_mut() {
                 if let Some(spectrum) = spectrum.as_ref() {
                     observer(Intermediate::Spectrum(index, frames, spectrum))?;
@@ -495,13 +566,55 @@ pub fn features(
         }
         Ok(())
     };
-    let (core, frames) = plan.run(pcm, soxr, math, numpy_magnitude, Some(&mut observer), false)?;
+    let (core, frames) = plan.run(
+        pcm,
+        soxr,
+        math,
+        numpy_magnitude,
+        Some(&mut observer),
+        RunOptions::default(),
+    )?;
     Ok((core, frames, json!({"resamplings":diagnostics})))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn synthetic_complex_product_rounding_preserves_separate_accumulation() {
+        // (1+2^-23)(1-2^-23)-1 = -2^-46 before rounding. The ordinary
+        // separately rounded product loses this residual; fused product retains it.
+        let above = f32::from_bits(0x3f80_0001);
+        let below = f32::from_bits(0x3f7f_fffe);
+        let a = Complex::new(above, 1.0);
+        let b = Complex::new(below, 1.0);
+        let separate = SparseProduct::Separate.multiply(a, b);
+        let fused = SparseProduct::FusedWithinProduct.multiply(a, b);
+        assert_eq!(separate.re.to_bits(), 0);
+        assert_eq!(fused.re.to_bits(), 0xa880_0000); // exactly -2^-46
+        assert_eq!(fused.im.to_bits(), 2.0f32.to_bits());
+
+        let b = Complex::new(1.0, -below);
+        assert_eq!(SparseProduct::Separate.multiply(a, b).im.to_bits(), 0);
+        assert_eq!(
+            SparseProduct::FusedWithinProduct
+                .multiply(a, b)
+                .im
+                .to_bits(),
+            0x2880_0000 // exactly +2^-46
+        );
+
+        // Fusing the accumulator into ar*br would retain -2^-46 here, changing
+        // the proposed contract. The completed product must round to one first.
+        let product = SparseProduct::FusedWithinProduct
+            .multiply(Complex::new(above, 0.0), Complex::new(below, 0.0));
+        let mut sum = Complex::new(-1.0f32, 0.0);
+        sum += product;
+        assert_eq!(product.re.to_bits(), 1.0f32.to_bits());
+        assert_eq!(sum.re.to_bits(), 0);
+        assert_eq!(above.mul_add(below, -1.0).to_bits(), 0xa880_0000);
+    }
 
     #[cfg(unix)]
     struct SyntheticCase {

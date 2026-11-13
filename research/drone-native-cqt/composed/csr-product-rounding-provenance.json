@@ -1,0 +1,86 @@
+{
+  "format": "drone-csr-product-rounding-publication-v1",
+  "results_sha256": "6122fe14094deb342531d8fd864aeadce02e1c259364dc852d1d8c598e4418a8",
+  "original_receipts": {
+    "stage0": {
+      "packet.json": {
+        "sha256": "24807dab8de9156ff6bc1d6b8fb14cf806103577f0a54509fd5847cb8dabc4df",
+        "bytes": 7436
+      },
+      "result.json": {
+        "sha256": "b6635d10946d14f36fea3bfc6cd10649d5f659e370c754f59087daf01cd6e031",
+        "bytes": 46654
+      },
+      "controller-plan.json": {
+        "sha256": "57a26cdd14a7ccea7d37f2757669738aa2197d2e8a4d4be66a789bd72696aa01",
+        "bytes": 1079
+      },
+      "controller-result.json": {
+        "sha256": "dfba65272ecee951fa462a1c46dcc9f2b2fb008dfbccda0db658bbfd4ee28355",
+        "bytes": 452
+      },
+      "replay.py": {
+        "sha256": "8d0920807267c69e1b1e380a2b493c23b4cb83ecaad1d0dd81befc74ec31800c",
+        "bytes": 13600
+      },
+      "guardian.py": {
+        "sha256": "194a6486b0555a8e5b82299ea42f2feb8d79f95b2a7e085329f6abf0597ef74d",
+        "bytes": 11428
+      },
+      "PROTOCOL.md": {
+        "sha256": "c37f205d4c349ff029765470baf481b88e5ce022ba0c30433f21f24c90506fc7",
+        "bytes": 8286
+      }
+    },
+    "stages1_to8": {
+      "packet.json": {
+        "sha256": "4474aa11a67e8c428d527813a4cd489a7ea14a689696bb1024a47655db2270aa",
+        "bytes": 47641
+      },
+      "result.json": {
+        "sha256": "86ce9c92612ca9df9bb3edae3cb1ee6b90365f3ce141a68e1fe6604c3de118a0",
+        "bytes": 16149
+      },
+      "controller-plan.json": {
+        "sha256": "05d4d896648e1793e05b416829baf8e348b19003e42a6ded101e4045561fccad",
+        "bytes": 1083
+      },
+      "controller-result.json": {
+        "sha256": "695cf282b2869863fce01d84207e0dda57d6fff5e286cffff53ac18227b6530a",
+        "bytes": 464
+      },
+      "replay.py": {
+        "sha256": "772512721fd246ec923521fd50f69279353d550b993590bbe4d3702b3256f8da",
+        "bytes": 13275
+      },
+      "guardian.py": {
+        "sha256": "b1695863332eee0c364c215955031d19e9fdafdb726d1827fc68e056317b81ad",
+        "bytes": 11745
+      },
+      "PROTOCOL.md": {
+        "sha256": "2c640e7593b9ad8fdcf7e35836040f152b77420ac69609a6123ace3f36ddec48",
+        "bytes": 6115
+      }
+    }
+  },
+  "scipy_disassembly": {
+    "sha256": "f7de041e736a404f676a592a70bad36d8fbee447fa7e2b455fe87aebb710c497",
+    "bytes": 10992
+  },
+  "arithmetic_source_sha256": "8d0920807267c69e1b1e380a2b493c23b4cb83ecaad1d0dd81befc74ec31800c",
+  "source_sha256": {
+    "rust_plan": "0b973fec8c9356254c8b21812b4850526824bde888a57f86f370206e417de251",
+    "num_complex": "fa858da4b11ca29723f55579a52918e1851c725e05e8c031321456a5e86697a6",
+    "scipy_compressed": "b80b08ce9aebd10f2512cabc4cb68446bdade2b093dc707d37019c32a383402b",
+    "scipy_sparsetools": "077b33d61dc1a677cb56bb4835572623986f7f0a1c0d35d6eaf85fc0df5dade2",
+    "librosa_dispatch": "807360060570ad3e2e3a0d25d33b820a700ad749c6debf465d70afecd18e8557",
+    "scipy_disassembly": "f7de041e736a404f676a592a70bad36d8fbee447fa7e2b455fe87aebb710c497"
+  },
+  "historical_gaps": [
+    "scipy_fft_backend",
+    "jit_runtime",
+    "system_math",
+    "rustfft_dispatch"
+  ],
+  "scope": "Sanitized metadata only; original scripts, receipts and operand arrays remain retained privately. No operational paths, raw audio/features or per-term values are published. Current candidate source is distinct and has not been compiled or executed."
+}
