@@ -14,11 +14,13 @@ import torch
 from drone.keys import LABEL_SCHEMA
 from experiments.myna_cache import (
     AUGMENTATION_METHOD,
+    BASE_RESAMPLER,
     DOMAIN_MASS,
     ENCODER_SHA,
     PLAN_SCHEMA,
     SCHEMA,
     Contract,
+    base_sample_count,
     load_cache,
     loss_weight,
     rate_geometry,
@@ -116,6 +118,7 @@ def fixture(
     manifest = dict(
         schema_version=SCHEMA,
         augmentation_method=AUGMENTATION_METHOD,
+        base_resampler=BASE_RESAMPLER,
         complete=True,
         label_schema=LABEL_SCHEMA,
         identities=identities,
@@ -428,3 +431,12 @@ def test_each_variable_length_pitch_view_has_equal_objective_mass(tmp_path: Path
     masses = [v.windows * loss_weight(v, contract) / contract.fit_windows for v in views]
     assert max(masses) == pytest.approx(min(masses))
     assert sum(masses) == pytest.approx(DOMAIN_MASS["beatport"] / 2)
+
+
+def test_base_length_matches_pinned_torchaudio_float32_rounding() -> None:
+    assert base_sample_count(51_723_051) == 34_482_032
+    assert (51_723_051 * 2 + 2) // 3 == 34_482_034
+    assert base_sample_count(2_880_000) == 1_920_000
+    # The target is also limited by available convolution output.
+    for n in (1, 2, 3, 1_000_001, 51_723_051):
+        assert base_sample_count(n) <= 2 * (n // 3 + 1)

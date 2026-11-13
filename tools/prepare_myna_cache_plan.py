@@ -12,9 +12,11 @@ from typing import Any
 
 from experiments.myna_cache import (
     AUGMENTATION_METHOD,
+    BASE_RESAMPLER,
     ENCODER_SHA,
     PINS,
     PLAN_SCHEMA,
+    base_sample_count,
     checked_bytes,
     checked_json,
     group_rows,
@@ -40,7 +42,7 @@ def project(
         family = families[identity]
         role = family["logical_role"]
         n24 = source["samples"]
-        n16 = (n24 * 2 + 2) // 3
+        n16 = base_sample_count(n24)
         frames = n16 // 512 + 1
         windows, tail = divmod(frames, 196)
         tracks.append(
@@ -82,6 +84,7 @@ def project(
     return {
         "schema_version": PLAN_SCHEMA,
         "augmentation_method": AUGMENTATION_METHOD,
+        "base_resampler": BASE_RESAMPLER,
         "complete": False,
         "status": "METADATA_PROJECTION_NOT_EXTRACTED_NOT_TRAINABLE",
         "label_schema": "tonic-times-two-plus-minor-v1",

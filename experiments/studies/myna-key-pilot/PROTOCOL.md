@@ -75,7 +75,8 @@ qualification failures remain separate and cannot be waived after scoring.
 The complete-cache schema is agreed with the extraction owner:
 
 - Top-level `schema_version="drone-myna-rate-window-cache-v2"`, `complete=true`,
-  public `label_schema`, `augmentation_method`, `identities` and `tracks`. A separately sealed config binds
+  public `label_schema`, `augmentation_method`, `base_resampler`, `identities`
+  and `tracks`. A separately sealed config binds
   the exact manifest SHA. Incomplete/extraneous/duplicate records are rejected.
 - `identities` exactly binds `encoder_sha256`, `encoder_source_sha256`,
   `environment_sha256`, `frontend_sha256`, `augmentation_sha256`,
@@ -84,8 +85,15 @@ The complete-cache schema is agreed with the extraction owner:
 - Each track records `id`, `domain`, `role` (`fit`/`selection`), frozen `group`,
   original `target`, `source_sha256`, `pcm_sha256`, `samples_24k`, `samples_16k`,
   `mel_frames`, `complete_windows`, `discarded_frames` and `views`.
-- Track-level geometry describes only the original unshifted recording:
-  `samples_16k=ceil(samples_24k*2/3)`,
+- Track-level geometry describes only the original unshifted recording. The
+  pinned TorchAudio implementation first converts `2*samples_24k/3` to float32,
+  then takes its ceiling, capped by `2*(samples_24k//3+1)` available convolution
+  samples. This actual base-resampler behavior replaces the earlier integer-ceil
+  projection: 20 recordings differ by one or two samples, with no mel-frame or
+  complete-window count changes in this pool. Do not pad or trim to the old
+  projection. Bind `base_resampler` to the pinned source/default float32 behavior;
+  assert that actual Torch default dtype before invoking the frontend.
+  With that observed-contract `samples_16k`,
   `mel_frames=floor(samples_16k/512)+1`, `complete_windows=mel_frames//196`,
   `discarded_frames=mel_frames%196`. Zero complete windows is a failure, not a
   silently padded input. Actual extraction counts must match the sealed budget.
@@ -152,12 +160,13 @@ weighted numerator divided by N. This is an explicit local weighting change from
 an unweighted window loader. Long tracks consume more compute, not more total
 loss weight. Component groups are used for uncertainty, not extra sampling weights.
 
-Root must seal **either 10 or 100 complete passes before any accuracy is observed**,
-using sustained head-update/evaluation timing plus extraction, verification and
-artifact costs. Ten passes are 21,520,260 presentations / 336,260 updates; 100 are
-215,202,600 / 3,362,600 at projected counts (26 examples in each last batch). One
-selection event follows each complete pass. These options are different exposure
-budgets; no 10-pass result may automatically continue to 100. A 100-round one-window
+**The fixed pilot uses 100 complete cache passes**, chosen before any classifier
+accuracy was observed. The qualified shared training loop sustained 446.98 updates/s;
+3,362,600 updates imply about 2.09 hours of update time before evaluation, startup,
+verification and artifact overhead. This is 215,202,600 fitting presentations,
+with 26 examples in each last batch. One selection event follows each complete pass.
+The earlier 10-pass option is not the selected experiment; there is no automatic
+continuation or accuracy-dependent horizon change. A 100-round one-window
 per-record sampler is only 526,200 presentations and does not cover long-record
 pitch/window grids; it is not implemented as an equivalent shortcut.
 

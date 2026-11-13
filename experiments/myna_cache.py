@@ -21,6 +21,13 @@ from drone.keys import LABEL_SCHEMA, transpose_key
 SCHEMA = "drone-myna-rate-window-cache-v2"
 PLAN_SCHEMA = "drone-myna-rate-window-plan-v2"
 AUGMENTATION_METHOD = "pitch-by-playback-rate-polyphase-v1"
+BASE_RESAMPLER = {
+    "method": "torchaudio-24k-to-16k-float32-target-length-v1",
+    "functional_sha256": "dc462a67270b2250279c47725346b26bc6cdc9dce77dd08602d0fcce68f78711",
+    "default_dtype": "float32",
+    "original_rate": 24000,
+    "target_rate": 16000,
+}
 ENCODER_SHA = "5dde8aa186da0fc0bfdd2e5a7c1ea3e6c6af6cd4683089b65c4fed6af8335374"
 PINS = {
     "plan": "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
@@ -77,6 +84,13 @@ def is_sha(value: object) -> bool:
     return (
         isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
     )
+
+
+def base_sample_count(samples_24k: int) -> int:
+    """Pinned TorchAudio target-length rounding and available convolution output, no audio fix."""
+    require(type(samples_24k) is int and samples_24k > 0, "Invalid original sample count")
+    rounded_target = math.ceil(float(np.float32(2 * samples_24k / 3)))
+    return min(rounded_target, 2 * (samples_24k // 3 + 1))
 
 
 class RateGeometry(TypedDict):
@@ -161,6 +175,10 @@ def validate_manifest(
     )
     require(manifest.get("label_schema") == LABEL_SCHEMA, "Different label schema")
     require(
+        manifest.get("base_resampler") == BASE_RESAMPLER,
+        "Different base-resampling length contract",
+    )
+    require(
         manifest.get("augmentation_method") == AUGMENTATION_METHOD, "Different augmentation method"
     )
     require(manifest.get("identities") == identities, "Cache source/qualification binding differs")
@@ -205,6 +223,7 @@ def validate_manifest(
         "Cache membership differs",
     )
     views: list[View] = []
+    resolved_root = root.resolve()
     used_paths: set[Path] = set()
     for identity, (domain, role) in expected.items():
         row, source, family = rows[identity], wave[identity], group[identity]
@@ -223,7 +242,7 @@ def validate_manifest(
         require(is_sha(row["source_sha256"]) and is_sha(row["pcm_sha256"]), "Invalid source hash")
         n24 = source["samples"]
         require(type(n24) is int and n24 > 0 and row["samples_24k"] == n24, "Different PCM support")
-        n16 = (n24 * 2 + 2) // 3
+        n16 = base_sample_count(n24)
         frames = n16 // 512 + 1
         windows, tail = divmod(frames, 196)
         require(windows > 0, "No complete input window")
@@ -313,7 +332,8 @@ def validate_manifest(
             )
             path = root / relative
             require(
-                path not in used_paths and path.resolve().is_relative_to(root.resolve()),
+                path not in used_paths
+                and (metadata_only or path.resolve().is_relative_to(resolved_root)),
                 "Repeated/escaping embedding path",
             )
             used_paths.add(path)
