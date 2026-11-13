@@ -183,9 +183,21 @@ def pinned(value: object) -> Path:
     return path
 
 
+def input_lane(config: dict[str, object]) -> str:
+    if config.get("format") == "drone-original-file-measurement-v1":
+        if config.get("input_lane") not in (None, "canonical"):
+            raise ValueError("v1 remains canonical-only")
+        return "canonical"
+    if (
+        config.get("format") == "drone-original-file-measurement-v2"
+        and config.get("input_lane") == "decoder_fidelity"
+    ):
+        return "decoder_fidelity"
+    raise ValueError("Explicit v2 decoder-fidelity lane required")
+
+
 def validate_config(config: dict[str, object]) -> list[dict[str, object]]:
-    if config.get("format") != "drone-original-file-measurement-v1":
-        raise ValueError("Unsupported measurement format")
+    input_lane(config)
     if type(config.get("warm_repetitions")) is not int or config["warm_repetitions"] != 3:
         raise ValueError("Exactly three warm repetitions are frozen")
     if config.get("candidate") != "fused-within-product-mac-magnitude-platform-log1p":
@@ -366,6 +378,7 @@ def run_case(
     failure: str | None = None
     identities: dict[int, int] = {}
     numerical = {"numerical_pass": False, "unchanged_key": False, "benchmark_qualified": False}
+    canonical_pcm_matches = False
     with (root / f"case-{index}.log").open("xb") as log:
         try:
             if original_affinity is not None:
@@ -414,6 +427,7 @@ def run_case(
             if result.get("complete") is not True or len(array(result["runs"])) != 4:
                 raise ValueError("Incomplete worker result")
             numerical = numerical_summary(result)
+            canonical_pcm_matches = result.get("canonical_pcm_matches") is True
             final_cpu = float(cast(float, result["process_cpu_seconds_including_waited_children"]))
             if not math.isfinite(final_cpu) or final_cpu > MAX_CPU_SECONDS:
                 raise RuntimeError("Final aggregate CPU budget exceeded")
@@ -446,6 +460,10 @@ def run_case(
                 receipt = {
                     "index": index,
                     "complete": failure is None,
+                    "timing_complete": failure is None,
+                    "canonical_pcm_matches": canonical_pcm_matches,
+                    "historical_reference_qualified": numerical["benchmark_qualified"]
+                    and failure is None,
                     "failure": failure,
                     "process_wall_seconds": time.monotonic() - start,
                     "sampled_tree_peak_rss_bytes": peak_rss,
@@ -491,12 +509,14 @@ def main() -> None:
     signal.alarm(max(1, math.ceil(MAX_WALL_SECONDS - budget.usage()[0])))
     receipts: list[dict[str, object]] = []
     rows: list[dict[str, object]] = []
+    lane = "unadmitted"
     failure: str | None = None
     try:
         budget.check()
         config = object_value(json.loads(args.config.read_text()))
         snapshot.write_text(json.dumps(config, indent=2) + "\n")
         rows = validate_config(config)
+        lane = input_lane(config)
         budget.check()
         for index in range(len(rows)):
             receipts.append(run_case(config, snapshot, args.output, index, budget))
@@ -515,6 +535,11 @@ def main() -> None:
         keys = complete and all(row["unchanged_key"] is True for row in receipts)
         result = {
             "complete": complete,
+            "timing_complete": complete,
+            "input_lane": lane,
+            "canonical_pcm_matches": complete
+            and all(row["canonical_pcm_matches"] is True for row in receipts),
+            "historical_reference_qualified": complete and numerical and keys,
             "failure": failure,
             "numerical_pass": numerical,
             "unchanged_key": keys,

@@ -306,3 +306,58 @@ def test_unseen_child_after_leader_exit_is_not_certified_as_empty_cleanup(
     with pytest.raises(RuntimeError, match="Untracked group survivors"):
         measurement.retire(cast(subprocess.Popen[bytes], Finished()), {10: 1})
     assert killed == []
+
+
+def test_prospective_lane_is_explicit_and_cannot_relabel_canonical_v1() -> None:
+    assert measurement.input_lane(dict(format="drone-original-file-measurement-v1")) == "canonical"
+    with pytest.raises(ValueError, match="canonical-only"):
+        measurement.input_lane(
+            dict(format="drone-original-file-measurement-v1", input_lane="decoder_fidelity")
+        )
+    with pytest.raises(ValueError, match="Explicit v2"):
+        measurement.input_lane(dict(format="drone-original-file-measurement-v2"))
+    assert (
+        measurement.input_lane(
+            dict(format="drone-original-file-measurement-v2", input_lane="decoder_fidelity")
+        )
+        == "decoder_fidelity"
+    )
+
+
+def test_completed_cost_remains_visible_when_historical_numerics_fail(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    worker = tmp_path / "synthetic-numerical-disagreement"
+    payload = dict(
+        complete=True,
+        canonical_pcm_matches=False,
+        process_cpu_seconds_including_waited_children=0.01,
+        runs=[
+            dict(
+                comparison_mac=dict(allclose=False, argmax_agrees=True),
+                comparison_linux=dict(allclose=True, argmax_agrees=True),
+            )
+            for _ in range(4)
+        ],
+    )
+    worker.write_text(
+        f"#!{sys.executable}\nimport json,sys,time\nfrom pathlib import Path\nPath(sys.argv[sys.argv.index('--output')+1]).write_text({json.dumps(payload)!r})\ntime.sleep(0.05)\n"
+    )
+    worker.chmod(0o755)
+    monkeypatch.setattr(measurement, "SAMPLE_SECONDS", 0.01)
+    config: dict[str, object] = dict(
+        worker=dict(path=str(worker), sha256=measurement.sha256(worker))
+    )
+    affinity = measurement.get_affinity()
+    if affinity is not None:
+        config["linux_cpu"] = min(affinity)
+    snapshot = tmp_path / "config.json"
+    snapshot.write_text("{}")
+    receipt = measurement.run_case(
+        config, snapshot, tmp_path, 0, measurement.InvocationBudget.start()
+    )
+    assert receipt["timing_complete"] is True
+    assert receipt["numerical_pass"] is False
+    assert receipt["unchanged_key"] is True
+    assert receipt["historical_reference_qualified"] is False
+    assert receipt["benchmark_qualified"] is False

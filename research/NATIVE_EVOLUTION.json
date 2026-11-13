@@ -375,13 +375,13 @@
     {
       "path": "research/drone-native-cqt/src/bin/original_file.rs",
       "git_mode": "100644",
-      "sha256": "0b2da0b3728e7b2013b9d9fca90dfe44fe2cfbbb18fdac36806d2bd875a3acd9",
+      "sha256": "cd9126eaaf6c8d37b478b445f71761e742ca4a2975ad37011ae1e9543752cc51",
       "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     },
     {
       "path": "research/drone-native-cqt/composed/original_file.py",
       "git_mode": "100644",
-      "sha256": "222af88ed0fec7161018fa3ad8b6c2d8fe33afa6708dd08807dbf6bab7e72053",
+      "sha256": "a1cd0c518fedff090c324c2a2c67ff976bb16913f07b875f01feb00657dfb032",
       "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     },
     {
@@ -401,6 +401,12 @@
       "sha256": "5f29b633f1ac56120e827fc9719a1ffb126713d02eb5a1cd5100689afc4aebdd",
       "git_mode": "100644",
       "reason": "One explicitly admitted native canonical-versus-Mac PCM prediction comparison using the unchanged captured plan and chunked model; no decoding or default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/END_TO_END_DECODER_PROTOCOL.md",
+      "sha256": "0a4b6c1323a21d7f2498635a619ece3331d902e936e28c7e39e2b47e3cc981f6",
+      "git_mode": "100644",
+      "reason": "Prospective decoder-fidelity lane with unchanged geometry and historical tolerances; keep canonical failure and timing completion distinct from qualification."
     }
   ]
 }

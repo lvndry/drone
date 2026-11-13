@@ -145,16 +145,53 @@ fn decode(ffmpeg: &Path, audio: &Path, output: &Path) -> Result<Vec<f32>> {
     wav_pcm(&fs::read(output)?)
 }
 
-fn admit_decoded_pcm(pcm: &[f32], expected: &Value, wav: &Path) -> Result<()> {
+fn decoder_lane(config: &Value) -> Result<bool> {
+    if config["format"] == "drone-original-file-measurement-v1" {
+        ensure!(
+            config["input_lane"].is_null() || config["input_lane"] == "canonical",
+            "v1 remains canonical-only"
+        );
+        return Ok(false);
+    }
+    ensure!(
+        config["format"] == "drone-original-file-measurement-v2"
+            && config["input_lane"] == "decoder_fidelity",
+        "explicit v2 decoder-fidelity lane required"
+    );
+    Ok(true)
+}
+
+fn admit_decoded_pcm(
+    pcm: &[f32],
+    expected: &Value,
+    decoder_fidelity: bool,
+    observed: &mut Option<(usize, String)>,
+) -> Result<Value> {
+    ensure!(!pcm.is_empty(), "empty decoded PCM");
     ensure!(
         Some(pcm.len() as u64) == expected["pcm_samples"].as_u64(),
         "PCM length changed"
     );
+    let hash = float_hash(pcm);
+    let canonical_matches = Some(pcm.len() as u64) == expected["pcm_samples"].as_u64()
+        && Some(hash.as_str()) == expected["pcm_sha256"].as_str();
+    ensure!(decoder_fidelity || canonical_matches, "decoded PCM changed");
+    if let Some((samples, previous_hash)) = observed {
+        ensure!(
+            *samples == pcm.len() && *previous_hash == hash,
+            "local decoder changed between repetitions"
+        );
+    } else {
+        *observed = Some((pcm.len(), hash.clone()));
+    }
+    Ok(json!({"samples":pcm.len(),"sha256":hash,"canonical_pcm_matches":canonical_matches}))
+}
+
+fn retire_after_geometry(frames: usize, expected: &Value, wav: &Path) -> Result<()> {
     ensure!(
-        float_hash(pcm) == expected["pcm_sha256"].as_str().context("PCM hash")?,
-        "decoded PCM changed"
+        Some(frames as u64) == expected["frames"].as_u64(),
+        "frame count changed"
     );
-    // Keep failed decoder evidence; only admitted PCM permits retirement.
     fs::remove_file(wav)?;
     Ok(())
 }
@@ -167,10 +204,7 @@ fn main() -> Result<()> {
     );
     ensure!(!args.output.exists(), "output already exists");
     let config: Value = serde_json::from_slice(&fs::read(&args.config)?)?;
-    ensure!(
-        config["format"] == "drone-original-file-measurement-v1",
-        "config format"
-    );
+    let decoder_fidelity = decoder_lane(&config)?;
     ensure!(
         config["warm_repetitions"] == 3,
         "fixed three warm repetitions"
@@ -233,6 +267,7 @@ fn main() -> Result<()> {
     let wav = args.output.with_extension("wav");
     ensure!(!wav.exists(), "owned WAV exists");
     let mut runs = Vec::new();
+    let mut observed_pcm = None;
     for repetition in 0..4 {
         let started = Instant::now();
         let cpu = cpu_seconds()?;
@@ -241,16 +276,15 @@ fn main() -> Result<()> {
         let pcm = decode(&ffmpeg, &audio, &wav)?;
         let decode_stage = json!({"wall_seconds":stage.elapsed().as_secs_f64(),"cpu_seconds":cpu_seconds()?-stage_cpu});
         let verify = Instant::now();
-        admit_decoded_pcm(&pcm, expected, &wav)?;
+        let pcm_identity = admit_decoded_pcm(&pcm, expected, decoder_fidelity, &mut observed_pcm)?;
         let verify_seconds = verify.elapsed().as_secs_f64();
         let stage = Instant::now();
         let stage_cpu = cpu_seconds()?;
         let (core, frames) = plan.research_fused_product_core(&pcm, &soxr)?;
         let cqt = json!({"wall_seconds":stage.elapsed().as_secs_f64(),"cpu_seconds":cpu_seconds()?-stage_cpu});
-        ensure!(
-            Some(frames as u64) == expected["frames"].as_u64(),
-            "frame count changed"
-        );
+        let retirement = Instant::now();
+        retire_after_geometry(frames, expected, &wav)?;
+        let retirement_seconds = retirement.elapsed().as_secs_f64();
         let stage = Instant::now();
         let stage_cpu = cpu_seconds()?;
         let logits = model.predict(&core, frames)?;
@@ -259,6 +293,8 @@ fn main() -> Result<()> {
         let used_cpu = cpu_seconds()? - cpu;
         let core_hash = float_hash(&core);
         runs.push(json!({"repetition":repetition,"kind":if repetition==0 {"first_in_fresh_process"} else {"warm_session"},
+            "pcm":pcm_identity,"frames":frames,"canonical_frames_match":Some(frames as u64)==expected["frames"].as_u64(),
+            "wav_retirement_wall_seconds":retirement_seconds,
             "decode":decode_stage,"identity_verification_wall_seconds":verify_seconds,"cqt":cqt,"ort":ort_stage,
             "wall_seconds":wall,"cpu_seconds":used_cpu,"logits":logits,"key_id":argmax(&logits)?,
             "comparison_mac":compare(&logits,&mac_reference)?,"comparison_linux":compare(&logits,&linux_reference)?,
@@ -276,6 +312,9 @@ fn main() -> Result<()> {
             .all(|name| run[name]["argmax_agrees"] == true)
     });
     let result = json!({"format":"drone-original-file-result-v1","complete":true,"id":expected["id"],
+        "timing_complete":true,"input_lane":if decoder_fidelity {"decoder_fidelity"} else {"canonical"},
+        "canonical_pcm_matches":runs.iter().all(|r|r["pcm"]["canonical_pcm_matches"]==true),
+        "historical_reference_qualified":numerical_pass && unchanged_key,
         "numerical_pass":numerical_pass,"unchanged_key":unchanged_key,"benchmark_qualified":numerical_pass && unchanged_key,
         "setup":setup,"runs":runs,"measurement_wall_seconds":total_started.elapsed().as_secs_f64(),
         "measurement_cpu_seconds":cpu_seconds()?-total_cpu,"process_cpu_seconds_including_waited_children":cpu_seconds()?,
@@ -372,10 +411,35 @@ mod tests {
             .write_all(b"retained decoder evidence")?;
         let pcm = [0.0f32, 1.0];
         let wrong = json!({"pcm_samples":2,"pcm_sha256":"wrong"});
-        assert!(admit_decoded_pcm(&pcm, &wrong, &path).is_err());
+        assert!(admit_decoded_pcm(&pcm, &wrong, false, &mut None).is_err());
         assert_eq!(fs::read(&path)?, b"retained decoder evidence");
-        let right = json!({"pcm_samples":2,"pcm_sha256":float_hash(&pcm)});
-        admit_decoded_pcm(&pcm, &right, &path)?;
+        let right = json!({"pcm_samples":2,"pcm_sha256":float_hash(&pcm),"frames":1});
+        admit_decoded_pcm(&pcm, &right, false, &mut None)?;
+        assert!(retire_after_geometry(2, &right, &path).is_err());
+        assert!(path.exists());
+        retire_after_geometry(1, &right, &path)?;
+        assert!(!path.exists());
+        Ok(())
+    }
+
+    #[test]
+    fn prospective_lane_cannot_relabel_v1_and_requires_repeatable_pcm() -> Result<()> {
+        assert!(decoder_lane(&json!({"format":"drone-original-file-measurement-v1","input_lane":"decoder_fidelity"})).is_err());
+        assert!(decoder_lane(&json!({"format":"drone-original-file-measurement-v2"})).is_err());
+        assert!(decoder_lane(
+            &json!({"format":"drone-original-file-measurement-v2","input_lane":"decoder_fidelity"})
+        )?);
+        let path =
+            std::env::temp_dir().join(format!("drone-repeatable-pcm-{}.wav", std::process::id()));
+        fs::write(&path, b"retained mismatch")?;
+        let mut observed = Some((1, float_hash(&[0.0])));
+        let expected = json!({"pcm_samples":1,"pcm_sha256":"historical","frames":1});
+        assert!(admit_decoded_pcm(&[0.0, 0.0], &expected, true, &mut None).is_err());
+        assert!(admit_decoded_pcm(&[1.0], &expected, true, &mut observed).is_err());
+        assert!(path.exists());
+        let identity = admit_decoded_pcm(&[0.0], &expected, true, &mut observed)?;
+        assert_eq!(identity["canonical_pcm_matches"], false);
+        retire_after_geometry(1, &expected, &path)?;
         assert!(!path.exists());
         Ok(())
     }
