@@ -161,13 +161,20 @@ before-label input and ledger; the checker verifies the sanitized derivative and
 unchanged assignment. Executed diagnostic source/stdio and metadata-member hashes
 are recorded; only metadata was read on CPU4–5, with no persistent server job.
 
-A later edit to `PROTOCOL.md` (the pre-scoring GTZAN integrity stage, PR #39) made
-the pinned witness hash stale and caused `python -m tools.check_v2_contract` to fail
-on main. The witness file is preserved byte-for-byte. The change is recorded in
-[`data/protocol-amendments.json`](data/protocol-amendments.json) as an append-only
-chain from the pinned to the current hash, with an explicit assertion that no FMA
-assignment, ledger, input, label or role artifact changed. The checker follows that
-chain for `PROTOCOL.md` only; any other moved assignment artifact still fails.
+Later appendices to `PROTOCOL.md` (GTZAN metadata eligibility in PR #37 and
+archive integrity in PR #39) changed the pinned hash and broke the published
+reproduction command. The original witness remains byte-for-byte unchanged.
+[Archived protocol snapshots](data/protocol-snapshots/) and the
+[amendment chain](data/protocol-amendments.json) retain both transitions. The
+checker verifies the original snapshot against the witness, each snapshot hash,
+actual byte-prefix retention, connected transitions, and the current protocol.
+Receipt declarations alone cannot authorize a rewrite. Other assignment
+artifacts retain their existing checks.
+
+This command reproduces the original 4,080-row / 4,035-unique fitting proposal.
+The later amended 4,033-record eligible fitting pilot has its own
+[execution and results](../k10-v2-pilot/REPORT.md). The proposal check does not
+replace that execution record or alter the active fitting roles.
 
 Reproduce locally without network, labels or models:
 
@@ -176,10 +183,12 @@ python -m tools.check_v2_contract
 python -m pytest tests/test_v2_contract.py -q
 ```
 
-Eight regressions cover whole components/nesting/order invariance, bounded-group
+Nine regressions cover whole components/nesting/order invariance, bounded-group
 failure, same-audio cross-component rejection, old-ID-preserving deduplication,
 strict rejection of target fields in assignment inputs, and generic conflict
 quarantine across restricted/expanded membership with no feature member read.
+They also reproduce the committed study and reject invented ancestors or whole
+protocol rewrites even when the amendment receipt is updated.
 The checker reproduces proposal/ledgers, verifies the before-label/sanitization chain,
 source hashes, all-role overlay coverage, observed ID/SHA separation and counts.
 
