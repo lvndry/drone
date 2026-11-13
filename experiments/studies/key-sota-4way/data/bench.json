@@ -1,0 +1,349 @@
+{
+  "generated": "2026-11-12 23:20:17",
+  "panel": {
+    "n": 93,
+    "source_counts": {
+      "swd-v2.1": 48,
+      "giantsteps": 45
+    },
+    "bucket_counts": {
+      "breaks": 5,
+      "classical": 48,
+      "dubstep": 5,
+      "electronica": 4,
+      "funk": 3,
+      "hard": 4,
+      "hip-hop": 4,
+      "house": 4,
+      "other": 4,
+      "pop": 4,
+      "techno": 4,
+      "trance": 4
+    },
+    "duration_buckets": {
+      "<3m": 71,
+      "3-5m": 20,
+      "5-8m": 2,
+      "8m+": 0
+    },
+    "median_duration_s": 120.1
+  },
+  "decode": {
+    "command": "ffmpeg -ac 1 -ar 44100 -c:a pcm_s16le (once per track, shared by all detectors)",
+    "loudness": "none (no normalisation)"
+  },
+  "scoring": {
+    "convention": "drone/keys.py",
+    "weights": {
+      "exact": 1.0,
+      "fifth": 0.5,
+      "relative": 0.3,
+      "parallel": 0.2,
+      "other": 0.0
+    },
+    "fifths": "symmetric (interval 5 or 7)"
+  },
+  "label_normalization": {
+    "target": "drone 24-class: class_id = sharp_tonic_index*2 + (minor?1:0)",
+    "swd": "'Tonic:maj|min' -> split on ':', maj->major/min->minor, flats->sharps, first '|' key",
+    "giantsteps": "'Tonic major|minor' via drone parse_key, first '|' key for two-key",
+    "musicfm_vocabulary": "sharps only (C..B#)"
+  },
+  "detectors": {
+    "drone-v1": {
+      "n_valid": 93,
+      "n_error": 0,
+      "exact": 0.6774,
+      "mirex": 0.757,
+      "counts": {
+        "exact": 63,
+        "relative": 4,
+        "fifth": 10,
+        "other": 10,
+        "parallel": 6
+      },
+      "median_ms": 111.7,
+      "p95_ms": 324.0,
+      "total_s": 14.0,
+      "by_genre": {
+        "breaks": {
+          "n": 5,
+          "exact": 0.8,
+          "mirex": 0.9
+        },
+        "classical": {
+          "n": 48,
+          "exact": 0.625,
+          "mirex": 0.725
+        },
+        "dubstep": {
+          "n": 5,
+          "exact": 0.8,
+          "mirex": 0.8
+        },
+        "electronica": {
+          "n": 4,
+          "exact": 0.5,
+          "mirex": 0.575
+        },
+        "funk": {
+          "n": 3,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "hard": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "hip-hop": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.8
+        },
+        "house": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "other": {
+          "n": 4,
+          "exact": 0.5,
+          "mirex": 0.625
+        },
+        "pop": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "techno": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.75
+        },
+        "trance": {
+          "n": 4,
+          "exact": 0.0,
+          "mirex": 0.275
+        }
+      },
+      "by_duration": {
+        "<3m": {
+          "n": 71,
+          "exact": 0.704,
+          "mirex": 0.776
+        },
+        "3-5m": {
+          "n": 20,
+          "exact": 0.55,
+          "mirex": 0.665
+        },
+        "5-8m": {
+          "n": 2,
+          "exact": 1.0,
+          "mirex": 1.0
+        }
+      }
+    },
+    "libkeyfinder-2.2.8": {
+      "n_valid": 93,
+      "n_error": 0,
+      "exact": 0.3763,
+      "mirex": 0.4763,
+      "counts": {
+        "exact": 35,
+        "fifth": 11,
+        "parallel": 16,
+        "other": 29,
+        "relative": 2
+      },
+      "median_ms": 1878.1,
+      "p95_ms": 4011.4,
+      "total_s": 207.1,
+      "by_genre": {
+        "breaks": {
+          "n": 5,
+          "exact": 0.4,
+          "mirex": 0.54
+        },
+        "classical": {
+          "n": 48,
+          "exact": 0.312,
+          "mirex": 0.446
+        },
+        "dubstep": {
+          "n": 5,
+          "exact": 0.6,
+          "mirex": 0.6
+        },
+        "electronica": {
+          "n": 4,
+          "exact": 0.0,
+          "mirex": 0.125
+        },
+        "funk": {
+          "n": 3,
+          "exact": 0.667,
+          "mirex": 0.733
+        },
+        "hard": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "hip-hop": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.75
+        },
+        "house": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.875
+        },
+        "other": {
+          "n": 4,
+          "exact": 0.0,
+          "mirex": 0.05
+        },
+        "pop": {
+          "n": 4,
+          "exact": 0.5,
+          "mirex": 0.5
+        },
+        "techno": {
+          "n": 4,
+          "exact": 0.0,
+          "mirex": 0.125
+        },
+        "trance": {
+          "n": 4,
+          "exact": 0.25,
+          "mirex": 0.325
+        }
+      },
+      "by_duration": {
+        "<3m": {
+          "n": 71,
+          "exact": 0.38,
+          "mirex": 0.483
+        },
+        "3-5m": {
+          "n": 20,
+          "exact": 0.3,
+          "mirex": 0.4
+        },
+        "5-8m": {
+          "n": 2,
+          "exact": 1.0,
+          "mirex": 1.0
+        }
+      }
+    },
+    "madmom": {
+      "n_valid": 93,
+      "n_error": 0,
+      "exact": 0.7742,
+      "mirex": 0.829,
+      "counts": {
+        "exact": 72,
+        "relative": 4,
+        "parallel": 7,
+        "other": 5,
+        "fifth": 5
+      },
+      "median_ms": 1981.6,
+      "p95_ms": 4130.8,
+      "total_s": 215.6,
+      "by_genre": {
+        "breaks": {
+          "n": 5,
+          "exact": 0.8,
+          "mirex": 0.9
+        },
+        "classical": {
+          "n": 48,
+          "exact": 0.854,
+          "mirex": 0.885
+        },
+        "dubstep": {
+          "n": 5,
+          "exact": 0.8,
+          "mirex": 0.8
+        },
+        "electronica": {
+          "n": 4,
+          "exact": 0.5,
+          "mirex": 0.575
+        },
+        "funk": {
+          "n": 3,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "hard": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "hip-hop": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.8
+        },
+        "house": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.875
+        },
+        "other": {
+          "n": 4,
+          "exact": 0.75,
+          "mirex": 0.875
+        },
+        "pop": {
+          "n": 4,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "techno": {
+          "n": 4,
+          "exact": 0.25,
+          "mirex": 0.25
+        },
+        "trance": {
+          "n": 4,
+          "exact": 0.0,
+          "mirex": 0.4
+        }
+      },
+      "by_duration": {
+        "<3m": {
+          "n": 71,
+          "exact": 0.704,
+          "mirex": 0.776
+        },
+        "3-5m": {
+          "n": 20,
+          "exact": 1.0,
+          "mirex": 1.0
+        },
+        "5-8m": {
+          "n": 2,
+          "exact": 1.0,
+          "mirex": 1.0
+        }
+      }
+    },
+    "musicfm-mlp": {
+      "status": "blocked",
+      "reason": "HF repo jiangbing33/MusicFM_MLP_For_Music_Global_Key_Detection is public (code fetches, no 401), but the required weights file weights/best_model.pt is ABSENT: resolve -> HTTP 404 'Entry not found'; recursive tree/main lists no .pt/.bin/.safetensors. Cannot run inference.",
+      "published_gs": "72.19% exact / 77.62% MIREX (per repo README)"
+    }
+  },
+  "detectors_extra": {
+    "madmom_mode": "CNNKeyRecognitionProcessor (all-conv KEY_CNN)",
+    "per_detector_errors": "none",
+    "wall_clock_total_s": 448.2
+  }
+}

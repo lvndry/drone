@@ -1,0 +1,959 @@
+{
+  "n": 93,
+  "source_counts": {
+    "swd-v2.1": 48,
+    "giantsteps": 45
+  },
+  "bucket_counts": {
+    "breaks": 5,
+    "classical": 48,
+    "dubstep": 5,
+    "electronica": 4,
+    "funk": 3,
+    "hard": 4,
+    "hip-hop": 4,
+    "house": 4,
+    "other": 4,
+    "pop": 4,
+    "techno": 4,
+    "trance": 4
+  },
+  "duration_buckets": {
+    "<3m": 71,
+    "3-5m": 20,
+    "5-8m": 2,
+    "8m+": 0
+  },
+  "tracks": [
+    {
+      "track_id": "swd-Schubert_D911-01_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "C:min",
+      "ref": 1,
+      "duration": 311.693061,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-01_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "C:min",
+      "ref": 1,
+      "duration": 325.32898,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-02_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "G:min",
+      "ref": 15,
+      "duration": 101.146122,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-02_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "G:min",
+      "ref": 15,
+      "duration": 95.660408,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-03_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 150.325986,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-03_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "D#:min",
+      "ref": 7,
+      "duration": 137.16898,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-04_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "A:min",
+      "ref": 19,
+      "duration": 178.607891,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-04_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Bb:min",
+      "ref": 21,
+      "duration": 159.843265,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-05_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "E:maj",
+      "ref": 8,
+      "duration": 274.413424,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-05_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "D:maj",
+      "ref": 4,
+      "duration": 289.436735,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-06_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 259.599093,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-06_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 240.43102,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-07_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 187.338594,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-07_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 190.563265,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-08_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "F:min",
+      "ref": 11,
+      "duration": 123.390839,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-08_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "F:min",
+      "ref": 11,
+      "duration": 114.076735,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-09_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "A:min",
+      "ref": 19,
+      "duration": 132.585941,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-09_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "A:min",
+      "ref": 19,
+      "duration": 146.546939,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-10_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "B:min",
+      "ref": 23,
+      "duration": 195.651338,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-10_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Bb:min",
+      "ref": 21,
+      "duration": 180.924082,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-11_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "G:maj",
+      "ref": 14,
+      "duration": 254.583583,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-11_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "G:maj",
+      "ref": 14,
+      "duration": 237.635918,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-12_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "B:min",
+      "ref": 23,
+      "duration": 158.336871,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-12_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "A:min",
+      "ref": 19,
+      "duration": 147.043265,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-13_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "C:maj",
+      "ref": 0,
+      "duration": 107.46195,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-13_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Db:maj",
+      "ref": 2,
+      "duration": 119.666939,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-14_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "B:min",
+      "ref": 23,
+      "duration": 183.205442,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-14_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Bb:min",
+      "ref": 21,
+      "duration": 149.342041,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-15_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "B:min",
+      "ref": 23,
+      "duration": 124.273197,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-15_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Bb:min",
+      "ref": 21,
+      "duration": 116.845714,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-16_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:maj",
+      "ref": 4,
+      "duration": 138.48381,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-16_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Db:maj",
+      "ref": 2,
+      "duration": 113.136327,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-17_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:maj",
+      "ref": 4,
+      "duration": 197.741134,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-17_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "C:maj",
+      "ref": 0,
+      "duration": 190.537143,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-18_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "D:min",
+      "ref": 5,
+      "duration": 47.647347,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-18_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "C:min",
+      "ref": 1,
+      "duration": 44.068571,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-19_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "A:maj",
+      "ref": 18,
+      "duration": 70.913741,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-19_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "G:maj",
+      "ref": 14,
+      "duration": 73.613061,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-20_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "F:min",
+      "ref": 11,
+      "duration": 242.741406,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-20_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "F:min",
+      "ref": 11,
+      "duration": 232.75102,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-21_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "F:maj",
+      "ref": 10,
+      "duration": 221.193288,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-21_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "Eb:maj",
+      "ref": 6,
+      "duration": 239.804082,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-22_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "F#:min",
+      "ref": 13,
+      "duration": 79.690884,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-22_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "F:min",
+      "ref": 11,
+      "duration": 74.631837,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-23_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "G:maj",
+      "ref": 14,
+      "duration": 189.149751,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-23_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "G:maj",
+      "ref": 14,
+      "duration": 178.390204,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-24_HU33",
+      "source": "swd-v2.1",
+      "ref_raw": "G:min",
+      "ref": 15,
+      "duration": 188.081633,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "swd-Schubert_D911-24_SC06",
+      "source": "swd-v2.1",
+      "ref_raw": "G:min",
+      "ref": 15,
+      "duration": 207.804082,
+      "dev_contaminated": false,
+      "genre": "classical",
+      "bucket": "classical"
+    },
+    {
+      "track_id": "gs-10089.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "D major",
+      "ref": 4,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "breaks",
+      "bucket": "breaks"
+    },
+    {
+      "track_id": "gs-1052744.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "drum-and-bass",
+      "bucket": "dubstep"
+    },
+    {
+      "track_id": "gs-1037507.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G major",
+      "ref": 14,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "electronica",
+      "bucket": "electronica"
+    },
+    {
+      "track_id": "gs-4498388.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "D minor",
+      "ref": 5,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "funk r&b",
+      "bucket": "funk"
+    },
+    {
+      "track_id": "gs-3480108.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Gb minor",
+      "ref": 13,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hard-dance",
+      "bucket": "hard"
+    },
+    {
+      "track_id": "gs-3095708.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "glitch-hop",
+      "bucket": "hip-hop"
+    },
+    {
+      "track_id": "gs-1004923.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "C minor",
+      "ref": 1,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "tech-house",
+      "bucket": "house"
+    },
+    {
+      "track_id": "gs-1568217.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F major",
+      "ref": 10,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "dj-tools",
+      "bucket": "other"
+    },
+    {
+      "track_id": "gs-2024026.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G major",
+      "ref": 14,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "pop rock",
+      "bucket": "pop"
+    },
+    {
+      "track_id": "gs-1009960.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Eb minor",
+      "ref": 7,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "minimal",
+      "bucket": "techno"
+    },
+    {
+      "track_id": "gs-1234748.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "trance",
+      "bucket": "trance"
+    },
+    {
+      "track_id": "gs-1164898.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "C major",
+      "ref": 0,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "breaks",
+      "bucket": "breaks"
+    },
+    {
+      "track_id": "gs-1075123.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "drum-and-bass",
+      "bucket": "dubstep"
+    },
+    {
+      "track_id": "gs-1442809.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Db minor",
+      "ref": 3,
+      "duration": 62.119184,
+      "dev_contaminated": true,
+      "genre": "chill-out",
+      "bucket": "electronica"
+    },
+    {
+      "track_id": "gs-4688833.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "A minor",
+      "ref": 19,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "funk r&b",
+      "bucket": "funk"
+    },
+    {
+      "track_id": "gs-4657878.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Gb minor",
+      "ref": 13,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hard-dance",
+      "bucket": "hard"
+    },
+    {
+      "track_id": "gs-3368117.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "E minor",
+      "ref": 9,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "glitch-hop",
+      "bucket": "hip-hop"
+    },
+    {
+      "track_id": "gs-1007941.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "electro-house",
+      "bucket": "house"
+    },
+    {
+      "track_id": "gs-1991458.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "B minor",
+      "ref": 23,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "indie-dance nu-disco",
+      "bucket": "other"
+    },
+    {
+      "track_id": "gs-3069201.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "C major",
+      "ref": 0,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "pop rock",
+      "bucket": "pop"
+    },
+    {
+      "track_id": "gs-1026478.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "techno",
+      "bucket": "techno"
+    },
+    {
+      "track_id": "gs-1234749.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Bb major",
+      "ref": 20,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "trance",
+      "bucket": "trance"
+    },
+    {
+      "track_id": "gs-190477.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "D minor",
+      "ref": 5,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "breaks",
+      "bucket": "breaks"
+    },
+    {
+      "track_id": "gs-1234668.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "drum-and-bass",
+      "bucket": "dubstep"
+    },
+    {
+      "track_id": "gs-1474122.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Ab major",
+      "ref": 16,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "chill-out",
+      "bucket": "electronica"
+    },
+    {
+      "track_id": "gs-4863806.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "funk r&b",
+      "bucket": "funk"
+    },
+    {
+      "track_id": "gs-4758620.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hard-dance",
+      "bucket": "hard"
+    },
+    {
+      "track_id": "gs-3813682.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hip-hop",
+      "bucket": "hip-hop"
+    },
+    {
+      "track_id": "gs-101069.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "E minor",
+      "ref": 9,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "electro-house",
+      "bucket": "house"
+    },
+    {
+      "track_id": "gs-2676506.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "C minor",
+      "ref": 1,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "dj-tools",
+      "bucket": "other"
+    },
+    {
+      "track_id": "gs-3892740.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "D major",
+      "ref": 4,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "pop rock",
+      "bucket": "pop"
+    },
+    {
+      "track_id": "gs-1041574.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Ab major",
+      "ref": 16,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "techno",
+      "bucket": "techno"
+    },
+    {
+      "track_id": "gs-1234750.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "D minor",
+      "ref": 5,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "trance",
+      "bucket": "trance"
+    },
+    {
+      "track_id": "gs-2438899.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Bb minor",
+      "ref": 21,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "breaks",
+      "bucket": "breaks"
+    },
+    {
+      "track_id": "gs-1234669.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "drum-and-bass",
+      "bucket": "dubstep"
+    },
+    {
+      "track_id": "gs-1669939.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "E major",
+      "ref": 8,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "electronica",
+      "bucket": "electronica"
+    },
+    {
+      "track_id": "gs-4997194.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Ab minor",
+      "ref": 17,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hard-dance",
+      "bucket": "hard"
+    },
+    {
+      "track_id": "gs-4615188.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Ab minor",
+      "ref": 17,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hip-hop",
+      "bucket": "hip-hop"
+    },
+    {
+      "track_id": "gs-1017921.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "B major",
+      "ref": 22,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "progressive-house",
+      "bucket": "house"
+    },
+    {
+      "track_id": "gs-3172588.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "B minor",
+      "ref": 23,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "indie-dance nu-disco",
+      "bucket": "other"
+    },
+    {
+      "track_id": "gs-4755348.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "G minor",
+      "ref": 15,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "pop rock",
+      "bucket": "pop"
+    },
+    {
+      "track_id": "gs-1074548.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "A minor",
+      "ref": 19,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "hardcore hard-techno",
+      "bucket": "techno"
+    },
+    {
+      "track_id": "gs-1234751.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "Bb major",
+      "ref": 20,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "trance",
+      "bucket": "trance"
+    },
+    {
+      "track_id": "gs-3024384.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "A minor",
+      "ref": 19,
+      "duration": 120.058776,
+      "dev_contaminated": true,
+      "genre": "breaks",
+      "bucket": "breaks"
+    },
+    {
+      "track_id": "gs-1234670.LOFI",
+      "source": "giantsteps",
+      "ref_raw": "F minor",
+      "ref": 11,
+      "duration": 120.032653,
+      "dev_contaminated": true,
+      "genre": "drum-and-bass",
+      "bucket": "dubstep"
+    }
+  ]
+}
