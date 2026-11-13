@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 import random
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -154,3 +156,140 @@ def test_post_assignment_conflicting_labels_are_reported_not_repaired(tmp_path: 
         diagnose(prepared, assignment, ledger, hashlib.sha256(ledger).hexdigest(), "changed")
     with pytest.raises(ValueError, match="witness mismatch"):
         diagnose(tmp_path / "nonexistent.npz", assignment, ledger, "changed", "unused")
+
+
+def test_committed_study_reproduces_and_panels_stay_frozen() -> None:
+    """The published reproduction command must pass against the committed study.
+
+    The synthetic tests above never touch the real artifacts, so a later edit to a
+    pinned file could break ``python -m tools.check_v2_contract`` without CI noticing.
+    """
+    from tools.check_v2_contract import check
+
+    result = check()
+    assert result["metadata_checks_passed"] is True
+    assert result["training_authorized"] is False
+    panels = result["eligible_panels"]
+    assert (
+        panels["PROPOSED_expanded_fit"]["rows"],
+        panels["PROPOSED_expanded_fit"]["unique_saved_audio_sha256"],
+    ) == (4080, 4035)
+    assert (
+        panels["PROPOSED_inner_selection"]["rows"],
+        panels["PROPOSED_inner_selection"]["unique_saved_audio_sha256"],
+    ) == (250, 250)
+    assert (
+        panels["PROPOSED_calibration"]["rows"],
+        panels["PROPOSED_calibration"]["unique_saved_audio_sha256"],
+    ) == (159, 159)
+    assert (
+        panels["PROPOSED_development_confirmation"]["rows"],
+        panels["PROPOSED_development_confirmation"]["unique_saved_audio_sha256"],
+    ) == (998, 997)
+    assert result["quarantined_rows"] == 2
+
+
+def test_protocol_amendment_chain_checks_bytes_and_connections(tmp_path: Path) -> None:
+    from tools.check_v2_contract import amended_hash
+
+    data = tmp_path / "data"
+    data.mkdir()
+    before, after = b"Original frozen rules.\n", b"Original frozen rules.\nAppendix.\n"
+    pinned, current = hashlib.sha256(before).hexdigest(), hashlib.sha256(after).hexdigest()
+    (data / "original.md").write_bytes(before)
+    (tmp_path / "PROTOCOL.md").write_bytes(after)
+    chain = {
+        "assignment_artifacts_changed": False,
+        "amendments": [
+            {
+                "artifact": "PROTOCOL.md",
+                "from_sha256": pinned,
+                "to_sha256": current,
+                "from_snapshot": "data/original.md",
+                "to_snapshot": "PROTOCOL.md",
+                "fma_assignment_artifacts_changed": False,
+            }
+        ],
+    }
+    receipt = data / "protocol-amendments.json"
+    receipt.write_text(json.dumps(chain))
+    assert amended_hash(data, "PROTOCOL.md", pinned, current)
+    assert not amended_hash(data, "PROTOCOL.md", current, pinned)
+    (data / "original.md").write_bytes(b"Invented ancestor.\n")
+    assert not amended_hash(data, "PROTOCOL.md", pinned, current)
+    (data / "original.md").write_bytes(before)
+    chain["amendments"][0]["fma_assignment_artifacts_changed"] = True
+    receipt.write_text(json.dumps(chain))
+    assert not amended_hash(data, "PROTOCOL.md", pinned, current)
+
+
+def test_protocol_amendment_rejects_whole_rewrite_even_with_updated_receipt(tmp_path: Path) -> None:
+    import shutil
+
+    from tools.check_v2_contract import STUDY, check
+
+    study = tmp_path / "study"
+    shutil.copytree(STUDY, study)
+    witness = study / "data/before-label-witness.json"
+    original_witness = witness.read_bytes()
+    protocol = study / "PROTOCOL.md"
+    protocol.write_bytes(b"Replacement: fitting and selection may overlap.\n")
+    path = study / "data/protocol-amendments.json"
+    chain = json.loads(path.read_text())
+    chain["amendments"][-1]["to_sha256"] = hashlib.sha256(protocol.read_bytes()).hexdigest()
+    path.write_text(json.dumps(chain))
+    with pytest.raises(ValueError, match="Before-label assignment artifact changed"):
+        check(study)
+    assert witness.read_bytes() == original_witness
+
+
+@pytest.mark.parametrize("change_csv", [False, True])
+def test_reproduction_distinguishes_gzip_container_from_csv_content(
+    monkeypatch: pytest.MonkeyPatch, change_csv: bool
+) -> None:
+    from tools import check_v2_contract as checker
+    from tools.propose_v2_contract import Track
+
+    original_proposal = checker.proposal
+    original_overlay = checker.write_overlay
+
+    def different_container(raw: bytes) -> bytes:
+        # RFC1952 OS byte: deliberately differ from the current platform.
+        return raw[:9] + bytes([3 if raw[9] != 3 else 19]) + raw[10:]
+
+    def regenerated(
+        tracks: list[Track], provenance: dict[str, Any]
+    ) -> tuple[dict[str, Any], bytes]:
+        summary, ledger = original_proposal(tracks, provenance)
+        if change_csv:
+            ledger = gzip.compress(gzip.decompress(ledger).replace(b"PROPOSED_", b"CHANGED_", 1))
+        return summary, different_container(ledger)
+
+    def overlay(assignment: bytes, ledger: bytes, diagnostic: dict[str, Any], output: Path) -> None:
+        original_overlay(assignment, ledger, diagnostic, output)
+        output.write_bytes(different_container(output.read_bytes()))
+
+    monkeypatch.setattr(checker, "proposal", regenerated)
+    monkeypatch.setattr(checker, "write_overlay", overlay)
+    if change_csv:
+        with pytest.raises(ValueError, match="Exposure ledger does not reproduce"):
+            checker.check()
+    else:
+        result = checker.check()
+        archived = (checker.STUDY / "data/exposure-ledger.csv.gz").read_bytes()
+        assert result["ledger_sha256"] == hashlib.sha256(archived).hexdigest()
+
+
+def test_archived_ledger_container_still_requires_original_hash(tmp_path: Path) -> None:
+    import shutil
+
+    from tools.check_v2_contract import STUDY, check
+
+    study = tmp_path / "study"
+    shutil.copytree(STUDY, study)
+    path = study / "data/exposure-ledger.csv.gz"
+    raw = path.read_bytes()
+    path.write_bytes(raw[:9] + bytes([3 if raw[9] != 3 else 19]) + raw[10:])
+    assert gzip.decompress(path.read_bytes()) == gzip.decompress(raw)
+    with pytest.raises(ValueError, match="Before-label assignment artifact changed"):
+        check(study)
