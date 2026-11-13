@@ -13,7 +13,7 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "7174fba1e39cd85522f23f1e2ce17e68ce584a961e446be060066971bfb0098e",
+      "current_sha256": "688eebbc11a2f96975c2c17d52c76da1098460abe628085f34e0f43765f555a5",
       "git_mode": "100644",
       "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion."
     },

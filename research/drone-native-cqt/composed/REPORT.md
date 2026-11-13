@@ -26,7 +26,8 @@ now reproduces all 76,608 reference core values on this one recording. The
 original control still reproduces its nine differences. A separately frozen
 [nine-golden expansion](#all-nine-retained-goldens-pass-including-a-28-minute-recording-november-13)
 then matched all 2,048,256 reference core values, including a 28-minute recording.
-The historical 376-track portability verdict is unchanged pending full expansion.
+The historical 376-track portability verdict remains unchanged pending
+unchanged-model full/chunked revalidation of the repaired frontend.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -316,8 +317,8 @@ tracks, and its 20-case FMAK performance improvement is measured. Preserve both
 paths and prefer chunked inference for long inputs. The complete frontend still
 materializes PCM and CQT arrays, so production memory requires further work.
 
-The Mac expansion now has complete **disjoint diagnostic coverage**, not a
-successful single 376-case run. Strict logit gates failed despite zero observed
+The original Mac expansion established complete **disjoint diagnostic coverage**,
+not a successful single 376-case composed run. Strict logit gates failed despite zero observed
 argmax disagreements. No Mac timing or promotion followed. Ordinary-PC deployment
 remains the product goal; neither an M5 nor the research GPU is an inference
 requirement. These data establish neither other-PC parity nor production readiness.
