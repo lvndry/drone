@@ -1,4 +1,11 @@
-"""Export label-free Beatport collection metadata from pinned existing witnesses."""
+"""Export label-free Beatport collection metadata from pinned existing witnesses.
+
+Use --external-sources paths.json to relocate existing metadata. Its JSON object
+must map exactly workbook, store_json_zip, and canonical_counts to local paths.
+Paths are resolution hints only: original SHA256/byte pins remain mandatory and
+catalog external descriptors never contain the replacement paths. Omitting the
+option retains the archived local path hints for convenience.
+"""
 
 from __future__ import annotations
 
@@ -20,9 +27,14 @@ from tools.dj_coverage_bp import NS, parse_tags, resolve_shared, resolved, selec
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUTS = ROOT / "experiments/studies/v2-data-contract/data/coverage-inputs.json"
+EXTERNAL_IDS = frozenset({"workbook", "store_json_zip", "canonical_counts"})
 
 
-def pinned_inputs(root: Path = ROOT) -> tuple[dict[str, bytes], dict[str, dict[str, Any]]]:
+def pinned_inputs(
+    root: Path = ROOT, external_paths: dict[str, Path] | None = None
+) -> tuple[dict[str, bytes], dict[str, dict[str, Any]]]:
+    if external_paths is not None and set(external_paths) != EXTERNAL_IDS:
+        raise ValueError("External resolver must cover exactly: " + ", ".join(sorted(EXTERNAL_IDS)))
     records = json.loads((root / INPUTS.relative_to(ROOT)).read_bytes())["bp"]
     raws = {}
     sources = {}
@@ -34,7 +46,10 @@ def pinned_inputs(root: Path = ROOT) -> tuple[dict[str, bytes], dict[str, dict[s
             if marker in str(original)
             else original
         )
-        raw = path.read_bytes()
+        resolved_path = (
+            external_paths[name] if external_paths is not None and name in EXTERNAL_IDS else path
+        )
+        raw = resolved_path.read_bytes()
         if sha(raw) != record["sha256"] or len(raw) != record["bytes"]:
             raise ValueError("Pinned BP source mismatch: " + name)
         raws[name] = raw
@@ -162,7 +177,9 @@ RELEASE_SHA = "69432e5f6ddc0ad10a55de591e3174e6db9ef705355cfdca5a1f678a9bfa4c4f"
 OUTPUT = "experiments/studies/v2-data-contract/data/beatport1355-collection.json.gz"
 
 
-def export_collection(root: Path = ROOT) -> CollectionCatalog:
+def export_collection(
+    root: Path = ROOT, external_paths: dict[str, Path] | None = None
+) -> CollectionCatalog:
     from experiments.collection_catalog import (
         SCHEMA,
         AudioSupport,
@@ -178,7 +195,7 @@ def export_collection(root: Path = ROOT) -> CollectionCatalog:
     )
     from experiments.corpus_catalog import Evidence, GenreTag, Measurement, SourceRecord
 
-    raws, records = pinned_inputs(root)
+    raws, records = pinned_inputs(root, external_paths)
     roles, groups = plan_and_groups(raws)
     wanted = set(roles)
     genres = workbook_genres(raws["workbook"], wanted)
@@ -432,6 +449,11 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true")
+    parser.add_argument(
+        "--external-sources",
+        type=Path,
+        help="JSON mapping exactly workbook, store_json_zip, canonical_counts to local files",
+    )
     args = parser.parse_args()
     started = time.monotonic()
     resource.setrlimit(resource.RLIMIT_CPU, (60, 60))
@@ -446,7 +468,15 @@ def main() -> None:
                 os._exit(124)
 
     threading.Thread(target=guard, daemon=True).start()
-    catalog = export_collection()
+    external_paths = None
+    if args.external_sources is not None:
+        mapping = json.loads(args.external_sources.read_bytes())
+        if not isinstance(mapping, dict) or any(
+            not isinstance(path, str) for path in mapping.values()
+        ):
+            raise ValueError("External sources must be a JSON object of local path strings")
+        external_paths = {name: Path(path) for name, path in mapping.items()}
+    catalog = export_collection(external_paths=external_paths)
     raw = collection_bytes(catalog)
     compressed = gzip.compress(raw, mtime=0)
     summary = coverage(catalog)

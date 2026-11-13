@@ -3,6 +3,7 @@
 import io
 import json
 import zipfile
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -96,3 +97,39 @@ def test_published_collection_keeps_coverage_and_exposure_semantics() -> None:
                 reject_targets(item)
 
     reject_targets(asdict(catalog))
+
+
+def test_external_source_relocation_preserves_pins_and_descriptor_bytes(tmp_path: Path) -> None:
+    from pathlib import Path
+
+    from tools.export_beatport_collection import EXTERNAL_IDS, INPUTS, ROOT, pinned_inputs, sha
+
+    records: dict[str, dict[str, Any]] = {}
+    replacements = {}
+    for name in (*sorted(EXTERNAL_IDS), "plan", "groups"):
+        raw = ("pinned metadata " + name).encode()
+        original = (
+            tmp_path / "old" / name if name in EXTERNAL_IDS else tmp_path / "experiments" / name
+        )
+        original.parent.mkdir(parents=True, exist_ok=True)
+        original.write_bytes(raw)
+        records[name] = {"path": str(original), "sha256": sha(raw), "bytes": len(raw)}
+        if name in EXTERNAL_IDS:
+            replacement = tmp_path / "relocated" / name
+            replacement.parent.mkdir(exist_ok=True)
+            replacement.write_bytes(raw)
+            replacements[name] = replacement
+    descriptor = tmp_path / INPUTS.relative_to(ROOT)
+    descriptor.parent.mkdir(parents=True)
+    descriptor.write_text(json.dumps({"bp": records}))
+    before = pinned_inputs(tmp_path)
+    for name in EXTERNAL_IDS:
+        Path(records[name]["path"]).unlink()
+    after = pinned_inputs(tmp_path, replacements)
+    assert before == after  # Payloads and catalog source descriptors remain byte-identical.
+    assert all("relocated" not in row["path"] for row in after[1].values())
+    with pytest.raises(ValueError, match="exactly"):
+        pinned_inputs(tmp_path, {})
+    replacements["workbook"].write_bytes(b"different version")
+    with pytest.raises(ValueError, match="source mismatch: workbook"):
+        pinned_inputs(tmp_path, replacements)

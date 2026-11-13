@@ -11,7 +11,7 @@
     "source_hash_in_release_audio_list_role_not_inferred": 1355
   },
   "frozen_groups": 1355,
-  "generator_sha256": "607b5e877291b615a0b93665970dd384e8408a45f9b2736f440d93d3f9a3f26a",
+  "generator_sha256": "9f821393cac4bda4118dee686f5e1efdfd7f1689356f6c28d09ca8abe1208e2b",
   "inference_performed": false,
   "interpretation": "Coverage only. Publisher tempo and catalog duration are unverified metadata; frozen groups remain proxies. Recorded 24kHz cache is not release input. No accuracy measurements.",
   "recorded_training_cache_bands": {
