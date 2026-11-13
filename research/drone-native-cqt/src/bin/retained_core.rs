@@ -114,7 +114,9 @@ fn run(args: &Args) -> Result<()> {
             "Candidate core shape/hash"
         );
         let core: Vec<f32> = raw
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .map(|bytes| f32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
             .collect();
         ensure!(core.iter().all(|x| x.is_finite()), "Nonfinite core");

@@ -13,7 +13,7 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "2c5fc6d4cc7219a34669219286847b8125c654262e664bb6ceb17647a959a48d",
+      "current_sha256": "01af09a487a3ded2cac2164c4389cf4af149d6168f65c18dc28948be5bcb2a95",
       "git_mode": "100644",
       "reason": "Publish completed retained-core native full/chunked regression on the same376 Mac references with inline numerical figure; preserve earlier failures and distinguish agreement from accuracy/performance."
     },
@@ -282,7 +282,7 @@
     },
     {
       "path": "research/drone-native-cqt/src/bin/retained_core.rs",
-      "sha256": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
+      "sha256": "2d9b85d471fed06d531d7ac52e373dec112ed2b30cb86f13114e49fd89bf6380",
       "git_mode": "100644",
       "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
     },
@@ -306,7 +306,7 @@
     },
     {
       "path": "research/drone-native-cqt/composed/retained-model376-provenance.json",
-      "sha256": "0555d514ed03da61cad88985d965ed711bf3a2ab578ce10e986980e5d9703e54",
+      "sha256": "545c17e91adc7a14b53622349f54b13003c5a95dd24c424fc726d0a715dfcd6f",
       "git_mode": "100644",
       "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
     },
@@ -324,7 +324,7 @@
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_retained_model.py",
-      "sha256": "a9e365777d046a16373c92716cbdbd4339b214c1f19a4927e7254be917d3a8a4",
+      "sha256": "9c6a9ff6cace13f36c1073806fe5114e2be58658b1e4470f3287a61a962e45cc",
       "git_mode": "100644",
       "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
     },
@@ -333,6 +333,12 @@
       "sha256": "a7c539336fd4dff55aa4c0acfc7b4d76b172ef3a5462b80903819353356033b1",
       "git_mode": "100644",
       "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/retained-model376-entrypoint-executed.rs.txt",
+      "sha256": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
+      "git_mode": "100644",
+      "reason": "Preserve the exact executed native entrypoint before the publication-only iterator lint fix; recorded model outputs and binary unchanged."
     }
   ]
 }

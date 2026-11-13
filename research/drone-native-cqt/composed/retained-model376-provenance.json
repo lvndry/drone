@@ -22,5 +22,12 @@
   "historical_reference": "Mac376 original strict native full/Mac and chunked/Mac:375/376; original key agreement376/376",
   "new_reference_or_labels": false,
   "accuracy_or_performance_claim": false,
-  "numerical_source_or_model_changed_after_execution": false
+  "numerical_source_or_model_changed_after_execution": false,
+  "publication_support_revision": {
+    "path": "research/drone-native-cqt/src/bin/retained_core.rs",
+    "executed_archive": "retained-model376-entrypoint-executed.rs.txt",
+    "executed_sha256": "5cae162c73d90c450d60d23b93a49a47a06cb7362198274d7f3b41a5838caa6e",
+    "published_sha256": "2d9b85d471fed06d531d7ac52e373dec112ed2b30cb86f13114e49fd89bf6380",
+    "change": "Publication-only Clippy iterator spelling: as_chunks::<4>().0.iter() replaces chunks_exact(4). Native adapters, arithmetic, inputs and recorded binary remain unchanged. No model rerun."
+  }
 }

@@ -958,7 +958,11 @@ The [exact compressed native result](retained-model376-results.json.gz),
 [technical provenance](retained-model376-provenance.json) retain every vector,
 comparison and executed identity. The checker recomputes all three gate families
 without running a model; the existing renderer produces the figure above.
-The published native entrypoint and adapter source match the executed bytes.
+The [archived native entrypoint](retained-model376-entrypoint-executed.rs.txt)
+and unchanged adapter source match the executed bytes. The buildable entrypoint
+uses an equivalent array-chunk iterator spelling required by Clippy; this
+publication-only lint fix was not used to rerun or replace the recorded model
+outputs. Technical provenance checks both source versions separately.
 
 ```sh
 python3 research/drone-native-cqt/composed/summarize_retained_model.py

@@ -68,8 +68,15 @@ def summarize(root: Path) -> dict[str, Any]:
     if not result["complete"] or result["tracks"] != 376 or len(result["cases"]) != 376:
         raise ValueError("Incomplete fixed panel")
     repository = root.parents[2]
+    revision = provenance["publication_support_revision"]
+    if provenance["executed_source_sha256"][revision["path"]] != revision["executed_sha256"]:
+        raise ValueError("Publication revision differs from executed source identity")
+    checked(repository / revision["path"], revision["published_sha256"])
     for name, expected in provenance["executed_source_sha256"].items():
-        checked(repository / name, expected)
+        source = (
+            root / revision["executed_archive"] if name == revision["path"] else repository / name
+        )
+        checked(source, expected)
     families: dict[str, list[dict[str, Any]]] = {
         key: [] for key in ["full_vs_mac", "chunked_vs_mac", "chunked_vs_full"]
     }
