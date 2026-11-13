@@ -1,0 +1,24 @@
+{
+  "files": {
+    "bench.csv.gz": {
+      "decoded_bytes": 13106,
+      "decoded_sha256": "5c607d1def5f301674f205d0f51ccc140fc17880b24ade625898baf5ff190922",
+      "sha256": "a2f52e94097f47ff52cfe8cdce6d9896fbe15815c350ab3bd432cee3a7ce4b76"
+    },
+    "bench.json.gz": {
+      "decoded_bytes": 7386,
+      "decoded_sha256": "d0b2c86490777d0dc9cbc2968d4d221d7653647ac611839648ab21351feda1e3",
+      "sha256": "265597a3718f782f87433456a0b433c2ff83d9149ff691ce9c75a5bb2a81298e"
+    },
+    "manifest.json.gz": {
+      "decoded_bytes": 23213,
+      "decoded_sha256": "e03ebcbafb9b111775f8278161510ac153f3177ea2c2d6b96738b77b26e11304",
+      "sha256": "6194d6d2c8ea359f7120e5c8b85bc967c424b0cb4275c6e0984ea407a7ea8e5b"
+    }
+  },
+  "invalid_detector": "libkeyfinder",
+  "reason": "The historical benchmark wrapper was defective; its 35/93 exact and 47.6% MIREX do not measure the corrected libkeyfinder wrapper.",
+  "schema": "key-reference-historical-evidence-v1",
+  "source_commit": "f101331db20b98348ab6356b22bd72517da90198",
+  "status": "PRESERVED_ORIGINAL_KF_WRAPPER_INVALID"
+}

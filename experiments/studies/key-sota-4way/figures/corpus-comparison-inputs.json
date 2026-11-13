@@ -1,0 +1,11 @@
+{
+  "analysis_sha256": "7932aa1ee1c86ef4f3f526c0e48a076f2f210383e4ce8fc120858ca364d5b0f0",
+  "generator_sha256": "47a96b9e8bcc4016abe168e519c303b1a81ed407e525fb3bc586383f1659a153",
+  "matplotlib_version": "3.11.2",
+  "outputs": {
+    "corpus-comparison.png": "67c75b0a8e2d7d96287053fa44cf7a2a4ab5a9b50c190c0948adadc5e5349f21",
+    "corpus-comparison.svg": "57f657a8e733ff7234061c32fac4684b636e90078b8cd22263c68bc856edd2df",
+    "genre-comparison.png": "c983a8bb7d5b13a68e29dfa61911febf440a808e457411cdb0f6338b4e584598",
+    "genre-comparison.svg": "cfa2f9562e436f2b38387d3014bfb835f9a29505da6575155f92b09b2d2be031"
+  }
+}

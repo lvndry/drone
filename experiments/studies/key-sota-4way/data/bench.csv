@@ -1,0 +1,94 @@
+track_id,source,genre,bucket,ref_raw,ref,duration,dev_contaminated,drone_pred,drone_rel,drone_score,drone_ms,libkeyfinder_pred,libkeyfinder_rel,libkeyfinder_score,libkeyfinder_ms,madmom_pred,madmom_rel,madmom_score,madmom_ms,musicfm_pred,musicfm_score,libkeyfinder_raw_enum,libkeyfinder_status,drone_status,madmom_status
+swd-Schubert_D911-01_HU33,swd-v2.1,classical,classical,C:min,1,311.693061,False,1,exact,1.0,46.6,1,exact,1.0,5619.9,1,exact,1.0,4934.0,,,7,key,key,key
+swd-Schubert_D911-01_SC06,swd-v2.1,classical,classical,C:min,1,325.32898,False,1,exact,1.0,60.0,1,exact,1.0,5405.0,1,exact,1.0,4870.4,,,7,key,key,key
+swd-Schubert_D911-02_HU33,swd-v2.1,classical,classical,G:min,15,101.146122,False,15,exact,1.0,717.7,15,exact,1.0,1793.2,15,exact,1.0,1796.2,,,21,key,key,key
+swd-Schubert_D911-02_SC06,swd-v2.1,classical,classical,G:min,15,95.660408,False,15,exact,1.0,109.7,1,fifth,0.5,1630.9,15,exact,1.0,1696.9,,,7,key,key,key
+swd-Schubert_D911-03_HU33,swd-v2.1,classical,classical,D:min,5,150.325986,False,10,relative,0.3,158.9,5,exact,1.0,2601.8,5,exact,1.0,2278.3,,,11,key,key,key
+swd-Schubert_D911-03_SC06,swd-v2.1,classical,classical,D#:min,7,137.16898,False,7,exact,1.0,115.1,17,fifth,0.5,2386.7,12,relative,0.3,2133.6,,,23,key,key,key
+swd-Schubert_D911-04_HU33,swd-v2.1,classical,classical,A:min,19,178.607891,False,19,exact,1.0,129.2,19,exact,1.0,3062.4,19,exact,1.0,2712.4,,,1,key,key,key
+swd-Schubert_D911-04_SC06,swd-v2.1,classical,classical,Bb:min,21,159.843265,False,11,fifth,0.5,128.3,7,fifth,0.5,2553.7,21,exact,1.0,2308.4,,,13,key,key,key
+swd-Schubert_D911-05_HU33,swd-v2.1,classical,classical,E:maj,8,274.413424,False,22,fifth,0.5,237.6,22,fifth,0.5,4334.1,8,exact,1.0,4646.3,,,4,key,key,key
+swd-Schubert_D911-05_SC06,swd-v2.1,classical,classical,D:maj,4,289.436735,False,18,fifth,0.5,422.7,18,fifth,0.5,4489.7,4,exact,1.0,4163.2,,,0,key,key,key
+swd-Schubert_D911-06_HU33,swd-v2.1,classical,classical,D:min,5,259.599093,False,5,exact,1.0,420.7,5,exact,1.0,4266.7,5,exact,1.0,4630.2,,,11,key,key,key
+swd-Schubert_D911-06_SC06,swd-v2.1,classical,classical,D:min,5,240.43102,False,5,exact,1.0,195.3,5,exact,1.0,3979.8,5,exact,1.0,3717.4,,,11,key,key,key
+swd-Schubert_D911-07_HU33,swd-v2.1,classical,classical,D:min,5,187.338594,False,18,other,0.0,242.3,19,fifth,0.5,3313.6,5,exact,1.0,2886.1,,,1,key,key,key
+swd-Schubert_D911-07_SC06,swd-v2.1,classical,classical,D:min,5,190.563265,False,18,other,0.0,330.0,19,fifth,0.5,3029.9,5,exact,1.0,2938.5,,,1,key,key,key
+swd-Schubert_D911-08_HU33,swd-v2.1,classical,classical,F:min,11,123.390839,False,11,exact,1.0,155.0,1,fifth,0.5,2178.8,10,parallel,0.2,2028.2,,,7,key,key,key
+swd-Schubert_D911-08_SC06,swd-v2.1,classical,classical,F:min,11,114.076735,False,11,exact,1.0,142.5,11,exact,1.0,1793.8,10,parallel,0.2,1839.7,,,17,key,key,key
+swd-Schubert_D911-09_HU33,swd-v2.1,classical,classical,A:min,19,132.585941,False,19,exact,1.0,111.6,19,exact,1.0,2348.3,19,exact,1.0,2057.3,,,1,key,key,key
+swd-Schubert_D911-09_SC06,swd-v2.1,classical,classical,A:min,19,146.546939,False,19,exact,1.0,116.4,19,exact,1.0,2614.7,19,exact,1.0,2224.8,,,1,key,key,key
+swd-Schubert_D911-10_HU33,swd-v2.1,classical,classical,B:min,23,195.651338,False,23,exact,1.0,141.2,23,exact,1.0,3207.5,23,exact,1.0,2852.7,,,5,key,key,key
+swd-Schubert_D911-10_SC06,swd-v2.1,classical,classical,Bb:min,21,180.924082,False,21,exact,1.0,228.7,21,exact,1.0,3074.4,21,exact,1.0,2931.9,,,3,key,key,key
+swd-Schubert_D911-11_HU33,swd-v2.1,classical,classical,G:maj,14,254.583583,False,15,parallel,0.2,197.8,15,parallel,0.2,4194.2,14,exact,1.0,4109.2,,,21,key,key,key
+swd-Schubert_D911-11_SC06,swd-v2.1,classical,classical,G:maj,14,237.635918,False,15,parallel,0.2,251.7,14,exact,1.0,3703.6,14,exact,1.0,3494.0,,,20,key,key,key
+swd-Schubert_D911-12_HU33,swd-v2.1,classical,classical,B:min,23,158.336871,False,9,fifth,0.5,208.7,23,exact,1.0,2706.9,23,exact,1.0,2376.3,,,5,key,key,key
+swd-Schubert_D911-12_SC06,swd-v2.1,classical,classical,A:min,19,147.043265,False,19,exact,1.0,180.1,19,exact,1.0,2440.5,19,exact,1.0,2326.4,,,1,key,key,key
+swd-Schubert_D911-13_HU33,swd-v2.1,classical,classical,C:maj,0,107.46195,False,1,parallel,0.2,109.5,0,exact,1.0,1819.2,0,exact,1.0,1732.2,,,6,key,key,key
+swd-Schubert_D911-13_SC06,swd-v2.1,classical,classical,Db:maj,2,119.666939,False,2,exact,1.0,112.7,16,fifth,0.5,2022.1,2,exact,1.0,1903.1,,,22,key,key,key
+swd-Schubert_D911-14_HU33,swd-v2.1,classical,classical,B:min,23,183.205442,False,13,fifth,0.5,153.9,23,exact,1.0,2882.3,23,exact,1.0,2975.1,,,5,key,key,key
+swd-Schubert_D911-14_SC06,swd-v2.1,classical,classical,Bb:min,21,149.342041,False,11,fifth,0.5,378.2,7,fifth,0.5,2467.6,21,exact,1.0,2307.3,,,13,key,key,key
+swd-Schubert_D911-15_HU33,swd-v2.1,classical,classical,B:min,23,124.273197,False,23,exact,1.0,109.7,23,exact,1.0,2121.8,23,exact,1.0,1996.5,,,5,key,key,key
+swd-Schubert_D911-15_SC06,swd-v2.1,classical,classical,Bb:min,21,116.845714,False,11,fifth,0.5,108.0,21,exact,1.0,1948.7,21,exact,1.0,2071.1,,,3,key,key,key
+swd-Schubert_D911-16_HU33,swd-v2.1,classical,classical,D:maj,4,138.48381,False,19,other,0.0,117.1,18,fifth,0.5,2360.2,5,parallel,0.2,2145.4,,,0,key,key,key
+swd-Schubert_D911-16_SC06,swd-v2.1,classical,classical,Db:maj,2,113.136327,False,17,other,0.0,99.4,16,fifth,0.5,1893.9,3,parallel,0.2,1789.1,,,22,key,key,key
+swd-Schubert_D911-17_HU33,swd-v2.1,classical,classical,D:maj,4,197.741134,False,4,exact,1.0,153.4,4,exact,1.0,3272.8,4,exact,1.0,3895.5,,,10,key,key,key
+swd-Schubert_D911-17_SC06,swd-v2.1,classical,classical,C:maj,0,190.537143,False,1,parallel,0.2,198.5,0,exact,1.0,3107.3,0,exact,1.0,2861.3,,,6,key,key,key
+swd-Schubert_D911-18_HU33,swd-v2.1,classical,classical,D:min,5,47.647347,False,20,other,0.0,91.6,5,exact,1.0,813.1,5,exact,1.0,986.0,,,11,key,key,key
+swd-Schubert_D911-18_SC06,swd-v2.1,classical,classical,C:min,1,44.068571,False,1,exact,1.0,69.6,1,exact,1.0,751.3,1,exact,1.0,945.9,,,7,key,key,key
+swd-Schubert_D911-19_HU33,swd-v2.1,classical,classical,A:maj,18,70.913741,False,18,exact,1.0,82.2,8,fifth,0.5,1107.9,18,exact,1.0,1270.9,,,14,key,key,key
+swd-Schubert_D911-19_SC06,swd-v2.1,classical,classical,G:maj,14,73.613061,False,14,exact,1.0,86.4,4,fifth,0.5,1259.9,14,exact,1.0,1418.8,,,10,key,key,key
+swd-Schubert_D911-20_HU33,swd-v2.1,classical,classical,F:min,11,242.741406,False,11,exact,1.0,218.2,11,exact,1.0,4072.6,11,exact,1.0,3978.9,,,17,key,key,key
+swd-Schubert_D911-20_SC06,swd-v2.1,classical,classical,F:min,11,232.75102,False,11,exact,1.0,320.0,11,exact,1.0,3755.4,11,exact,1.0,3588.2,,,17,key,key,key
+swd-Schubert_D911-21_HU33,swd-v2.1,classical,classical,F:maj,10,221.193288,False,11,parallel,0.2,241.3,11,parallel,0.2,3697.1,10,exact,1.0,3255.5,,,17,key,key,key
+swd-Schubert_D911-21_SC06,swd-v2.1,classical,classical,Eb:maj,6,239.804082,False,6,exact,1.0,245.7,6,exact,1.0,3998.6,6,exact,1.0,3701.4,,,12,key,key,key
+swd-Schubert_D911-22_HU33,swd-v2.1,classical,classical,F#:min,13,79.690884,False,13,exact,1.0,228.6,12,parallel,0.2,1385.4,12,parallel,0.2,1506.6,,,18,key,key,key
+swd-Schubert_D911-22_SC06,swd-v2.1,classical,classical,F:min,11,74.631837,False,11,exact,1.0,98.7,11,exact,1.0,1236.3,10,parallel,0.2,1316.2,,,17,key,key,key
+swd-Schubert_D911-23_HU33,swd-v2.1,classical,classical,G:maj,14,189.149751,False,14,exact,1.0,178.7,4,fifth,0.5,3210.7,14,exact,1.0,2776.4,,,10,key,key,key
+swd-Schubert_D911-23_SC06,swd-v2.1,classical,classical,G:maj,14,178.390204,False,14,exact,1.0,258.6,23,other,0.0,2810.3,14,exact,1.0,2625.8,,,5,key,key,key
+swd-Schubert_D911-24_HU33,swd-v2.1,classical,classical,G:min,15,188.081633,False,15,exact,1.0,142.5,15,exact,1.0,3323.4,15,exact,1.0,2929.1,,,21,key,key,key
+swd-Schubert_D911-24_SC06,swd-v2.1,classical,classical,G:min,15,207.804082,False,15,exact,1.0,259.4,4,other,0.0,3368.8,15,exact,1.0,3596.7,,,10,key,key,key
+gs-10089.LOFI,giantsteps,breaks,breaks,D major,4,120.058776,True,4,exact,1.0,107.9,4,exact,1.0,2151.9,4,exact,1.0,1879.8,,,10,key,key,key
+gs-1052744.LOFI,giantsteps,drum-and-bass,dubstep,G minor,15,120.058776,True,15,exact,1.0,102.5,9,other,0.0,2014.7,15,exact,1.0,1906.4,,,15,key,key,key
+gs-1037507.LOFI,giantsteps,electronica,electronica,G major,14,120.058776,True,14,exact,1.0,104.2,4,fifth,0.5,2060.6,14,exact,1.0,1888.2,,,10,key,key,key
+gs-4498388.LOFI,giantsteps,funk r&b,funk,D minor,5,120.058776,True,5,exact,1.0,117.3,5,exact,1.0,2119.2,5,exact,1.0,1862.8,,,11,key,key,key
+gs-3480108.LOFI,giantsteps,hard-dance,hard,Gb minor,13,120.058776,True,13,exact,1.0,107.0,13,exact,1.0,2149.5,13,exact,1.0,1828.5,,,19,key,key,key
+gs-3095708.LOFI,giantsteps,glitch-hop,hip-hop,G minor,15,120.058776,True,15,exact,1.0,100.9,15,exact,1.0,2117.5,15,exact,1.0,1848.0,,,21,key,key,key
+gs-1004923.LOFI,giantsteps,tech-house,house,C minor,1,120.058776,True,1,exact,1.0,104.0,11,fifth,0.5,1852.9,1,exact,1.0,2356.9,,,17,key,key,key
+gs-1568217.LOFI,giantsteps,dj-tools,other,F major,10,120.058776,True,19,other,0.0,114.2,10,exact,1.0,2073.6,10,exact,1.0,1861.8,,,16,key,key,key
+gs-2024026.LOFI,giantsteps,pop rock,pop,G major,14,120.058776,True,14,exact,1.0,101.4,14,exact,1.0,1963.3,14,exact,1.0,1817.2,,,20,key,key,key
+gs-1009960.LOFI,giantsteps,minimal,techno,Eb minor,7,120.058776,True,9,other,0.0,134.7,9,other,0.0,1900.6,9,other,0.0,1787.0,,,15,key,key,key
+gs-1234748.LOFI,giantsteps,trance,trance,G minor,15,120.058776,True,20,relative,0.3,120.0,20,relative,0.3,2060.9,20,relative,0.3,2242.0,,,2,key,key,key
+gs-1164898.LOFI,giantsteps,breaks,breaks,C major,0,120.032653,True,0,exact,1.0,105.9,0,exact,1.0,2054.9,0,exact,1.0,1850.5,,,6,key,key,key
+gs-1075123.LOFI,giantsteps,drum-and-bass,dubstep,F minor,11,120.058776,True,11,exact,1.0,111.2,11,exact,1.0,2056.6,11,exact,1.0,2119.9,,,17,key,key,key
+gs-1442809.LOFI,giantsteps,chill-out,electronica,Db minor,3,62.119184,True,8,relative,0.3,90.5,8,relative,0.3,1096.9,8,relative,0.3,1131.2,,,14,key,key,key
+gs-4688833.LOFI,giantsteps,funk r&b,funk,A minor,19,120.058776,True,19,exact,1.0,97.4,19,exact,1.0,1962.8,19,exact,1.0,2041.8,,,1,key,key,key
+gs-4657878.LOFI,giantsteps,hard-dance,hard,Gb minor,13,120.058776,True,13,exact,1.0,105.1,13,exact,1.0,2152.0,13,exact,1.0,2002.4,,,19,key,key,key
+gs-3368117.LOFI,giantsteps,glitch-hop,hip-hop,E minor,9,120.032653,True,8,parallel,0.2,106.7,3,other,0.0,2090.6,8,parallel,0.2,1907.6,,,9,key,key,key
+gs-1007941.LOFI,giantsteps,electro-house,house,F minor,11,120.058776,True,11,exact,1.0,102.0,11,exact,1.0,2126.9,11,exact,1.0,1981.6,,,17,key,key,key
+gs-1991458.LOFI,giantsteps,indie-dance nu-disco,other,B minor,23,120.058776,True,23,exact,1.0,131.2,23,exact,1.0,2067.8,23,exact,1.0,1958.6,,,5,key,key,key
+gs-3069201.LOFI,giantsteps,pop rock,pop,C major,0,120.058776,True,0,exact,1.0,101.6,0,exact,1.0,2115.0,0,exact,1.0,1833.3,,,6,key,key,key
+gs-1026478.LOFI,giantsteps,techno,techno,F minor,11,120.058776,True,11,exact,1.0,105.2,7,other,0.0,2117.6,13,other,0.0,1840.3,,,13,key,key,key
+gs-1234749.LOFI,giantsteps,trance,trance,Bb major,20,120.058776,True,10,fifth,0.5,106.4,10,fifth,0.5,1912.3,10,fifth,0.5,1865.4,,,16,key,key,key
+gs-190477.LOFI,giantsteps,breaks,breaks,D minor,5,120.058776,True,5,exact,1.0,105.6,5,exact,1.0,1923.9,5,exact,1.0,1856.8,,,11,key,key,key
+gs-1234668.LOFI,giantsteps,drum-and-bass,dubstep,G minor,15,120.032653,True,19,other,0.0,104.0,15,exact,1.0,1927.1,15,exact,1.0,1865.4,,,21,key,key,key
+gs-1474122.LOFI,giantsteps,chill-out,electronica,Ab major,16,120.032653,True,16,exact,1.0,103.5,16,exact,1.0,1927.6,16,exact,1.0,1873.2,,,22,key,key,key
+gs-4863806.LOFI,giantsteps,funk r&b,funk,F minor,11,120.058776,True,11,exact,1.0,100.7,11,exact,1.0,2131.7,11,exact,1.0,1922.6,,,17,key,key,key
+gs-4758620.LOFI,giantsteps,hard-dance,hard,F minor,11,120.058776,True,11,exact,1.0,152.7,11,exact,1.0,2131.1,11,exact,1.0,1869.7,,,17,key,key,key
+gs-3813682.LOFI,giantsteps,hip-hop,hip-hop,G minor,15,120.058776,True,15,exact,1.0,106.6,15,exact,1.0,2050.5,15,exact,1.0,1815.3,,,21,key,key,key
+gs-101069.LOFI,giantsteps,electro-house,house,E minor,9,120.058776,True,9,exact,1.0,101.2,9,exact,1.0,2114.0,9,exact,1.0,1842.5,,,15,key,key,key
+gs-2676506.LOFI,giantsteps,dj-tools,other,C minor,1,120.058776,True,11,fifth,0.5,103.2,10,other,0.0,1942.4,11,fifth,0.5,2003.6,,,16,key,key,key
+gs-3892740.LOFI,giantsteps,pop rock,pop,D major,4,120.058776,True,4,exact,1.0,111.7,4,exact,1.0,2052.2,4,exact,1.0,2005.1,,,10,key,key,key
+gs-1041574.LOFI,giantsteps,techno,techno,Ab major,16,120.058776,True,16,exact,1.0,114.9,11,relative,0.3,2056.0,1,other,0.0,1956.5,,,17,key,key,key
+gs-1234750.LOFI,giantsteps,trance,trance,D minor,5,120.058776,True,10,relative,0.3,140.1,19,fifth,0.5,1980.1,10,relative,0.3,1980.1,,,1,key,key,key
+gs-2438899.LOFI,giantsteps,breaks,breaks,Bb minor,21,120.058776,True,21,exact,1.0,102.7,21,exact,1.0,1932.4,21,exact,1.0,2078.6,,,3,key,key,key
+gs-1234669.LOFI,giantsteps,drum-and-bass,dubstep,G minor,15,120.058776,True,15,exact,1.0,101.9,23,other,0.0,1976.5,17,other,0.0,1892.6,,,5,key,key,key
+gs-1669939.LOFI,giantsteps,electronica,electronica,E major,8,120.058776,True,13,other,0.0,104.2,23,other,0.0,2076.6,13,other,0.0,2142.8,,,5,key,key,key
+gs-4997194.LOFI,giantsteps,hard-dance,hard,Ab minor,17,120.058776,True,17,exact,1.0,114.2,17,exact,1.0,1919.9,17,exact,1.0,1868.8,,,23,key,key,key
+gs-4615188.LOFI,giantsteps,hip-hop,hip-hop,Ab minor,17,120.058776,True,17,exact,1.0,104.2,17,exact,1.0,2150.2,17,exact,1.0,1897.7,,,23,key,key,key
+gs-1017921.LOFI,giantsteps,progressive-house,house,B major,22,120.058776,True,22,exact,1.0,102.2,22,exact,1.0,2037.4,8,fifth,0.5,1891.6,,,4,key,key,key
+gs-3172588.LOFI,giantsteps,indie-dance nu-disco,other,B minor,23,120.058776,True,23,exact,1.0,101.5,3,other,0.0,2131.0,23,exact,1.0,1849.6,,,9,key,key,key
+gs-4755348.LOFI,giantsteps,pop rock,pop,G minor,15,120.058776,True,15,exact,1.0,104.2,15,exact,1.0,2058.2,15,exact,1.0,2046.9,,,21,key,key,key
+gs-1074548.LOFI,giantsteps,hardcore hard-techno,techno,A minor,19,120.058776,True,19,exact,1.0,128.8,19,exact,1.0,2214.5,19,exact,1.0,1877.5,,,1,key,key,key
+gs-1234751.LOFI,giantsteps,trance,trance,Bb major,20,120.032653,True,11,other,0.0,102.3,20,exact,1.0,2099.8,6,fifth,0.5,1922.9,,,2,key,key,key
+gs-3024384.LOFI,giantsteps,breaks,breaks,A minor,19,120.058776,True,9,fifth,0.5,121.3,9,fifth,0.5,2125.5,9,fifth,0.5,1860.0,,,15,key,key,key
+gs-1234670.LOFI,giantsteps,drum-and-bass,dubstep,F minor,11,120.032653,True,11,exact,1.0,101.8,11,exact,1.0,2083.6,11,exact,1.0,1972.5,,,17,key,key,key
