@@ -1,0 +1,66 @@
+{
+  "format": "drone-native-research-evolution-v1",
+  "migration_sha256": "b44969c2ac90402126907982913d847e314b84b502581185ff12fcadc32fb159",
+  "semantics": "Original import and relocation adjustment identities remain immutable in MIGRATION.json. This index records subsequent Drone research changes and additions; it does not relabel historical evidence or authorize new numerical claims.",
+  "changes": [
+    {
+      "path": ".github/workflows/drone-native-research.yml",
+      "migrated_sha256": "6db574aa64492210eeb9b3143196283bb9ba30c607a49c34161a368c844b4efc",
+      "current_sha256": "9891bf1446a36459c39e9e7c6d7c9db75bfe5a447b00f3f587042ce833239edd",
+      "git_mode": "100644",
+      "reason": "Run native provenance verification when the explicit post-migration evolution index changes."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/REPORT.md",
+      "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
+      "current_sha256": "e8b0d4ae6a7631816c619f2435c42517c629b945db76b98dfd7bbaeed3bc3980",
+      "git_mode": "100644",
+      "reason": "Append fixed-case boundary observer methods, preserved failed build and successful build qualification; original measurements remain identified as historical."
+    },
+    {
+      "path": "research/drone-native-cqt/src/plan.rs",
+      "migrated_sha256": "88393dd2e3ca216363b23ed54540646722fbd8881b35dcb84140b1573554226d",
+      "current_sha256": "0b973fec8c9356254c8b21812b4850526824bde888a57f86f370206e417de251",
+      "git_mode": "100644",
+      "reason": "Expose existing plan cache data to the separate fixed-case boundary observer; no numerical frontend tolerance change."
+    }
+  ],
+  "additions": [
+    {
+      "path": "research/drone-native-cqt/composed/BOUNDARY_BUILD_PROTOCOL.md",
+      "sha256": "662986be65c14ff4b71c7290fb45a6da3c0337d9734509dc74bc8d3584f20c20",
+      "git_mode": "100644",
+      "reason": "Prospective separate build qualification, original resource caps and fresh output root."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/BOUNDARY_TRACE_PROTOCOL.md",
+      "sha256": "c1599c6733a6313355f6b8c49890b4b0e18cdf8e657381385673df4ef88c5d40",
+      "git_mode": "100644",
+      "reason": "Prospective single-case observer protocol with unchanged original parity tolerances."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-build-v1-evidence.tar.gz",
+      "sha256": "3e5a570cd0850da1c0c1bd7363bd6c219a2c05848d347019e8e16aaff4a4d37d",
+      "git_mode": "100644",
+      "reason": "Preserve original failed bounded build receipts, logs and source/toolchain identities."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/boundary-build-v2-evidence.tar.gz",
+      "sha256": "c3f4709d80eda175a7cdca319db61336b8072a5326a43fe6363419bbfe3ea402",
+      "git_mode": "100644",
+      "reason": "Preserve separate successful bounded observer build receipts; no audio or model execution."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/qualify_boundary_build.py.txt",
+      "sha256": "b94463e9ec9fc0a9c9d027be63a75de3582ded66353c6bdc878d6e1225ca5ae6",
+      "git_mode": "100644",
+      "reason": "Bounded offline observer build guardian with transient-ENOENT accounting fix."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/boundary_trace.rs",
+      "sha256": "3860d153f62b490d6714b4ad7e908851b6a4847dda132aeb9d24d05d7e2ac7fb",
+      "git_mode": "100644",
+      "reason": "Research-only observer for one previously failing CQT case; never a release inference binary."
+    }
+  ]
+}
