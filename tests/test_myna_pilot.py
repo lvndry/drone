@@ -329,6 +329,8 @@ def test_imported_key_semantics_must_come_from_the_pinned_tree(
     def substituted_origin(value: object) -> str | None:
         if value is pilot.score_mirex:
             return "/different-checkout/drone/keys.py"
+        if not callable(value):
+            raise TypeError("Expected a callable source")
         return original(value)
 
     monkeypatch.setattr(pilot.inspect, "getsourcefile", substituted_origin)

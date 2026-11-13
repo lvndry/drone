@@ -13,8 +13,7 @@ from typing import Any
 import numpy as np
 import torch
 from numpy.typing import NDArray
-from torch import Tensor, nn
-from torch.nn import functional as F
+from torch import nn
 
 from drone.keys import score_mirex, transpose_key
 from experiments.k10_v2_pilot import selection_key
@@ -31,12 +30,27 @@ from experiments.myna_cache import (
     sha256,
     validate_manifest,
 )
+from experiments.myna_head import (
+    make_head as make_head,
+)
+from experiments.myna_head import (
+    make_optimizer,
+    train_batch,
+    window_logits,
+)
+from experiments.myna_head import (
+    mean_logits as mean_logits,
+)
+from experiments.myna_head import (
+    weighted_ce as weighted_ce,
+)
 
 SEED, BATCH = 42, 64
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = (
     "experiments/myna_cache.py",
     "experiments/myna_pilot.py",
+    "experiments/myna_head.py",
     "experiments/k10_v2_pilot.py",
     "experiments/musicfm_pilot.py",
     "drone/keys.py",
@@ -51,35 +65,6 @@ IDENTITIES = {
 }
 
 
-def make_head(device: str = "cpu") -> nn.Sequential:
-    """One dropout after the first ReLU; never instantiate the pretrained encoder."""
-    return nn.Sequential(
-        nn.Linear(384, 4096, device=device, dtype=torch.float32),
-        nn.ReLU(),
-        nn.Dropout(0.99),
-        nn.Linear(4096, 4096, device=device, dtype=torch.float32),
-        nn.ReLU(),
-        nn.Linear(4096, 24, device=device, dtype=torch.float32),
-    )
-
-
-def weighted_ce(logits: Tensor, targets: Tensor, weights: Tensor) -> Tensor:
-    """Unnormalized importance weights: a random batch must not redefine the objective."""
-    require(
-        logits.ndim == 2
-        and logits.shape[1] == 24
-        and targets.shape == weights.shape == (len(logits),),
-        "Invalid fitting batch",
-    )
-    require(
-        bool(torch.isfinite(logits).all())
-        and bool(torch.isfinite(weights).all())
-        and bool((weights > 0).all()),
-        "Nonfinite/invalid objective input",
-    )
-    return (F.cross_entropy(logits, targets, reduction="none") * weights).mean()
-
-
 def batches(size: int, passes: int, seed: int = SEED) -> Iterator[tuple[int, NDArray[np.int64]]]:
     """Each pass visits every cached view/window once; retain the final short batch."""
     require(size > 0 and passes > 0, "Invalid exposure budget")
@@ -90,51 +75,17 @@ def batches(size: int, passes: int, seed: int = SEED) -> Iterator[tuple[int, NDA
             yield epoch, order[start : start + BATCH]
 
 
-def mean_logits(
-    chunks: Iterator[NDArray[np.float32]], expected_windows: int
-) -> NDArray[np.float64]:
-    """Average window logits, not probabilities or input embeddings, in FP64."""
-    total = np.zeros(24, dtype=np.float64)
-    seen = 0
-    for chunk in chunks:
-        require(
-            chunk.dtype == np.float32
-            and chunk.ndim == 2
-            and chunk.shape[1] == 24
-            and bool(np.isfinite(chunk).all()),
-            "Invalid window logits",
-        )
-        # Fixed window order makes aggregation independent of chunk/batch boundaries.
-        for row in chunk:
-            total += row.astype(np.float64)
-        seen += len(chunk)
-    require(seen == expected_windows and seen > 0, "Missing/extra selection windows")
-    return total / seen
-
-
 def predict(
     head: nn.Module, cache: LoadedCache, batch_size: int, watch: Callable[[], None]
 ) -> dict[str, list[float]]:
     require(1 <= batch_size <= BATCH, "Unsupported head evaluation batch")
-    device = next(head.parameters()).device
     result: dict[str, list[float]] = {}
-    head.eval()
-    with torch.inference_mode():
-        for ids in cache.contract.selection_ids.values():
-            for identity in ids:
-                span = cache.selection[identity]
+    for ids in cache.contract.selection_ids.values():
+        for identity in ids:
+            span = cache.selection[identity]
+            chunks = window_logits(head, cache.embeddings[span], batch_size, watch)
+            result[identity] = mean_logits(chunks, span.stop - span.start).tolist()
 
-                def chunks() -> Iterator[NDArray[np.float32]]:
-                    for offset in range(span.start, span.stop, batch_size):
-                        watch()
-                        values = np.array(
-                            cache.embeddings[offset : min(offset + batch_size, span.stop)],
-                            copy=True,
-                        )
-                        logits = head(torch.from_numpy(values).to(device)).cpu().numpy()
-                        yield logits
-
-                result[identity] = mean_logits(chunks(), span.stop - span.start).tolist()
     return result
 
 
@@ -242,6 +193,8 @@ def admit(config: dict[str, Any], watch: Callable[[], None]) -> tuple[LoadedCach
         (metrics, "experiments/musicfm_pilot.py"),
         (selection_key, "experiments/k10_v2_pilot.py"),
         (load_cache, "experiments/myna_cache.py"),
+        (train_batch, "experiments/myna_head.py"),
+        (window_logits, "experiments/myna_head.py"),
         (score_mirex, "drone/keys.py"),
         (transpose_key, "drone/keys.py"),
     ):
@@ -311,37 +264,20 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
         head = make_head()
         initial = state_digest(head)
         head.to(config["device"])
-        optimizer = torch.optim.Adam(
-            head.parameters(),
-            lr=3e-4,
-            weight_decay=1e-5,
-            betas=(0.9, 0.999),
-            eps=1e-8,
-            foreach=False,
-            fused=False,
-        )
+        optimizer = make_optimizer(head)
         best: dict[str, dict[str, Any]] | None = None
         best_epoch, updates, epoch_draws, epoch_loss = 0, 0, 0, 0.0
         selected_file_sha = ""
         history = []
         for epoch, indices in batches(cache.contract.fit_windows, config["passes"]):
-            watch()
-            head.train()
-            optimizer.zero_grad(set_to_none=True)
-            values = torch.from_numpy(cache.embeddings[indices]).to(config["device"])
-            targets = torch.from_numpy(cache.targets[indices]).to(config["device"])
-            weights = torch.from_numpy(cache.weights[indices]).to(config["device"])
-            loss = weighted_ce(head(values), targets, weights)
-            require(bool(torch.isfinite(loss)), "Nonfinite loss; no optimizer step")
-            loss.backward()
-            require(
-                all(
-                    p.grad is not None and bool(torch.isfinite(p.grad).all())
-                    for p in head.parameters()
-                ),
-                "Missing/nonfinite gradients; no optimizer step",
+            value = train_batch(
+                head,
+                optimizer,
+                cache.embeddings[indices],
+                cache.targets[indices],
+                cache.weights[indices],
+                watch,
             )
-            optimizer.step()
             committed_updates += 1
             committed_presentations += len(indices)
             if committed_updates % 256 == 0:
@@ -354,7 +290,6 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
                         "config_sha256": config_sha256,
                     },
                 )
-            value = float(loss.detach().cpu())
             epoch_loss += value * len(indices)
             epoch_draws += len(indices)
             updates += 1
