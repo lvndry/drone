@@ -14,9 +14,9 @@ State snapshots cover every registered parameter and buffer, including nonpersis
 
 `experiments/musicfm_bn_calibration.py` connects these primitives sequentially on a caller-owned disposable copy. It freezes the recording sequence, checks bounded crop lengths and exact total mass, computes a complete site's weighted population under the updated prefix, and casts both buffers once before replacement. Final registered-state checks also require every BN buffer to match its intended FP32 replacement byte-for-byte. Repeated crop bytes must match their first-read SHA256; this checks consistency, not the still-required external binding of that first read to the canonical waveform/crop manifest. On an exception, earlier sites may already have changed: discard the disposable copy, do not score or save it as a candidate. The core permits small synthetic populations for tests; only the separately sealed 512-row panel can satisfy this protocol. Tests include a closed-form sequential example, unchanged original copy, callback mutation, changed crops and interrupted passes.
 
-The focused preparation suite currently passes 105 synthetic/toy tests. This is numerical and contract evidence, not qualification of MusicFM, source recordings, GPU resources, inference accuracy or runtime cost.
+The focused preparation suite currently passes 160 synthetic/toy tests. This is numerical and contract evidence, not qualification of MusicFM, source recordings, GPU resources, inference accuracy or runtime cost.
 
-This does not qualify the full diagnostic. Source roles, real fitting/cache/crop hashes, final selected checkpoint and terminal gate, integration and actual-source hook correctness, installed-environment identity, protected services, hardware/resource receipts, measured timing admission and evaluator/audit identities remain unfilled or unverified launch blockers. No model/checkpoint loader, score logic, guardian, CLI, runner or server code is included. No diagnostic is launched by these primitives or their tests.
+This does not qualify the full diagnostic. Source roles, real fitting/cache/crop hashes, final selected checkpoint and terminal gate, integration and actual-source hook correctness, installed-environment identity, protected services, hardware/resource receipts, measured timing admission and evaluator/audit identities remain unfilled or unverified launch blockers. Private worker and guardian source are now implemented in `experiments/musicfm_bn_execution.py` and `tools/run_musicfm_bn.py`, but have not executed on MusicFM or source recordings. A separately source/config/UTC-bound diagnostic-only permit and actual-source qualification remain mandatory. Tests do not grant execution authority.
 
 ## Start condition and immutable inputs
 
@@ -82,10 +82,29 @@ Seal the complete candidate checkpoint and moment/identity receipt before openin
 
 ## Exactly one paired comparison and its interpretation
 
-Compare the untouched selected checkpoint and this one candidate on the existing 126-BP/250-FMA inner panel, using the frozen whole-song FP32 evaluator, actual tails, support-weighted FP64 logits and its required B1/B16 audit/tolerance. Reuse original terminal baseline logits only if their exact source/checkpoint/schedule/environment identity is verified; otherwise one fresh baseline pass is part of this same comparison. Audit duplicate passes are numerical checks, not alternative candidates. Open no calibration159, confirmation997, GiantSteps, private tracks or new reference panel. No label cleanup, exclusions, momentum sweep or second candidate after results.
+Compare the untouched selected checkpoint and this one candidate on the existing 126-BP/250-FMA inner panel, using the frozen whole-song FP32 evaluator, actual tails, support-weighted FP64 logits and its required B1/B16 audit/tolerance. The implementation prospectively chooses one fresh untouched-baseline B1 replay after candidate sealing. Candidate B1/B16 plus that baseline B1 define the complete comparison cost: `2*historical_B1 + max_historical_B16_event`. The admission safety factor applies to this complete cost; saved original logits are not substituted. Audit duplicate passes are numerical checks, not alternative candidates. Open no calibration159, confirmation997, GiantSteps, private tracks or new reference panel. No label cleanup, exclusions, momentum sweep or second candidate after results.
 
 Prospective useful-signal gate: at least five additional FMA exact predictions versus the untouched selected checkpoint, with no BP exact, symmetric-MIREX or asymmetric-MIREX decline. Report all paired movements and both domains' weighted-score changes, including failures. This does not alter the original teacher's control-based continuation gate or authorize distillation/release.
 
 If state checks pass, prediction changes can be attributed to this joint buffer intervention in this fixed network. They cannot establish that N1 BN caused the training plateau, isolate a particular BN path, distinguish recent-window instability from precision/dropout/domain differences, or show that frozen-pretrained BN training would help. The estimator, finite fitting panel and all 18 sites change together. The old 376-song panel has already driven selection; a gain is an exploratory signal on an adaptively reused panel, not independent generalization evidence. A null result also cannot falsify a fresh frozen-BN training hypothesis. The result may inform a separately budgeted proposal; it triggers no new fit automatically.
 
 Primary sources: [MusicFM residual/subsampling implementation](https://github.com/minzwon/musicfm/blob/b83ebedb401bcef639b26b05c0c8bee1dc2dfe71/modules/conv.py), [MusicFM preprocessing and encoder](https://github.com/minzwon/musicfm/blob/b83ebedb401bcef639b26b05c0c8bee1dc2dfe71/model/musicfm_25hz.py), [pinned Transformers Conformer](https://github.com/huggingface/transformers/blob/v4.57.6/src/transformers/models/wav2vec2_conformer/modeling_wav2vec2_conformer.py), [PyTorch BN estimator semantics](https://docs.pytorch.org/docs/2.15/generated/torch.nn.BatchNorm1d.html). Local antecedent: `/tmp/astra-musicfm-bn-audit.md`; the previously proposed BP→FMA suffix bias remains falsified by the actual interleaver.
+
+## Execution-source amendment before any diagnostic score
+
+The terminal barrier requires all120 original events, the earliest exact-first
+selection, selected-file identity, a passed B1/B16 audit, retired original
+process identities and consistent completion receipts. It also checks absence
+of guardian/worker failure files and recorded cap compliance: the old guardian
+can retain a COMPLETE marker if a later final check fails. A marker alone does
+not prove error-free completion.
+
+The new guardian binds absolute output paths outside preserved inputs/source,
+fixed CPU affinity and numeric environment, all imported local source files,
+this protocol, original numerical/evaluator bytes and protected vLLM identities.
+The worker verifies actual checkpoint bytes before CUDA work. It strictly reloads
+and fingerprints the sealed candidate before opening reference keys or reading
+validation waveforms. It then rechecks remaining score-phase budget against
+`2*complete_comparison_cost + measured_overhead + 120`. Insufficient margin leaves
+a sealed candidate with a budget-inconclusive/no-scoring result; it does not
+authorize another attempt. The actual hardware/source run is still unperformed.
