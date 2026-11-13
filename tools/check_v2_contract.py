@@ -65,10 +65,14 @@ def amended_hash(data: Path, artifact: str, pinned: str, current: str) -> bool:
 def check(study: Path = STUDY) -> dict[str, Any]:
     data = study / "data"
     tracks, provenance = load_input(data / "input.json.gz")
-    proposed, ledger = proposal(tracks, provenance)
+    proposed, regenerated_ledger = proposal(tracks, provenance)
     if json.loads((data / "proposal.json").read_text()) != proposed:
         raise ValueError("Proposal does not reproduce")
-    if (data / "exposure-ledger.csv.gz").read_bytes() != ledger:
+    # Gzip headers/deflate bytes depend on the producer platform and zlib.
+    # Reproduce every CSV byte, then retain the archived container for its
+    # original before-label hash checks and downstream diagnostic bindings.
+    ledger = (data / "exposure-ledger.csv.gz").read_bytes()
+    if gzip.decompress(ledger) != gzip.decompress(regenerated_ledger):
         raise ValueError("Exposure ledger does not reproduce")
     witness = json.loads((data / "before-label-witness.json").read_text())
     for relative, digest in witness["artifacts"].items():
@@ -148,7 +152,9 @@ def check(study: Path = STUDY) -> dict[str, Any]:
     with tempfile.TemporaryDirectory() as temporary:
         target = Path(temporary) / "overlay.gz"
         write_overlay((data / "input.json.gz").read_bytes(), ledger, diagnostic, target)
-        if target.read_bytes() != (data / "eligibility-overlay.csv.gz").read_bytes():
+        if gzip.decompress(target.read_bytes()) != gzip.decompress(
+            (data / "eligibility-overlay.csv.gz").read_bytes()
+        ):
             raise ValueError("Eligibility overlay does not reproduce")
     eligible_panels = {}
     for role in sorted({r["proposed_role"] for r in role_rows}):

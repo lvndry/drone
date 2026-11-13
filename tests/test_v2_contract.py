@@ -8,6 +8,7 @@ import json
 import random
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -240,3 +241,55 @@ def test_protocol_amendment_rejects_whole_rewrite_even_with_updated_receipt(tmp_
     with pytest.raises(ValueError, match="Before-label assignment artifact changed"):
         check(study)
     assert witness.read_bytes() == original_witness
+
+
+@pytest.mark.parametrize("change_csv", [False, True])
+def test_reproduction_distinguishes_gzip_container_from_csv_content(
+    monkeypatch: pytest.MonkeyPatch, change_csv: bool
+) -> None:
+    from tools import check_v2_contract as checker
+    from tools.propose_v2_contract import Track
+
+    original_proposal = checker.proposal
+    original_overlay = checker.write_overlay
+
+    def different_container(raw: bytes) -> bytes:
+        # RFC1952 OS byte: deliberately differ from the current platform.
+        return raw[:9] + bytes([3 if raw[9] != 3 else 19]) + raw[10:]
+
+    def regenerated(
+        tracks: list[Track], provenance: dict[str, Any]
+    ) -> tuple[dict[str, Any], bytes]:
+        summary, ledger = original_proposal(tracks, provenance)
+        if change_csv:
+            ledger = gzip.compress(gzip.decompress(ledger).replace(b"PROPOSED_", b"CHANGED_", 1))
+        return summary, different_container(ledger)
+
+    def overlay(assignment: bytes, ledger: bytes, diagnostic: dict[str, Any], output: Path) -> None:
+        original_overlay(assignment, ledger, diagnostic, output)
+        output.write_bytes(different_container(output.read_bytes()))
+
+    monkeypatch.setattr(checker, "proposal", regenerated)
+    monkeypatch.setattr(checker, "write_overlay", overlay)
+    if change_csv:
+        with pytest.raises(ValueError, match="Exposure ledger does not reproduce"):
+            checker.check()
+    else:
+        result = checker.check()
+        archived = (checker.STUDY / "data/exposure-ledger.csv.gz").read_bytes()
+        assert result["ledger_sha256"] == hashlib.sha256(archived).hexdigest()
+
+
+def test_archived_ledger_container_still_requires_original_hash(tmp_path: Path) -> None:
+    import shutil
+
+    from tools.check_v2_contract import STUDY, check
+
+    study = tmp_path / "study"
+    shutil.copytree(STUDY, study)
+    path = study / "data/exposure-ledger.csv.gz"
+    raw = path.read_bytes()
+    path.write_bytes(raw[:9] + bytes([3 if raw[9] != 3 else 19]) + raw[10:])
+    assert gzip.decompress(path.read_bytes()) == gzip.decompress(raw)
+    with pytest.raises(ValueError, match="Before-label assignment artifact changed"):
+        check(study)

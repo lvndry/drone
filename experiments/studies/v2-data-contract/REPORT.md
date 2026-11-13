@@ -183,12 +183,19 @@ python -m tools.check_v2_contract
 python -m pytest tests/test_v2_contract.py -q
 ```
 
-Nine regressions cover whole components/nesting/order invariance, bounded-group
+Regression tests cover whole components/nesting/order invariance, bounded-group
 failure, same-audio cross-component rejection, old-ID-preserving deduplication,
 strict rejection of target fields in assignment inputs, and generic conflict
 quarantine across restricted/expanded membership with no feature member read.
 They also reproduce the committed study and reject invented ancestors or whole
 protocol rewrites even when the amendment receipt is updated.
+
+Ledger and overlay reproduction compares complete decompressed CSV bytes because
+gzip headers and deflate encodings can vary across platforms. The archived
+compressed ledger retains its original witness hash and diagnostic bindings; a
+changed published container still fails. Regression tests distinguish generated
+container differences from changed table content. The corrected reproducer was
+also executed successfully on Linux with Python 3.12.3.
 The checker reproduces proposal/ledgers, verifies the before-label/sanitization chain,
 source hashes, all-role overlay coverage, observed ID/SHA separation and counts.
 
