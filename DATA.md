@@ -141,7 +141,7 @@ The [93-recording reference report](experiments/studies/key-sota-4way/REPORT.md)
 already separates Winterreise from development-exposed GS and preserves the
 corrected comparator evidence. This is an initial coverage/accuracy map, not an
 all-genre diagnosis. Its legacy GS buckets also merge drum-and-bass into
-`dubstep` and glitch-hop into `hiphop`; the latter is not broad hiphop coverage.
+`dubstep` and glitch-hop into `hip-hop`; the latter is not broad hip-hop coverage.
 Preserve native tags alongside these historical display buckets. The current
 pilot catalog does not justify a full-corpus BPM, artist-independent or long-track
 accuracy claim.
@@ -178,9 +178,9 @@ Concrete next adapters, using existing sources before any acquisition:
    evidence; retain eligibility and unknown identity status regardless of outcomes.
    Do not turn the artist/fault lists into a claim of complete independence.
 
-These are organization tasks, not permission to download new corpora, relabel
-private music, run new classifiers, alter fitting roles or begin training.
-Any future acquisition should fill a measured coverage gap with documented
+These adapters preserve the existing fitting roles and reference labels. The
+private DJ library remains reserved for performance testing and manual review.
+Future acquisition should fill a measured coverage gap with documented
 identity, labels, metadata and use terms; it should not be chosen to rescue a
 particular observed score.
 
