@@ -12,7 +12,9 @@ Two related views now organize the existing evidence:
 - The [Beatport collection](experiments/studies/v2-data-contract/data/beatport1355-collection.json.gz)
   contains all 1,355 current development IDs; the
   [FMA collection](experiments/studies/v2-data-contract/data/fmak5489-collection.json.gz)
-  contains all 5,489 source-reference IDs. These collection views contain metadata,
+  contains all 5,489 source-reference IDs. The
+  [GiantSteps collection](experiments/studies/v2-data-contract/data/giantsteps604-collection.json.gz)
+  now covers all 604 source previews. These collection views contain metadata,
   frozen role history and exposure witnesses, **without key targets or predictions**.
 
 Both reuse typed identity, measurement, native-genre and evidence primitives.
@@ -21,8 +23,7 @@ missing observations; the [reference contract](experiments/corpus_catalog.py)
 retains the stricter identity requirements of the scored panel. Source archives
 are resolved by explicit local mappings and verified hashes. A local path is not
 an identity. See the [coverage study](experiments/studies/v2-data-contract/REPORT.md)
-for methods, figures and limitations. Full GiantSteps and GTZAN collection
-adapters remain outstanding.
+for methods, figures and limitations. The GTZAN collection adapter remains outstanding.
 
 ## Current corpus inventory
 
@@ -52,7 +53,7 @@ field. Annotation rights and recording rights are separate.
 |---|---|---|---|
 | BP | Workbook genre is complete for the current 1,355 research IDs. Existing original store JSON includes native genre/subgenre, artists, remixers, release, mix and label fields, with incomplete source coverage. Do not equate workbook and store taxonomies. Artist/album independence remains unverified. | Canonical preview sample counts exist. Store JSON can describe the full catalog track instead; keep that duration separately. | A `bpm` field exists in the pinned store archive. It is **store-reported metadata**, not a manually validated tempo reference. The metadata-only adapter admits 716/1,355 current research IDs (656/1,229 fitting; 60/126 selection), range 66–195 BPM. The other 639 are unknown: 623 missing source records, 11 missing/null and five zero sentinels. The older genre/duration allowlist did not admit BPM. |
 | FMA | The existing master CSV includes artist/album IDs and names, track title/composer, native top/all genre fields, license and subset. Artist/album components and historical exposure are recorded. Missing top-level genre does not imply missing native subgenre. | Metadata track duration and existing actual waveform/cache support are distinct witnesses. Some FMA distributions are 30-second excerpts, others full audio. | No BPM column exists in the master CSV used here. Upstream FMA offers other feature tables, including partial Echonest coverage; those are separate analyzer-derived sources and are not silently joined or treated as tempo truth. |
-| GS | The 45 panel JAMS files contain `key_mode` and `tag_open`; their artist/release fields are empty. Native genre tags are available. Publisher `sources.xlsx` is another metadata source requiring its own version/hash and join audit. | Most source previews are about two minutes, with known shorter exceptions. Use measured input duration for length slices. | Bounded inspection found no BPM/ tempo fields in those 45 JAMS files. The publisher workbook has not been admitted as a BPM source here. The separate GiantSteps Tempo dataset is not assumed to have identical membership or recording versions. |
+| GS | The full 604-row collection preserves 23 native publisher genres from the pinned annotation archive. Artist/work IDs are not established. The archive also contains `sources.xlsx`; its artist strings are not verified identities. | Saved fingerprint decode support spans 44.70–120.01 seconds at 11,025 Hz. Its 604 IDs have 602 distinct decoded PCM hashes. Publisher JAMS duration describes a preview; full-song duration stays unknown. | No BPM source is admitted. The separate GiantSteps Tempo dataset is not assumed to have identical membership or recording versions. |
 | SWD | Work and performance IDs are explicit; “classical” describes this vocal/piano song cycle, not a representative sample of all classical music. Global/local key and measure annotations are separate source types. | The 48 analyzed recordings range 44.07–325.33 seconds, median 169.12 seconds. Two performances of a work are related observations. | No scalar BPM is admitted in the current panel. Score tempo, measure timing and performed tempo are different quantities; do not invent one whole-song BPM from a classical work label. |
 | GTZAN | Native genre follows stable recording IDs. Reliable artist/work linkage is incomplete; known repetitions, versions and faults require separate identity evidence. | The pinned inventory supplies per-WAV frame counts, rate, bytes and hashes. The clips are approximately 30 seconds, not full-song support. | No BPM source is admitted in the current GTZAN catalog preparation. Genre and filename do not supply BPM. |
 
@@ -193,13 +194,21 @@ Reproduce with [the BP adapter](tools/export_beatport_collection.py) or
 no source audio is opened. Recorded source-file and PCM identities remain identified
 as historical witnesses, not newly verified files.
 
+The [GS adapter](tools/export_giantsteps_collection.py) accepts an
+`--external-sources` JSON mapping with the single key `giantsteps_annotations`
+pointing to the pinned publisher metadata archive. Its separate collection
+records historical 11,025-Hz fingerprint decode support, not the BP/FMA 24-kHz
+cache support in the table above. All 604 GS recordings are marked as already
+evaluated in release development; that does not assert direct fitting membership.
+
 Next work:
 
-1. Join already-recorded development predictions to the corresponding metadata
-   and input identities, reporting small and missing slices explicitly. This is
-   descriptive analysis of exposed data, not independent confirmation.
-2. Expand GiantSteps beyond the 45-row reference sample and add GTZAN's frozen
-   837/769 membership, integrity and overlap status without changing its cohorts.
+1. Use the completed [development slice report](experiments/studies/musicfm-key-pilot/REPORT.md#retrospective-diagnosis-by-genre-recording-duration-and-bpm)
+   to identify coverage and error patterns for the next prospective experiment.
+   The 376-record K10/MusicFM joins are descriptive analysis of exposed data,
+   not independent confirmation; all small, empty and unknown cells are retained.
+2. Add GTZAN's frozen 837/769 membership, integrity and overlap status without
+   changing its cohorts. GiantSteps metadata now covers all 604 previews.
 3. Assess gaps in long DJ recordings and contemporary genre coverage before
    choosing additional public data or an annotation effort. Preserve native
    taxonomies and distinguish reported tempo from measured or verified tempo.
