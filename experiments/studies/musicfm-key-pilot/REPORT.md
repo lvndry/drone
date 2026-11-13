@@ -390,11 +390,16 @@ No larger resource window or follow-on training is scheduled.
 
 **Owner amendment, 2026-11-13.** The project owner authorised one 3,600-second
 window and raised the admission bound from 1,800 s. The bound was an arbitrary
-admission guard rather than a safety property: the 12 GiB allocator cap, 8 GiB RSS,
+admission guard rather than a safety property: the allocator cap, 8 GiB RSS,
 10,800 CPU-seconds, output cap, protected-service identities and watchdog remain
-binding. This amendment changes only the permitted window. The gate, checkpoint,
-panel, estimator and interpretation are unchanged; the diagnostic still reports
-`BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING` if the measured margin does not fit.
+binding. A first attempt under that window reached scoring but the worker was
+killed when a 1.17 GiB allocation pushed it past the 12 GiB allocator slice
+(11.54 GiB resident). The owner therefore raised the allocator guard to 16 GiB,
+moved the run to the compute-idle RTX 5090, and authorised stopping the Mistral
+vLLM pair for the run only; both services are restarted immediately afterwards.
+The gate, checkpoint, panel, estimator and interpretation are unchanged. The
+diagnostic still reports `BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING` if the
+measured margin does not fit.
 
 ## Historical preparation — November 12, 2026
 

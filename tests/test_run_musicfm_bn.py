@@ -45,7 +45,7 @@ def permit(
     monkeypatch.setattr(guard.os, "sched_getaffinity", lambda _: {8, 9}, raising=False)
     for key in ("PYTHONPATH", "PYTHONHOME"):
         monkeypatch.delenv(key, raising=False)
-    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c")
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-9c2004f9-0d41-d7c7-7075-863335543ee8")
     for key in (
         "OMP_NUM_THREADS",
         "MKL_NUM_THREADS",
@@ -56,19 +56,24 @@ def permit(
     config = dict(
         mode="single-bn-diagnostic",
         caps=dict(guard.CAPS),
-        allocator_bytes=12 * guard.GIB,
-        gpu_uuid="GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c",
+        allocator_bytes=16 * guard.GIB,
+        gpu_uuid="GPU-9c2004f9-0d41-d7c7-7075-863335543ee8",
         torch_threads=2,
         cpus=[8, 9],
         not_before_epoch=995,
         deadline_epoch=2795,
         protected_starts=[],
+        authorized_stopped_pids=[],
         source_sha256={name: guard.sha(root / name) for name in guard.REQUIRED_SOURCE},
         output_root=str((tmp_path / "out").resolve()),
         selected_checkpoint_sha256="b" * 64,
     )
     approval = dict(
-        authorized=True, allow_bn_diagnostic=True, allow_training=False, config_sha256="c" * 64
+        authorized=True,
+        allow_bn_diagnostic=True,
+        allow_training=False,
+        config_sha256="c" * 64,
+        authorized_stopped_pids=[],
     )
     return config, approval
 
@@ -78,6 +83,41 @@ def test_exact_diagnostic_permit_is_accepted_without_any_execution(
 ) -> None:
     config, approval = permit
     guard.validate_launch(config, approval, "c" * 64)
+
+
+def test_guard_view_drops_only_authorized_stops() -> None:
+    config = {
+        "protected_starts": [
+            {"pid": 1, "start_ticks": 2},
+            {"pid": 3, "start_ticks": 4},
+        ],
+        "authorized_stopped_pids": [3],
+    }
+    view = guard.guard_view(config)
+    assert view["protected_starts"] == [{"pid": 1, "start_ticks": 2}]
+    assert config["protected_starts"] == [
+        {"pid": 1, "start_ticks": 2},
+        {"pid": 3, "start_ticks": 4},
+    ]
+
+
+def test_authorized_stop_must_be_protected_and_approved(
+    permit: tuple[dict[str, Any], dict[str, Any]],
+) -> None:
+    config, approval = permit
+    config["protected_starts"] = [{"pid": 3448680, "start_ticks": 111966827}]
+    config["authorized_stopped_pids"] = [3448680]
+    approval["authorized_stopped_pids"] = [3448680]
+    guard.validate_launch(config, approval, "c" * 64)
+
+    approval["authorized_stopped_pids"] = []
+    with pytest.raises(ValueError, match="Authorized-stopped"):
+        guard.validate_launch(config, approval, "c" * 64)
+
+    config["authorized_stopped_pids"] = [999]
+    approval["authorized_stopped_pids"] = [999]
+    with pytest.raises(ValueError, match="Authorized-stopped"):
+        guard.validate_launch(config, approval, "c" * 64)
 
 
 @pytest.mark.parametrize(

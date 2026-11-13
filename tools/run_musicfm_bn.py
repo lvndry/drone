@@ -22,7 +22,7 @@ from tools.musicfm_crop_io import load, save, sha
 from tools.prepare_musicfm_ram_cache import capacity_guard, save_or_replace
 from tools.run_cqt_expansion import disk_bytes
 from tools.run_musicfm_ram_cache import alive, descendants, proc, stop_and_wait
-from tools.run_musicfm_teacher import owned_resources, resources
+from tools.run_musicfm_teacher import owned_resources
 
 GIB = 1024**3
 ORIGINAL = Path("/home/lysk-admin/drone-experiments/musicfm-key-pilot-20261112-seed13-051e4ad")
@@ -79,6 +79,39 @@ def read_original(config: dict[str, Any]) -> dict[str, bytes]:
     return result
 
 
+def guard_view(config: dict[str, Any]) -> dict[str, Any]:
+    """Drop only the explicitly authorised stopped services from the live guard."""
+    stopped = set(config.get("authorized_stopped_pids", ()))
+    if not stopped:
+        return config
+    view = dict(config)
+    view["protected_starts"] = [
+        row for row in config["protected_starts"] if row["pid"] not in stopped
+    ]
+    return view
+
+
+def resources(config: dict[str, Any], root: Path) -> None:
+    """Same GPU-free guard as the teacher, but accepts the sealed UUID at any index."""
+    capacity_guard(config, root)
+    raw = subprocess.check_output(
+        [
+            "nvidia-smi",
+            "-i",
+            config["gpu_uuid"],
+            "--query-gpu=uuid,memory.free",
+            "--format=csv,noheader,nounits",
+        ],
+        text=True,
+        timeout=5,
+    )
+    fields = [x.strip() for x in raw.strip().split(",")]
+    if len(fields) != 2 or fields[0] != config["gpu_uuid"]:
+        raise RuntimeError("GPU identity changed")
+    if int(fields[1]) * 1024**2 < 8 * 1024**3:
+        raise RuntimeError("GPU free below 8GiB; preserve vLLM")
+
+
 def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha: str) -> None:
     if (
         config["mode"] != "single-bn-diagnostic"
@@ -87,8 +120,8 @@ def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha
         or approval.get("allow_training") is not False
         or approval.get("config_sha256") != config_sha
         or config["caps"] != CAPS
-        or config["allocator_bytes"] != 12 * GIB
-        or config["gpu_uuid"] != "GPU-387d0c41-22e5-4c3b-efe8-1d8f1dd0494c"
+        or config["allocator_bytes"] != 16 * GIB
+        or config["gpu_uuid"] != "GPU-9c2004f9-0d41-d7c7-7075-863335543ee8"
         or config["torch_threads"] != 2
         or len(config["cpus"]) != 2
         or len(set(config["cpus"])) != 2
@@ -96,6 +129,21 @@ def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha
         or not config["not_before_epoch"] <= time.time() < config["deadline_epoch"]
     ):
         raise ValueError("Require an exact finite, source-bound diagnostic-only permit")
+    stopped = config.get("authorized_stopped_pids")
+    if (
+        not isinstance(stopped, list)
+        or stopped != approval.get("authorized_stopped_pids")
+        or not set(stopped) <= {row["pid"] for row in config["protected_starts"]}
+    ):
+        raise ValueError("Authorized-stopped services must match the approval")
+    for pid in stopped:
+        path = Path("/proc") / str(pid)
+        try:
+            tail = (path / "stat").read_text().rsplit(")", 1)[1].split()
+        except FileNotFoundError:
+            continue
+        if tail[0] not in ("Z", "X"):
+            raise ValueError("Authorized-stopped service is still alive")
     if not REQUIRED_SOURCE.issubset(config["source_sha256"]):
         raise ValueError("Missing diagnostic implementation source bindings")
     source = Path(__file__).resolve().parents[1]
@@ -226,11 +274,11 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
         last_gpu = last_disk = 0.0
         while True:
             owned_resources(config, peaks)
-            capacity_guard(config, root)
+            capacity_guard(guard_view(config), root)
             now = time.monotonic()
             check_deadline(config, started)
             if now - last_gpu >= 0.5:
-                resources(config, root)
+                resources(guard_view(config), root)
                 last_gpu = time.monotonic()
             save_or_replace(
                 root / "ready.json",
@@ -302,7 +350,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                     raise ValueError("Incomplete diagnostic result or unexpected promotion")
                 if any(alive(pid, start) for pid, start in tracked.items()):
                     raise RuntimeError("Owned descendants remain after diagnostic worker exit")
-                resources(config, root)
+                resources(guard_view(config), root)
                 owned_resources(config, peaks)
                 check_deadline(config, started)
                 complete = True
