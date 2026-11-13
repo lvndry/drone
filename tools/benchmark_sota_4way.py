@@ -474,6 +474,7 @@ class Detectors:
             "madmom": {"status": "skipped", "reason": "disabled"},
         }
         if kf_cli is not None:
+            kf_cli = kf_cli.absolute()
             if not kf_cli.is_file():
                 raise ValueError(f"Provided KeyFinder CLI missing: {kf_cli}")
             proof = qualify_keyfinder(kf_cli)

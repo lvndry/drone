@@ -177,3 +177,59 @@ def test_failed_madmom_init_skips_cnn_without_dsp_fallback(
 )
 def test_reference_modes_are_strict(text: str, expected: int | None) -> None:
     assert bench.norm_key(text) == expected
+
+
+def test_main_records_silence_and_errors_as_distinct_zero_scores(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    tracks = [
+        dict(
+            track_id=f"t{i}",
+            source="swd-v2.1",
+            audio="/mock/source",
+            genre="mock",
+            bucket="mock",
+            ref_raw="C:maj",
+            ref=0,
+            duration=120,
+            dev_contaminated=False,
+        )
+        for i in range(3)
+    ]
+    monkeypatch.setattr(bench, "build_panel", lambda *a: tracks)
+    monkeypatch.setattr(bench, "decode_contract", lambda: {"version": "synthetic"})
+    monkeypatch.setattr(bench, "cached_decode", lambda *a: (Path("/mock/wav"), {"synthetic": True}))
+    calls = 0
+
+    def detector(wav: Path) -> int | None:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return None
+        if calls == 2:
+            raise ValueError("invalid unknown key")
+        return 0
+
+    detectors = types.SimpleNamespace(
+        drone_pred=object(), kf_cli=None, madmom_mode=None, provenance={}, drone=detector
+    )
+    monkeypatch.setattr(bench, "Detectors", lambda **kwargs: detectors)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["benchmark", "--work-dir", str(tmp_path), "--skip-libkeyfinder", "--skip-madmom"],
+    )
+    bench.main()
+    result = json.loads((tmp_path / "results/bench.json").read_text())
+    summary = result["detectors"]["drone-v1"]
+    assert (summary["n_error"], summary["n_abstain"], summary["n_valid"]) == (1, 1, 1)
+    assert summary["mirex"] == 0.3333
+    import csv
+
+    with (tmp_path / "results/bench.csv").open() as stream:
+        rows = list(csv.DictReader(stream))
+    assert [r["drone_status"] for r in rows] == ["abstain", "error", "key"]
+    assert [r["drone_score"] for r in rows] == ["0.0", "0.0", "1.0"]
+    manifest = json.loads((tmp_path / "results/manifest.json").read_text())
+    assert len(manifest["track_artifacts"]) == 3
+    assert "provenance" in manifest
