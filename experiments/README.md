@@ -25,7 +25,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [MusicFM crop I/O qualification](studies/musicfm-crop-io/REPORT.md) | Test bounded random-access waveform crops against full decoding | Initial 144/144 crops pass; corpus attempt stops at file 2,289 after 2,288 passes. No complete cache or training activation. |
 | [MusicFM source/resource preflight](studies/musicfm-preflight/REPORT.md) | Establish teacher provenance and a bounded execution path before fine-tuning | Imports/strict loading and a bounded21-update synthetic GPU resource probe passed; no task-accuracy result or qualified teacher. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
-| [Key detector reference comparison](studies/key-sota-4way/REPORT.md) | Compare released Drone with established references on Winterreise and GiantSteps | 48 SWD +45 development-exposed GS recordings. Historical KF wrapper result invalid; MusicFM not run. Corpus-level descriptive evidence, no promotion or SOTA ranking. |
+| [Key detector reference comparison](studies/key-sota-4way/REPORT.md) | Compare released Drone with established references on Winterreise and GiantSteps | 48 SWD +45 development-exposed GS recordings. Corrected KF rerun: 57/93 exact, 73.7% weighted; Drone/madmom unchanged. Invalid old KF preserved; MusicFM not run. Corpus-level descriptive evidence, no promotion or SOTA ranking. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
 quarantine and evaluation roles. The [research guide](../docs/RESEARCH_TRAINING.md)

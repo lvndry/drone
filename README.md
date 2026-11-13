@@ -225,8 +225,9 @@ raw evidence and reproduction instructions.
 The [reference comparison](experiments/studies/key-sota-4way/REPORT.md) covers
 48 Schubert Winterreise recordings and 45 GiantSteps development-exposed tracks.
 It is descriptive evidence, not an independent SOTA ranking. The original
-libkeyfinder wrapper result is invalid and preserved as historical evidence;
-MusicFM was not run. See the report for corpus-level figures, fixed denominators
+libkeyfinder wrapper result is invalid and preserved; a fresh corrected
+comparator now accompanies unchanged Drone/madmom predictions on byte-identical
+canonical WAVs. This corrects the comparator, not Drone accuracy. MusicFM was not run. See the report for corpus-level figures, fixed denominators
 and reproduction instructions.
 
 ```bash

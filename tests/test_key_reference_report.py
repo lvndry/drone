@@ -86,3 +86,41 @@ def test_archive_keeps_exact_original_csv_bytes() -> None:
     raw = gzip.decompress((DATA / "historical/bench.csv.gz").read_bytes())
     assert sha(raw) == index["files"]["bench.csv.gz"]["decoded_sha256"]
     assert len(list(csv.DictReader(io.StringIO(raw.decode())))) == 93
+
+
+def test_corrected_kf_uses_fresh_typed_rows_and_complete_cohorts() -> None:
+    result = analyze()
+    kf = result["detectors"]["libkeyfinder"]
+    assert result["libkeyfinder_status"] == "corrected"
+    assert kf["overall"]["counts"]["exact"] == 57
+    assert kf["overall"]["exact"] == 0.6129 and kf["overall"]["mirex"] == 0.7366
+    assert kf["overall"]["n_error"] == kf["overall"]["n_abstain"] == 0
+    assert kf["by_source"]["swd-v2.1"]["n_total"] == 48
+    assert kf["by_source"]["swd-v2.1"]["counts"]["exact"] == 28
+    assert kf["by_source"]["giantsteps"]["n_total"] == 45
+    assert kf["by_source"]["giantsteps"]["counts"]["exact"] == 29
+
+
+def test_corrected_archive_tamper_rejected(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    shutil.copytree(DATA, data)
+    path = data / "corrected-kf/evidence.tar.gz"
+    path.write_bytes(path.read_bytes() + b"changed")
+    with pytest.raises(ValueError, match="Corrected KF archive changed"):
+        analyze(data)
+
+
+def test_resealed_wrong_fresh_prediction_rejected(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    shutil.copytree(DATA, data)
+    path = data / "bench.csv"
+    rows = list(csv.DictReader(io.StringIO(path.read_text())))
+    rows[0]["libkeyfinder_pred"] = str((int(rows[0]["libkeyfinder_pred"]) + 1) % 24)
+    stream = io.StringIO()
+    writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+    writer.writeheader()
+    writer.writerows(rows)
+    path.write_text(stream.getvalue())
+    (data / "artifact-index.json").write_bytes(encode(seal(data, "corrected")))
+    with pytest.raises(ValueError, match="Published KF row differs"):
+        analyze(data)

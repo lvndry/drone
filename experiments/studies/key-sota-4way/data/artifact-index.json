@@ -1,19 +1,28 @@
 {
+  "corrected_evidence_receipt_sha256": "1e563f77d2455438bbf900f67e2bec1fffbcea1cdddc9fbb89d05bd272236213",
   "files": {
     "bench.csv": {
-      "bytes": 13106,
-      "sha256": "5c607d1def5f301674f205d0f51ccc140fc17880b24ade625898baf5ff190922"
+      "bytes": 14407,
+      "sha256": "726896f2139cc525998b881d6bda90e451388903dc2c5cdaa5b0ca47faa38e9f"
     },
     "bench.json": {
-      "bytes": 7386,
-      "sha256": "d0b2c86490777d0dc9cbc2968d4d221d7653647ac611839648ab21351feda1e3"
+      "bytes": 79308,
+      "sha256": "a53190b66300f5d3bd5ae3c1bd6908f040d7dd66c2218670cd6aec56f8802ff6"
     },
     "manifest.json": {
-      "bytes": 23213,
-      "sha256": "e03ebcbafb9b111775f8278161510ac153f3177ea2c2d6b96738b77b26e11304"
+      "bytes": 97038,
+      "sha256": "0b30fef8dca448bc9d9122d694cef50b33a42515600769033d47262132976425"
+    },
+    "musicfm-availability-receipt.json": {
+      "bytes": 371,
+      "sha256": "b5f1721c0eea9e7b144522fc7d5b4c53862681cefd2af46308ea11b108a998f2"
+    },
+    "musicfm-availability.json": {
+      "bytes": 2027,
+      "sha256": "688441395b38359c563db75fe69d83a21f7594f55e5578a6db79ac5fa8c0f020"
     }
   },
   "historical_archive_index_sha256": "8c41db829eee36de63d62473221404fa0103ab400c7bd04dc829d66519039bdc",
-  "libkeyfinder_status": "historical_invalid",
+  "libkeyfinder_status": "corrected",
   "schema": "key-reference-artifact-index-v1"
 }

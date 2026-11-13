@@ -1,0 +1,9 @@
+{
+  "controller_sha256": "190ff79afc427c01075f4ae091a2eaa5782b710bde9094361493176af27f87ae",
+  "evidence_sha256": "2c7c46b00a70f3d43e9feab9a888c45c2ed8c5568703821b4554aa272ee245b8",
+  "inference_performed_by_publication": false,
+  "original_verifier_gzip_sha256": "34981e515302683d0c24a8dd000511b23ba5f59f7a17826ad07a9e73d1d3a2c5",
+  "original_verifier_sha256": "289a51762bfabb04a41c269b8e07ff1664966066a60fdc49ac01789732f90885",
+  "schema": "corrected-kf93-evidence-v1",
+  "scope": "Fresh corrected libkeyfinder only; unchanged historical Drone/madmom rows reused after all93canonicalWAV PCM/container identity checks"
+}
