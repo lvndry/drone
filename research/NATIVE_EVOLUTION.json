@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "63c206a1b7c787593e5e14983e4c372dc8f96a919329fd5fddc6a6003280e275",
+      "current_sha256": "5519fd606c5ee71bbc6abc836eaa10b881d6af06a096380c4cb5520c0c79b4f1",
       "git_mode": "100644",
-      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion. Append prospective original-file CPU measurement preparation without new results."
+      "reason": "Consolidate current canonical-input parity, decoder-fidelity findings and complete original-file CPU timings across two hosts; preserve historical failures, methods and coverage limits."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -407,6 +407,54 @@
       "sha256": "0a4b6c1323a21d7f2498635a619ece3331d902e936e28c7e39e2b47e3cc981f6",
       "git_mode": "100644",
       "reason": "Prospective decoder-fidelity lane with unchanged geometry and historical tolerances; keep canonical failure and timing completion distinct from qualification."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-results.json.gz",
+      "sha256": "9f3db464e0b92b2157a3abc9b69208e8193bf186e87287c49fdae7581b04f3bf",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-provenance.json",
+      "sha256": "485cce734fcc15239b800fdf7bd88ff65a3761d8ec36035eef5ddf1f7e214098",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_original_file.py",
+      "sha256": "f71633f59c633073244e35c3dfcad2fc79c91828f79f961d0e981ef27e111a94",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-timing-summary.json",
+      "sha256": "455b1fe99e1b2bc79159ff9c124e2019669d945f057e12b6c83eda2eaa9bdf8a",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-timing.png",
+      "sha256": "397f35788726558e90e51b7a3849bea6bffcf9dedc4c8802b05d56ca50002989",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-timing.svg",
+      "sha256": "c472ef4c12346bf94ec1352dc358264b1fc9f179959e9e1a3656bba62e5db7e9",
+      "git_mode": "100644",
+      "reason": "Publish original-file decoder fidelity and both-host CPU cost with preserved failures, fixed panel coverage and reproducible inline figures; no accuracy or production promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-kernel-invariance.json.gz",
+      "sha256": "483467872585e811287cb81baa45d5565c5c455ff8eacd75e5ecc5195a38c525",
+      "git_mode": "100644",
+      "reason": "Retain target-free all376 computational kernel identity audit, with no new audio/model execution."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original-file-linux-source.json.gz",
+      "sha256": "2db3acf823b5099c57f631895a0bc04ff9e491393d264acce2144e6ccb6cedce",
+      "git_mode": "100644",
+      "reason": "Preserve exact earlier strict canonical worker/supervisor used on Linux separately from prospective Mac decoder-admission source."
     }
   ]
 }

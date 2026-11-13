@@ -1,0 +1,324 @@
+{
+  "schema": "drone-original-file-public-timing-v1",
+  "panel_sha256": "e7bec614b0f99404655d49111a8a56ddb0d5e96ad267a8d807d2873a129303ba",
+  "projection": "Completed measured worker and resource receipts; private path keys replaced by artifact-role names only. All raw receipt hashes retained. Memory uses inner pipeline resource counters, not the outer build/runtime supervisor.",
+  "projection_source_sha256": "cc615f0999bfc47a3f1dd9e942504311ac04b0ab3587822a9770f07242325682",
+  "measurements": [
+    {
+      "host": "Apple M5; 25769803776 bytes RAM; macOS27.2 build26B123; no affinity guarantee; not an ordinary-x86-PC claim",
+      "platform": "macOS-27.2-arm64-arm-64bit",
+      "build_context": {
+        "profile": "release",
+        "host_description": "Apple M5; 25769803776 bytes RAM; macOS27.2 build26B123; no affinity guarantee; not an ordinary-x86-PC claim",
+        "rustc_version": "rustc 1.99.1 (58cf8f9c3 2026-10-13) (Homebrew)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: aarch64-apple-darwin\nrelease: 1.99.1\nLLVM version: 23.1.3",
+        "target_triple": "aarch64-apple-darwin",
+        "rustflags": "None; generic host target, no target-cpu=native",
+        "fma_lowering": "Target-toolchain ARM64 lowering of explicit f32::mul_add. No x86 build/lowering or generic-PC throughput was evaluated."
+      },
+      "input_lane": "decoder_fidelity",
+      "historical_reference_qualified": false,
+      "canonical_pcm_matches": false,
+      "rows": [
+        {
+          "id": "beatport:1059355",
+          "duration_seconds": 120.0,
+          "duration_basis": "Observed per-run PCM receipt; same frozen sample support",
+          "cold_stage_seconds": [
+            0.047322375,
+            0.238823125,
+            0.031506542,
+            0.038764917,
+            0.03542608199999997
+          ],
+          "cold_instrumented_seconds": 0.391843041,
+          "warm_instrumented_seconds": [
+            0.270100667,
+            0.266596375,
+            0.280208083
+          ],
+          "sampled_tree_peak_mib": 112.203125,
+          "worker_os_peak_mib": 97.390625,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": false
+        },
+        {
+          "id": "fmak:083351",
+          "duration_seconds": 299.57278911564623,
+          "duration_basis": "Observed per-run PCM receipt; same frozen sample support",
+          "cold_stage_seconds": [
+            0.03247325,
+            0.499227125,
+            0.077253375,
+            0.095923042,
+            0.10224191700000007
+          ],
+          "cold_instrumented_seconds": 0.807118709,
+          "warm_instrumented_seconds": [
+            0.693139833,
+            0.697043042,
+            0.721449708
+          ],
+          "sampled_tree_peak_mib": 160.859375,
+          "worker_os_peak_mib": 161.328125,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": false,
+          "unchanged_key": true,
+          "historical_reference_qualified": false,
+          "canonical_pcm_matches": false
+        },
+        {
+          "id": "fmak:101615",
+          "duration_seconds": 444.60408163265305,
+          "duration_basis": "Observed per-run PCM receipt; same frozen sample support",
+          "cold_stage_seconds": [
+            0.031539208,
+            0.581485542,
+            0.114978625,
+            0.140933625,
+            0.138527167
+          ],
+          "cold_instrumented_seconds": 1.007464167,
+          "warm_instrumented_seconds": [
+            0.969458667,
+            0.977786125,
+            1.048588334
+          ],
+          "sampled_tree_peak_mib": 205.234375,
+          "worker_os_peak_mib": 190.671875,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": false,
+          "unchanged_key": true,
+          "historical_reference_qualified": false,
+          "canonical_pcm_matches": false
+        },
+        {
+          "id": "fmak:088812",
+          "duration_seconds": 612.2138321995465,
+          "duration_basis": "Observed per-run PCM receipt; same frozen sample support",
+          "cold_stage_seconds": [
+            0.031582541,
+            0.862577458,
+            0.180300667,
+            0.205950208,
+            0.19959991700000002
+          ],
+          "cold_instrumented_seconds": 1.480010791,
+          "warm_instrumented_seconds": [
+            1.427096708,
+            1.405872375,
+            1.369692084
+          ],
+          "sampled_tree_peak_mib": 260.515625,
+          "worker_os_peak_mib": 245.265625,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": false
+        },
+        {
+          "id": "fmak:087373",
+          "duration_seconds": 1682.2595918367347,
+          "duration_basis": "Observed per-run PCM receipt; same frozen sample support",
+          "cold_stage_seconds": [
+            0.036896666,
+            3.065814167,
+            0.439660333,
+            0.551113,
+            0.5071557499999999
+          ],
+          "cold_instrumented_seconds": 4.6006399159999996,
+          "warm_instrumented_seconds": [
+            3.949245333,
+            4.006761583,
+            3.877028084
+          ],
+          "sampled_tree_peak_mib": 532.484375,
+          "worker_os_peak_mib": 519.921875,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": false
+        }
+      ],
+      "evidence_sha256": {
+        "result.json": "7b2b9b09d83e481e79de6761c9b18c1ae4a71d0cb48b7648b9c5fe64916d41d5",
+        "config.json": "033ac0bf3bb6ea6d692fecdcf2a20254df19dfa0d8da93a890679e7da9b897d7",
+        "END_TO_END_PANEL.json": "e7bec614b0f99404655d49111a8a56ddb0d5e96ad267a8d807d2873a129303ba",
+        "case-0.json": "8a1e46c6a9c5ac3c6f5912765bb4c251250dc5ae85837aea14b048580faf995c",
+        "case-0-resources.json": "cc0d90fd960ab8a1c9c8d58901f10cacd4734abc9d9aaf0c238d5a38a79ba41d",
+        "case-1.json": "18a724d2b7a98efba88955a737ee6f682e4c09e79771e3076785fe52615a8e71",
+        "case-1-resources.json": "e7bc6833051a3a759b14ba3817b59699a4c157356da5546adcb00d59c2e9459c",
+        "case-2.json": "6e4f090c25455c0d39e930ec0aa17d403d555f551a680b1d4a442852941ca183",
+        "case-2-resources.json": "70e7d93b86d0b47e9c08bd50e01d4dff1a5cfd0699e6e355e383dd5863684250",
+        "case-3.json": "8b453f541c39b89711bd69a5508c2e6055dedca5544f42a6a59f8dfc4a50c539",
+        "case-3-resources.json": "9952dfee04941998c64e439596fb3550fcac2c8dfa194fa256674a1dda92b53e",
+        "case-4.json": "994c2ffdafea9a9ef7c3ed779e04459647eb9c8656c5a98c6fb5b17064a018f9",
+        "case-4-resources.json": "62b81c4004d4ee8f1ba95dc43845a3d3871fcc7908c7e66af2e69670a41d0092"
+      },
+      "measurement_id": "mac-decoder-fidelity-v1"
+    },
+    {
+      "host": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39; AMD Ryzen Threadripper PRO 9955WX; CPU14; server reference only",
+      "platform": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39",
+      "build_context": {
+        "profile": "release",
+        "host_description": "Linux-6.14.0-37-generic-x86_64-with-glibc2.39; AMD Ryzen Threadripper PRO 9955WX; CPU14; server reference only",
+        "rustc_version": "rustc1.99.1 LLVM23.1.1 x86_64-unknown-linux-gnu",
+        "target_triple": "x86_64-unknown-linux-gnu",
+        "rustflags": "-C target-cpu=x86-64",
+        "fma_lowering": "Binary contains compiler_builtins runtime-dispatched fmaf with scalar fallback, FMA and FMA4 helpers; this static inspection does not trace the selected runtime branch."
+      },
+      "input_lane": "canonical",
+      "historical_reference_qualified": true,
+      "canonical_pcm_matches": null,
+      "rows": [
+        {
+          "id": "beatport:1059355",
+          "duration_seconds": 120.0,
+          "duration_basis": "Frozen panel samples admitted by strict canonical v1 source; old receipt omits per-run PCM fields",
+          "cold_stage_seconds": [
+            0.054146684,
+            0.435145488,
+            0.059223702,
+            0.056260896,
+            0.009492823999999955
+          ],
+          "cold_instrumented_seconds": 0.614269594,
+          "warm_instrumented_seconds": [
+            0.280216631,
+            0.398804877,
+            0.356370149
+          ],
+          "sampled_tree_peak_mib": 67.8515625,
+          "worker_os_peak_mib": 107.10546875,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": null
+        },
+        {
+          "id": "fmak:083351",
+          "duration_seconds": 299.57278911564623,
+          "duration_basis": "Frozen panel samples admitted by strict canonical v1 source; old receipt omits per-run PCM fields",
+          "cold_stage_seconds": [
+            0.053235043,
+            0.893455513,
+            0.077343961,
+            0.059333579,
+            0.013537068999999846
+          ],
+          "cold_instrumented_seconds": 1.096905165,
+          "warm_instrumented_seconds": [
+            0.862834684,
+            1.018927804,
+            0.709186895
+          ],
+          "sampled_tree_peak_mib": 142.73046875,
+          "worker_os_peak_mib": 154.40234375,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": null
+        },
+        {
+          "id": "fmak:101615",
+          "duration_seconds": 444.60408163265305,
+          "duration_basis": "Frozen panel samples admitted by strict canonical v1 source; old receipt omits per-run PCM fields",
+          "cold_stage_seconds": [
+            0.04874232,
+            1.012285845,
+            0.161617597,
+            0.083903454,
+            0.03872620299999974
+          ],
+          "cold_instrumented_seconds": 1.3452754189999998,
+          "warm_instrumented_seconds": [
+            1.351216154,
+            1.2100068720000001,
+            1.184703776
+          ],
+          "sampled_tree_peak_mib": 167.30859375,
+          "worker_os_peak_mib": 191.9375,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": null
+        },
+        {
+          "id": "fmak:088812",
+          "duration_seconds": 612.2138321995465,
+          "duration_basis": "Frozen panel samples admitted by strict canonical v1 source; old receipt omits per-run PCM fields",
+          "cold_stage_seconds": [
+            0.063190779,
+            1.370392662,
+            0.210116297,
+            0.187425707,
+            0.05744259400000007
+          ],
+          "cold_instrumented_seconds": 1.888568039,
+          "warm_instrumented_seconds": [
+            1.740453059,
+            1.8476515180000002,
+            1.6620358720000001
+          ],
+          "sampled_tree_peak_mib": 180.22265625,
+          "worker_os_peak_mib": 232.05859375,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": null
+        },
+        {
+          "id": "fmak:087373",
+          "duration_seconds": 1682.2595918367347,
+          "duration_basis": "Frozen panel samples admitted by strict canonical v1 source; old receipt omits per-run PCM fields",
+          "cold_stage_seconds": [
+            0.04330028,
+            3.4554997800000002,
+            0.892789249,
+            0.362631728,
+            0.18082499999999957
+          ],
+          "cold_instrumented_seconds": 4.935046037,
+          "warm_instrumented_seconds": [
+            4.980858374,
+            4.9685492,
+            4.752927803
+          ],
+          "sampled_tree_peak_mib": 373.09375,
+          "worker_os_peak_mib": 477.87890625,
+          "sample_interval_seconds": 1.0,
+          "numerical_pass": true,
+          "unchanged_key": true,
+          "historical_reference_qualified": true,
+          "canonical_pcm_matches": null
+        }
+      ],
+      "evidence_sha256": {
+        "result.json": "0d4cb8894cf28394586f38f63e4342867baa9eac0a88d8902bceaedf831ac99e",
+        "config.json": "cc9aee5d741c518ded3c58c2cab555916ccad8d07d57d2fa740ec1756eac9880",
+        "END_TO_END_PANEL.json": "e7bec614b0f99404655d49111a8a56ddb0d5e96ad267a8d807d2873a129303ba",
+        "case-0.json": "08da63243d2dbf7d8fdd158b9398ae26d1cb69f8b5fe61f292ba65a74c8352aa",
+        "case-0-resources.json": "6bf014b560f8c86de5167575ef969818607a8fe0727ca45a274e93fe662ce2e5",
+        "case-1.json": "f7fd78f10de17b5212b94953d74d48f74c79b2080889dc84be0c8e02a688e9be",
+        "case-1-resources.json": "d4dd6ec9d0ed40fa359e76e41f2748a4f343874f3e4638215ff38f264f76b21f",
+        "case-2.json": "11ccab3c225f594f158ca89ac9f52e2010652f27f4c15e139521ce5ab89f07b4",
+        "case-2-resources.json": "be495dc190c0eca5b8245c396214f68d00dfdb235c93af6ad16528b49256b8ab",
+        "case-3.json": "bb67b26198810fd7ebb5d37819dd183deac385974e169ceabdca2edfd7ebdc0a",
+        "case-3-resources.json": "1cf288498dd7a9978fb5f79f3be9460cbb124e328bb952eae3ca372a085c531a",
+        "case-4.json": "5d4db114e5ff93a707a58149b246116df803abc6dbf72f1323682266ae9a98e2",
+        "case-4-resources.json": "cfbad616eb93304eea0c7afaef56bdf9dcb263122205694414e8389826d497bf"
+      },
+      "measurement_id": "linux-canonical-v1"
+    }
+  ]
+}

@@ -8,33 +8,32 @@ captured CQT frontend with the unchanged full and chunked ONNX paths, and tests
 whether the platform math transfers to an Apple M5 CPU without x86 SVML.
 The M5 is a test host, not a hardware requirement for Drone or Euphoria.
 
-The later fused-product repair now reproduces **all 376 archived Mac feature cores exactly**;
-see the [completed frontend validation](#completed-public-panel-frontend-validation--november-13).
-The subsequent [native prediction parity check](#retained-core-native-prediction-parity--november-13)
-also passes all 376 cases through the unchanged full and chunked adapters, closing
-the historical native-versus-Mac strict logit failure. This is numerical identity,
-not classifier accuracy; the separate Linux references still differ, and the
-production arithmetic is unchanged.
-A later [catalog join](#retrospective-source-metadata-description--november-13)
-now describes native genre fields and sparse publisher BPM for this exact panel;
-it was descriptive and did not guide case selection.
+### Current evidence — November 13
 
-The original Mac diagnostic covers all **376 public tracks**, composed from
-disjoint 305- and 71-case phases. Strict logit qualification failed: native full
-and chunk each passed 375/376 against the actual Mac reference. All six comparison
-families nevertheless had **zero argmax disagreements**. The original tolerances
-remain unchanged; no Mac timing or promotion followed.
-A later fixed-case frontend trace reproduced both archived feature arrays and
-located the first observed difference at the sparse response, with identical input
-and FFT operands. The [boundary diagnostic below](#fixed-case-boundary-trace-november-13-1246-utc)
-reports that finding. A subsequent [fused-product candidate](#compiled-fused-product-candidate-removes-the-fixed-case-error-november-13)
-now reproduces all 76,608 reference core values on this one recording. The
-original control still reproduces its nine differences. A separately frozen
-[nine-golden expansion](#all-nine-retained-goldens-pass-including-a-28-minute-recording-november-13)
-then matched all 2,048,256 reference core values, including a 28-minute recording.
-That historical failed run remains preserved. The later retained-core prediction
-parity check qualifies the repaired Mac path; it does not erase the unresolved
-Mac-versus-Linux differences.
+The released classifier is unchanged. The native frontend parity fix now passes
+its complete canonical-input checks; original-file decoding is a separate
+portability question. None of the agreement counts below are musical accuracy.
+
+| Question | Current evidence | Limit |
+|---|---|---|
+| Does the repaired frontend reproduce its captured input/output contract? | [376/376 archived Mac feature cores match exactly](#completed-public-panel-frontend-validation--november-13). | Conditional on the canonical decoded PCM; the separate Linux feature reference differs. |
+| Does the unchanged classifier preserve those predictions? | [376/376 full and chunked native model comparisons pass](#retained-core-native-prediction-parity--november-13); full logits are bitwise equal and chunked maximum error is 0.000002861. | Canonical retained features, not original-file decoding or new key labels. |
+| Do different decoders change decisions? | [One paired native prediction test passes](#original-file-decoding-and-complete-cpu-cost--november-13). In the five-case original-file run, all 20 decisions agree; three cases pass strict logit tolerances, two do not. | Five selected recordings cannot establish general decoder portability. |
+| What does the complete CPU path cost? | [Five original-file timings on each of two hosts now include decode, CQT and ONNX](#original-file-decoding-and-complete-cpu-cost--november-13), with setup and memory reported separately. | M5: two cases numerically unqualified. Single-core Linux server: all pass. Neither host establishes generic consumer-PC performance. |
+
+### Earlier composition measurements and failures
+
+The original Mac diagnostic covered all **376 public tracks**, composed from
+305- and 71-case phases. Strict logit qualification failed at 375/376 for native
+full and chunked inference against the actual Mac reference, while all six
+comparison families had zero key changes. The later repair closes that specific
+strict native-versus-Mac failure; it does not alter the released model or improve
+its already-identical key decisions. The historical results remain below.
+
+A captured boundary trace found the first observed difference at the sparse
+response, after identical input and FFT operands. The subsequent fixed-case,
+nine-golden and complete-panel experiments are retained in order below, including
+the original control failures. No old receipt, tolerance or reference was replaced.
 
 On Linux, the new compute-only API passed nine goldens and all **376 public
 validation tracks**. Every FP16-roundtripped core hash matched the canonical
@@ -1056,3 +1055,179 @@ references and ordinary frontend defaults. Passing Mac arithmetic checks does no
 establish generic x86 performance; an actual ordinary-PC measurement remains
 necessary. Eventual per-track results and stage plots belong here, alongside
 their method and limitations, rather than in a separate visual-results report.
+
+
+### Original-file decoding and complete CPU cost — November 13
+
+**Problem.** Cached features hide decoding, frontend allocation and setup costs.
+They also bypass differences between decoder builds. We therefore measured the
+same unchanged chunked model from five original MP3 files, selected before the
+run to cover roughly 2, 5, 7.4, 10.2 and 28 minutes. This is a finite resource and
+prediction-fidelity diagnostic, not a new accuracy evaluation.
+
+**First failure and isolation.** The original strict Mac run stopped on the first
+file because its decoded PCM hash differed from the historical Linux PCM. It
+never reached CQT or model inference, retained the decoded WAV and left no owned
+processes. This was an input-admission failure, not a regression in the released
+classifier. Its failure receipt remains separate from the later measurement.
+
+For that same 120-second Electronica/Downtempo preview, the historical Linux
+decoder reproduced the archived PCM hash. The current Mac decoder differed in
+**4,223 of 2,646,000 samples (0.1596%)**, each by exactly one signed-16-bit
+quantization step. RMS difference was **0.03995 S16 units**. Both signals had
+zero clipping, equal length, and best integer alignment at zero over the checked
+±8-sample range. Mac default-thread and explicitly bounded-thread decoding were
+bitwise identical, ruling out that thread-policy change for this case. Decoder
+version, libraries and architecture remain confounded: Linux used FFmpeg 6.1.1;
+Mac used FFmpeg 9.0.2. We did not attribute the difference to one untested cause.
+
+A separately bounded **native** paired-PCM pass then applied the same prepared
+CQT plan and unchanged chunked model once to each waveform. The canonical input
+reproduced its archived Mac feature core exactly. Both waveforms predicted
+**C# major**; maximum logit drift was **0.00002503**, passing the original
+`1e-5 + 1e-5 * abs(reference)` elementwise bound. Both also passed the original
+Mac and Linux reference comparisons. This isolated a small sample-value effect
+on one file; it did not authorize a corpus-wide portability claim.
+
+**Prospective measurement method.** The [decoder-fidelity amendment](END_TO_END_DECODER_PROTOCOL.md)
+was frozen before the five-case run. It permits a differing PCM hash while still
+requiring the original sample count and CQT frame count exactly. Each case's
+first local PCM hash must repeat identically on all later passes. No padding,
+trimming, normalization, new reference or relaxed logit tolerance is allowed.
+The [original canonical protocol](END_TO_END_PROTOCOL.md) and its failed run
+remain unchanged. Numerical disagreement is retained alongside completed timing;
+it cannot turn into a positive qualification merely because the key agrees.
+
+The runner decodes mono 22,050 Hz S16 WAV using FFmpeg input threads 1 and filter
+threads 1, computes the explicit research-only native CQT candidate, and calls
+the unchanged chunked ONNX path. ONNX uses sequential CPU execution with
+intra/inter-op threads 1 and spinning disabled. Rust's CQT path is single-threaded.
+The five captured plans use identical computational kernels, [confirmed separately](original-file-kernel-invariance.json.gz)
+across all 376 plan manifests and CSR arrays; they are not features derived from
+the audio being timed. Setup loads these invariant kernels, creates FFT plans
+and opens the model session. Each fresh worker then makes one first pass and
+three warm passes, reusing the session and plans but decoding again each time.
+
+This Mac run used an **Apple M5, 24 GiB RAM, macOS 27.2**, generic ARM64 release
+build, and ONNX Runtime 1.31.1. It did not pin process affinity or establish a
+hard total-thread limit. In particular, decoder CPU time exceeded wall time
+despite its requested thread settings. This is not proof of single-core resource
+use on Mac, and the M5 is not a minimum hardware requirement.
+
+**Observed Mac timing and memory.** All five cases and all four passes completed.
+Every pass preserved canonical sample/frame geometry and its repeated local PCM
+identity. All 20 key decisions agreed with both historical references. **Three
+of five cases passed both strict logit comparisons; two failed**, so the complete
+run remains numerically unqualified. The table retains those cases rather than
+selecting only passing examples.
+
+| Recording | Decoded minutes | Setup (s) | First decode / CQT / ONNX (s) | Setup + first stages (s) | Warm stage totals, all three (s) | Worker peak (MiB) | Strict logits |
+|---|---:|---:|---|---:|---|---:|---|
+| Beatport 1059355 | 2.00 | 0.047 | 0.239 / 0.032 / 0.039 | 0.356 | 0.235 / 0.232 / 0.243 | 97.39 | Pass |
+| FMA 083351 | 4.99 | 0.033 | 0.499 / 0.077 / 0.096 | 0.705 | 0.605 / 0.606 / 0.633 | 161.33 | Fail |
+| FMA 101615 | 7.41 | 0.032 | 0.581 / 0.115 / 0.141 | 0.869 | 0.838 / 0.846 / 0.900 | 190.67 | Fail |
+| FMA 088812 | 10.20 | 0.032 | 0.863 / 0.180 / 0.206 | 1.280 | 1.247 / 1.226 / 1.190 | 245.27 | Pass |
+| FMA 087373 | 28.04 | 0.037 | 3.066 / 0.440 / 0.551 | 4.094 | 3.448 / 3.489 / 3.382 | 519.92 | Pass |
+
+The table sums measured stages, excluding diagnostic hashing and result handling.
+“First” begins after artifact admission in a fresh worker; it is **not cold app
+startup**, and the OS file cache was not flushed. Warm totals exclude setup but
+include a new decode. Worker peak is the OS high-water value across all four
+passes, excluding the decoder child. The separately sampled process-tree peaks
+were 112.20, 160.86, 205.23, 260.52 and 532.48 MiB, respectively. Sampling every
+second can miss short-lived peaks; these counters have different scopes and are
+not interchangeable.
+
+![Original-file stage cost and observed memory on the fixed Mac panel](original-file-timing.png)
+
+The figure includes a separately labeled verification/other diagnostic residual,
+and shows all three warm **instrumented** passes rather than an invented p95.
+The whole supervised invocation took **33.85 seconds wall and 52.66 aggregate
+CPU seconds**, including all 20 passes, admission, instrumentation and cleanup.
+Supervisor per-process wall fields include polling/cleanup latency and are not
+precise child-exit latency. No processes remained after the run. The longest
+case's retained PCM and frontend allocations still matter: chunked model
+inference does not make the complete path constant-memory.
+
+**Linux control on the same five originals.** A separate bounded run used the
+strict canonical-input source with historical FFmpeg 6.1.1, the same candidate
+arithmetic and unchanged chunked model. All **20/20** passes reproduced admitted
+canonical PCM and passed both archived logit comparisons with identical keys.
+Feature bytes differed from both historical core references on this x86 build;
+logit qualification does not imply bitwise cross-platform features. The original
+v1 receipts are preserved without adding new v2 fields retrospectively.
+
+The Linux worker ran on one inherited logical CPU (CPU 14), at niceness 19, on an
+AMD Ryzen Threadripper PRO 9955WX shared server. This is a controlled reference
+host, not an ordinary-PC claim or a matched hardware comparison with the M5.
+The Rust build explicitly targeted generic `x86-64`; static inspection found
+runtime-dispatched `fmaf` with scalar, FMA and FMA4 implementations. It did not
+trace the selected runtime branch or qualify every native library's ISA floor.
+No `target-cpu=native` throughput was relabeled as generic performance.
+
+| Recording | Setup (s) | First decode / CQT / ONNX (s) | Setup + first stages (s) | Warm stage totals, all three (s) | Worker peak (MiB) |
+|---|---:|---|---:|---|---:|
+| Beatport 1059355 | 0.054 | 0.435 / 0.059 / 0.056 | 0.605 | 0.274 / 0.389 / 0.351 | 107.11 |
+| FMA 083351 | 0.053 | 0.893 / 0.077 / 0.059 | 1.083 | 0.838 / 0.994 / 0.695 | 154.40 |
+| FMA 101615 | 0.049 | 1.012 / 0.162 / 0.084 | 1.307 | 1.289 / 1.172 / 1.160 | 191.94 |
+| FMA 088812 | 0.063 | 1.370 / 0.210 / 0.187 | 1.831 | 1.713 / 1.793 / 1.635 | 232.06 |
+| FMA 087373 | 0.043 | 3.455 / 0.893 / 0.363 | 4.754 | 4.908 / 4.889 / 4.596 | 477.88 |
+
+The Linux instrumented setup-plus-first-pass values include verification work:
+1.889 seconds for the 10.2-minute case and 4.935 seconds for the 28-minute case.
+Those are distinct from the stage sums above. The entire five-case inner
+invocation took 45.39 seconds wall and 34.45 aggregate CPU seconds. Inner sampled
+worker-group memory can miss transients; the worker OS high-water values above
+are retained separately. The **outer guardian memory counter excludes newly
+created worker sessions and is not pipeline RSS**. All terminal group checks
+were empty. Different decoders, platforms, scheduling and native builds prevent
+attributing the host timing difference to one cause.
+
+**Musical coverage.** Beatport 1059355 is a 120-second preview with publisher
+category Electronica/Downtempo, unverified publisher BPM 150 and listed recording
+length 247.04 seconds. The four FMA rows have these original tags:
+
+| Recording | Native top genre | Original genre tags | BPM / complete-song status |
+|---|---|---|---|
+| FMA 083351 | Electronic | Trip-Hop; Electronic | Unknown / unverified |
+| FMA 101615 | Missing | Ambient Electronic; Ambient; Instrumental; Electronic | Unknown / unverified |
+| FMA 088812 | Missing | Industrial; Experimental; Rock; IDM; Electronic; Glitch | Unknown / unverified |
+| FMA 087373 | Electronic | Ambient Electronic; Electronic | Unknown / unverified |
+
+The metadata joins use original track ID **and source-audio hash** from the
+[public panel description](public376-metadata.json.gz). Duration does not prove
+that a recording is an entire song. These observations do not establish accuracy
+on house, techno, hip-hop, all genres, or every 5–10-minute track.
+
+**What this changes next.** Original-file cost is now measured rather than
+estimated from cached features. Decode dominates these stage timings; reducing
+only network latency would miss much of the cost. The five unchanged decisions
+are encouraging but insufficient to promote the decoder/frontend combination.
+The next portability gate should predeclare paired key-decision agreement across
+the complete original-file panel, followed by independent full-length material,
+while keeping sample/logit differences as diagnostics and avoiding fitted
+tolerances. Commodity x86 timing remains a separate measurement; neither this
+M5 result nor a high-end server alone establishes it. No model replacement or
+production default changed here.
+
+[Published numeric receipts](original-file-results.json.gz) retain all Mac and Linux
+per-pass logits, hashes, stage measurements, comparisons, the strict input
+failure and the native pair result. [Technical provenance](original-file-provenance.json)
+links exact executed source, the [earlier strict Linux source](original-file-linux-source.json.gz)
+and original private receipt hashes; operational
+paths and process identities are omitted from the public projection.
+
+
+The [portable plotting input](original-file-timing-summary.json) records both
+hosts, per-track stage values and original artifact-role hashes without machine
+paths. Recreate the inline graph without audio or model execution:
+
+```sh
+python3 research/drone-native-cqt/composed/plot_original_file.py \
+  --summary research/drone-native-cqt/composed/original-file-timing-summary.json \
+  --summary-sha256 455b1fe99e1b2bc79159ff9c124e2019669d945f057e12b6c83eda2eaa9bdf8a \
+  --output /tmp/drone-original-file-figure
+```
+
+Rendering requires Matplotlib in the selected environment. `--validate-only`
+checks the portable numeric input without importing the plotting dependency.
