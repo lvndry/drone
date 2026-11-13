@@ -9,19 +9,58 @@ import pytest
 
 SOURCE = Path(__file__).parents[1] / "tools/native/keyfinder_reference.cpp"
 LABELS = [
-    "A major", "A minor", "A# major", "A# minor", "B major", "B minor",
-    "C major", "C minor", "C# major", "C# minor", "D major", "D minor",
-    "D# major", "D# minor", "E major", "E minor", "F major", "F minor",
-    "F# major", "F# minor", "G major", "G minor", "G# major", "G# minor",
+    "A major",
+    "A minor",
+    "A# major",
+    "A# minor",
+    "B major",
+    "B minor",
+    "C major",
+    "C minor",
+    "C# major",
+    "C# minor",
+    "D major",
+    "D minor",
+    "D# major",
+    "D# minor",
+    "E major",
+    "E minor",
+    "F major",
+    "F minor",
+    "F# major",
+    "F# minor",
+    "G major",
+    "G minor",
+    "G# major",
+    "G# minor",
 ]
-CLASSES = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-           10, 11, 12, 13, 14, 15, 16, 17]
+CLASSES = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
 NAMES = [
-    "A_MAJOR", "A_MINOR", "B_FLAT_MAJOR", "B_FLAT_MINOR", "B_MAJOR", "B_MINOR",
-    "C_MAJOR", "C_MINOR", "D_FLAT_MAJOR", "D_FLAT_MINOR", "D_MAJOR", "D_MINOR",
-    "E_FLAT_MAJOR", "E_FLAT_MINOR", "E_MAJOR", "E_MINOR", "F_MAJOR", "F_MINOR",
-    "G_FLAT_MAJOR", "G_FLAT_MINOR", "G_MAJOR", "G_MINOR", "A_FLAT_MAJOR",
-    "A_FLAT_MINOR", "SILENCE",
+    "A_MAJOR",
+    "A_MINOR",
+    "B_FLAT_MAJOR",
+    "B_FLAT_MINOR",
+    "B_MAJOR",
+    "B_MINOR",
+    "C_MAJOR",
+    "C_MINOR",
+    "D_FLAT_MAJOR",
+    "D_FLAT_MINOR",
+    "D_MAJOR",
+    "D_MINOR",
+    "E_FLAT_MAJOR",
+    "E_FLAT_MINOR",
+    "E_MAJOR",
+    "E_MINOR",
+    "F_MAJOR",
+    "F_MINOR",
+    "G_FLAT_MAJOR",
+    "G_FLAT_MINOR",
+    "G_MAJOR",
+    "G_MINOR",
+    "A_FLAT_MAJOR",
+    "A_FLAT_MINOR",
+    "SILENCE",
 ]
 
 
@@ -46,9 +85,21 @@ def compile_stub(tmp_path: Path, changed: bool = False) -> subprocess.CompletedP
         'key_t keyOfAudio(AudioData&) { throw std::runtime_error("STUB_CLASSIFIER"); } }; }\n'
     )
     return subprocess.run(
-        [compiler, "-std=c++17", "-Wall", "-Wextra", "-Werror", "-I", str(tmp_path),
-         str(SOURCE), "-o", str(tmp_path / "reference")],
-        capture_output=True, text=True, timeout=60,
+        [
+            compiler,
+            "-std=c++17",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-I",
+            str(tmp_path),
+            str(SOURCE),
+            "-o",
+            str(tmp_path / "reference"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
     )
 
 
@@ -63,12 +114,20 @@ def test_exhaustive_enum_output_and_errors(tmp_path: Path) -> None:
     for raw, (label, code) in enumerate(zip(LABELS, CLASSES, strict=True)):
         tonic, mode = label.split()
         assert rows[raw] == {
-            "schema": "drone.keyfinder-reference.v1", "raw_enum": raw,
-            "status": "key", "tonic": tonic, "mode": mode, "drone_class": code,
+            "schema": "drone.keyfinder-reference.v1",
+            "raw_enum": raw,
+            "status": "key",
+            "tonic": tonic,
+            "mode": mode,
+            "drone_class": code,
         }
     assert rows[24] == {
-        "schema": "drone.keyfinder-reference.v1", "raw_enum": 24,
-        "status": "silence", "tonic": None, "mode": None, "drone_class": None,
+        "schema": "drone.keyfinder-reference.v1",
+        "raw_enum": 24,
+        "status": "silence",
+        "tonic": None,
+        "mode": None,
+        "drone_class": None,
     }
     bad = tmp_path / "malformed.wav"
     for content in (b"", b"RIFF\x04\x00\x00\x00WAVE", b"RIFF\x10\x00\x00\x00WAVE"):
