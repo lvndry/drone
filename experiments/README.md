@@ -23,6 +23,7 @@ before evaluation, and `data/` retains measured evidence and provenance.
 | [MusicFM crop I/O qualification](studies/musicfm-crop-io/REPORT.md) | Test bounded random-access waveform crops against full decoding | Initial 144/144 crops pass; corpus attempt stops at file 2,289 after 2,288 passes. No complete cache or training activation. |
 | [MusicFM source/resource preflight](studies/musicfm-preflight/REPORT.md) | Establish teacher provenance and a bounded execution path before fine-tuning | Imports/strict loading and a bounded21-update synthetic GPU resource probe passed; no task-accuracy result or qualified teacher. |
 | [Compact-model research](studies/compact-models/REPORT.md) | Establish corrected features, pooling and small-model controls | Historical screen, octave/CQT stage and exposed final evaluations; not the current release model. |
+| [SOTA 4-way key benchmark](studies/key-sota-4way/REPORT.md) | Measure drone-v1 against madmom, libkeyfinder and MusicFM on 93 tracks | madmom leads 82.9 vs 75.7 MIREX; drone-v1 strong on its EDM domain, weak on trance/classical; MusicFM blocked (published weights absent). Measurement only; no weights or architecture decision changed. |
 
 The shared [FMAK split protocol](studies/data-split/PROTOCOL.md) records grouping,
 quarantine and evaluation roles. The [research guide](../docs/RESEARCH_TRAINING.md)

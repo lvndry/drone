@@ -220,6 +220,15 @@ See [research studies](experiments/README.md) for the problems, methods, measure
 results and decisions behind the models. Each result report includes its figures,
 raw evidence and reproduction instructions.
 
+## SOTA 4-way benchmark
+
+The [4-way key detection benchmark](experiments/studies/key-sota-4way/REPORT.md)
+measures `drone-v1` against madmom, libkeyfinder 2.2.8 and the MIREX 2026
+MusicFM submission on a 93-track panel (48 Swiss Army v2.1 classical tracks
+plus a 45-track stratified GiantSteps sample). Scoring reuses
+`drone.keys.score_mirex`; the harness is `tools/benchmark_sota_4way.py` and
+the recorded run artifacts are in the study's `data/` directory.
+
 ```bash
 uv sync --locked --all-extras
 uv run --extra export pytest
