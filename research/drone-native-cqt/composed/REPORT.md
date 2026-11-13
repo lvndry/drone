@@ -1041,3 +1041,18 @@ the inline figure, and `--write` explicitly regenerates the metadata projection.
 ```sh
 python -m tools.describe_native_panel
 ```
+
+## Original-file CPU measurement preparation
+
+The [prospective end-to-end protocol](END_TO_END_PROTOCOL.md) and opt-in runner
+now cover original-file decoding, prepared CQT and the unchanged chunked ONNX
+model. Five existing recordings span approximately 2, 5, 7, 10 and 28 minutes.
+Each receives one fresh-process pass and three re-decoded passes with a reusable
+session. This preparation has no real-audio timing or prediction result yet.
+
+The runner separates decode, setup, CQT and inference costs and includes decoder
+children in CPU accounting and sampled process-tree memory. It preserves existing
+references and ordinary frontend defaults. Passing Mac arithmetic checks does not
+establish generic x86 performance; an actual ordinary-PC measurement remains
+necessary. Eventual per-track results and stage plots belong here, alongside
+their method and limitations, rather than in a separate visual-results report.

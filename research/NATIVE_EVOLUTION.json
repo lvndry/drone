@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "c8c27348edd597b2c22c42c45f0169a5ca91badf9803e56da801ebb63b89730f",
+      "current_sha256": "63c206a1b7c787593e5e14983e4c372dc8f96a919329fd5fddc6a6003280e275",
       "git_mode": "100644",
-      "reason": "Add a retrospective ID-and-source-audio-hash join of target-free native-panel genre/BPM metadata with duration coverage and missingness; frozen numerical evidence and historical unknowns remain unchanged."
+      "reason": "Publish completed fixed 376-case frontend identity validation, both reference outcomes, duration coverage and retained-byte replay; no classifier or performance promotion. Append prospective original-file CPU measurement preparation without new results."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -37,6 +37,20 @@
       "current_sha256": "fb81b1a7fa5a59d68f1f9bd3bb3f0879b424534ed52a4a8cea1642556b4cfbee",
       "git_mode": "100644",
       "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence."
+    },
+    {
+      "path": "research/drone-native-cqt/Cargo.toml",
+      "migrated_sha256": "a6361afb3d1b7616cc22a1548852e0f2617232462e3aefbd3b9b18e5a4ff5a71",
+      "git_mode": "100644",
+      "current_sha256": "36d3709b7971fbc76f4d8d80b60a35b053a1d4d92605e26b344985d0d75c1a01",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/Cargo.lock",
+      "migrated_sha256": "a2113290218729da788bcc59ad78cf51b892fcfdc46c2a2c0ec4e4548133a05d",
+      "git_mode": "100644",
+      "current_sha256": "e9ca485a2e726e8b146e1ee68b42a8fc4bd740f1f435c3015363fa5d773005c9",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     }
   ],
   "additions": [
@@ -164,7 +178,7 @@
       "path": "research/drone-native-cqt/composed/plot_fused_product.py",
       "sha256": "53022e1e21e1b3514303697972203b0f2fb06f50b542657c8b1502675477b21f",
       "git_mode": "100644",
-      "reason": "Render existing frontend evidence and the subsequent fixed376 native model gate outcomes from verified retained records; no numerical inference."
+      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_fused_product.py",
@@ -357,6 +371,30 @@
       "sha256": "f41ea35dd62f53417d7bf552e0048cc2e5313bbbf15f54fa7dce33504b952b01",
       "git_mode": "100644",
       "reason": "Retrospective descriptive metadata coverage for the unchanged376 public recordings; native top fields and overlapping tags/taxonomies stay separate; no audio, targets, model execution or accuracy claim."
+    },
+    {
+      "path": "research/drone-native-cqt/src/bin/original_file.rs",
+      "git_mode": "100644",
+      "sha256": "52fe351ebd41abac09db43dff2d572fb72ffb7f5d56cdadbe92ecc2bc40ec98d",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/original_file.py",
+      "git_mode": "100644",
+      "sha256": "191a58cd2d485cd7fe61b5310e62c610f64648f834153ef06ef9234e8f49be03",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/END_TO_END_PANEL.json",
+      "git_mode": "100644",
+      "sha256": "e7bec614b0f99404655d49111a8a56ddb0d5e96ad267a8d807d2873a129303ba",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/END_TO_END_PROTOCOL.md",
+      "git_mode": "100644",
+      "sha256": "01e07ee364fa24c07578c61e9a7ee0b57a6e3dedb53d2090dbb876cbcc611496",
+      "reason": "Prepare a finite opt-in original-file CPU measurement with staged timings and unchanged chunked inference; no real-audio result or ordinary-default promotion."
     }
   ]
 }
