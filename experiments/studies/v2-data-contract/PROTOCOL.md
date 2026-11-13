@@ -135,7 +135,9 @@ integrity, recording identity, parseability and scoring admission are distinct.
 
 `python -m tools.prepare_gtzan_overlap` reproduces the existing metadata eligibility
 and terminal diagnostic inventory, then writes
-`data/gtzan-overlap-manifest.json`. `--check` verifies exact reproduced bytes.
+`data/gtzan-overlap-manifest.json.gz` with gzip timestamp zero and no filename.
+`--check` verifies exact compressed bytes; decompression preserves the existing JSON
+serializer bytes. The CLI reports both compressed and decoded SHA256 witnesses.
 This is metadata preparation only; it performs no acquisition, audio extraction,
 fingerprinting, matching, classification or scoring, and grants no resource permit.
 

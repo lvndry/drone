@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
+import io
 import json
 import math
 import re
@@ -20,7 +21,7 @@ from tools.import_gtzan_reference import DEFAULT, encode, produce
 
 ROOT = Path(__file__).resolve().parents[1]
 STUDY = ROOT / "experiments/studies/v2-data-contract"
-OUTPUT = STUDY / "data/gtzan-overlap-manifest.json"
+OUTPUT = STUDY / "data/gtzan-overlap-manifest.json.gz"
 RELEASE = ROOT / "experiments/studies/bp-gs-overlap/data/release-metadata.json"
 REFERENCES = ROOT / "experiments/studies/bp-gs-overlap/data/reference-result-v1.json.gz"
 RELEASE_SHA = "69432e5f6ddc0ad10a55de591e3174e6db9ef705355cfdca5a1f678a9bfa4c4f"
@@ -289,19 +290,36 @@ def manifest() -> dict[str, Any]:
     }
 
 
+def compressed(value: object) -> bytes:
+    """Serialize the unchanged JSON deterministically without filename or timestamp."""
+    buffer = io.BytesIO()
+    with gzip.GzipFile(filename="", fileobj=buffer, mode="wb", mtime=0) as stream:
+        stream.write(encode(value))
+    return buffer.getvalue()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=OUTPUT)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    raw = encode(manifest())
+    raw = compressed(manifest())
     if args.check:
         if args.output.read_bytes() != raw:
             raise ValueError("Frozen overlap query manifest changed")
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_bytes(raw)
-    print(json.dumps({"queries": 769, "sha256": digest(raw), "admitted_for_scoring": False}))
+    print(
+        json.dumps(
+            {
+                "queries": 769,
+                "sha256": digest(raw),
+                "decoded_sha256": digest(gzip.decompress(raw)),
+                "admitted_for_scoring": False,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

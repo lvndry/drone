@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import gzip
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,7 @@ import pytest
 from tools.prepare_gtzan_overlap import (
     CHECKPOINT_SHA,
     OUTPUT,
+    compressed,
     digest,
     encode,
     manifest,
@@ -175,7 +177,10 @@ def test_pin_checks_exact_metadata_bytes(tmp_path: Path) -> None:
 
 def test_committed_manifest_reproduces_from_terminal_metadata() -> None:
     result = manifest()
-    assert encode(result) == OUTPUT.read_bytes()
+    assert compressed(result) == OUTPUT.read_bytes()
+    assert gzip.decompress(OUTPUT.read_bytes()) == encode(result)
+    assert compressed(result) == compressed(result)
+    assert OUTPUT.read_bytes()[4:8] == b"\0" * 4
     assert result["query_count"] == 769 and result["query_counts_by_genre"]["hiphop"] == 73
     assert result["sensitivity_query_count"] == 837
     assert not result["admitted_for_scoring"] and not result["fingerprint_admission"]
