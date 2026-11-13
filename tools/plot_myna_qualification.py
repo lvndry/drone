@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
+from typing import Any
 
 import matplotlib
 
@@ -12,8 +13,65 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
+def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    with path.open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def derive_tables(root: Path) -> None:
+    """Regenerate display tables from preserved receipts, without changing measurements."""
+    rows: list[dict[str, Any]] = []
+    for filename, method in [
+        ("phase-vocoder-diagnostic.json", "Phase vocoder + polyphase"),
+        ("rubberband-r2-diagnostic.json", "FFmpeg RubberBand R2"),
+        ("rubberband-r3-diagnostic.json", "Offline RubberBand R3"),
+    ]:
+        receipt = json.loads((root / "data" / filename).read_text())
+        for row in receipt["rows"]:
+            rows.append(
+                {
+                    "method": method,
+                    "semitones": row["semitones"],
+                    "tone_440_rms_ratio": row["rms_ratio"][3],
+                    "max_pure_tone_error_cents": max(
+                        abs(tone["error_cents"]) for tone in row["tones"][:4]
+                    ),
+                    "max_chord_peak_error_cents": max(
+                        abs(tone["error_cents"]) for tone in row["tones"][4:]
+                    ),
+                    "original_amplitude_gate": row["passes_original_amplitude_gate"],
+                    "original_pitch_gate": row["passes_original_pitch_gate"],
+                }
+            )
+    write_csv(root / "data/pitch_diagnostics.csv", rows)
+    energy = json.loads((root / "data/rubberband-r3-energy-v2.json").read_text())
+    rows = [
+        {
+            "chord": row["mode"],
+            "semitones": row["semitones"],
+            "r3_union_fraction": row["r3"]["union_total_power_fraction"],
+            "r3_min_component_fraction": min(row["r3"]["component_total_power_fractions"]),
+            "correct_union_fraction": row["analytic_correct"]["union_total_power_fraction"],
+            "correct_min_component_fraction": min(
+                row["analytic_correct"]["component_total_power_fractions"]
+            ),
+            "wrong_union_fraction": row["wrong_semitone_control"]["union_total_power_fraction"],
+            "deleted_min_component_fraction": min(
+                row["missing_middle_control"]["component_total_power_fractions"]
+            ),
+            "controls_pass": row["controls_pass"],
+            "passes_v2": row["passes_v2"],
+        }
+        for row in energy["rows"]
+    ]
+    write_csv(root / "data/pitch_energy_v2.csv", rows)
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1] / "experiments/studies/myna-key-pilot"
+    derive_tables(root)
     with (root / "data/pitch_diagnostics.csv").open() as stream:
         rows = list(csv.DictReader(stream))
     methods = list(dict.fromkeys(row["method"] for row in rows))
