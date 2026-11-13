@@ -1,0 +1,21 @@
+{
+  "base_revision": "b2b8c3602df49edcf3df039dc78cabf9ac89d999",
+  "note": "These identities describe the executed source and private environment; publication does not reattribute them to current source.",
+  "runtime_file_count": 731,
+  "runtime_inventory_sha256": "aefd7bdd21b07c6ea56450461cca1408f4922896880fb545f9581252c1022aa9",
+  "source_archive_sha256": "7899131e9101ab745186686ed2899ce3d86378f9916eb99cc6a3c26dd79b8d15",
+  "source_files": {
+    "experiments/__init__.py": "44924a60401eefc90646530dba324ad0c11d5fb98d9c51586d45bb387ce16815",
+    "experiments/bp_gs_scope.py": "b5f3bb6564639c1c4460eab8094ae7c94ebac0690ac15392743f949b71d8dcda",
+    "experiments/fma_alignment_matcher.py": "04c8b51b6f37223d0db7544f45c87e8d7a11c8c70f2993741ecc75b5c052aa90",
+    "experiments/fma_fingerprints.py": "a0d315f3f6f6f62b33b7453119350807702eec35a17723b9079fca30c4328f71",
+    "experiments/gtzan_overlap.py": "c66df5625a36734927ecbb82262cd72cbcd2b448fc44a03b463a2ca3aeb5e0b4",
+    "experiments/gtzan_overlap_continuation.py": "210a90d1cc01d34b47511aebe3d664d33d9f90c66d774c55d7d95f76aba4b1fd",
+    "experiments/k10_gpu1_resource.py": "24010e84fc7d38618e0892b2707659f3063b25106bb2ff8f7981bc158ddb3d90",
+    "experiments/studies/v2-data-contract/data/gtzan-overlap-fresh-controls.json": "ed91211ca3337cb835482d8665aa696a5267e9a22c8cc4e4b0864afc158dfef7",
+    "tools/audit_bp_gs.py": "63306f2a071c7e00c8e47f9cad1594c86cda53f2f73617180607481f4d4d12a1",
+    "tools/run_cqt_expansion.py": "1048c16a6e86f6eb9574fd8e9886eae7e43fe3b8a9d3294abb95e3369a8c9342",
+    "tools/run_gtzan_overlap.py": "64fed50eaa832086209d6aa25ae99e8e79dc29eb1ca881ecd86261c91297a010",
+    "tools/run_k10_gpu1_resource.py": "d96aaea698fd91f748a63a326bbd2e3042bbee8dccb7c7e4d53e3eb744b1de6c"
+  }
+}

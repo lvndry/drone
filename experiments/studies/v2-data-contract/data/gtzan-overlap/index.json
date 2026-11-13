@@ -1,0 +1,35 @@
+{
+  "private_originals": {
+    "continuation_result": "547ed865630a70d3270f81484fd810d67c11009bc222c4eb6974f1fac89986cd",
+    "execution-plan": "b995490202e2584b5d1ed178c7f7113b88896b302a982185aa0facc413d06609",
+    "operational-receipt-sealed": "e34bf42830aad11d24dd0ea0aeb4a772604a00b07d53d228459bd063f12abbc3",
+    "original_audit_failure": "d8db7a9e6799de8911d9114e5541d99bb91fc2afc920796cc56ea0b2631e1452",
+    "original_qualification_guardian-result": "8f12db1b1dc97d9dc4a3ecd0a8b08aa490d205ac3e999f78457e5a1eea0dbb45",
+    "original_qualification_result": "12e0cdec7e2bbb06f4aeb388c25f7e167031e13ea30d8b96d615e4ee0d01602f",
+    "permit": "470698f1941a1c3723a1feef5bcd7f0978a1e216dd6643686834fed20070fecc",
+    "preparation-verification-v2": "9ccda3c9fc2a22e990743541bf5ba16f2976808952e7d36d00782818729148a5",
+    "qualification-evidence_post-run-verification": "aea146697d3215b36d609cd4477e99724cdef5a8c4b3b7c2f93285aa001fd508",
+    "qualification-evidence_result": "b7d3536f1b2b3d112029341b0da69f61e723be92e92559d4c7ad65a4b32790de",
+    "qualification-evidence_sealed-config": "44c03085859e5922ffa09abcc26324d7d95dac9d93082c37660e4155c14fab0d",
+    "sealed-config": "ef7f7a3933c68068ceffb02c6d10ef8bddee8f60cc0f0aa2bbde40baeae1a08f",
+    "terminal-verification": "f0f1f673c54f2af56b64b9459e201ca38f3c233d1384f286a9e43972c39e6bcb"
+  },
+  "published_artifacts": {
+    "audit.json.gz": "b9d2ad4910a56f11f7d4380702af13b878c41e2cde30838004eb79767c8a70aa",
+    "continuation-controller.json": "2dd4b68e602a223d624dc859f1e0974afa4f31ba906a02f6c2b9865bf53c4e1e",
+    "execution-source.json": "2752b946d0bb602c12ba017511a2bd04925d1633d1fc9f14fce5e10af1307ec9",
+    "original-audit-failure.json": "d8db7a9e6799de8911d9114e5541d99bb91fc2afc920796cc56ea0b2631e1452",
+    "original-qualification-controller.json": "8f12db1b1dc97d9dc4a3ecd0a8b08aa490d205ac3e999f78457e5a1eea0dbb45",
+    "preparation-failure.json": "33acbae85ae4bcbb154a3d13f63525f1c3d5e7186ed09584fbf5a294a556c100",
+    "qualification-controller.json": "6aa3a935face203642b96dad951ef8172e38bae4f1c045870266f4736b26813d",
+    "qualification-summary.json": "a549a670be8fac028e5561faf79868140cc43402a2df80b117b3167e944d5d3e",
+    "terminal-verification-summary.json": "89f84a59d5b2f67e95095d107e14a182eff02a908e1cefc241c89056a6987fbc"
+  },
+  "rules": {
+    "no_classifier_outputs": true,
+    "no_scoring_admission": true,
+    "no_source_audio": true
+  },
+  "schema": "gtzan-overlap-evidence-index-v1",
+  "scope": "Sanitized audit projection retains every query and every supported alignment. Original controllers and failure receipts are byte-preserved; private operational originals are identified by hash, not recoverable from this publication."
+}

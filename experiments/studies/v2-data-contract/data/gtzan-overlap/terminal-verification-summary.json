@@ -1,0 +1,26 @@
+{
+  "audio_read": false,
+  "classifier_outputs": false,
+  "format": "gtzan-continuation-terminal-verification-v1",
+  "imported_count": 377,
+  "index_opened": false,
+  "labels_scored": false,
+  "new_attempt_count": 460,
+  "new_complete_count": 460,
+  "new_incomplete": [],
+  "prior_metadata_and377_evidence_unchanged": true,
+  "private_fields_omitted": [
+    "owned_processes",
+    "protected_services",
+    "operational_file_paths"
+  ],
+  "runtime_files_verified": 731,
+  "service_actions": false,
+  "source_files_verified": 12,
+  "source_original_sha256": "f0f1f673c54f2af56b64b9459e201ca38f3c233d1384f286a9e43972c39e6bcb",
+  "status": "verified_terminal_suffix_only",
+  "utc": "2026-11-13T10:54:38Z",
+  "verification_cpu_seconds": 3.328604,
+  "verification_peak_rss_bytes": 195833856,
+  "verification_wall_seconds": 3.6494604758918285
+}

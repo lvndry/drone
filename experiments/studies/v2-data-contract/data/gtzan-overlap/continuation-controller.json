@@ -1,0 +1,16 @@
+{
+  "status": "complete",
+  "config_sha256": "ef7f7a3933c68068ceffb02c6d10ef8bddee8f60cc0f0aa2bbde40baeae1a08f",
+  "result_sha256": "547ed865630a70d3270f81484fd810d67c11009bc222c4eb6974f1fac89986cd",
+  "peaks": {
+    "rss_bytes": 879820800,
+    "cpu_seconds": 455.06,
+    "output_bytes": 28247344
+  },
+  "wall_seconds": 445.201801561052,
+  "classifier_outputs_used": false,
+  "mode": "audit",
+  "qualification_basis": "inherited_numerical_qualification_and_new_driver_operational_qualification",
+  "qualification_passed": false,
+  "qualification_binding_sha256": "707636933d1ce1c6461d0d6d633f3717eece3dc4ac1d7c89da15f2cd8a45d8e2"
+}

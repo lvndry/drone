@@ -1,0 +1,14 @@
+{
+  "audio_read": false,
+  "continuation_launched": false,
+  "cpu_seconds": 0.13952799999999999,
+  "error": "AssertionError()",
+  "execution_authorized": false,
+  "format": "gtzan-continuation-audit-preparation-v1",
+  "index_opened": false,
+  "peak_rss_bytes": 38322176,
+  "service_actions": false,
+  "status": "preparation_failed",
+  "utc": "2026-11-13T10:43:42Z",
+  "wall_seconds": 0.14032972417771816
+}

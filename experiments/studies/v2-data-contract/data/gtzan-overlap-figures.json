@@ -1,0 +1,8 @@
+{
+  "audit_sha256": "b9d2ad4910a56f11f7d4380702af13b878c41e2cde30838004eb79767c8a70aa",
+  "files": {
+    "gtzan-overlap.png": "741f7cb2b3bad83955784454cdd2c47ebb04463ce175741a01bd01c8b18307c0",
+    "gtzan-overlap.svg": "d707e18d30fa5c3c8b2b5848e6aca4e32934a36bd5a5884dbb39eae1aadf76c6"
+  },
+  "renderer_sha256": "c9d91d4e208aab268f5701632a3b26d6943f835f9fc69bd48ed137d26af2d6a9"
+}

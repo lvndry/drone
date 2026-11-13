@@ -716,9 +716,9 @@ controllers all stayed within their recorded resource bounds; the existing vLLM
 process identities were protected. These are data-checking costs, not inference
 benchmarks.
 
-**Remaining gate.** Audit recording overlap against the actual released model's
-Beatport fitting and selection sources, lock model/keyfinder versions and scoring
-rules, then open one paired evaluation. MusicFM pretraining independence, recording
+**Next gate at the integrity stage.** The later overlap audit below now provides
+recording-match outcomes. Review disposition, model/keyfinder versions and scoring
+rules still need a separate freeze before any paired evaluation. MusicFM pretraining independence, recording
 rights and contemporary Afrobeats/long-song coverage remain unresolved. The 73
 hip-hop excerpts in the 769 cohort are short, historical samples; they do not
 represent all modern DJ music.
@@ -776,9 +776,9 @@ reference cohorts remains unchanged. The 769-row cohort contains 73 native
 The known durations come from saved 22,050-Hz WAV-header frame counts, not a new
 audio probe or model pass. Full-song duration, admitted BPM, verified artist/work
 groups and model-analyzed PCM remain unknown. Released-model overlap is explicitly
-not established by these bundled integrity observations. No pending overlap run
-or uncommitted continuation evidence is imported, and no row is promoted to
-scoring admission. Short historical excerpts do not fill the full DJ-track or
+not established by these bundled integrity observations. The completed overlap
+audit is reported separately below; the catalog remains an unchanged observation
+snapshot, and no row is promoted to scoring admission. Short historical excerpts do not fill the full DJ-track or
 contemporary Afrobeats coverage gap.
 
 Reproduce without source audio, network access or model loading:
@@ -795,6 +795,131 @@ RSS, within 120-second wall / 60-second CPU / 256 MiB RSS / 16 MiB output limits
 It wrote 127,531 bytes across catalog and coverage outputs. A preceding successful
 export was regenerated after retaining explicit zero classical-reference counts;
 the catalog bytes remained unchanged. No audio or classifier execution occurred.
+
+## GTZAN overlap audit: complete coverage, review flags remain (November 13)
+
+**The audit attempted all 837 frozen reference recordings.** The primary 769-recording
+cohort completed entirely; the wider cohort retains one incomplete query from the
+original attempt. No query produced an identity-level fingerprint match, but **167
+primary recordings still have review-level matches**. No recording is admitted for
+classifier scoring, and no key-accuracy result follows from this audit.
+
+### Problem and method
+
+Matching a downloaded WAV to its publisher checksum does not establish that its
+recording was absent from model development. We compared the fixed GTZAN cohorts
+against the existing **7,579-record reference index: 1,486 Beatport, 5,489 FMA and
+604 GiantSteps recordings**. The [archived prospective amendment](GTZAN_OVERLAP_PROTOCOL.md)
+and [query manifest](data/gtzan-overlap-manifest.json.gz) preserve membership before
+matching. Reference availability defines those existing cohorts; reference-key
+values and classifier outputs were not used to change their frozen membership,
+thresholds or outcomes. The released Drone model's declared fitting and selection
+IDs remain distinct from the later candidate-training split.
+
+The unchanged matcher retains all qualifying landmark offsets, rather than only
+a best match. Review support requires at least ten distinct anchors spanning five
+seconds. Identity support additionally requires at least twenty anchors spanning
+eight seconds and Chromaprint distance at most 0.15 at that landmark offset.
+These are the pre-existing control-qualified rules, not thresholds tuned on GTZAN.
+They detect some recording relationships; they do not prove work, artist or
+pretraining independence when no match is found.
+
+Before the continuation, the driver completed all **250 controls**: 180 cached
+positive queries retrieved their expected reference; 64 synthetic negative queries
+produced no identity flags and five review flags; six newly extracted 30-second
+positive queries all retrieved their expected reference. These are operational
+and retrieval checks, not a calibrated estimate of false-positive rates on music.
+
+The original audit stopped after 377 attempts when `reggae.00086` reached the
+fixed vote-memory budget. Its 376 completed queries and one incomplete query remain
+unchanged. A separately qualified continuation processed only the **460 previously
+unvisited recordings**, in frozen archive order, with the same numerical matcher,
+reference index and decision rules. It did not retry the failed query. A preparation
+checker initially used an incorrect path assumption for cached versus freshly
+extracted controls; that failed preparation is preserved, and the corrected
+metadata joins were verified before launch. No qualification or audio audit was
+rerun to hide that failure.
+
+### Results and coverage
+
+| Frozen cohort | Attempted | Complete | No detected overlap | Needs review | Incomplete | Identity flags |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary filtered cohort | 769 | 769 | 602 | 167 | 0 | 0 |
+| Raw-reference sensitivity cohort | 837 | 836 | 656 | 180 | 1 | 0 |
+
+The cohorts overlap; their rows must not be added together. “Complete” describes
+query execution, not exposure clearance. The original machine field `unresolved`
+counts incomplete queries only; it does **not** mean that review flags are resolved.
+
+![GTZAN overlap outcomes by genre and actual analyzed excerpt duration](figures/gtzan-overlap.png)
+
+*Both cohorts keep their original membership, including zero classical coverage.
+Bars show every recording and separate review flags from incomplete execution.
+The duration histogram uses 836 retained fingerprint-extraction receipts; the
+original incomplete query has no extraction receipt in the result. These are
+recording-overlap outcomes, not classifier errors. [SVG](figures/gtzan-overlap.svg).*
+
+Review flags are unevenly distributed. In the primary cohort, **48/91 disco**,
+**25/84 metal** and **22/97 country** recordings require review; hip-hop has
+**11/73**, while jazz has **0/67**. Silently dropping flagged recordings would
+therefore change the genre mix. No genre is declared independent or more accurate
+from these counts. The observed audio spans **29.93–30.65 seconds**, with median
+**30.01 seconds**. Full-song duration, reliable BPM and verified artist/work groups
+remain unavailable. This panel does not fill the five–ten-minute DJ-track or
+contemporary Afrobeats coverage gap.
+
+For the released checkpoint specifically, **80 primary queries** have review-level
+alignments to its known fitting IDs or exact aliases, and **23** have them to
+selection IDs or aliases. The wider cohort counts are 83 and 24. These categories
+can overlap and are unresolved flags, not confirmed exposure. Other reference-index
+matches matter for research candidates with different training histories; a future
+scoring report must state which model's exposure it is discussing.
+
+### Resources, verification and decision
+
+The fresh driver qualification took **306.25 seconds**, with **309.56 CPU seconds**
+and **872.51 MiB** sampled peak owned-process RSS. The continuation itself took
+**445.20 seconds**, with **455.06 CPU seconds**, **839.06 MiB** sampled peak RSS
+and **26.94 MiB** of recorded outputs. The continuation stayed inside its one-hour
+wall, two-hour CPU, 2 GiB memory and 512 MiB output bounds. These costs exclude the
+original prefix run and retained reference index; they are not classifier latency.
+The original failure receipt separately records 294.12 CPU seconds and 1.10 GiB
+sampled peak RSS. No serving process was stopped for either new run, and the
+terminal check found both owned processes retired.
+
+The [evidence index](data/gtzan-overlap/index.json) links the public records to
+retained originals. The compact projection preserves **every query and all 55,474
+review/identity-support alignments**. Publication independently checked all
+**1,704,541 original alignments**, including those below screening support, against
+the frozen classification rule. Those below-screening rows are counted rather
+than bundled; their complete raw metadata remains retained outside Git. Public
+verification replays every published supported decision, cohort, outcome and
+coverage count. Exhaustive replay requires that retained raw metadata archive.
+Original controllers and failure receipts are byte-preserved; configuration,
+process identities and private paths stay in the retained operational records.
+Their checksums establish identity, not public recovery of redacted contents.
+The public fresh-control manifest omits operational source paths while retaining
+the same six recording identities, crop settings and audio hashes. The current
+preparation adapter resolves paths from the hash-verified reference descriptor;
+it was not used for the reported run. The execution-source receipt continues to
+identify the original twelve-file source closure and retained source archive,
+including the original control manifest. This publication change does not
+reattribute the historical run to the modified preparation code or rerun matching.
+
+```bash
+uv run python -m tools.prepare_gtzan_overlap --check
+uv run python -m tools.report_gtzan_overlap
+uv run --extra plots python -m tools.report_gtzan_overlap --plot
+# Optional, with the retained metadata archive; no source audio is opened:
+uv run python -m tools.report_gtzan_overlap --raw-audit /path/to/audit-metadata.tar
+```
+
+**Decision:** keep both cohorts and all outcomes intact. Review flags require a
+separate blind disposition policy; absence of detected overlap is not automatic
+admission. Freeze model versions, scoring conventions, missing-output treatment
+and exposure-stratum reporting before a future paired classifier evaluation.
+No threshold change, model selection, new training or release promotion was made
+by this publication.
 
 ## KeyFinder enum conversion repaired and qualified (November 13)
 
