@@ -95,3 +95,91 @@ def test_cqt_stage_scalar_sqrt_is_passed_through(tmp_path: Path) -> None:
     assert isinstance(result, np.floating)
     assert result.tobytes() == np.sqrt(2.0).tobytes()
     assert records == {}
+
+
+def support_proof() -> dict[str, Any]:
+    root = Path(trace.__file__).absolute().parents[1]
+    files = {
+        "experiments": "experiments/__init__.py",
+        "tools.research": "tools/research/__init__.py",
+        "experiments.chunked": "experiments/chunked.py",
+        "tools.research.contracts": "tools/research/contracts.py",
+        "tools.research.measurements": "tools/research/measurements.py",
+        "tools.export_cqt_goldens": "tools/export_cqt_goldens.py",
+    }
+    return {
+        "interpreter_path": trace.sys.executable,
+        "trace_support_modules": {
+            "tools": {"namespace_paths": [str(root / "tools")]},
+            **{
+                name: {"path": str(root / file), "sha256": trace.digest((root / file).read_bytes())}
+                for name, file in files.items()
+            },
+        },
+    }
+
+
+def isolate_support_search(monkeypatch: pytest.MonkeyPatch) -> None:
+    root = Path(trace.__file__).absolute().parents[1]
+    # The shared test venv has another editable checkout. Do not weaken production
+    # admission: isolate only this test's module search, leaving the venv untouched.
+    paths = [value for value in trace.sys.path if not (Path(value) / "tools").is_dir()]
+    monkeypatch.setattr(trace.sys, "path", [str(root), *paths])
+
+
+def test_support_closure_checks_sources_without_importing_transform(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+    monkeypatch.delenv("PYTHONHOME", raising=False)
+    isolate_support_search(monkeypatch)
+    before = set(trace.sys.modules)
+    trace.support_origins(support_proof())
+    assert set(trace.sys.modules) == before
+
+
+@pytest.mark.parametrize("name", ["PYTHONPATH", "PYTHONHOME"])
+def test_support_rejects_python_environment_even_empty(
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+) -> None:
+    monkeypatch.setenv(name, "")
+    with pytest.raises(ValueError, match="must be absent"):
+        trace.support_origins(support_proof())
+
+
+def test_support_rejects_other_interpreter_and_incomplete_or_changed_closure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+    monkeypatch.delenv("PYTHONHOME", raising=False)
+    isolate_support_search(monkeypatch)
+    proof = support_proof()
+    proof["interpreter_path"] += ".different"
+    with pytest.raises(ValueError, match="interpreter"):
+        trace.support_origins(proof)
+    proof = support_proof()
+    del proof["trace_support_modules"]["tools.research"]
+    with pytest.raises(ValueError, match="Incomplete"):
+        trace.support_origins(proof)
+    proof = support_proof()
+    proof["trace_support_modules"]["experiments"]["sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="Bound artifact"):
+        trace.support_origins(proof)
+    proof = support_proof()
+    proof["trace_support_modules"]["tools"]["namespace_paths"].append("/unbound")
+    with pytest.raises(ValueError, match="namespace"):
+        trace.support_origins(proof)
+
+
+def test_support_rejects_loaded_module_from_another_origin(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import ModuleType
+
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+    monkeypatch.delenv("PYTHONHOME", raising=False)
+    isolate_support_search(monkeypatch)
+    wrong = ModuleType("experiments.chunked")
+    wrong.__file__ = "/unbound/chunked.py"
+    monkeypatch.setitem(trace.sys.modules, "experiments.chunked", wrong)
+    with pytest.raises(ValueError, match="Loaded support origin"):
+        trace.support_origins(support_proof())

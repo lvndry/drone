@@ -10,6 +10,7 @@ import argparse
 import contextlib
 import hashlib
 import importlib
+import importlib.machinery
 import importlib.metadata
 import importlib.util
 import json
@@ -114,10 +115,78 @@ class NumpyProxy:
         return result
 
 
+# Local imports executed by export_cqt_goldens, including package initializers.
+SUPPORT_MODULES = (
+    "tools",
+    "experiments",
+    "tools.research",
+    "experiments.chunked",
+    "tools.research.contracts",
+    "tools.research.measurements",
+    "tools.export_cqt_goldens",
+)
+
+
+def support_origins(proof: dict[str, Any]) -> None:
+    """Validate the local closure before package execution and after actual import."""
+    if any(name in os.environ for name in ("PYTHONPATH", "PYTHONHOME")):
+        raise ValueError("PYTHONPATH/PYTHONHOME must be absent")
+    executable = proof["interpreter_path"]
+    if not Path(executable).is_absolute() or executable != sys.executable:
+        raise ValueError("Exact interpreter path changed")
+    sources = proof["trace_support_modules"]
+    if set(sources) != set(SUPPORT_MODULES):
+        raise ValueError("Incomplete trace support closure")
+    searches: dict[str, list[str]] = {}
+    for name in SUPPORT_MODULES:
+        parent = name.rpartition(".")[0]
+        search = searches[parent] if parent else sys.path
+        spec = importlib.machinery.PathFinder.find_spec(name, search)
+        if spec is None:
+            raise ValueError("Missing support module: " + name)
+        info = sources[name]
+        if name == "tools":
+            expected_paths = info["namespace_paths"]
+            if (
+                set(info) != {"namespace_paths"}
+                or len(expected_paths) != 1
+                or not Path(expected_paths[0]).is_absolute()
+                or spec.origin is not None
+                or list(spec.submodule_search_locations or []) != expected_paths
+            ):
+                raise ValueError("Support namespace origin changed: " + name)
+        else:
+            if set(info) != {"path", "sha256"} or not Path(info["path"]).is_absolute():
+                raise ValueError("Invalid support source binding: " + name)
+            if spec.origin != info["path"]:
+                raise ValueError("Support source origin changed: " + name)
+            bound(Path(info["path"]), info["sha256"])
+        if spec.submodule_search_locations is not None:
+            searches[name] = list(spec.submodule_search_locations)
+        loaded = sys.modules.get(name)
+        if loaded is not None:
+            if getattr(loaded, "__file__", None) != spec.origin:
+                raise ValueError("Loaded support origin changed: " + name)
+            if list(getattr(loaded, "__path__", [])) != searches.get(name, []):
+                raise ValueError("Loaded support package path changed: " + name)
+
+
+def load_support(proof: dict[str, Any]) -> ModuleType:
+    support_origins(proof)
+    module = importlib.import_module("tools.export_cqt_goldens")
+    support_origins(proof)
+    if any(name not in sys.modules for name in SUPPORT_MODULES):
+        raise ValueError("Trace support closure was not actually imported")
+    if "onnxruntime" in sys.modules or "torch" in sys.modules:
+        raise ValueError("Unexpected inference/training module import")
+    return module
+
+
 def runtime(proof_path: Path, expected: str) -> tuple[dict[str, Any], ModuleType]:
     proof = json.loads(bound(proof_path, expected))
     if proof["format"] != "cqt-boundary-runtime-proof-v1" or proof["historical_gaps"] != GAPS:
         raise ValueError("Explicit historical closure gaps required")
+    support_origins(proof)
     if proof["trace_source_sha256"] != digest(Path(__file__).read_bytes()):
         raise ValueError("Actual trace source changed")
     for name, version in {"numba": "0.68.1", "llvmlite": "0.50.0"}.items():
@@ -211,13 +280,7 @@ def execute(manifest: Path, output: Path, proof_path: Path, proof_sha: str) -> N
     # Import only here: tests of storage/proxies never invoke a transform.
     import librosa.core.constantq as cq
 
-    support = importlib.util.find_spec("tools.export_cqt_goldens")
-    if support is None or support.origin is None:
-        raise ValueError("Missing trace support source")
-    if Path(support.origin).resolve() != Path(proof["trace_support"]["path"]).resolve():
-        raise ValueError("Trace support path changed")
-    bound(Path(support.origin), proof["trace_support"]["sha256"])
-    from tools.export_cqt_goldens import Trace
+    Trace = load_support(proof).Trace
 
     class CompleteTrace(Trace):
         def artifact(self, name: str, values: NDArray[Any], dtype: DTypeLike) -> dict[str, Any]:

@@ -1,0 +1,493 @@
+"""One local offline build; never execute the resulting trace binary."""
+
+import ctypes as C
+import hashlib
+import json
+import os
+import resource
+import shutil
+import signal
+import subprocess
+import sys
+import time
+import tomllib
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[3]
+OUT = Path("/tmp/drone-cqt-boundary-build-v1")
+OLD = Path("/tmp/euphoria-native-cqt-mac376-v2/build/release/pipeline")
+SDK = Path(
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+)
+TOOLCHAIN = Path(
+    "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin"
+)
+WRAPPER = Path("/tmp/euphoria-native-cqt-mac-v1/libcqt_soxr_split.dylib")
+SOXR = Path("/tmp/euphoria-native-cqt-mac-v1/soxr-build/src/libsoxr.0.1.2.dylib")
+FIELDS = (
+    "user_time system_time pkg_idle_wkups interrupt_wkups pageins wired_size resident_size "
+    "phys_footprint proc_start_abstime proc_exit_abstime child_user_time child_system_time "
+    "child_pkg_idle_wkups child_interrupt_wkups child_pageins child_elapsed_abstime "
+    "diskio_bytesread diskio_byteswritten cpu_time_qos_default cpu_time_qos_maintenance "
+    "cpu_time_qos_background cpu_time_qos_utility cpu_time_qos_legacy cpu_time_qos_user_initiated "
+    "cpu_time_qos_user_interactive billed_system_time serviced_system_time logical_writes "
+    "lifetime_max_phys_footprint instructions cycles billed_energy serviced_energy "
+    "interval_max_phys_footprint runnable_time"
+).split()
+
+
+class Usage(C.Structure):
+    _fields_ = [("uuid", C.c_uint8 * 16)] + [(name, C.c_uint64) for name in FIELDS]
+
+
+LIBPROC = C.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+LIBPROC.proc_pid_rusage.argtypes = [C.c_int, C.c_int, C.c_void_p]
+LIBPROC.proc_pid_rusage.restype = C.c_int
+
+
+def usage(pid):
+    result = Usage()
+    if LIBPROC.proc_pid_rusage(pid, 4, C.byref(result)) != 0:
+        raise ProcessLookupError(pid)
+    return result
+
+
+def sha(path):
+    result = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(2**20), b""):
+            result.update(block)
+    return result.hexdigest()
+
+
+def info(path):
+    return {
+        "path": str(path),
+        "resolved": str(path.resolve()),
+        "bytes": path.stat().st_size,
+        "sha256": sha(path),
+    }
+
+
+def write(name, value):
+    with (OUT / name).open("x") as stream:
+        json.dump(value, stream, indent=2)
+        stream.write("\n")
+
+
+def files(root):
+    result = []
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise ValueError("unexpected owned/source symlink: " + str(path))
+        if path.is_file():
+            result.append(path)
+    return sorted(result)
+
+
+def owned_bytes():
+    return sum(path.stat().st_size for path in files(OUT))
+
+
+def command(argv):
+    return subprocess.check_output(argv, text=True).strip()
+
+
+def process_table():
+    result = {}
+    for line in command(["/bin/ps", "-axo", "pid=,ppid=,pgid="]).splitlines():
+        pid, parent, group = map(int, line.split())
+        result[pid] = (parent, group)
+    return result
+
+
+def counters_probe():
+    # The probe waits for its CPU-using child, then stays live for direct inspection.
+    text = 'import subprocess,sys,time;subprocess.run([sys.executable,"-c","sum(range(2000000))"],check=True);print("reaped",flush=True);time.sleep(3)'
+    proc = subprocess.Popen(
+        [sys.executable, "-B", "-c", text],
+        stdout=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    start = usage(proc.pid).proc_start_abstime
+    try:
+        assert proc.stdout.readline().strip() == "reaped"
+        sample = usage(proc.pid)
+        assert sample.proc_start_abstime == start and sample.resident_size > 0
+        assert sample.child_user_time + sample.child_system_time > 0, "reaped-child CPU unavailable"
+        return {
+            "pid_start_abstime": start,
+            "child_cpu_nanoseconds": sample.child_user_time + sample.child_system_time,
+            "resident_bytes": sample.resident_size,
+            "sdk_struct_bytes": C.sizeof(Usage),
+        }
+    finally:
+        if proc.poll() is None:
+            assert usage(proc.pid).proc_start_abstime == start and os.getpgid(proc.pid) == proc.pid
+            os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
+
+
+def prepare():
+    assert sys.platform == "darwin" and not OUT.exists()
+    assert command(["git", "-C", str(REPO), "status", "--porcelain"]) == "", (
+        "source must be committed and clean"
+    )
+    probe = counters_probe()
+    OUT.mkdir()
+    source_files = []
+    for name in ("drone-native-cqt", "drone-native-cached"):
+        root = REPO / "research" / name
+        source_files += [
+            p for p in files(root) if p.suffix == ".rs" or p.name in ("Cargo.toml", "Cargo.lock")
+        ]
+    source_files += [
+        Path(__file__),
+        REPO / "tools/cqt_boundary_trace.py",
+        REPO / "tools/export_cqt_goldens.py",
+        REPO / "experiments/__init__.py",
+        REPO / "experiments/chunked.py",
+        REPO / "tools/research/__init__.py",
+        REPO / "tools/research/contracts.py",
+        REPO / "tools/research/measurements.py",
+        REPO / "tests/test_cqt_boundary_trace.py",
+        Path(__file__).with_name("BOUNDARY_BUILD_PROTOCOL.md"),
+        Path(__file__).with_name("BOUNDARY_TRACE_PROTOCOL.md"),
+    ]
+    source = {str(p): info(p) for p in sorted(set(source_files))}
+    cargo_home = Path(os.environ.get("CARGO_HOME", str(Path.home() / ".cargo")))
+    lock = tomllib.loads((REPO / "research/drone-native-cqt/Cargo.lock").read_text())
+    copied = []
+
+    def copy_file(path):
+        target = OUT / "cargo-home" / path.relative_to(cargo_home)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, target)
+        original = info(path)
+        assert sha(target) == original["sha256"]
+        copied.append({"source": original, "destination": str(target)})
+
+    registry = [p for p in lock["package"] if p.get("source", "").startswith("registry+")]
+    for package in registry:
+        name, version = package["name"], package["version"]
+        matches = list((cargo_home / "registry/src").glob("*/" + name + "-" + version))
+        assert len(matches) == 1
+        crate = matches[0]
+        registry_id = crate.parent.name
+        for path in files(crate):
+            copy_file(path)
+        archive = cargo_home / "registry/cache" / registry_id / (name + "-" + version + ".crate")
+        assert sha(archive) == package["checksum"]
+        copy_file(archive)
+        relative = (
+            name
+            if len(name) == 1
+            else (
+                "2/" + name
+                if len(name) == 2
+                else (
+                    "3/" + name[0] + "/" + name
+                    if len(name) == 3
+                    else name[:2] + "/" + name[2:4] + "/" + name
+                )
+            )
+        )
+        if len(name) == 1:
+            relative = "1/" + name
+        copy_file(cargo_home / "registry/index" / registry_id / ".cache" / relative)
+        config = cargo_home / "registry/index" / registry_id / "config.json"
+        if not (OUT / "cargo-home" / config.relative_to(cargo_home)).exists():
+            copy_file(config)
+    tools = [
+        Path("/opt/homebrew/bin/rustc"),
+        Path("/opt/homebrew/bin/cargo"),
+        Path("/usr/bin/cc"),
+        TOOLCHAIN / "clang",
+        TOOLCHAIN / "ld",
+        SDK / "usr/include/sys/resource.h",
+        SDK / "usr/include/libproc.h",
+        OLD,
+        WRAPPER,
+        SOXR,
+        Path(sys.executable),
+    ]
+    tools += list(Path("/opt/homebrew/Cellar/rust/1.99.1/lib").glob("librustc_driver*.dylib"))
+    tools += list(
+        Path("/opt/homebrew/Cellar/rust/1.99.1/lib/rustlib/aarch64-apple-darwin/lib").glob("*.rlib")
+    )
+    tools += [Path("/opt/homebrew/opt/llvm/lib/libLLVM.23.1.dylib")]
+    tool_files = {str(p): info(p) for p in tools}
+    shared_cache = cargo_home / ".global-cache"
+    shared = info(shared_cache) if shared_cache.exists() else None
+    env = {
+        "PATH": "/opt/homebrew/bin:/usr/bin:/bin",
+        "HOME": os.environ["HOME"],
+        "LC_ALL": "C",
+        "CARGO_HOME": str(OUT / "cargo-home"),
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_BUILD_JOBS": "1",
+        "CARGO_TARGET_DIR": str(OUT),
+        "RUSTC": "/opt/homebrew/bin/rustc",
+        "TMPDIR": str(OUT / "tmp"),
+    }
+    (OUT / "tmp").mkdir()
+    argv = [
+        "/opt/homebrew/bin/cargo",
+        "build",
+        "--offline",
+        "--locked",
+        "--release",
+        "--jobs",
+        "1",
+        "--manifest-path",
+        str(REPO / "research/drone-native-cqt/Cargo.toml"),
+        "--bin",
+        "boundary_trace",
+    ]
+    size = owned_bytes()
+    assert size < 128 * 2**20, "private cache leaves insufficient planned output margin"
+    write(
+        "plan.json",
+        {
+            "schema": "drone.cqt-boundary-build.v1",
+            "source_commit": command(["git", "-C", str(REPO), "rev-parse", "HEAD"]),
+            "source": source,
+            "tool_files": tool_files,
+            "copied_cache": copied,
+            "private_cache_bytes": size,
+            "registry_packages": len(registry),
+            "total_packages": len(lock["package"]),
+            "shared_global_cache_before": shared,
+            "argv": argv,
+            "environment": env,
+            "counters_probe": probe,
+            "rustc_version": command(["/opt/homebrew/bin/rustc", "-Vv"]),
+            "cargo_version": command(["/opt/homebrew/bin/cargo", "-Vv"]),
+            "xcode_selected": command(["/usr/bin/xcode-select", "-p"]),
+        },
+    )
+    print(
+        json.dumps(
+            {
+                "plan_sha256": sha(OUT / "plan.json"),
+                "private_cache_bytes": size,
+                "registry_packages": len(registry),
+                "total_packages": len(lock["package"]),
+            }
+        ),
+        flush=True,
+    )
+
+
+def verify(plan):
+    for group in ("source", "tool_files"):
+        for record in plan[group].values():
+            assert sha(Path(record["path"])) == record["sha256"], (
+                "bound input changed: " + record["path"]
+            )
+    for entry in plan["copied_cache"]:
+        record = entry["source"]
+        assert sha(Path(record["path"])) == record["sha256"], "shared cache source changed"
+        assert sha(Path(entry["destination"])) == record["sha256"], "private cache input changed"
+    shared = plan["shared_global_cache_before"]
+    if shared:
+        assert sha(Path(shared["path"])) == shared["sha256"], "shared Cargo metadata changed"
+    assert owned_bytes() <= 512 * 2**20, "owned output cap"
+
+
+def dyld():
+    C.CDLL(str(WRAPPER))  # Load only; no cqt_halve, transform or model function is called.
+    dyld = C.CDLL(None)
+    dyld._dyld_image_count.restype = C.c_uint32
+    dyld._dyld_get_image_name.argtypes = [C.c_uint32]
+    dyld._dyld_get_image_name.restype = C.c_char_p
+    images = [dyld._dyld_get_image_name(i).decode() for i in range(dyld._dyld_image_count())]
+    selected = [p for p in images if "soxr" in p.lower()]
+    assert {WRAPPER.resolve(), SOXR.resolve()} <= {Path(p).resolve() for p in selected}, selected
+    print(
+        json.dumps(
+            {
+                "loaded_soxr_images": selected,
+                "loaded_images": images,
+                "soxr_hashes": {p: sha(Path(p)) for p in selected},
+            }
+        )
+    )
+
+
+def worker(expected):
+    assert sha(OUT / "plan.json") == expected
+    plan = json.loads((OUT / "plan.json").read_text())
+    verify(plan)
+    with (OUT / "build.stdout").open("xb") as out, (OUT / "build.stderr").open("xb") as err:
+        proc = subprocess.Popen(
+            plan["argv"], stdout=out, stderr=err, env=plan["environment"], cwd=REPO
+        )
+        write(
+            "build-launch.json",
+            {
+                "pid": proc.pid,
+                "start_abstime": usage(proc.pid).proc_start_abstime,
+                "argv": plan["argv"],
+                "environment": plan["environment"],
+            },
+        )
+        assert proc.wait() == 0, "cargo build failed; no retry"
+    binary = OUT / "release/boundary_trace"
+    assert binary.is_file()
+    inspections = {}
+    for path in (
+        binary,
+        WRAPPER,
+        SOXR,
+        Path("/opt/homebrew/bin/rustc"),
+        Path("/opt/homebrew/bin/cargo"),
+    ):
+        inspections[str(path)] = command(["/usr/bin/otool", "-L", str(path)])
+    loaded = json.loads(
+        subprocess.check_output(
+            [sys.executable, "-B", str(Path(__file__)), "dyld"], env=plan["environment"], text=True
+        )
+    )
+    verify(plan)
+    write(
+        "worker-complete.json",
+        {
+            "binary": info(binary),
+            "otool_dependencies": inspections,
+            "loaded_soxr": loaded,
+            "old_pipeline_unchanged": sha(OLD) == plan["tool_files"][str(OLD)]["sha256"],
+            "owned_output_bytes": owned_bytes(),
+        },
+    )
+
+
+def child_limits():
+    os.nice(19)
+    resource.setrlimit(resource.RLIMIT_CPU, (300, 300))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (512 * 2**20, 512 * 2**20))
+
+
+def guard(expected):
+    assert sha(OUT / "plan.json") == expected
+    plan = json.loads((OUT / "plan.json").read_text())
+    verify(plan)
+    started = time.monotonic()
+    proc = None
+    identities = {}
+    peak_rss = 0
+    peak_cpu = 0.0
+    receipt = {
+        "plan_sha256": expected,
+        "guardian_pid": os.getpid(),
+        "guardian_start_abstime": usage(os.getpid()).proc_start_abstime,
+        "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+
+    def stop(signum, frame):
+        raise RuntimeError("guardian signal " + str(signum))
+
+    signal.signal(signal.SIGTERM, stop)
+    signal.signal(signal.SIGINT, stop)
+    try:
+        with (OUT / "worker.log").open("xb") as log:
+            proc = subprocess.Popen(
+                [sys.executable, "-B", str(Path(__file__)), "worker", expected],
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                env=plan["environment"],
+                start_new_session=True,
+                preexec_fn=child_limits,
+            )
+            leader_start = usage(proc.pid).proc_start_abstime
+            identities[proc.pid] = leader_start
+            receipt.update(worker_pid=proc.pid, worker_start_abstime=leader_start)
+            write("launch.json", receipt)
+            print(json.dumps(receipt), flush=True)
+            while proc.poll() is None:
+                assert time.monotonic() - started <= 360, "wall cap"
+                assert owned_bytes() <= 512 * 2**20, "owned output cap"
+                table = process_table()
+                owned = {proc.pid}
+                changed = True
+                while changed:
+                    before = len(owned)
+                    owned.update(
+                        pid
+                        for pid, (parent, group) in table.items()
+                        if parent in owned or group == proc.pid
+                    )
+                    changed = len(owned) != before
+                own = resource.getrusage(resource.RUSAGE_SELF)
+                done = resource.getrusage(resource.RUSAGE_CHILDREN)
+                cpu = own.ru_utime + own.ru_stime + done.ru_utime + done.ru_stime
+                rss = usage(os.getpid()).resident_size
+                for pid in owned:
+                    try:
+                        sample = usage(pid)
+                    except ProcessLookupError:
+                        continue
+                    assert table.get(pid, (None, None))[1] == proc.pid, (
+                        "owned process escaped group"
+                    )
+                    if pid in identities:
+                        assert identities[pid] == sample.proc_start_abstime, "owned PID reused"
+                    identities[pid] = sample.proc_start_abstime
+                    rss += sample.resident_size
+                    cpu += (
+                        sample.user_time
+                        + sample.system_time
+                        + sample.child_user_time
+                        + sample.child_system_time
+                    ) / 1e9
+                peak_rss = max(peak_rss, rss)
+                peak_cpu = max(peak_cpu, cpu)
+                assert rss <= 2**30, "aggregate RSS cap"
+                assert cpu <= 300, "aggregate CPU cap"
+                time.sleep(0.1)
+            assert proc.returncode == 0, "worker failed"
+        verify(plan)
+        done = resource.getrusage(resource.RUSAGE_CHILDREN)
+        own = resource.getrusage(resource.RUSAGE_SELF)
+        cpu = done.ru_utime + done.ru_stime + own.ru_utime + own.ru_stime
+        assert cpu <= 300 and time.monotonic() - started <= 360, "terminal time cap"
+        receipt.update(
+            status="COMPLETE",
+            cpu_seconds=cpu,
+            worker_receipt_sha256=sha(OUT / "worker-complete.json"),
+        )
+    except BaseException as exc:
+        if proc is not None and proc.poll() is None:
+            assert (
+                usage(proc.pid).proc_start_abstime == identities[proc.pid]
+                and os.getpgid(proc.pid) == proc.pid
+            )
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+        receipt.update(status="FAIL", error=str(exc))
+    finally:
+        receipt.update(
+            wall_seconds=time.monotonic() - started,
+            sampled_peak_rss_bytes=peak_rss,
+            conservative_sampled_cpu_seconds=peak_cpu,
+            owned_output_bytes=owned_bytes(),
+            finished_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        )
+        write("controller.json", receipt)
+    print(json.dumps(receipt), flush=True)
+    return 0 if receipt["status"] == "COMPLETE" else 1
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "prepare":
+        prepare()
+    elif sys.argv[1] == "worker":
+        worker(sys.argv[2])
+    elif sys.argv[1] == "dyld":
+        dyld()
+    elif sys.argv[1] == "guard":
+        sys.exit(guard(sys.argv[2]))
+    else:
+        raise SystemExit("unknown mode")

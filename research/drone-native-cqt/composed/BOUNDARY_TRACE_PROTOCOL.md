@@ -122,8 +122,17 @@ historical gaps even if the original core hashes reproduce.
 
 A future immutable `cqt-boundary-runtime-proof-v1` JSON must contain:
 
-- `trace_source_sha256` for the actual Python trace source and `trace_support`
-  (`path`/`sha256`) for the actual imported `tools/export_cqt_goldens.py`.
+- `trace_source_sha256` for the actual Python trace source; `interpreter_path`
+  must equal the absolute `sys.executable` string, without resolving away an
+  environment's interpreter symlink. `PYTHONPATH` and `PYTHONHOME` must be absent.
+- `trace_support_modules` is an exact module-keyed map for `tools`, `experiments`,
+  `tools.research`, `experiments.chunked`, `tools.research.contracts`,
+  `tools.research.measurements`, and `tools.export_cqt_goldens`. Bind the sole
+  absolute `namespace_paths` entry for namespace package `tools`; bind actual
+  absolute `path`/`sha256` for every other module, including package initializers.
+  Resolve and validate the entire closure before import, then compare actual
+  loaded origins/package paths after import. No model/ORT imports are permitted.
+  The old single-file `trace_support` pin is insufficient and is not accepted.
 - `historical_runtime`: path to the original receipt with the fixed hash above;
   `source_paths`: current paths keyed by all ten historical source names.
 - `current_modules`: actual `path`/`sha256` records, including
