@@ -395,15 +395,16 @@ admission guard rather than a safety property: the allocator cap, 8 GiB RSS,
 binding. A first attempt under that window reached scoring but the worker was
 killed when a 1.17 GiB allocation pushed it past the 12 GiB allocator slice
 (11.54 GiB resident). The owner therefore raised the allocator guard to 16 GiB,
-moved the run to the compute-idle RTX 5090, and authorised stopping the Mistral
-vLLM pair for the run only; both services are restarted immediately afterwards.
+moved the run to a compute-idle device, and authorised a temporary stop of one
+co-resident inference service for the run only; it is restored immediately
+afterwards.
 The gate, checkpoint, panel, estimator and interpretation are unchanged. The
 diagnostic still reports `BN_DIAGNOSTIC_BUDGET_INCONCLUSIVE_NO_SCORING` if the
 measured margin does not fit.
 
 ## November 13: BatchNorm diagnostic result — negative
 
-The diagnostic completed on the compute-idle RTX 5090 at 10:12 UTC. The worker
+The diagnostic completed on a compute-idle device at 10:12 UTC. The worker
 exited zero with no cleanup error; wall was **707.6 s**, peak owned RSS
 **6,219,206,656 bytes** and aggregate CPU **843.28 s**. All caps held, the
 candidate state reloaded strictly, and the composed B1/B16 proof had **zero
@@ -431,11 +432,12 @@ have left the candidate below the expanded K10 control's 176/250 FMA and 89/126
 Beatport.
 
 Evidence is in [data/bn-diagnostic/v4](data/bn-diagnostic/v4/), with hashes in
-its `SHA256SUMS`: sealed config `c2ddf304…`, approval `e48d3b9a…`, result
-`36b8dcba…`, moments `82e6832a…`. The run used source commit
+its `SHA256SUMS`. The raw sealed config and approval are retained privately;
+their hashes are `c2ddf304…` and `e48d3b9a…`. Result `36b8dcba…`, moments
+`82e6832a…`. The run used source commit
 `094d735ac9c206913be27d854221a9a7e0d24449` and the 3,600 s / 16 GiB bounds
-recorded in the owner amendment above. Mistral was restarted immediately after
-the run and is healthy.
+recorded in the owner amendment above. The co-resident inference service was
+restored immediately after the run.
 
 ## Historical preparation — November 12, 2026
 

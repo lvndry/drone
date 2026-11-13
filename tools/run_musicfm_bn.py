@@ -113,6 +113,9 @@ def resources(config: dict[str, Any], root: Path) -> None:
 
 
 def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha: str) -> None:
+    # The exact device is bound by the sealed config/approval hashes. Public
+    # source only requires a physical GPU UUID, so no machine-specific ID is
+    # embedded here.
     if (
         config["mode"] != "single-bn-diagnostic"
         or approval.get("authorized") is not True
@@ -121,7 +124,7 @@ def validate_launch(config: dict[str, Any], approval: dict[str, Any], config_sha
         or approval.get("config_sha256") != config_sha
         or config["caps"] != CAPS
         or config["allocator_bytes"] != 16 * GIB
-        or config["gpu_uuid"] != "GPU-9c2004f9-0d41-d7c7-7075-863335543ee8"
+        or not str(config["gpu_uuid"]).startswith("GPU-")
         or config["torch_threads"] != 2
         or len(config["cpus"]) != 2
         or len(set(config["cpus"])) != 2
