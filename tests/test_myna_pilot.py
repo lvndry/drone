@@ -341,3 +341,63 @@ def test_imported_key_semantics_must_come_from_the_pinned_tree(
     }
     with pytest.raises(ValueError, match="Imported helper origin differs"):
         pilot.admit(config, lambda: None)
+
+
+def test_metadata_projection_cannot_be_loaded_or_used_as_completed_cache(tmp_path: Path) -> None:
+    manifest, plan, labels, groups, waves, original_identities = fixture(tmp_path)
+    identities: dict[str, str | None] = dict(original_identities)
+    identities["qualification_sha256"] = None
+    manifest.update(
+        schema_version="drone-myna-window-plan-v1", complete=False, identities=identities
+    )
+    for row in manifest["tracks"]:
+        for view in row["views"]:
+            for key in ("raw_samples", "trimmed_samples", "padded_samples", "sha256", "bytes"):
+                view[key] = None
+    projection = validate_manifest(
+        manifest,
+        plan,
+        labels,
+        groups,
+        waves,
+        tmp_path,
+        identities,
+        require_production_counts=False,
+        metadata_only=True,
+    )
+    assert not projection.measured
+    with pytest.raises(ValueError, match="metadata-only projection"):
+        load_cache(projection, projection.embedding_bytes, lambda: None)
+    with pytest.raises(ValueError, match="Incomplete cache/schema"):
+        validate_manifest(
+            manifest,
+            plan,
+            labels,
+            groups,
+            waves,
+            tmp_path,
+            identities,
+            require_production_counts=False,
+        )
+
+
+def test_physical_waveform_relocation_preserves_roles_and_semantics(tmp_path: Path) -> None:
+    from experiments.myna_cache import PINS, validate_waveform_lineage
+
+    waves = fixture(tmp_path)[4]
+    for row in waves:
+        row.update(bytes=row["samples"] * 4, canonical_samples=row["samples"])
+    canonical = {"complete": True, "rows": waves}
+    physical = {
+        "complete": True,
+        "rows": copy.deepcopy(waves),
+        "canonical_manifest_sha256": PINS["waveforms"],
+        "plan_sha256": PINS["plan"],
+        "labels_sha256": PINS["labels"],
+        "provider": "readonly-disk-full-f32",
+        "no_seek_quantization_role_or_label_changes": True,
+    }
+    validate_waveform_lineage(canonical, physical)
+    physical["rows"][-1]["role"] = "selection"
+    with pytest.raises(ValueError, match="role/target/support/hash differs"):
+        validate_waveform_lineage(canonical, physical)

@@ -29,6 +29,7 @@ from experiments.myna_cache import (
     require,
     sha256,
     validate_manifest,
+    validate_waveform_lineage,
 )
 from experiments.myna_head import (
     make_head as make_head,
@@ -222,12 +223,13 @@ def admit(config: dict[str, Any], watch: Callable[[], None]) -> tuple[LoadedCach
         "Qualification binding differs",
     )
     validate_qualification(qualification, config["identities"])
+    validate_waveform_lineage(documents["waveforms"], documents["prepared_waveforms"])
     contract = validate_manifest(
         documents["cache"],
         documents["plan"],
         documents["labels"]["labels"],
         documents["groups"],
-        documents["waveforms"]["rows"],
+        documents["prepared_waveforms"]["rows"],
         Path(inputs["cache"]["path"]).parent,
         config["identities"],
     )

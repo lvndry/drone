@@ -7,7 +7,7 @@ import gzip
 import hashlib
 import io
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -24,6 +24,7 @@ PINS = {
     "labels": "b8942b5913b8ebacdf2fc9e0ebca72a934aaa7c56d4e1a97d0f60fac84354323",
     "groups": "7505dcae2a91bf038537cee4a2f8e24f7929011c2bb56d8fe6649f6a1df8dcd7",
     "waveforms": "7d56908dc5e84c165c7844d1e810ed678123ae7d0a93939c60a2e600b6402b4c",
+    "prepared_waveforms": "6de0a8b63bc62fba53d4d07163e4dd6704bdeb9fe8cf7bb827cee9077da6b7f4",
     "control": "940e3978d1f1340f8a82414a2fbb11555acf27a0ba9a723612bdfae199a5e38e",
 }
 Domain = Literal["beatport", "fmak"]
@@ -85,8 +86,8 @@ class View:
     target: int
     windows: int
     path: Path
-    digest: str
-    byte_count: int
+    digest: str | None
+    byte_count: int | None
 
 
 @dataclass(frozen=True)
@@ -97,6 +98,7 @@ class Contract:
     fit_windows: int
     selection_windows: int
     fit_counts: dict[str, int]
+    measured: bool
 
     @property
     def embedding_bytes(self) -> int:
@@ -110,19 +112,29 @@ def validate_manifest(
     groups: list[dict[str, str]],
     waveforms: list[dict[str, Any]],
     root: Path,
-    identities: dict[str, str],
+    identities: Mapping[str, str | None],
     *,
     require_production_counts: bool = True,
+    metadata_only: bool = False,
 ) -> Contract:
     """Exact membership/lineage/13-view validation; small fixtures may relax counts only."""
     require(
-        manifest.get("schema_version") == SCHEMA and manifest.get("complete") is True,
+        manifest.get("schema_version") == ("drone-myna-window-plan-v1" if metadata_only else SCHEMA)
+        and manifest.get("complete") is (False if metadata_only else True),
         "Incomplete cache/schema",
     )
     require(manifest.get("label_schema") == LABEL_SCHEMA, "Different label schema")
     require(manifest.get("identities") == identities, "Cache source/qualification binding differs")
     require(identities.get("encoder_sha256") == ENCODER_SHA, "Different encoder")
-    require(all(is_sha(value) for value in identities.values()), "Malformed identity")
+    require(
+        all((metadata_only and value is None) or is_sha(value) for value in identities.values()),
+        "Malformed identity",
+    )
+    if metadata_only:
+        require(
+            identities.get("qualification_sha256") is None,
+            "A projection cannot claim qualification",
+        )
     expected: dict[str, tuple[str, str]] = {}
     selection: dict[str, list[str]] = {}
     for field, (domain, role, count) in ROLE_FIELDS.items():
@@ -205,22 +217,37 @@ def validate_manifest(
                 view["window_order"] == "all-complete-196-frame-windows-in-order",
                 "Capped/reordered windows",
             )
-            raw, trimmed, padded = (
-                view[k] for k in ("raw_samples", "trimmed_samples", "padded_samples")
-            )
-            require(
-                all(type(v) is int and v >= 0 for v in (raw, trimmed, padded)),
-                "Invalid augmentation sample ledger",
-            )
-            require(
-                raw > 0
-                and trimmed <= raw
-                and not (trimmed and padded)
-                and raw - trimmed + padded == n16,
-                "Augmentation length ledger differs",
-            )
-            if view["shift"] == 0:
-                require((raw, trimmed, padded) == (n16, 0, 0), "Original view was altered")
+            if metadata_only:
+                require(
+                    all(
+                        view[k] is None
+                        for k in (
+                            "raw_samples",
+                            "trimmed_samples",
+                            "padded_samples",
+                            "sha256",
+                            "bytes",
+                        )
+                    ),
+                    "Projected artifacts must remain unobserved",
+                )
+            else:
+                raw, trimmed, padded = (
+                    view[k] for k in ("raw_samples", "trimmed_samples", "padded_samples")
+                )
+                require(
+                    all(type(v) is int and v >= 0 for v in (raw, trimmed, padded)),
+                    "Invalid augmentation sample ledger",
+                )
+                require(
+                    raw > 0
+                    and trimmed <= raw
+                    and not (trimmed and padded)
+                    and raw - trimmed + padded == n16,
+                    "Augmentation length ledger differs",
+                )
+                if view["shift"] == 0:
+                    require((raw, trimmed, padded) == (n16, 0, 0), "Original view was altered")
             relative = Path(view["path"])
             require(
                 not relative.is_absolute()
@@ -234,12 +261,13 @@ def validate_manifest(
                 "Repeated/escaping embedding path",
             )
             used_paths.add(path)
-            require(
-                is_sha(view["sha256"])
-                and type(view["bytes"]) is int
-                and view["bytes"] > windows * 384 * 4,
-                "Invalid npy identity/size",
-            )
+            if not metadata_only:
+                require(
+                    is_sha(view["sha256"])
+                    and type(view["bytes"]) is int
+                    and view["bytes"] > windows * 384 * 4,
+                    "Invalid npy identity/size",
+                )
             views.append(
                 View(
                     identity,
@@ -264,6 +292,7 @@ def validate_manifest(
             domain: sum(d == domain and r == "fit" for d, r in expected.values())
             for domain in DOMAIN_MASS
         },
+        measured=not metadata_only,
     )
 
 
@@ -292,6 +321,7 @@ class LoadedCache:
 def load_cache(
     contract: Contract, max_embedding_bytes: int, watch: Callable[[], None]
 ) -> LoadedCache:
+    require(contract.measured, "A metadata-only projection cannot load embeddings or train")
     require(contract.embedding_bytes <= max_embedding_bytes, "Embedding RAM admission exceeded")
     ordered = [v for v in contract.views if v.role == "fit"] + [
         v for v in contract.views if v.role == "selection"
@@ -305,6 +335,8 @@ def load_cache(
     offset = 0
     for view in ordered:
         watch()
+        if view.digest is None or view.byte_count is None:
+            raise ValueError("Unmeasured embedding identity")
         before = view.path.stat()
         require(
             not view.path.is_symlink()
@@ -338,3 +370,44 @@ def load_cache(
         offset = end
     embeddings.flags.writeable = targets.flags.writeable = weights.flags.writeable = False
     return LoadedCache(embeddings, targets, weights, selection, contract)
+
+
+def validate_waveform_lineage(canonical: dict[str, Any], prepared: dict[str, Any]) -> None:
+    """The physical disk cache may relocate bytes, never change roles or semantic inputs."""
+    require(
+        canonical.get("complete") is True and prepared.get("complete") is True,
+        "Incomplete waveform lineage",
+    )
+    require(
+        prepared.get("canonical_manifest_sha256") == PINS["waveforms"]
+        and prepared.get("plan_sha256") == PINS["plan"]
+        and prepared.get("labels_sha256") == PINS["labels"],
+        "Prepared waveform lineage differs",
+    )
+    require(
+        prepared.get("provider") == "readonly-disk-full-f32"
+        and prepared.get("no_seek_quantization_role_or_label_changes") is True,
+        "Different physical cache contract",
+    )
+    original = {row["id"]: row for row in canonical["rows"]}
+    physical = {row["id"]: row for row in prepared["rows"]}
+    require(
+        len(original) == len(canonical["rows"]) == len(physical) == len(prepared["rows"])
+        and original.keys() == physical.keys(),
+        "Physical waveform membership differs",
+    )
+    fields = (
+        "id",
+        "role",
+        "target",
+        "samples",
+        "bytes",
+        "sha256",
+        "waveform_sha256",
+        "canonical_samples",
+    )
+    for identity, row in physical.items():
+        require(
+            all(row[key] == original[identity][key] for key in fields),
+            "Physical waveform role/target/support/hash differs",
+        )

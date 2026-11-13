@@ -178,7 +178,11 @@ The config schema is `drone-myna-head-pilot-v1`: `passes` 10/100, `device`, new 
 `output`, `expected_embedding_bytes`, `max_embedding_bytes`, exact numerical
 `identities`, actual `source_sha256` closure from `myna_pilot.SOURCES`, and `inputs`.
 Inputs contain `{path,sha256}` bindings for `plan`, `labels`, `groups`, `waveforms`,
-`control`, `cache`, `qualification`. The first five have immutable pins in source.
+`prepared_waveforms`, `control`, `cache`, `qualification`. The first six have
+immutable pins in source. The original waveform manifest and its physical disk
+replacement must agree on every ID, role, target, sample/byte count and source/PCM
+hash. Physical paths may differ. Both use `fit` / `validation`; the embedding
+manifest maps these explicitly to `fit` / `selection`.
 The cache manifest resolves relative blobs against its own directory. No source
 roles or fitting horizon can be changed by adding config fields.
 
@@ -196,3 +200,14 @@ full exposure counts, every event and selected-checkpoint batch proof are retain
 Failure writes an inconclusive receipt and preserves existing outputs. A completed
 negative rejects this one frozen recipe; partial training is not a negative result.
 The external guardian adds resource and retirement receipts. No PLAN.md is tracked.
+
+## Metadata-only extraction plan
+
+`tools.prepare_myna_cache_plan` joins the original and prepared waveform manifests
+with the fixed roles, labels and groups without opening PCM or loading a model.
+It emits `drone-myna-window-plan-v1`, `complete=false`: expected shapes and all
+68,782 track/views are enumerated, while unknown augmentation results, blob hashes
+and sizes remain null. The same membership/geometry checks validate this plan,
+but the loader explicitly rejects its unmeasured contract. A dry-validation pass
+is not extraction or numerical qualification and cannot enable training. Physical
+cache paths stay in the private operational plan, not the public repository.
