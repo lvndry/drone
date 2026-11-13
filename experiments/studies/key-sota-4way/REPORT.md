@@ -26,7 +26,7 @@ The fixed panel contains **93 recordings**:
 | Corpus | Recordings | Coverage | Exposure and interpretation |
 |---|---:|---|---|
 | Schubert Winterreise Dataset (SWD) v2.1 | 48 | One 24-song cycle, performances HU33 and SC06 | Narrow vocal/piano classical repertoire; paired performances are not 48 independent works |
-| GiantSteps | 45 | Deterministic round-robin sample across the harness's 12 genre buckets | Development-exposed for Drone; descriptive, not independent evaluation |
+| GiantSteps | 45 | Deterministic round-robin sample across 12 legacy benchmark groups | Development-exposed for Drone; descriptive, not independent evaluation |
 
 The SWD archive's 48 available labeled recordings have a median duration of
 **169.12 seconds**, ranging from **44.07 to 325.33 seconds**. Twenty-six are
@@ -104,14 +104,15 @@ excluded. No confidence interval or independent SOTA ranking is implied.*
 
 Madmom's recorded advantage on Winterreise does not establish superiority on
 classical music generally. Conversely, the GiantSteps sample cannot establish
-Drone's independent EDM performance. Genre buckets contain only three to five
+Drone's independent EDM performance. Legacy benchmark groups contain only three to five
 GiantSteps recordings each. Report their counts alongside descriptive values;
 they do not justify claims such as “strong on house” or “weak on trance” for
 those genres as populations.
 
 ![Weighted agreement by genre, with recording counts](figures/genre-comparison.png)
 
-*Figure 2. Descriptive weighted agreement by the existing genre buckets. Every
+*Figure 2. Descriptive weighted agreement by the legacy benchmark grouping,
+not a normalized genre taxonomy. Every
 row shows its recording denominator. The nonclassical rows contain only three
 to five development-exposed GiantSteps recordings, so visible gaps are not
 population-level genre conclusions.*
@@ -121,6 +122,95 @@ and the five–eight-minute bucket contains just two SWD recordings. This is not
 evidence that duration caused any accuracy difference. Both SWD performances
 also repeat the same underlying works, so recording-level uncertainty must not
 be presented as independent-work uncertainty.
+
+### Where Drone succeeds, misses, and lacks coverage
+
+The following slices were added **after the existing benchmark results were
+open**. They are retrospective descriptions, not a prospective gate or new
+model accuracy measurements. All original genre labels, all 24 reference keys,
+and the original duration bins are retained, including empty slices. The
+[complete slice table](data/slice-analysis.csv) reports each detector's input,
+valid, error, abstention and exact counts plus exact and weighted agreement;
+[structured results](data/slice-analysis.json) retain intersections and provenance.
+All observed slices have zero execution errors and zero abstentions in this run.
+
+On these recordings, Drone agrees exactly on **33/45 GiantSteps items (73.3%)**
+and **30/48 Winterreise performances (62.5%)**. The original-tag breakdown locates
+specific misses: trance is 0/4 exact (27.5% weighted) and dj-tools is 0/2 exact
+(25.0% weighted). Hard-dance and pop rock are each 4/4 exact; breaks and
+drum-and-bass are each 4/5. These are review targets and observed successes in
+small samples, not estimates of genre-wide strengths or weaknesses.
+
+![Exact and weighted agreement for every original genre label](figures/original-genre-slices.png)
+
+*Figure 3. Every original genre label is shown with its denominator and all three
+comparators. GiantSteps labels are archived site tags; SWD's “classical” label
+is corpus context rather than an independent per-recording genre annotation.*
+
+The legacy benchmark grouping folds **drum-and-bass into dubstep** and
+**glitch-hop into hip-hop**. It must not be treated as a normalized modern genre
+taxonomy. Original labels and mapping methods remain in the
+[metadata catalog](../v2-data-contract/data/reference-panel-catalog.csv).
+These groups cannot establish performance on contemporary hip-hop, Afrobeats,
+or house subgenres. A future curated, versioned taxonomy needs explicit source
+tags and mapping rules; it must not silently replace this panel's membership.
+
+| Metadata / coverage question | Known recordings | Unknown or absent | Interpretation |
+|---|---:|---:|---|
+| Original genre / corpus context | 93 | 0 | 18 GiantSteps tags plus SWD classical context; heterogeneous annotation methods |
+| Analyzed audio duration | 93 | 0 | Canonical PCM frames divided by sample rate |
+| Verified full-recording duration | 0 | 93 | Preview duration is not full-song duration |
+| BPM | 0 | 93 | Not measured; no tempo slice or automatic estimation |
+| Underlying work identity | 48 | 45 | SWD contains 24 works with two performances each; GiantSteps grouping unknown |
+| Analyzed audio at least 8 minutes | 0 | Entire slice absent | Accuracy is NA, not zero |
+
+GiantSteps consists of audio previews, generally around two minutes, according
+to its [official dataset documentation](https://github.com/GiantSteps/giantsteps-key-dataset).
+The [official SWD v2.1 description](https://zenodo.org/records/10839767) identifies
+the 24-song cycle and separate performances. Source-audio duration and analyzed
+PCM duration are separate catalog measurements; neither is silently promoted to
+verified full-recording duration.
+
+![Corpus by analyzed duration coverage and exact and weighted agreement](figures/duration-coverage-slices.png)
+
+*Figure 4. Original duration bins are unchanged: <3 minutes, 3–5, 5–8, and 8+.
+The unknown bin is explicit. Every recording at least three minutes long is
+SWD. The two five–eight-minute recordings are HU33 and SC06 performances of the
+same work, Schubert_D911-01; their perfect scores provide almost no long-track
+repertoire coverage.*
+
+Drone's exact/weighted values are 70.4%/77.6% for the 71 under-three-minute
+recordings, 55.0%/66.5% for the 20 three–five-minute recordings, 100%/100% for
+the two five–eight-minute performances, and NA for eight-plus minutes (n=0).
+These differences mix corpus, repertoire and duration. They do not isolate a
+length effect or establish full-length DJ-track performance.
+
+| Corpus × reference mode | n | Drone exact | Drone weighted |
+|---|---:|---:|---:|
+| GiantSteps major | 13 | 9/13 (69.2%) | 73.1% |
+| GiantSteps minor | 32 | 24/32 (75.0%) | 81.6% |
+| SWD major | 16 | 7/16 (43.8%) | 56.3% |
+| SWD minor | 32 | 23/32 (71.9%) | 80.6% |
+
+Across the mixed panel, major references have 16/29 exact agreement (55.2%)
+and minor references 47/64 (73.4%). The corpus crossing shows that the gap is
+larger within this particular Winterreise repertoire. Mode, key, instrumentation
+and work identity are not experimentally separated.
+
+![All 24 reference-key slices with their recording counts](figures/key-mode-slices.png)
+
+*Figure 5. All 24 reference-key classes are retained, including any empty classes
+as NA. Exact and weighted agreement use the existing symmetric-fifths scorer.
+Small cells and repeated works prevent treating these points as independent
+population estimates.*
+
+Factor and intersection reporting follows the contextual evaluation approach in
+[Model Cards for Model Reporting](https://arxiv.org/abs/1810.03993). No confidence
+intervals, significance tests or independent-work claims are attached to these
+recording-level summaries. The practical next dataset needs are reliable BPM
+metadata, genuinely long audio, broader original genre coverage, and documented
+work/recording overlap and model-specific exposure. Current exposure annotations
+identify Drone v1; exposure of the comparator models has not been assessed.
 
 ### Invalid historical libkeyfinder result
 
@@ -167,7 +257,15 @@ Metadata and figure reproduction, without inference:
 ```bash
 uv run python -m tools.report_key_references
 uv run python -m tools.report_key_references --plot
+uv run python -m tools.report_key_references --slices
+uv run python -m tools.report_key_references --slices --write --plot
 ```
+
+The additive `--slices` path verifies the catalog source hashes and rebuilds all
+metadata fields from their source evidence before joining predictions. It binds
+its own generator, catalog and original evidence hashes in separate derivative
+files and a separate figure receipt; it does not reseal the original execution.
+`--slices` without `--write` checks deterministic reproduction.
 
 The first command verifies pinned active and historical evidence and recomputes
 the stored metadata analysis. `--plot` regenerates the inline figure. A separately
