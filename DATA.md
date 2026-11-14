@@ -18,7 +18,7 @@ Two related views now organize the existing evidence:
   [GTZAN collection](experiments/studies/v2-data-contract/data/gtzan1000-collection.json.gz)
   joins all 1,000 inventory records to their frozen reference memberships and
   recorded source-integrity observations. These collection views contain metadata,
-  frozen role history and exposure witnesses, **without key targets or predictions**.
+  frozen role history and exposure records, **without key targets or predictions**.
 
 Both reuse typed identity, measurement, native-genre and evidence primitives.
 The [collection contract](experiments/collection_catalog.py) permits explicitly
@@ -27,7 +27,7 @@ retains the stricter identity requirements of the scored panel. Source archives
 are resolved by explicit local mappings and verified hashes. A local path is not
 an identity. See the [coverage study](experiments/studies/v2-data-contract/REPORT.md)
 for methods, figures and limitations. GTZAN integrity observations remain separate
-from reference eligibility, overlap status and scoring admission.
+from reference eligibility, overlap status and eligibility for scoring.
 
 ## Current corpus inventory
 
@@ -38,30 +38,30 @@ unique, usable, independent evaluation recording.
 |---|---|---|
 | Beatport EDM Key, [pinned Zenodo release](https://doi.org/10.5281/zenodo.1101082) | 1,486 source IDs. The current research plan has 1,229 fitting + 126 selection IDs after its eligibility amendment. | Released `drone-v1` instead declares 1,237 fitting + 126 selection IDs. Preserve both histories; aliases can carry both roles. [Release metadata](experiments/studies/bp-gs-overlap/data/release-metadata.json), [research amendment](experiments/studies/k10-v2-pilot/REPORT.md). |
 | [FMAKv2](https://zenodo.org/records/12759100), derived from [FMAK](https://zenodo.org/records/10719860) | 5,489 key-reference recordings. Current expanded fitting has 4,033 eligible IDs; the nested restricted fit has 976. | Current roles also include 250 inner selection, 998 raw / 997 container-unique reserved confirmation, 159 excluded calibration and 49 inactive/quarantined fitting candidates. These are research roles, not a new release-model training history. [Exposure ledger](experiments/studies/v2-data-contract/data/exposure-ledger.csv.gz). |
-| [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) | 604 source previews; the reference panel uses a fixed 45-recording sample. | Explicit evaluation input, but development-exposed for released Drone. It is not globally “held out” for every model or experiment. Downloader annotation revision: `6bcd492c825ac9b8597bc650a5f6fd18b6c43d2b`. |
-| [Schubert Winterreise Dataset](https://zenodo.org/records/10839767), run-declared v2.1 | 48 available labeled performances: 24 works × 2 performance versions, HU33 and SC06. | All 48 are in the reference comparison. Recording IDs and actual input identities are preserved; a directory version string is not a substitute for a corpus acquisition receipt. Work-level grouping is essential. |
-| GTZAN, pinned key annotations / Sturm filtered lists / recording-index v1.0 | 1,000 source IDs; 837 raw single-key references; 769 named filtered eligible references, including 73 hiphop. | Metadata eligibility, audio integrity, overlap review and score admission are separate. The diagnostic audio inventory matches 999/1,000 source identities; the already flagged `jazz.00054` is outside the 837/769 cohorts. No independence is inferred from the filtered lists. [Metadata ledger](experiments/studies/v2-data-contract/data/gtzan-reference/summary.json), [integrity evidence](experiments/studies/v2-data-contract/data/gtzan-audio-integrity/evidence.tar.gz). |
+| [GiantSteps Key](https://github.com/GiantSteps/giantsteps-key-dataset) | 604 source previews; the reference panel uses a fixed 45-recording sample. | Explicit evaluation input, but development-exposed for released Drone. It is not globally “held out” for every model or experiment. The downloader pins the annotation revision in `drone/download.py`. |
+| [Schubert Winterreise Dataset](https://zenodo.org/records/10839767), run-declared v2.1 | 48 available labeled performances: 24 works × 2 performance versions, HU33 and SC06. | All 48 are in the reference comparison. Recording IDs and actual input identities are preserved; a directory version string does not prove which archive was downloaded. Work-level grouping is essential. |
+| GTZAN, pinned key annotations / Sturm filtered lists / recording-index v1.0 | 1,000 source IDs; 837 raw single-key references; 769 named filtered eligible references, including 73 hiphop. | Metadata eligibility, audio integrity, overlap review and eligibility for scoring are separate. The diagnostic audio inventory matches 999/1,000 source identities; the already flagged `jazz.00054` is outside the 837/769 cohorts. No independence is inferred from the filtered lists. [Metadata ledger](experiments/studies/v2-data-contract/data/gtzan-reference/summary.json), [integrity evidence](experiments/studies/v2-data-contract/data/gtzan-audio-integrity/evidence.tar.gz). |
 
 The SWD publisher identifies v2.1 at the linked release; the analyzed run's
-source archive still needs its own acquisition/checksum receipt.
+source archive still needs its own download checksum record.
 
 The downloader writes `data/sources.json`; annotation/archive checksums are pinned
 in [drone/download.py](drone/download.py). Missing or mismatching downloads are
 not verified inputs. Preserve raw source archives, version/commit, member path,
-checksum, retrieval receipt and the exact adapter that produced each catalog
+checksum, download record and the exact adapter that produced each catalog
 field. Annotation rights and recording rights are separate.
 
 ## Which metadata actually exists
 
 | Corpus | Genre, artist and work metadata | Duration support | BPM / tempo status |
 |---|---|---|---|
-| BP | Workbook genre is complete for the current 1,355 research IDs. Existing original store JSON includes native genre/subgenre, artists, remixers, release, mix and label fields, with incomplete source coverage. Do not equate workbook and store taxonomies. Artist/album independence remains unverified. | Canonical preview sample counts exist. Store JSON can describe the full catalog track instead; keep that duration separately. | A `bpm` field exists in the pinned store archive. It is **store-reported metadata**, not a manually validated tempo reference. The metadata-only adapter admits 716/1,355 current research IDs (656/1,229 fitting; 60/126 selection), range 66–195 BPM. The other 639 are unknown: 623 missing source records, 11 missing/null and five zero sentinels. The older genre/duration allowlist did not admit BPM. |
-| FMA | The existing master CSV includes artist/album IDs and names, track title/composer, native top/all genre fields, license and subset. Artist/album components and historical exposure are recorded. Missing top-level genre does not imply missing native subgenre. | Metadata track duration and existing actual waveform/cache support are distinct witnesses. Some FMA distributions are 30-second excerpts, others full audio. | No BPM column exists in the master CSV used here. Upstream FMA offers other feature tables, including partial Echonest coverage; those are separate analyzer-derived sources and are not silently joined or treated as tempo truth. |
-| GS | The full 604-row collection preserves 23 native publisher genres from the pinned annotation archive. Artist/work IDs are not established. The archive also contains `sources.xlsx`; its artist strings are not verified identities. | Saved fingerprint decode support spans 44.70–120.01 seconds at 11,025 Hz. Its 604 IDs have 602 distinct decoded PCM hashes. Publisher JAMS duration describes a preview; full-song duration stays unknown. | No BPM source is admitted. The separate GiantSteps Tempo dataset is not assumed to have identical membership or recording versions. |
-| SWD | Work and performance IDs are explicit; “classical” describes this vocal/piano song cycle, not a representative sample of all classical music. Global/local key and measure annotations are separate source types. | The 48 analyzed recordings range 44.07–325.33 seconds, median 169.12 seconds. Two performances of a work are related observations. | No scalar BPM is admitted in the current panel. Score tempo, measure timing and performed tempo are different quantities; do not invent one whole-song BPM from a classical work label. |
-| GTZAN | Native genre follows stable recording IDs. Reliable artist/work linkage is incomplete; known repetitions, versions and faults require separate identity evidence. | The pinned inventory supplies per-WAV frame counts, rate, bytes and hashes. The clips are approximately 30 seconds, not full-song support. | No BPM source is admitted in the current GTZAN catalog preparation. Genre and filename do not supply BPM. |
+| BP | Workbook genre is complete for the current 1,355 research IDs. Existing original store JSON includes native genre/subgenre, artists, remixers, release, mix and label fields, with incomplete source coverage. Do not equate workbook and store taxonomies. Artist/album independence remains unverified. | Canonical preview sample counts exist. Store JSON can describe the full catalog track instead; keep that duration separately. | A `bpm` field exists in the pinned store archive. It is **store-reported metadata**, not a manually validated tempo reference. The metadata-only adapter accepts 716/1,355 current research IDs (656/1,229 fitting; 60/126 selection), range 66–195 BPM. The other 639 are unknown: 623 missing source records, 11 missing/null and five zero sentinels. The older genre/duration allowlist did not include BPM. |
+| FMA | The existing master CSV includes artist/album IDs and names, track title/composer, native top/all genre fields, license and subset. Artist/album components and historical exposure are recorded. Missing top-level genre does not imply missing native subgenre. | Metadata track duration and existing actual waveform/cache support are distinct records. Some FMA distributions are 30-second excerpts, others full audio. | No BPM column exists in the master CSV used here. Upstream FMA offers other feature tables, including partial Echonest coverage; those are separate analyzer-derived sources and are not silently joined or treated as tempo truth. |
+| GS | The full 604-row collection preserves 23 native publisher genres from the pinned annotation archive. Artist/work IDs are not established. The archive also contains `sources.xlsx`; its artist strings are not verified identities. | Saved fingerprint decode support spans 44.70–120.01 seconds at 11,025 Hz. Its 604 IDs have 602 distinct decoded PCM hashes. Publisher JAMS duration describes a preview; full-song duration stays unknown. | No BPM source is used. The separate GiantSteps Tempo dataset is not assumed to have identical membership or recording versions. |
+| SWD | Work and performance IDs are explicit; “classical” describes this vocal/piano song cycle, not a representative sample of all classical music. Global/local key and measure annotations are separate source types. | The 48 analyzed recordings range 44.07–325.33 seconds, median 169.12 seconds. Two performances of a work are related observations. | No single BPM value is used in the current panel. Score tempo, measure timing and performed tempo are different quantities; do not invent one whole-song BPM from a classical work label. |
+| GTZAN | Native genre follows stable recording IDs. Reliable artist/work linkage is incomplete; known repetitions, versions and faults require separate identity evidence. | The pinned inventory supplies per-WAV frame counts, rate, bytes and hashes. The clips are approximately 30 seconds, not full-song support. | No BPM source is used in the current GTZAN catalog preparation. Genre and filename do not supply BPM. |
 
-The quantitative BP/FMA coverage witnesses are
+The quantitative BP/FMA coverage records are
 [coverage-inputs.json](experiments/studies/v2-data-contract/data/coverage-inputs.json)
 and [coverage-index.json](experiments/studies/v2-data-contract/data/coverage-index.json).
 The separate [BP tempo metadata](experiments/studies/v2-data-contract/data/beatport-tempo-metadata.json.gz)
@@ -90,7 +90,7 @@ must preserve these distinctions rather than change the meaning to fit a table:
   aliases. A file path is a locator, not the identity. Duplicate recordings,
   artist/album components and work/performance links are separate relations.
 - **Source provenance:** source URL/revision, archive/member, byte hashes,
-  acquisition receipt and adapter/version. Retain original native genre IDs and
+  download record and adapter/version. Retain original native genre IDs and
   taxonomy hierarchy and source-native tag lists without duplicating recordings.
   The schema supports source-native tag lists with direct/ancestor relations;
   the FMA adapter preserves hierarchy-inclusive source tags without inventing direct-versus-ancestor assignments. Any display bucket is an explicitly
@@ -119,7 +119,7 @@ Passing an available overlap check does not establish absent unknown exposure.
 
 Versioned source indexes, deterministic adapters and checksum validation follow
 existing [mirdata practices](https://mirdata.readthedocs.io/en/stable/source/mirdata.html).
-Our catalog remains a project-specific view over source witnesses, not a claim
+Our catalog remains a project-specific view over source records, not a claim
 that corpus versions, taxonomies or independence have been reconciled completely.
 
 ## What an accuracy slice must show
@@ -139,7 +139,7 @@ analyzed-duration or sourced-BPM slice, report:
   observations selected this model. Three to five exposed tracks describe those
   tracks; they do not establish a genre-level strength or weakness.
 
-Only 60/126 BP selection recordings have admitted BPM, so BPM-slice accuracy
+Only 60/126 BP selection recordings have accepted BPM metadata, so BPM-slice accuracy
 would describe metadata-known recordings; it cannot be extrapolated to all 126
 or establish a causal effect of missing metadata.
 
@@ -150,7 +150,7 @@ to the full cohort. Descriptive intervals should use appropriate saved groups;
 recording-level resampling is not a work-level uncertainty estimate for SWD.
 Descriptive findings do not authorize optimizing on the same held-out cohort.
 Vocals, tuning and key changes may be useful future attributes, but remain unknown
-until a documented source or measurement is admitted.
+until a documented source or measurement is added.
 
 The [93-recording reference report](experiments/studies/key-sota-4way/REPORT.md)
 already separates Winterreise from development-exposed GS and preserves the
@@ -178,14 +178,14 @@ broad contemporary coverage.
 
 The BP and FMA adapters now join the existing sources without changing roles:
 
-| Collection | Source rows | Native genre metadata | Artist / album or release IDs | Recorded 24-kHz cache support | Admitted BPM |
+| Collection | Source rows | Native genre metadata | Artist / album or release IDs | Recorded 24-kHz cache support | Accepted BPM |
 |---|---:|---|---|---|---|
 | Current Beatport development cohort | 1,355 | All workbook genres; API taxonomy remains separate | 676 with artists and release IDs; 145 with remixers | 1,355 | 716 publisher-reported; 639 unknown |
-| FMA source-reference cohort | 5,489 | 5,405 with hierarchy-inclusive tags; top-level field missing for 3,065 | 5,489 with artist IDs; 5,459 with album IDs | 4,283; 1,206 unknown | 0; no admitted tempo source |
+| FMA source-reference cohort | 5,489 | 5,405 with hierarchy-inclusive tags; top-level field missing for 3,065 | 5,489 with artist IDs; 5,459 with album IDs | 4,283; 1,206 unknown | 0; no accepted tempo source |
 
 FMA has 5,442 distinct saved source-container hashes and 1,157 existing frozen
 components. Multiple rows therefore need not be independent recordings. The
-1,206 missing cache-support witnesses comprise 998 reserved confirmation rows,
+1,206 missing cache-support records comprise 998 reserved confirmation rows,
 159 calibration rows and 49 excluded fitting candidates. Publisher duration does
 not fill those unknowns. Existing 24-kHz cache observations describe that training
 preparation; they are not a claim that released Drone used those exact PCM bytes.
@@ -196,7 +196,7 @@ Reproduce with [the BP adapter](tools/export_beatport_collection.py) or
 `canonical_counts` paths. The FMA adapter accepts explicit `--master-metadata`,
 `--taxonomy` and `--cache-metadata` paths. Both verify the pinned source hashes;
 no source audio is opened. Recorded source-file and PCM identities remain identified
-as historical witnesses, not newly verified files.
+as historical records, not newly verified files.
 
 The [GS adapter](tools/export_giantsteps_collection.py) accepts an
 `--external-sources` JSON mapping with the single key `giantsteps_annotations`
@@ -208,7 +208,7 @@ evaluated in release development; that does not assert direct fitting membership
 The [GTZAN adapter](tools/export_gtzan_collection.py) needs only bundled metadata:
 `uv run python -m tools.export_gtzan_collection` verifies the committed catalog.
 Named membership scopes keep raw/filtered reference inclusion, saved MD5 match,
-WAV-header parsing and scoring admission separate. The failed `jazz.00054` source
+WAV-header parsing and eligibility for scoring separate. The failed `jazz.00054` source
 retains its actual acquired SHA256 and both failure observations. Source duration
 comes from recorded WAV headers for 999 excerpts; all model-analyzed support,
 full-song duration and BPM remain unknown. None of these observations establishes
@@ -216,17 +216,17 @@ decoded-audio usability, overlap clearance or a fresh evaluation set.
 
 Next work:
 
-1. Use the completed [development slice report](experiments/studies/musicfm-key-pilot/REPORT.md#retrospective-diagnosis-by-genre-recording-duration-and-bpm)
+1. Use the completed [development slice report](experiments/studies/musicfm-key-pilot/REPORT.md)
    to identify coverage and error patterns for the next prospective experiment.
    The 376-record K10/MusicFM joins are descriptive analysis of exposed data,
    not independent confirmation; all small, empty and unknown cells are retained.
 2. Apply a separate blind review/disposition policy to the completed
-   [GTZAN overlap audit](experiments/studies/v2-data-contract/REPORT.md#gtzan-overlap-audit-complete-coverage-review-flags-remain-november-13)
-   before any scoring admission. All 769 primary queries completed: 602 have no
+   [GTZAN overlap audit](experiments/studies/v2-data-contract/REPORT.md)
+   before any recording is accepted for scoring. All 769 primary queries completed: 602 have no
    detected overlap and 167 need review. The 837-record sensitivity cohort keeps
    one original incomplete query; no query was retried. The new catalog already preserves all
    1,000 source IDs, the frozen 837/769 reference memberships and the recorded
-   999 matching file identities; no current catalog row is admitted for scoring.
+   999 matching file identities; no current catalog row is accepted for scoring.
 3. Assess gaps in long DJ recordings and contemporary genre coverage before
    choosing additional public data or an annotation effort. Preserve native
    taxonomies and distinguish reported tempo from measured or verified tempo.
@@ -240,8 +240,8 @@ particular observed score.
 ## Prospective commercial-comparator panel
 
 The [Drone versus Mixed In Key protocol](experiments/studies/v2-data-contract/MIK_COMPARISON_PROTOCOL.md)
-defines a future independent, full-length comparison. No panel has been admitted
-or scored. Existing exposed corpora and the private DJ library are not silently
+defines a future independent, full-length comparison. No panel has been
+selected or scored. Existing exposed corpora and the private DJ library are not silently
 reclassified as its final test set. Audio identity, label-source independence,
 blinded annotation, genre/length coverage and comparator access must be established
 before freezing the execution packet.
@@ -294,9 +294,9 @@ Retagging/re-encoding may move unchanged musical audio between sides; artist,
 album, recording, remix and decoded-audio independence are not established.
 
 Fine-tuning checks known starting-checkpoint train/validation IDs and training
-SHA-256 witnesses and actual new fitting data against both evaluation sets before
+SHA-256 records and actual new fitting data against both evaluation sets before
 scoring or gradients. Known overlap fails without silently changing membership.
-Missing legacy checkpoint witnesses remain unknown and are listed in
+Missing legacy checkpoint records remain unknown and are listed in
 `finetune.json`; passing available checks does not prove unknown historical
 exposure absent. Genuine inherited provenance is retained in tuned checkpoints,
 while new hashes describe only the filtered base and correction-fit audio actually

@@ -1,30 +1,21 @@
 # Drone native CPU research
 
-The standalone crates, reports, protocols, source notices and lossless evidence
-belong to Drone. They were moved from Euphoria without rerunning experiments or
-changing the detector, model weights, Python dependencies or production defaults.
+These studies test whether Drone's K10 key model can run natively (in Rust) on an ordinary CPU with the same predictions as the Python reference, and what that saves in latency and memory. The crates, reports, protocols, source notices and evidence were moved here from the application repository without rerunning any experiment or changing the detector, model weights, Python dependencies or production defaults.
 
-- [Cached-feature inference](drone-native-cached/REPORT.md): model-only contracts
-  and memory/latency evidence.
-- [Native CQT feasibility and arithmetic](drone-native-cqt/REPORT.md).
-- [Composed CQT → inference and Mac376 diagnostics](drone-native-cqt/composed/REPORT.md):
-  Linux qualification/timing and separately preserved strict Mac gate failures.
+- [Cached-feature inference](drone-native-cached/REPORT.md): native full and chunked inference from precomputed CQT features; prediction parity on 376 tracks and an 8.76x peak-memory reduction from chunking.
+- [Native CQT frontend](drone-native-cqt/REPORT.md): native CQT on identical decoded PCM reproduces every feature value and logit on 376 tracks after two arithmetic fixes.
+- [Composed CQT and inference, Linux and Mac](drone-native-cqt/composed/REPORT.md): the complete native pipeline on Linux (parity on 376 tracks, latency and memory on 20) and the Apple M5 portability investigation.
 - [Build, evidence and unit-test commands](drone-native-cqt/README.md).
 
-[MIGRATION.json](MIGRATION.json) records original Euphoria commit/tree/blob IDs,
-SHA256 values and path history for every imported file. The initial import is a separate commit; formatting-only Python changes (with
-identical ASTs), a test-only Clippy repair, and README/CI relocation adjustments
-retain original and current hashes separately. All raw evidence and notices are
-byte-identical. Rebuilt executables have their own source/binary identities and
-cannot replace the recorded measured artifacts. Original source commits,
-execution paths, tags, artifact hashes and licensing notices remain historical
-identities. They must not be relabelled as Drone executions. Copyright notices
-retain their original attribution. The crates retain their standalone Cargo
-workspaces; `drone-native-cqt` depends only on its imported sibling, with no path
-back into Euphoria. The optional historical owner-snapshot adapter remains opt-in;
-normal builds, tests and evidence verification do not read another checkout/WIP.
+## Provenance
 
-From this repository root, the research-only CI equivalents are:
+[MIGRATION.json](MIGRATION.json) records, for every imported file, its original identifiers, SHA-256 value and path history. Formatting-only Python changes (with identical syntax trees), a test-only lint fix and README and CI relocation edits keep both original and current hashes. Raw evidence and license notices are byte-identical to the originals. [NATIVE_EVOLUTION.json](NATIVE_EVOLUTION.json) records every later change to these folders, such as documentation rewrites, and [verify_migration.py](verify_migration.py) checks both files. Rebuilt executables have their own source and binary identities and never replace the measured artifacts. Original source identities, execution paths, artifact hashes and copyright attributions are historical records and are not relabeled as Drone runs.
+
+Each crate keeps its own Cargo workspace. `drone-native-cqt` depends only on its sibling `drone-native-cached`, with no path back into the application repository. The optional adapter for another contributor's historical experimental frontend is opt-in; normal builds, tests and evidence checks do not read any other checkout.
+
+## Checks
+
+From the repository root, these match the research CI:
 
 ```sh
 cargo fmt --manifest-path research/drone-native-cached/Cargo.toml --check
@@ -36,14 +27,10 @@ python3 -m unittest discover -s research/drone-native-cqt/composed -p 'test_*.py
 python3 research/verify_migration.py
 ```
 
-The imported source/licensing remains scoped research: the GPL-3.0-or-later
-crates and their LGPL/SVML notices are not relicensed by Drone’s project license.
-`/research` is excluded from Python build artifacts. All active research scripts remain under normal root Ruff/ty checks. Two explicit
-module search paths resolve standalone report-script imports; no file is excluded.
-The dedicated research workflow additionally runs the Rust/evidence checks.
+Rust CI pins the 1.99.1 research toolchain on Linux and macOS. These checks need no model, audio, ONNX Runtime, SoXR or SVML download; they read saved results without rerunning measurements. The explicitly ignored runtime tests and the reproduction commands in each report need the original pinned runtime, model and audio.
 
-Rust CI pins the existing 1.99.1 research toolchain on Linux and macOS. These tests
-need no model, audio, ONNX runtime or SoXR/SVML download. Explicit ignored runtime
-checks and reproduction commands require the original pinned runtime, model and
-audio artifacts. The normal CI and evidence commands above read saved results
-without downloading those artifacts or rerunning the measurements.
+`/research` is excluded from Python build artifacts. All research scripts are covered by the normal root Ruff and ty checks, with two explicit module search paths for the standalone report scripts; no file is excluded.
+
+## Licensing
+
+The imported source stays scoped research: the GPL-3.0-or-later crates and their LGPL (SoXR) and BSD (SVML) notices are not relicensed by Drone's project license.

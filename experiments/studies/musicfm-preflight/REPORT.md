@@ -1,161 +1,146 @@
-# MusicFM-MSD source preflight and shared-GPU feasibility
+# MusicFM-MSD fits on the shared GPU for one 12-second training microbatch
 
-## Problem and decision
+The pretrained MusicFM-MSD model, with a new 24-class head and AdamW, loaded
+strictly and completed 21 synthetic training updates on a shared GPU, peaking at
+5.116 GiB of allocated CUDA memory. This shows resource feasibility for one
+fixed 12-second microbatch only. It says nothing about key accuracy or the cost
+of a full training run. Study date: November 12, 2026.
 
-Before committing to MusicFM fine-tuning or distillation, determine whether its
-actual source, checkpoint and optimizer fit alongside both existing vLLM services.
-Version declarations alone were insufficient: the first TorchAudio wheel failed
-its CUDA-build check. A separately approved official CPU build imported correctly,
-and one strictly bounded synthetic GPU probe then completed.
+## Question
 
-The approved model and new resource head contain **328,957,080 parameters**.
-The checkpoint contains **329,170,226 state elements across465 tensors**; state
-includes buffers and is not a parameter count. **316,367,896 elements** received
-gradients/Adam states. The loaded model, original mel frontend, final hidden
-sequence and synthetic24-class head completed first AdamW state allocation and20
-steady updates with all FP32 parameters and BF16 encoder/head autocast.
+Before committing to MusicFM fine-tuning or distillation, does the actual
+source, checkpoint and optimizer fit on a GPU that is also serving two other
+models? Version declarations alone were not enough to answer this: the first
+TorchAudio build failed to import (see Method).
 
-This establishes **resource feasibility for the fixed12s microbatch**, not key
-accuracy, a trained teacher, whole-fit GPU hours, standalone throughput, CPU
-performance or production readiness. A real-data pilot requires a separately
-reviewed split, input/evaluation pipeline and finite compute/storage budget.
+## Method
 
-The later [complete-song cost qualification](../musicfm-key-pilot/REPORT.md)
-exposed a train/evaluation rotary-cache precision bug, retained its failed376-song
-check and controlled stop, and qualified a prospective wrapper repair. Its three
-disposable synthetic-target updates provide cost evidence, not teacher accuracy.
-The earlier fixed-window probe below does not establish full-song batching parity.
+### Model and probe
 
-## Measured results
+The original MusicFM source, statistics, configuration and weights are fixed in
+the [initial protocol](PROTOCOL.md); the [CPU-build amendment](CPU_CANDIDATE_AMENDMENT.md)
+records the later TorchAudio build choice. Configuration, source and environment
+were fixed before the GPU run, and no setting was changed after seeing an outcome.
+
+The checkpoint was loaded on CPU (`weights_only=True`, `mmap=True`) with strict
+state matching against the exact official model before CUDA initialization.
+
+The input was one uniform-noise `[1, 288000]` FP32 waveform at 24 kHz (12
+seconds), reused for all 21 updates at microbatch size 1. The original frontend
+(2048-point mel, hop 240, 128 bands, MSD normalization) produced 1,200 frames,
+then 300×1024 hidden states. Preprocessing stayed FP32. The stock eager Conformer
+and head ran under BF16 autocast, with FP32 parameters, gradients and Adam moments
+and TF32 off. Hidden states were averaged over time and passed to a new 1024→24
+linear head with a fixed synthetic target (class 0). The full official encoder
+path ran, including computations the head does not use. No real audio, musical
+label or task score was involved, and no new weights were saved.
+
+The probe used one GPU, two CPU cores and one numerical thread, with fixed caps:
+a 12,288 MiB CUDA allocator limit, at least 8,192 MiB of GPU memory left free
+for the other services, 600 CPU seconds, 600 s wall, 8 GiB sampled host memory
+and 4 GiB of new output. The two serving processes stayed up throughout and the
+GPU was actively serving before launch.
+
+### Dependency environment
+
+| Build | Outcome | Child CPU / wall | Sampled peak RSS | Bytes on disk afterwards |
+| --- | --- | ---: | ---: | ---: |
+| PyPI TorchAudio 2.11.0 | Import failed: built for CUDA 13.0, while the shared Torch uses CUDA 13.2; the checkpoint was never downloaded | 4.932 s / 6.962 s | 601,124,864 B | 233,937,500 B |
+| Official TorchAudio 2.11.0+cpu | Imports, dependency constraints and safe CPU checkpoint layout passed | 16.982 s / 30.669 s | 851,750,912 B | 1,523,119,630 B |
+
+A stable Torch ABI did not imply CUDA-build compatibility. Rather than patching
+the version check, we switched to the official CPU-only TorchAudio wheel (341,338
+bytes). All other resolved wheels stayed identical; 19 direct and transitive
+wheel identities are recorded. The environment reuses the shared Torch
+2.15.0+cu132 and NumPy 2.5.4 unchanged, adding TorchAudio 2.11.0+cpu,
+Transformers 4.57.6 and einops 0.8.1, installed offline with hash checks. Only
+after imports passed was the 1,316,802,088-byte MSD checkpoint fetched and
+checksum-verified.
+
+Because TorchAudio is CPU-only here, the probe also tests that its mel frontend
+operators run on CUDA tensors through shared Torch at this shape. It is not a
+general claim about every TorchAudio CUDA operator.
+
+## Results
+
+The model plus new head has **328,957,080 parameters**. The checkpoint holds
+**329,170,226 state elements in 465 tensors**; state includes buffers, so it is
+not a parameter count. **316,367,896 elements** received gradients and Adam
+state. First AdamW state allocation and 20 steady updates completed.
 
 ![Measured update timing and GPU allocation](resource-probe.png)
 
-Figure: one repeated synthetic12s waveform, microbatch1, seeded head/target and21
-updates. Update0 includes first optimizer-state allocation and first-use CUDA
-work; model/checkpoint loading is outside the per-update timer. The measured
-steady median includes finite-gradient/resource instrumentation. Both vLLM
-processes remained live; root observed GPU0 actively serving before launch.
-Utilization was not sampled throughout, so this is not an isolated GPU benchmark.
-NVML values are sampled MiB; CUDA fields are bytes converted to GiB in the figure.
+Left: update 0 (about 743 ms) includes first optimizer-state allocation and
+first-use CUDA work; updates 1–20 sit near the 51 ms steady median. Right: Torch
+allocated and reserved peaks level off near 5.1 and 5.7 GiB after the first
+update, below the sampled NVML maximum. Model loading is outside the timer.
+NVML values are sampled MiB; CUDA fields are bytes, shown in GiB. GPU utilization
+from the other services was not sampled, so this is not an isolated benchmark.
 
 | Measurement | Observed result |
 | --- | ---: |
-| First instrumented update |0.743002s |
-| Median of20 instrumented steady updates |0.050997s |
-| Maximum CUDA allocated, across all21 updates |5,493,349,376B /5.116GiB |
-| Maximum CUDA reserved, across all21 updates |6,142,558,208B /5.721GiB |
-| Maximum sampled worker NVML usage |6654MiB /6.498GiB |
-| Minimum sampled global GPU free memory |16312MiB /15.930GiB |
-| Maximum sampled worker-tree host RSS |2,238,050,304B /2.084GiB |
-| Resource supervisor wall /aggregate child CPU |10.568s /11.065s |
-| Source-model registered buffer tensor bytes |951056B |
-| Analytical FP32 weights+active gradients+two Adam moments |5,112,243,072B /4.761GiB |
+| First instrumented update | 0.743002 s |
+| Median of 20 steady updates | 0.050997 s |
+| Maximum CUDA allocated, all 21 updates | 5,493,349,376 B / 5.116 GiB |
+| Maximum CUDA reserved, all 21 updates | 6,142,558,208 B / 5.721 GiB |
+| Maximum sampled process GPU usage (NVML) | 6,654 MiB / 6.498 GiB |
+| Minimum sampled free GPU memory on the device | 16,312 MiB / 15.930 GiB |
+| Maximum sampled host RSS | 2,238,050,304 B / 2.084 GiB |
+| Total wall / child CPU | 10.568 s / 11.065 s |
+| Registered buffer tensor bytes | 951,056 B |
+| Analytical FP32 weights + active gradients + two Adam moments | 5,112,243,072 B / 4.761 GiB |
 
-The analytical last row uses`4P+12A` with counted stored parametersP and active
-optimizer elementsA. It excludes scalar optimizer steps, buffers, activations,
-workspaces, context and allocator effects. It is not measured peak GPU memory.
-The nominal330M/all-active estimate was5.28GB; actual graph activity reduces it,
-but still exceeds the old~4GB cap before workspace/context. No cap was increased
-or recipe retried after an outcome.
+The analytical row is `4P + 12A`, with P stored parameters and A active optimizer
+elements. It excludes buffers, activations, workspaces, CUDA context and
+allocator effects, so it is not a measured peak. The nominal 330M all-active
+estimate was 5.28 GB; actual graph activity reduces it, but it still exceeds the
+earlier ~4 GB planning cap before workspace and context are counted.
 
-## Method and fixed authorization
+The setup log also records a warning that the `cache/torch/kernels` directory
+could not be created, so kernel caching was disabled during the probe.
 
-The exact configuration, source, probe and environment were approved before
-the GPU attempt. Their identities are retained in the [resource evidence](data/runtime-index.json). The window was2026-11-12 09:35–09:50UTC. An explicit
-separate approval receipt retained the original draft config unchanged, including
-its draft`launch_authorized=false` metadata. All provided module hashes and both
-protected process start identities were checked immediately before execution.
+## Decision
 
-The sole probe launched at 09:37:35.744900 UTC and exited successfully within
-the approved window. It used Linux CPUs 8–9, one numeric/Torch thread and
-GPU 0, with a requested allocator cap of 12,288 MiB, an 8,192 MiB global
-free-memory reserve, 600 CPU / 600 wall seconds, 8 GiB sampled worker-tree RSS
-and 4 GiB of new output. Both protected vLLM processes retained their original
-start identities. The exact device and process identities are retained in the
-[runtime evidence](data/runtime-index.json). Only this probe could be terminated
-by its supervisor.
-No service action, second probe or parameter/shape/precision/cap change occurred.
+MusicFM-MSD fine-tuning is feasible on the shared GPU at this microbatch size.
+The next step is one finite MusicFM pilot on the v2 data, with bounded 24 kHz
+waveform and crop I/O, fixed song-level validation aggregation and measured
+validation and checkpoint costs. It uses the frozen v2 inner selection IDs (not
+the older v1 FMAK 250) and excludes confirmation and calibration recordings. A
+stronger teacher must show better accuracy before any student budget is spent.
 
-The original MusicFM source/stat/config/weight identities are in the
-[initial protocol](PROTOCOL.md); the [CPU-build amendment](CPU_CANDIDATE_AMENDMENT.md)
-fixes the later build/affinity decision. Input was one uniform-noise
-`[1,288000]` FP32 waveform at24kHz, reused21 times. Original mel2048/hop240/
-128bands/MSD normalization produced1200 frames, then300×1024 hidden states.
-Preprocessing stayed FP32; the stock eager Conformer/head used BF16 autocast,
-with FP32 model/gradients/moments and TF32 off. Time pooling was along the
-sequence axis, followed by a new1024→24 head and a synthetic target0.
-The full official encoder path remained, including computations unused by the
-resource-only head. No real audio, musical label, task score or saved new weights.
+The later [complete-song cost study](../musicfm-key-pilot/REPORT.md) found a
+rotary-embedding precision bug between training and evaluation that this
+fixed-window probe could not reveal, and qualified a repair. This probe therefore
+does not establish full-song batching equivalence.
 
-The checkpoint loaded on CPU with weights_only=True/mmap=True, the exact official
-model. prefix and strict state matching before CUDA initialization. Thus the
-probe verifies this CPU TorchAudio build supports the actual mel/frontend
-operators through shared CUDA Torch at this shape; it is not a universal claim
-about every TorchAudio CUDA operator or task-numerical equivalence to FP32.
+## Limitations
 
-## Dependency failure and corrected build
+- One repeated synthetic input, one microbatch shape and 21 updates. No key
+  accuracy, trained teacher, whole-fit GPU hours, standalone throughput, CPU
+  performance or production readiness follows.
+- The GPU was shared with active serving, and memory is sampled; brief peaks
+  between samples can be missed.
+- The input stayed resident on GPU, with no audio decoding or augmentation, so
+  real training will cost more per update.
+- The primary acceptance domain is 5–10 minute house, deep-house and
+  melodic-house tracks. This probe has no labelled evidence for it. A real pilot
+  must evaluate whole songs and report duration, genre and group coverage;
+  generic FMA Electronic averages and 120-second Beatport previews cannot
+  establish it. Long percussive intros and outros may dilute key evidence across
+  a whole song, which a pilot should record with per-window diagnostics.
+- Private DJ audio stays excluded from training and selection.
 
-| Stage | Outcome | Child CPU /wall | Sampled peak RSS | Owned bytes at completion |
-| --- | --- | ---: | ---: | ---: |
-| PyPI TorchAudio2.11.0 |Import failed: CUDA13.0 versus shared Torch13.2; checkpoint gate stopped |4.932s /6.962s |601,124,864B |233,937,500B |
-| Official TorchAudio2.11.0+cpu |Imports, constraints and safe CPU checkpoint layout passed |16.982s /30.669s |851,750,912B |1,523,119,630B |
-
-The first failure is preserved, not normalized away. Stable TorchABI policy did
-not imply CUDA-build compatibility. Root approved the separate CPU candidate;
-no TorchAudio version check was monkeypatched. Its official341338byte cp312
-manylinux_2_28 wheel is identified in the provisioning evidence.
-All other resolved wheel records remained identical.19 exact direct/transitive
-wheel identities and hashes are retained in the raw lock/selection receipt.
-Torch and NumPy were excluded from resolution/download/install.
-
-The task-owned overlay uses shared Torch2.15.0+cu132 and NumPy2.5.4 at their
-original physical module paths/hashes. Complete base distribution receipts
-before/after were identical. Exact candidate versions are TorchAudio2.11.0+cpu,
-Transformers4.57.6 and einops0.8.1. Installation was offline, hash-required and
-no-deps after all selected wheels were verified. No shared venv/system changes.
-Only after imports passed was the pinned1,316,802,088byte MSD checkpoint fetched
-and SHA-verified. CPU state inspection used no model construction or inference.
-The large checkpoint, wheels, caches and overlay remain on the server, outside Git.
-
-## Evidence, limitations and next step
-
-The raw kernel-cache warning is retained verbatim: the requested
-`cache/torch/kernels` directory could not be created and kernel caching was
-disabled. This is a setup limitation, not an accuracy result. A future directory
-creation fix needs a separate identity; the measured attempt is not repeated.
-
-The [evidence index](data/runtime-index.json) binds90 original UTF-8 files through
-per-file, compressed and decoded SHA256 values. The deterministic gzip bundle
-preserves failed CLI attempts, v1 import failure, exact wheel/lock/module paths,
-CPU layout, approval/config, all21 update records and sampled supervision.
-It includes no checkpoint/wheel/audio bytes. Executed sources are preserved by
-[source audit](https://github.com/lvndry/drone/commit/20835246e1066b313df3dc40e1e6aaf672c24cee),
-[failed provisioning](https://github.com/lvndry/drone/commit/6cabc0e) and
-[executed resource probe](https://github.com/lvndry/drone/commit/84685cef837f2234e6acfd942e9cc8eb80d04f75)
-research tags; these measured identities are preserved independently of the
-publication commit.
+## Reproduce
 
 ```sh
 uv run python -m tools.musicfm_resource_report --plot
 uv run pytest -q tests/test_musicfm_preflight.py tests/test_musicfm_provision.py
 ```
 
-The checked reader verifies source/config/approval/effective-config bindings,
-base preservation, import-before-download, fixed shape/step/precision and
-resource limits before regenerating PNG/SVG. Source/per-step raw bytes remain
-unchanged. Sampling cannot guarantee instantaneous global free memory between
-observations. Active serving, repeated GPU-resident input, absent audio decode/
-augmentation, first-use work and finite checks prevent a whole-fit cost promise.
-
-Next: propose one finite v2-data MusicFM pilot with bounded24k waveform/crop I/O,
-fixed song-level validation aggregation and real validation/checkpoint costs.
-Use the newly frozen v2 inner IDs, not the oldv1 FMAK250, and exclude confirmation/
-calibration. Stronger-teacher accuracy must be earned before any student budget.
-
-The primary acceptance domain is5–10minute house/deep-house/melodic-house. This
-synthetic probe provides no labelled evidence for it. A real pilot must cover
-whole songs and separately report duration/domain/genre/group coverage; generic
-FMA Electronic means and120s Beatport previews cannot establish that acceptance.
-Long percussive intros/outros may dilute global evidence; record that risk and
-window diagnostics without automatically reviving failed weighting searches.
-Private DJ audio remains excluded from training and selection.
+The report tool verifies the recorded configuration, environment, shapes, steps,
+precision and resource limits before regenerating the PNG and SVG figure. The
+[evidence index](data/runtime-index.json) covers 90 original files (failed
+attempts, the import failure, wheel and lock records, all 21 update records and
+resource samples) with checksums; it contains no checkpoint, wheel or audio
+bytes. The executed provisioning and probe source revisions are recorded there
+as well.

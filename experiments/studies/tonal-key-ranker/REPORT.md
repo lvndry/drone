@@ -1,46 +1,93 @@
-# Tonal summaries and trees: fast fitting, substantially lower accuracy
+# Tonal summaries with gradient-boosted trees: fast but much less accurate
 
-## Problem
+A key classifier built from fixed harmonic summary features and 128 gradient-boosted
+trees trained in seconds but was far less accurate than K10. Symmetric MIREX fell
+21.11 points on Beatport and 12.20 points on FMAK, and exact accuracy fell 20.63 and
+16.40 points. It failed its pre-set threshold and the approach was stopped. The study
+ran in November 2026.
 
-Could fixed harmonic summaries and a small nonlinear decision model outperform a learned CNN on limited labels? This tests a broad classifier idea without external weights or teacher contamination. It is distinct from the earlier 48-parameter DSP-score fusion: the tree scorer directly learns from audio-derived evidence, without neural or native key logits.
+## Question
+
+Can fixed harmonic summaries and a small nonlinear decision model beat a learned CNN
+when labels are limited? This tests a broad classifier idea without external weights
+or a teacher. It differs from the earlier 48-parameter DSP score fusion: the trees
+learn directly from audio-derived features, with no neural or native key scores as
+input.
 
 ## Method
 
-Use the same 2,206 fitting / 376 validation identities and immutable FP16 CQT caches. For every track, construct all 24 key candidates as a single group with one positive. Thus there are 52,944 fitting rows but only 2,206 labelled tracks. Candidate groups never cross roles; existing artist/album/audio quarantine is retained.
+The study uses the same 2,206 fitting and 376 validation recordings and the existing
+FP16 CQT caches. Each track yields 24 candidate rows, one per key, of which one is
+correct, giving 52,944 fitting rows from 2,206 labelled tracks. Candidate groups never
+cross roles, and the existing artist, album and audio-duplicate separation is kept.
 
-The fixed 24-dimensional descriptor contains candidate-relative whole-track chroma, low-register tonic/third/fifth evidence, four quarter-wise scale contrasts, ending bass tonic, candidate mode, a half-bin phase proxy and relative-key contrasts. Features never consult the true key; candidate mode is a hypothesis. Frame normalization and summaries are deterministic; numeric tree borders fit on fitting rows only. The phase feature is not a tuning estimate or audio correction.
+Each candidate row has a fixed 24-dimensional descriptor: whole-track chroma relative
+to the candidate key, low-register tonic, third and fifth evidence, scale contrasts for
+each quarter of the track, the bass tonic at the ending, the candidate mode, a
+half-bin tuning proxy and relative-key contrasts. Features never use the true key. Frame
+normalization and summaries are deterministic, and tree split borders are fitted on
+fitting rows only. The tuning proxy is a feature, not a tuning estimate or correction.
 
-CatBoost 1.2.10 uses hard grouped `QuerySoftMax:beta=1`, 128 symmetric depth-4 trees, learning rate 0.05 and the other fixed settings in the [frozen protocol](https://github.com/lvndry/drone/blob/research/tonal-key-ranker-v1/experiments/studies/tonal-key-ranker/PROTOCOL.md). No teacher, validation eval-set, early stopping, descriptor search or tree-count selection. This changes representation and classifier together: it is a product comparison, not a causal tree-versus-CNN ablation.
+The ranker is CatBoost 1.2.10 with grouped `QuerySoftMax:beta=1` loss, 128 symmetric
+trees of depth 4, learning rate 0.05 and the other settings in the
+[protocol](https://github.com/lvndry/drone/blob/research/tonal-key-ranker-v1/experiments/studies/tonal-key-ranker/PROTOCOL.md).
+There was no teacher, validation-based early stopping, feature search or tree-count
+selection. Representation and classifier change together, so this compares two whole
+systems rather than isolating trees versus CNNs.
 
-The canonical seed-13 ordinary joint K10 control was independently reverified against archived actual history, predictions and checkpoint tensors, including the completed replay's result/logit hashes. The pilot needed at least one FMAK symmetric-MIREX point, no Beatport MIREX decline and no exact decline in either domain. No raw audio, final/calibration/SWD/private data or GPU was used.
+The seed-13 joint K10 control was rechecked against the archived history, predictions
+and checkpoint weights. Pre-set success threshold: at least +1 FMAK symmetric MIREX
+point, no Beatport MIREX decline and no exact-accuracy decline in either domain. No raw
+audio, final-test, calibration or private recordings, and no GPU, were used.
 
 ## Results
 
 | Arm | BP symmetric / asymmetric MIREX | BP exact | FMAK symmetric / asymmetric MIREX | FMAK exact |
 |---|---:|---:|---:|---:|
-| Verified ordinary joint K10 | 76.11 / 73.33% | 68.25% | 75.48 / 74.48% | 68.40% |
-| Fixed tonal ranker | 55.00 / 53.81% | 47.62% | 63.28 / 60.88% | 52.00% |
+| Ordinary K10 (verified control) | 76.11 / 73.33% | 68.25% | 75.48 / 74.48% | 68.40% |
+| Tonal ranker | 55.00 / 53.81% | 47.62% | 63.28 / 60.88% | 52.00% |
 
 ![Paired K10 and tonal-ranker validation results](figures/accuracy.png)
 
-*Figure 1. Both weighted score and exact accuracy decline substantially. The lower axis includes every observed score; the reused development set does not establish independent generalization.*
+*Figure 1. The tonal ranker is far below K10 on weighted and exact accuracy in both
+domains. The axis starts low enough to show every score.*
 
-Symmetric MIREX changed by **−21.11 Beatport / −12.20 FMAK points**. Exact accuracy changed by −20.63 / −16.40 points. The complete paired error movements under both scoring conventions are retained in the raw result.
+Symmetric MIREX changed by -21.11 points on Beatport and -12.20 on FMAK; exact accuracy
+by -20.63 and -16.40. Paired error movements under both MIREX conventions are in the
+[candidate result](data/candidate-result.json).
 
-Streaming preparation of all 2,582 cached tracks, including control checks, took **7.86 seconds**, with 553.61 MiB peak process RSS. Fitting, model export/reload and validation scoring took **5.40 seconds**, with 641.50 MiB peak process RSS. These are operational measurements on the server with four CPU threads and affinity 6–9; they exclude audio decoding/CQT and do not measure per-track inference latency. The process imports research control-verification machinery, so its RSS is not a minimal deployment-runtime claim.
+Preparing features for all 2,582 cached tracks, including the control checks, took
+7.86 seconds with 553.61 MiB peak memory. Training, export, reload and validation
+scoring took 5.40 seconds with 641.50 MiB peak memory, using four CPU threads. These
+times exclude audio decoding and CQT computation and are not per-track inference
+latency; the memory figures include research verification code and are not a minimal
+deployment footprint.
 
-## Discussion and decision
+## Decision
 
-Stop this fixed route: no confirmation seeds, feature revisions, tree/learning-rate sweep, native export, performance promotion or release-weight changes. Cheap fitting did not compensate for lost accuracy. Broader audited data and representation learning remain more credible routes to a substantial gain than rescuing this descriptor configuration on the same validation data.
+Stop this approach: no confirmation seeds, feature revisions, tree or learning-rate
+sweeps, export or release changes. Fast training does not make up for the accuracy
+loss. Broader audited data and learned representations are more promising routes to a
+large gain than tuning these features on the same validation data.
 
-The result rejects this descriptor plus 128-tree recipe. It does not establish that all tree models are unsuitable, identify whether feature pooling or decision capacity caused the loss, or provide a fair benchmark of every available tabular classifier. Coarse summaries lose progression and phrasing, while relative major/minor can share pitch distributions. Those are plausible limitations, not causes isolated by this experiment.
+## Limitations
 
-## Reproduction and evidence
+- One configuration on validation data used repeatedly during development.
+- The result rejects this descriptor with 128 trees. It does not show that all tree
+  models are unsuitable, does not identify whether the features or the classifier
+  caused the loss, and is not a fair benchmark of tabular classifiers.
+- Whole-track summaries lose chord progression and phrasing, and relative major and
+  minor keys can share pitch distributions. These are plausible causes, not tested ones.
 
-Actual executed source is [`research/tonal-key-ranker-v1`](https://github.com/lvndry/drone/tree/research/tonal-key-ranker-v1). The tag preserves the extractor, runner, optional pinned dependencies, strict research artifact loader, synthetic compatibility checks and pre-fit protocol. It introduces no production model/dependency dispatch on main.
+## Reproduce
 
-[Candidate result](data/candidate-result.json) records source/protocol/feature/control/model/validation hashes, resolved parameters, both MIREX conventions and failed gate. [Runtime package versions](data/runtime-packages.json) distinguish the actual server stack from local compatibility tests. Full prepared descriptors, CBM model, validation logits and package-install record remain at `/home/lysk-admin/drone-experiments/tonal-key-ranker-20261112-v1`.
-
-Regenerate Figure 1 with `uv run --extra plots python -m tools.plot_research`. The figure-input index binds the raw result, generator and lockfile.
-
-The [historical source record](../../REPORT_PROVENANCE.md#tonal-key-ranker) retains the exact execution and source-archive identities.
+The executed source (feature extractor, runner, pinned optional dependencies, model
+loader, synthetic compatibility checks and protocol) is preserved at the git tag
+`research/tonal-key-ranker-v1`. The [candidate result](data/candidate-result.json)
+records checksums for the source, protocol, features, control, model and validation
+outputs, the resolved parameters, both MIREX conventions and the threshold outcome.
+[Runtime package versions](data/runtime-packages.json) list the software used for the
+run. Prepared features, the trained model and validation logits are kept outside the
+repository. The [source record](../../REPORT_PROVENANCE.md#tonal-key-ranker) lists the
+exact source identities. Regenerate Figure 1 with
+`uv run --extra plots python -m tools.plot_research`.
