@@ -47,7 +47,8 @@ from experiments.myna_head import (
     weighted_ce as weighted_ce,
 )
 
-SEED, BATCH = 42, 64
+SEED = 42
+BATCH_SIZE = 64
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = (
     "experiments/myna_cache.py",
@@ -73,14 +74,14 @@ def batches(size: int, passes: int, seed: int = SEED) -> Iterator[tuple[int, NDA
     rng = np.random.default_rng(seed)
     for epoch in range(1, passes + 1):
         order = rng.permutation(size)
-        for start in range(0, size, BATCH):
-            yield epoch, order[start : start + BATCH]
+        for start in range(0, size, BATCH_SIZE):
+            yield epoch, order[start : start + BATCH_SIZE]
 
 
 def predict(
     head: nn.Module, cache: LoadedCache, batch_size: int, watch: Callable[[], None]
 ) -> dict[str, list[float]]:
-    require(1 <= batch_size <= BATCH, "Unsupported head evaluation batch")
+    require(1 <= batch_size <= BATCH_SIZE, "Unsupported head evaluation batch")
     result: dict[str, list[float]] = {}
     for ids in cache.contract.selection_ids.values():
         for identity in ids:
@@ -93,7 +94,9 @@ def predict(
 
 def panel_metrics(logits: dict[str, list[float]], cache: LoadedCache) -> dict[str, dict[str, Any]]:
     return {
-        domain: metrics(ids, [int(np.argmax(logits[i])) for i in ids], cache.contract.labels)
+        domain: metrics(
+            ids, [int(np.argmax(logits[identity])) for identity in ids], cache.contract.labels
+        )
         for domain, ids in cache.contract.selection_ids.items()
     }
 
@@ -115,22 +118,22 @@ def batch_proof(
     reference: dict[str, list[float]], candidate: dict[str, list[float]]
 ) -> dict[str, Any]:
     require(reference.keys() == candidate.keys(), "Different batch proof membership")
-    maximum, ratio, disagreements = 0.0, 0.0, []
+    maximum = 0.0
+    ratio = 0.0
+    disagreements: list[str] = []
     for identity, values in reference.items():
-        a, b = (
-            np.asarray(values, dtype=np.float64),
-            np.asarray(candidate[identity], dtype=np.float64),
-        )
+        reference_logits = np.asarray(values, dtype=np.float64)
+        candidate_logits = np.asarray(candidate[identity], dtype=np.float64)
         require(
-            a.shape == b.shape == (24,)
-            and bool(np.isfinite(a).all())
-            and bool(np.isfinite(b).all()),
+            reference_logits.shape == candidate_logits.shape == (24,)
+            and bool(np.isfinite(reference_logits).all())
+            and bool(np.isfinite(candidate_logits).all()),
             "Invalid composed head logits",
         )
-        delta = np.abs(b - a)
+        delta = np.abs(candidate_logits - reference_logits)
         maximum = max(maximum, float(delta.max()))
-        ratio = max(ratio, float(np.max(delta / (1e-5 + 1e-4 * np.abs(a)))))
-        if int(np.argmax(a)) != int(np.argmax(b)):
+        ratio = max(ratio, float(np.max(delta / (1e-5 + 1e-4 * np.abs(reference_logits)))))
+        if int(np.argmax(reference_logits)) != int(np.argmax(candidate_logits)):
             disagreements.append(identity)
     return {
         "passed": ratio <= 1 and not disagreements,
@@ -138,7 +141,7 @@ def batch_proof(
         "max_allowed_ratio": ratio,
         "key_disagreements": disagreements,
         "reference_batch": 1,
-        "candidate_batch": BATCH,
+        "candidate_batch": BATCH_SIZE,
     }
 
 
@@ -171,13 +174,13 @@ def validate_qualification(qualification: dict[str, Any], identities: dict[str, 
     )
     require(
         qualification.get("identities")
-        == {k: v for k, v in identities.items() if k != "qualification_sha256"},
+        == {name: value for name, value in identities.items() if name != "qualification_sha256"},
         "Qualification numerical identities differ",
     )
     require(
         all(
-            qualification.get(k) is True
-            for k in (
+            qualification.get(key) is True
+            for key in (
                 "all_pitch_views_passed",
                 "long_track_composed_parity_passed",
                 "sustained_head_cost_measured",
@@ -218,8 +221,8 @@ def admit(config: dict[str, Any], watch: Callable[[], None]) -> tuple[LoadedCach
     documents: dict[str, Any] = {}
     for name, pin in PINS.items():
         require(inputs[name]["sha256"] == pin, "Changed approved input identity")
-        raw = checked_bytes(Path(inputs[name]["path"]), pin, watch)
-        documents[name] = group_rows(raw) if name == "groups" else json.loads(raw)
+        payload = checked_bytes(Path(inputs[name]["path"]), pin, watch)
+        documents[name] = group_rows(payload) if name == "groups" else json.loads(payload)
     for name in ("cache", "qualification"):
         documents[name] = checked_json(Path(inputs[name]["path"]), inputs[name]["sha256"], watch)
     qualification = documents["qualification"]
@@ -258,7 +261,8 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
     config = checked_json(config_path, config_sha256, watch)
     output = Path(config["output"])
     output.mkdir(parents=False, exist_ok=False)
-    committed_updates, committed_presentations = 0, 0
+    committed_updates = 0
+    committed_presentations = 0
     try:
         cache, control = admit(config, watch)
         random.seed(SEED)
@@ -273,7 +277,10 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
         head.to(config["device"])
         optimizer = make_optimizer(head)
         best: dict[str, dict[str, Any]] | None = None
-        best_epoch, updates, epoch_draws, epoch_loss = 0, 0, 0, 0.0
+        best_epoch = 0
+        updates = 0
+        epoch_draws = 0
+        epoch_loss = 0.0
         selected_file_sha = ""
         history = []
         for epoch, indices in batches(cache.contract.fit_windows, config["passes"]):
@@ -301,7 +308,7 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
             epoch_draws += len(indices)
             updates += 1
             if epoch_draws == cache.contract.fit_windows:
-                logits = predict(head, cache, BATCH, watch)
+                logits = predict(head, cache, BATCH_SIZE, watch)
                 measured = panel_metrics(logits, cache)
                 event = {
                     "pass": epoch,
@@ -312,9 +319,10 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
                     "logits": logits,
                 }
                 write_json(output / f"event-{epoch:03d}.json", event)
-                history.append({k: v for k, v in event.items() if k != "logits"})
+                history.append({name: value for name, value in event.items() if name != "logits"})
                 if best is None or selection_key(measured) > selection_key(best):
-                    best, best_epoch = measured, epoch
+                    best = measured
+                    best_epoch = epoch
                     torch.save(
                         {
                             "state_dict": head.state_dict(),
@@ -325,7 +333,8 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
                     )
                     (output / "selected.pt.pending").replace(output / "selected.pt")
                     selected_file_sha = sha256(output / "selected.pt", watch)
-                epoch_draws, epoch_loss = 0, 0.0
+                epoch_draws = 0
+                epoch_loss = 0.0
         require(
             best is not None and len(history) == config["passes"] and epoch_draws == 0,
             "Incomplete declared horizon",
@@ -342,7 +351,8 @@ def run(config_path: Path, config_sha256: str, watch: Callable[[], None]) -> dic
             output / "selected.pt", weights_only=True, map_location=config["device"]
         )
         head.load_state_dict(selected["state_dict"], strict=True)
-        batched, serial = predict(head, cache, BATCH, watch), predict(head, cache, 1, watch)
+        batched = predict(head, cache, BATCH_SIZE, watch)
+        serial = predict(head, cache, 1, watch)
         require(panel_metrics(batched, cache) == best, "Selected saved checkpoint does not replay")
         proof = batch_proof(serial, batched)
         write_json(

@@ -28,23 +28,23 @@ LOCAL_ABSTENTIONS = {"vote_memory_budget", "query_budget_exhausted"}
 
 
 def load(path: Path) -> dict[str, Any]:
-    raw = path.read_bytes()
-    return json.loads(gzip.decompress(raw) if raw.startswith(b"\x1f\x8b") else raw)
+    payload = path.read_bytes()
+    return json.loads(gzip.decompress(payload) if payload.startswith(b"\x1f\x8b") else payload)
 
 
 def control_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    positive = [r for r in rows if r["panel"] != "negative"]
-    negative = [r for r in rows if r["panel"] == "negative"]
+    positive = [row for row in rows if row["panel"] != "negative"]
+    negative = [row for row in rows if row["panel"] == "negative"]
     return dict(
-        complete=all(r["complete"] for r in rows),
+        complete=all(row["complete"] for row in rows),
         expected_positive=len(positive),
-        retrieved=sum(r["expected_retrieved"] for r in positive),
-        negative_identity_flags=sum(r["identity_flagged"] for r in negative),
-        negative_review_flags=sum(r["review_flagged"] for r in negative),
+        retrieved=sum(row["expected_retrieved"] for row in positive),
+        negative_identity_flags=sum(row["identity_flagged"] for row in negative),
+        negative_review_flags=sum(row["review_flagged"] for row in negative),
         passed=bool(positive and negative)
-        and all(r["complete"] for r in rows)
-        and all(r["expected_retrieved"] for r in positive)
-        and not any(r["identity_flagged"] for r in negative),
+        and all(row["complete"] for row in rows)
+        and all(row["expected_retrieved"] for row in positive)
+        and not any(row["identity_flagged"] for row in negative),
     )
 
 
@@ -58,16 +58,18 @@ def owned_directory(path: Path) -> None:
 def save_features(samples: np.ndarray, vendor: str, path: Path) -> dict[str, Any]:
     began = time.monotonic()
     hashes = landmarks(samples, vendor, query=True)
-    cp, step = chromaprint(samples)
+    chromaprint_values, step = chromaprint(samples)
     if path.exists() or path.is_symlink():
         raise ValueError("Query artifact already exists")
-    np.savez_compressed(path, landmarks=hashes, chromaprint=cp, chromaprint_step=step)
+    np.savez_compressed(
+        path, landmarks=hashes, chromaprint=chromaprint_values, chromaprint_step=step
+    )
     return dict(
         artifact=path.name,
         sha256=sha256(path),
         seconds=len(samples) / 11025,
         hashes=len(hashes),
-        chromaprint_items=len(cp),
+        chromaprint_items=len(chromaprint_values),
         extraction_seconds=time.monotonic() - began,
         query_shifts=4,
     )
@@ -123,12 +125,12 @@ def write_evidence(
 ) -> dict[str, Any]:
     began = time.monotonic()
     matched, informative = match_query(index, query, references, deadline)
-    raw = json.dumps(dict(id=identity, match=matched), sort_keys=True, allow_nan=False).encode()
+    encoded = json.dumps(dict(id=identity, match=matched), sort_keys=True, allow_nan=False).encode()
     path = output / f"{number:06}.json.gz"
     if path.exists():
         raise ValueError("Evidence already exists")
-    path.write_bytes(gzip.compress(raw, mtime=0))
-    decisions = [r["decision"] for r in matched["matches"]]
+    path.write_bytes(gzip.compress(encoded, mtime=0))
+    decisions = [alignment["decision"] for alignment in matched["matches"]]
     return dict(
         id=identity,
         panel=panel,
@@ -137,10 +139,13 @@ def write_evidence(
         informative=informative,
         expected_ref=expected_ref,
         expected_retrieved=any(
-            r["ref_id"] == expected_ref
-            and r["decision"] == "identity_evidence"
-            and (expected_offset is None or abs(r["offset_seconds"] - expected_offset) <= 0.25)
-            for r in matched["matches"]
+            alignment["ref_id"] == expected_ref
+            and alignment["decision"] == "identity_evidence"
+            and (
+                expected_offset is None
+                or abs(alignment["offset_seconds"] - expected_offset) <= 0.25
+            )
+            for alignment in matched["matches"]
         ),
         identity_flagged="identity_evidence" in decisions,
         review_flagged="review" in decisions,
@@ -149,7 +154,7 @@ def write_evidence(
         ),
         evidence=path.name,
         evidence_sha256=sha256(path),
-        decoded_sha256=hashlib.sha256(raw).hexdigest(),
+        decoded_sha256=hashlib.sha256(encoded).hexdigest(),
         query_sha256=sha256(query),
         alignments=len(matched["matches"]),
         match_seconds=time.monotonic() - began,
@@ -161,28 +166,28 @@ def validate_plan(plan: dict[str, Any], mode: str) -> None:
         raise ValueError("Unknown plan or mode")
     if plan["index_sha256"] != INDEX_SHA or plan["descriptor_sha256"] != FULL_SHA:
         raise ValueError("Reference identity differs")
-    if len(plan["controls"]) != 244 or len({r["id"] for r in plan["controls"]}) != 244:
+    if len(plan["controls"]) != 244 or len({row["id"] for row in plan["controls"]}) != 244:
         raise ValueError("Require original244 fixed controls")
-    if sum(r["panel"] == "negative" for r in plan["controls"]) != 64:
+    if sum(row["panel"] == "negative" for row in plan["controls"]) != 64:
         raise ValueError("Require original180 positive/64 negative controls")
     fresh = plan["fresh_controls"]
-    if not fresh or len(fresh) > 24 or len({r["id"] for r in fresh}) != len(fresh):
+    if not fresh or len(fresh) > 24 or len({row["id"] for row in fresh}) != len(fresh):
         raise ValueError("Require bounded fixed fresh controls")
-    if any(r["duration_seconds"] != 30 or r["offset_seconds"] <= 0 for r in fresh):
+    if any(row["duration_seconds"] != 30 or row["offset_seconds"] <= 0 for row in fresh):
         raise ValueError("Fresh controls must be30-second interior excerpts")
-    if {r["domain"] for r in fresh} != {"beatport", "fmak", "giantsteps"}:
+    if {row["domain"] for row in fresh} != {"beatport", "fmak", "giantsteps"}:
         raise ValueError("Fresh controls must exercise all three reference domains")
     cohort = plan.get("cohort", [])
-    if len(cohort) != 837 or len({r["id"] for r in cohort}) != 837:
+    if len(cohort) != 837 or len({row["id"] for row in cohort}) != 837:
         raise ValueError("Require frozen837 sensitivity union")
     primary = plan["primary_ids"]
     if (
         len(primary) != 769
         or len(set(primary)) != 769
-        or not set(primary) <= {r["id"] for r in cohort}
+        or not set(primary) <= {row["id"] for row in cohort}
     ):
         raise ValueError("Require frozen769 primary membership within837")
-    members = [r["member"] for r in cohort]
+    members = [row["member"] for row in cohort]
     if len(set(members)) != 837 or any(
         not name.startswith("genres/") or ".." in Path(name).parts for name in members
     ):
@@ -200,21 +205,23 @@ def run(plan: dict[str, Any], config: dict[str, Any], output: Path) -> None:
     validate_plan(plan, mode)
     if output.is_symlink() or output.stat().st_uid != os.getuid():
         raise ValueError("Unsafe output owner")
-    stage, queries, evidence = output / "stage", output / "queries", output / "evidence"
+    stage = output / "stage"
+    queries = output / "queries"
+    evidence = output / "evidence"
     for directory in (stage, queries, evidence):
         owned_directory(directory)
     root = Path(plan["cache_root"])
     descriptor_path = root / "references-v1/result.json"
     if sha256(descriptor_path) != FULL_SHA:
         raise ValueError("Reference descriptor differs")
-    fp = root / "references-v1/fingerprints"
+    fingerprint_root = root / "references-v1/fingerprints"
     index_path = root / "references-v1/index.sqlite"
     index = AllOffsetIndex.from_verified_artifacts(
         index_path,
         descriptor=load(descriptor_path),
         query_extraction_contract=CONTRACT,
         expected_index_sha256=INDEX_SHA,
-        fingerprint_root=fp,
+        fingerprint_root=fingerprint_root,
         artifact_sha256=plan["artifact_sha256"],
     )
     completed: list[dict[str, Any]] = []
@@ -259,7 +266,7 @@ def run(plan: dict[str, Any], config: dict[str, Any], output: Path) -> None:
         row = write_evidence(
             index,
             path,
-            fp,
+            fingerprint_root,
             evidence,
             len(completed),
             identity,
@@ -319,15 +326,15 @@ def run(plan: dict[str, Any], config: dict[str, Any], output: Path) -> None:
                 match(query, row["id"], "fresh", row["expected_ref"], row["offset_seconds"])
                 completed[-1]["extraction"] = feature
             fresh_results = completed[244:]
-            passed = all(r["expected_retrieved"] and r["complete"] for r in fresh_results)
+            passed = all(row["expected_retrieved"] and row["complete"] for row in fresh_results)
             if not passed:
                 raise ValueError("Fresh30-second extraction controls failed")
         else:
             archive_path = Path(plan["archive_path"])
             if sha256(archive_path) != ARCHIVE_SHA or plan["archive_sha256"] != ARCHIVE_SHA:
                 raise ValueError("GTZAN archive differs")
-            members = {r["member"]: r for r in plan["cohort"] if r["id"] in unvisited}
-            all_members = {r["member"]: r["id"] for r in plan["cohort"]}
+            members = {row["member"]: row for row in plan["cohort"] if row["id"] in unvisited}
+            all_members = {row["member"]: row["id"] for row in plan["cohort"]}
             observed_order: list[str] = []
             seen: set[str] = set()
             with tarfile.open(archive_path, "r|gz") as archive:
@@ -353,16 +360,16 @@ def run(plan: dict[str, Any], config: dict[str, Any], output: Path) -> None:
                     stream = archive.extractfile(member)
                     if stream is None:
                         raise ValueError("Missing selected member payload")
-                    raw = stream.read(MEMBER_LIMIT + 1)
+                    member_bytes = stream.read(MEMBER_LIMIT + 1)
                     row = members[member.name]
                     if (
-                        len(raw) != member.size
-                        or hashlib.sha256(raw).hexdigest() != row["container_sha256"]
+                        len(member_bytes) != member.size
+                        or hashlib.sha256(member_bytes).hexdigest() != row["container_sha256"]
                     ):
                         raise ValueError("Selected archive member differs")
                     pcm_path = stage / "query.wav"
                     with pcm_path.open("xb") as target:
-                        target.write(raw)
+                        target.write(member_bytes)
                     query = queries / f"{len(completed):06}.npz"
                     try:
                         samples, pcm_sha = decode(str(pcm_path))

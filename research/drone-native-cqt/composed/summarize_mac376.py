@@ -48,14 +48,20 @@ def comparison(actual: list[float], reference: list[float]) -> dict[str, Any]:
     if (
         len(actual) != 24
         or len(reference) != 24
-        or not all(math.isfinite(v) for v in actual + reference)
+        or not all(math.isfinite(value) for value in actual + reference)
     ):
         raise ValueError("24 finite logits required")
-    errors = [abs(a - b) for a, b in zip(actual, reference, strict=True)]
+    errors = [
+        abs(actual_value - reference_value)
+        for actual_value, reference_value in zip(actual, reference, strict=True)
+    ]
     same = max(range(24), key=actual.__getitem__) == max(range(24), key=reference.__getitem__)
     return {
         "passed": same
-        and all(e <= 1e-5 + 1e-5 * abs(r) for e, r in zip(errors, reference, strict=True)),
+        and all(
+            error <= 1e-5 + 1e-5 * abs(reference_value)
+            for error, reference_value in zip(errors, reference, strict=True)
+        ),
         "finite": True,
         "same_key": same,
         "max_absolute": max(errors),
@@ -66,14 +72,20 @@ def comparison(actual: list[float], reference: list[float]) -> dict[str, Any]:
 
 def certificate(row: dict[str, Any], family: str) -> dict[str, Any]:
     gate = row["gates"][family]
-    actual, reference = gate["logits"], gate["reference"]
+    actual = gate["logits"]
+    reference = gate["reference"]
     winner = max(range(24), key=reference.__getitem__)
-    errors = [abs(a - b) for a, b in zip(actual, reference, strict=True)]
-    margin = reference[winner] - max(v for i, v in enumerate(reference) if i != winner)
+    errors = [
+        abs(actual_value - reference_value)
+        for actual_value, reference_value in zip(actual, reference, strict=True)
+    ]
+    margin = reference[winner] - max(
+        value for index, value in enumerate(reference) if index != winner
+    )
     slack = min(
-        reference[winner] - r - errors[winner] - errors[i]
-        for i, r in enumerate(reference)
-        if i != winner
+        reference[winner] - value - errors[winner] - errors[index]
+        for index, value in enumerate(reference)
+        if index != winner
     )
     return {
         "id": row["id"],
@@ -92,14 +104,9 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
     raw = files["v4/combined-diagnostic.json"].encode()
     if sha(raw) != SOURCE:
         raise ValueError("original disjoint source identity")
-    combined, prior, new = (
-        load(n)
-        for n in (
-            "v4/combined-diagnostic.json",
-            "v3/qualification/incomplete.json",
-            "v4/qualification/report.json",
-        )
-    )
+    combined = load("v4/combined-diagnostic.json")
+    prior = load("v3/qualification/incomplete.json")
+    new = load("v4/qualification/report.json")
     old = load("v2/qualification/incomplete.json")
     if (
         old["complete"]
@@ -123,8 +130,8 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
     rows = combined["cases"]
     if (
         rows != prior["cases"] + new["cases"]
-        or [r["index"] for r in rows] != list(range(376))
-        or len({r["id"] for r in rows}) != 376
+        or [row["index"] for row in rows] != list(range(376))
+        or len({row["id"] for row in rows}) != 376
     ):
         raise ValueError("exact disjoint ordered376 union")
     if (
@@ -184,14 +191,15 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
                 != row["gates"][name]
             ):
                 raise ValueError("original gate recomputation")
-            i = row["index"]
-            phase = "v3" if i < 305 else "v4"
-            native_name = phase + f"/qualification/cases/{i:04d}.native.json"
+            case_index = row["index"]
+            phase = "v3" if case_index < 305 else "v4"
+            native_name = phase + f"/qualification/cases/{case_index:04d}.native.json"
             if sha(files[native_name].encode()) != row["native_report_sha256"]:
                 raise ValueError("actual native report hash")
             native = load(native_name)["cases"][0]
             predictions = {
-                p["backend"]: p["logits"] for p in native["iterations"][0]["predictions"]
+                prediction["backend"]: prediction["logits"]
+                for prediction in native["iterations"][0]["predictions"]
             }
             if (
                 native["id"] != row["id"]
@@ -200,37 +208,43 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
                 or predictions["chunked"] != row["gates"]["chunk_vs_mac"]["logits"]
             ):
                 raise ValueError("actual native vectors/input")
-        records = [certificate(r, name) for r in rows]
+        records = [certificate(row, name) for row in rows]
         recorded = certificates["families"][name]
         if (
             records != recorded["cases"]
             or recorded["certified_tracks"] != 376
             or recorded["minimum_slack"]
-            != min(r["minimum_pairwise_certificate_slack"] for r in records)
-            or recorded["minimum_reference_margin"] != min(r["reference_margin"] for r in records)
+            != min(record["minimum_pairwise_certificate_slack"] for record in records)
+            or recorded["minimum_reference_margin"]
+            != min(record["reference_margin"] for record in records)
             or independent["families"][name]["verified_cases"] != 376
             or independent["families"][name]["minimum_slack_id"]
-            != min(records, key=lambda r: r["minimum_pairwise_certificate_slack"])["id"]
-            or min(r["minimum_pairwise_certificate_slack"] for r in records)
+            != min(records, key=lambda record: record["minimum_pairwise_certificate_slack"])["id"]
+            or min(record["minimum_pairwise_certificate_slack"] for record in records)
             != independent["families"][name]["minimum_slack"]
         ):
             raise ValueError("observed certificate arithmetic")
-        gates = [r["gates"][name] for r in rows]
+        gates = [row["gates"][name] for row in rows]
         summary["families"][name] = {
-            "passed": sum(g["passed"] for g in gates),
-            "key_disagreements": sum(not g["same_key"] for g in gates),
-            "maximum_absolute": max(g["max_absolute"] for g in gates),
-            "minimum_observed_slack": min(r["minimum_pairwise_certificate_slack"] for r in records),
+            "passed": sum(gate["passed"] for gate in gates),
+            "key_disagreements": sum(not gate["same_key"] for gate in gates),
+            "maximum_absolute": max(gate["max_absolute"] for gate in gates),
+            "minimum_observed_slack": min(
+                record["minimum_pairwise_certificate_slack"] for record in records
+            ),
         }
     expected = [375, 375, 348, 350, 350, 376]
-    if [summary["families"][n]["passed"] for n in FAMILIES] != expected:
+    if [summary["families"][family]["passed"] for family in FAMILIES] != expected:
         raise ValueError("published gate counts")
     witness = load("derived/csr-normalization-witnesses.json")
-    if [r["id"] for r in witness["rows"]] != [r["id"] for r in rows] or any(
-        not r["all_nine_csr_arrays_equal"]
-        or len(r["normalization_differences"]) != 3
-        or any(d["ulp_distance"] != 1 for d in r["normalization_differences"])
-        for r in witness["rows"]
+    if [witness_row["id"] for witness_row in witness["rows"]] != [row["id"] for row in rows] or any(
+        not witness_row["all_nine_csr_arrays_equal"]
+        or len(witness_row["normalization_differences"]) != 3
+        or any(
+            difference["ulp_distance"] != 1
+            for difference in witness_row["normalization_differences"]
+        )
+        for witness_row in witness["rows"]
     ):
         raise ValueError("CSR/normalization witnesses")
     summary["nine_reused"] = len(new["nine"]) == 9 and new["nine"] == prior["nine"]
@@ -246,7 +260,7 @@ if __name__ == "__main__":
     result = summarize(Path(__file__).resolve().parent)
     print(
         json.dumps(
-            {k: v for k, v in result.items() if k not in ("cases", "resources")},
+            {key: value for key, value in result.items() if key not in ("cases", "resources")},
             indent=2,
         )
     )

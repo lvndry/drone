@@ -66,10 +66,11 @@ def test_errors_and_abstentions_stay_in_scored_and_paired_denominators() -> None
         replace(row(4), k10_pred=14, musicfm_pred=None, musicfm_status="error"),
     ]
     result = slice_summary(rows, "corpus", "synthetic", load_score_code(ROOT))
-    k10, mfm = result["models"]["k10_expanded"], result["models"]["musicfm_pilot"]
+    k10 = result["models"]["k10_expanded"]
+    musicfm = result["models"]["musicfm_pilot"]
     assert (k10["correct"], k10["total"], k10["n_error"], k10["n_abstain"]) == (1, 4, 1, 1)
     assert k10["exact"] == 0.25 and k10["mirex"] == 1.5 / 4
-    assert mfm["correct"] == 2 and mfm["n_error"] == 1
+    assert musicfm["correct"] == 2 and musicfm["n_error"] == 1
     assert result["group_count"] == 1  # Four rows are not four independent units.
     assert result["paired"] == {
         "both_correct": 1,
@@ -84,7 +85,10 @@ def test_errors_and_abstentions_stay_in_scored_and_paired_denominators() -> None
 
 
 def test_canonical_relative_parallel_and_symmetric_fifth_conventions() -> None:
-    rows = [replace(row(i + 1), k10_pred=p) for i, p in enumerate((0, 14, 10, 19, 1, 4))]
+    rows = [
+        replace(row(index + 1), k10_pred=prediction)
+        for index, prediction in enumerate((0, 14, 10, 19, 1, 4))
+    ]
     result = model_score(rows, "k10_expanded", load_score_code(ROOT))
     assert result["correct"] == 1
     assert result["symmetric_units10"] == 25  # 1+.5+.5+.3+.2+0
@@ -96,20 +100,21 @@ def test_fixed_boundaries_empty_native_cells_and_unknown_metadata() -> None:
     seconds = (29, 30, 119, 120, 299, 300, 600, 601)
     bpms = (89, 90, 109, 110, 129, 130, 150, None)
     rows = [
-        row(i + 1, seconds=s, bpm=b) for i, (s, b) in enumerate(zip(seconds, bpms, strict=True))
+        row(index + 1, seconds=duration, bpm=tempo)
+        for index, (duration, tempo) in enumerate(zip(seconds, bpms, strict=True))
     ]
     universe = {"taxonomy:beatport_workbook_native": ["House", "Unobserved genre"]}
     cells = corpus_slices(rows, "beatport", load_score_code(ROOT), universe)
-    durations = [c for c in cells if c["dimension"] == "duration_actual_evaluation"]
-    assert [c["n"] for c in durations] == [1, 2, 2, 2, 1, 0]
-    tempos = [c for c in cells if c["dimension"] == "bpm_publisher"]
-    assert [c["n"] for c in tempos] == [1, 2, 2, 1, 1, 1]
-    missing = next(c for c in cells if c["label"] == "Unobserved genre")
+    durations = [cell for cell in cells if cell["dimension"] == "duration_actual_evaluation"]
+    assert [cell["n"] for cell in durations] == [1, 2, 2, 2, 1, 0]
+    tempos = [cell for cell in cells if cell["dimension"] == "bpm_publisher"]
+    assert [cell["n"] for cell in tempos] == [1, 2, 2, 1, 1, 1]
+    missing = next(cell for cell in cells if cell["label"] == "Unobserved genre")
     assert missing["n"] == 0 and missing["models"]["musicfm_pilot"]["mirex"] is None
     api_unknown = next(
-        c
-        for c in cells
-        if c["dimension"] == "taxonomy:beatport_api_genres" and c["label"] == "unknown"
+        cell
+        for cell in cells
+        if cell["dimension"] == "taxonomy:beatport_api_genres" and cell["label"] == "unknown"
     )
     assert api_unknown["n"] == 8  # Workbook genre cannot fill a missing API taxonomy.
 

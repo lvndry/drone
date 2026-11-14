@@ -49,10 +49,10 @@ def benchmark(
     start = time.perf_counter()
     model, payload = load_checkpoint(checkpoint)
     load_ms = 1000 * (time.perf_counter() - start)
-    x = torch.zeros(1, N_CORE, CROP_FRAMES)
+    synthetic_features = torch.zeros(1, N_CORE, CROP_FRAMES)
     with torch.inference_mode():
         for _ in range(5):
-            model(x)
+            model(synthetic_features)
         result: dict[str, Any] = {
             "hardware": platform.platform(),
             "machine": platform.machine(),
@@ -64,14 +64,14 @@ def benchmark(
             "batch_size": 1,
             "feature_crop": payload.get("crop"),
             "model_load_ms": load_ms,
-            "pytorch_forward": timed(lambda: model(x), iterations),
+            "pytorch_forward": timed(lambda: model(synthetic_features), iterations),
             "note": "Synthetic tensor latency; no accuracy measurement. Parent CPU timing excludes ffmpeg.",
         }
         if onnx:
             from drone.export import cpu_session
 
             session = cpu_session(onnx, threads)
-            inputs = {"features": x.numpy()}
+            inputs = {"features": synthetic_features.numpy()}
             for _ in range(5):
                 session.run(None, inputs)
             result["onnx_forward"] = timed(lambda: session.run(None, inputs), iterations)

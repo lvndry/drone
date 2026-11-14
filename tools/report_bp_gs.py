@@ -30,8 +30,14 @@ def review_category(match: dict[str, Any]) -> str:
         if match["count"] >= 20 and match["span_seconds"] >= 8
         else "review_landmarks"
     )
-    cp = match["chromaprint_distance"]
-    corroboration = "missing" if cp is None else "corroborates" if cp <= 0.15 else "disagrees"
+    chromaprint_distance = match["chromaprint_distance"]
+    corroboration = (
+        "missing"
+        if chromaprint_distance is None
+        else "corroborates"
+        if chromaprint_distance <= 0.15
+        else "disagrees"
+    )
     return tier + ":" + corroboration
 
 

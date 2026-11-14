@@ -30,13 +30,15 @@ def summarize(pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]]) -> dict[s
         means[arm] = {}
         for domain in ("beatport", "fmak"):
             values = [
-                float(pairs[s][arm_index]["domain_metrics"][domain]["mirex"]) for s in (13, 37, 73)
+                float(pairs[seed][arm_index]["domain_metrics"][domain]["mirex"])
+                for seed in (13, 37, 73)
             ]
             means[arm][domain] = dict(
                 mean=statistics.mean(values), sample_std=statistics.stdev(values)
             )
     delta: dict[str, float] = {
-        d: means["joint"][d]["mean"] - means["control"][d]["mean"] for d in ("beatport", "fmak")
+        domain: means["joint"][domain]["mean"] - means["control"][domain]["mean"]
+        for domain in ("beatport", "fmak")
     }
     qualifies = delta["fmak"] >= 0.02 and delta["beatport"] >= -0.02
     return dict(
@@ -52,9 +54,9 @@ def summarize(pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]]) -> dict[s
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--root", type=Path, required=True)
-    args = p.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, required=True)
+    args = parser.parse_args()
     pairs: dict[int, tuple[dict[str, Any], dict[str, Any]]] = {}
     hashes: dict[str, str] = {}
     for seed in (13, 37, 73):

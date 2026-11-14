@@ -20,7 +20,8 @@ def validation_fixture(tmp_path: Path) -> argparse.Namespace:
     bundle.mkdir()
     for name in ("contract.json", "prefix.onnx", "head.onnx"):
         (bundle / name).write_text(name)
-    manifest, model = tmp_path / "manifest.json", tmp_path / "full.onnx"
+    manifest = tmp_path / "manifest.json"
+    model = tmp_path / "full.onnx"
     manifest.write_text("fixture manifest")
     model.write_text("fixture model")
     report = json.loads(

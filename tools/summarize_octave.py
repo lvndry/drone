@@ -30,12 +30,12 @@ def main() -> None:
     parser.add_argument("--device", default="cpu")
     args = parser.parse_args()
     seeds = (13, 37, 73)
-    runs = [read(args.root / f"seed{s}/run.json") for s in seeds]
+    runs = [read(args.root / f"seed{seed}/run.json") for seed in seeds]
     assert all(run["status"] == "complete" for run in runs)
-    assert [r["identity"]["seed"] for r in runs] == list(seeds)
-    identities = [dict(r["identity"]) for r in runs]
-    for row in identities:
-        row.pop("seed")
+    assert [run["identity"]["seed"] for run in runs] == list(seeds)
+    identities = [dict(run["identity"]) for run in runs]
+    for identity in identities:
+        identity.pop("seed")
     assert identities[0] == identities[1] == identities[2]
     pilot = read(args.pilot / "run.json")
     repeated_predictions = pilot["domain_metrics"] == runs[0]["domain_metrics"]
@@ -45,22 +45,27 @@ def main() -> None:
     assert signature(manifest) == identities[0]["feature_manifest_sha256"]
     assert manifest["feature_spec"] == FEATURE_SPEC
     rows = manifest["rows"]
-    val = [i for i, row in enumerate(rows) if row["role"] == "validation"]
-    refs = np.array([row["ref"] for row in rows])[val]
+    validation_indices = [index for index, row in enumerate(rows) if row["role"] == "validation"]
+    references = np.array([row["ref"] for row in rows])[validation_indices]
     positions = {
-        name: [j for j, i in enumerate(val) if rows[i]["domain"] == name]
+        name: [
+            position
+            for position, row_index in enumerate(validation_indices)
+            if rows[row_index]["domain"] == name
+        ]
         for name in ("beatport", "fmak")
     }
     native = {"beatport": read(args.native_beatport), "fmak": read(args.native_fmak)}
     for name in positions:
-        expected = [rows[val[j]]["id"] for j in positions[name]]
+        expected = [rows[validation_indices[position]]["id"] for position in positions[name]]
         actual = native[name]["ids"]
         if name == "beatport":
             actual = ["beatport:" + identity for identity in actual]
         assert actual == expected
     device_setup(args.device)
     array = np.load(args.data / "features.npy", mmap_mode="r", allow_pickle=False)
-    probs, checkpoints = [], []
+    seed_probabilities = []
+    checkpoints = []
     for seed, run in zip(seeds, runs, strict=True):
         path = args.root / f"seed{seed}/best.pt"
         payload = torch.load(path, map_location="cpu", weights_only=True)
@@ -68,10 +73,10 @@ def main() -> None:
         assert payload["feature_spec"] == FEATURE_SPEC and payload["identity"] == run["identity"]
         model = OctaveNet().to(args.device)
         model.load_state_dict(payload["state_dict"])
-        probability = probabilities(model, array, val, args.device)
+        probability = probabilities(model, array, validation_indices, args.device)
         for name, index in positions.items():
-            assert metrics(probability[index], refs[index]) == run["domain_metrics"][name]
-        probs.append(probability)
+            assert metrics(probability[index], references[index]) == run["domain_metrics"][name]
+        seed_probabilities.append(probability)
         checkpoints.append(
             {
                 "seed": seed,
@@ -80,15 +85,22 @@ def main() -> None:
             }
         )
         del model
-    candidates = {"canonical-seed13": probs[0], "ensemble-all-three": np.mean(probs, axis=0)}
+    candidates = {
+        "canonical-seed13": seed_probabilities[0],
+        "ensemble-all-three": np.mean(seed_probabilities, axis=0),
+    }
     evaluated = {
         name: {
-            "combined": metrics(prob, refs),
-            **{domain: metrics(prob[index], refs[index]) for domain, index in positions.items()},
+            "combined": metrics(candidate_probability, references),
+            **{
+                domain: metrics(candidate_probability[index], references[index])
+                for domain, index in positions.items()
+            },
         }
-        for name, prob in candidates.items()
+        for name, candidate_probability in candidates.items()
     }
-    canonical, ensemble = evaluated["canonical-seed13"], evaluated["ensemble-all-three"]
+    canonical = evaluated["canonical-seed13"]
+    ensemble = evaluated["ensemble-all-three"]
     use_ensemble = ensemble["combined"]["mirex"] >= canonical["combined"]["mirex"] + 0.01 and all(
         ensemble[name]["mirex"] >= canonical[name]["mirex"] - 0.005 for name in positions
     )
@@ -111,15 +123,15 @@ def main() -> None:
     )
     paired = {}
     for name, index in positions.items():
-        truth = refs[index]
+        truth = references[index]
         cnn = evaluated[choice][name]["predictions"]
         dsp = native[name]["predictions"]
 
-        def scores(pred: KeyIndices) -> np.ndarray:
+        def scores(predictions: KeyIndices) -> np.ndarray:
             return np.array(
                 [
-                    WEIGHTS[key_relation(int(p), int(r))] if p >= 0 else 0
-                    for p, r in zip(pred, truth, strict=True)
+                    WEIGHTS[key_relation(int(prediction), int(reference))] if prediction >= 0 else 0
+                    for prediction, reference in zip(predictions, truth, strict=True)
                 ]
             )
 
@@ -141,14 +153,18 @@ def main() -> None:
         "seed13_predictions_reproduce_pilot": repeated_predictions,
         "seed13_histories_reproduce_pilot": repeated_history,
         "seed13_max_loss_difference": max(
-            abs(a["loss"] - b["loss"])
-            for a, b in zip(pilot["history"], runs[0]["history"], strict=True)
+            abs(pilot_epoch["loss"] - repeated_epoch["loss"])
+            for pilot_epoch, repeated_epoch in zip(
+                pilot["history"], runs[0]["history"], strict=True
+            )
         ),
         "seed13_validation_epoch_score_differences": sum(
-            a["validation_mirex"] != b["validation_mirex"]
-            for a, b in zip(pilot["history"], runs[0]["history"], strict=True)
+            pilot_epoch["validation_mirex"] != repeated_epoch["validation_mirex"]
+            for pilot_epoch, repeated_epoch in zip(
+                pilot["history"], runs[0]["history"], strict=True
+            )
         ),
-        "elapsed_seconds": sum(r["elapsed_seconds"] for r in runs),
+        "elapsed_seconds": sum(run["elapsed_seconds"] for run in runs),
         "calibration_used": False,
         "final_holdout_used": False,
         "selection_tool_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -160,13 +176,13 @@ def main() -> None:
     target.write_text(json.dumps(result, indent=2) + "\n")
     np.savez(
         args.root / "validation-probabilities.npz",
-        **dict(zip([f"seed{s}" for s in seeds], probs, strict=True)),
+        **dict(zip([f"seed{seed}" for seed in seeds], seed_probabilities, strict=True)),
     )
     print(
         json.dumps(
             {
-                k: result[k]
-                for k in (
+                key: result[key]
+                for key in (
                     "choice",
                     "eligible_for_final_evaluation",
                     "confirmation",

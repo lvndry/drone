@@ -22,24 +22,24 @@ def plan() -> dict[str, Any]:
         vendor_path="/unused/vendor",
         artifact_sha256={},
         dictionary=[],
-        primary_ids=[f"item{i}" for i in range(769)],
+        primary_ids=[f"item{index}" for index in range(769)],
         cohort=[
-            dict(id=f"item{i}", member=f"genres/mock/{i}.wav", container_sha256="a" * 64)
-            for i in range(837)
+            dict(id=f"item{index}", member=f"genres/mock/{index}.wav", container_sha256="a" * 64)
+            for index in range(837)
         ],
         controls=[
             dict(
-                id=f"control{i}",
-                panel="positive" if i < 180 else "negative",
-                path=f"/unused/{i}.npz",
+                id=f"control{index}",
+                panel="positive" if index < 180 else "negative",
+                path=f"/unused/{index}.npz",
                 sha256="mock",
-                expected_ref=7 if i < 180 else None,
+                expected_ref=7 if index < 180 else None,
             )
-            for i in range(244)
+            for index in range(244)
         ],
         fresh_controls=[
             dict(
-                id=f"fresh{i}",
+                id=f"fresh{index}",
                 domain=domain,
                 duration_seconds=30,
                 offset_seconds=0.137,
@@ -47,7 +47,7 @@ def plan() -> dict[str, Any]:
                 source_container_sha256="mock",
                 expected_ref=7,
             )
-            for i, domain in enumerate(("beatport", "fmak", "giantsteps"))
+            for index, domain in enumerate(("beatport", "fmak", "giantsteps"))
         ],
     )
 
@@ -60,7 +60,7 @@ def config() -> dict[str, Any]:
         deadline_epoch=100,
         caps=dict(guardian.MAXIMUMS),
         cpus=[8, 9],
-        protected_starts=[dict(pid=i, start_ticks=i) for i in range(4)],
+        protected_starts=[dict(pid=index, start_ticks=index) for index in range(4)],
         gpu_uuids=["GPU-test"],
         host_reserve_bytes=40 * 1024**3,
         gpu_reserve_bytes=8 * 1024**3,
@@ -159,21 +159,23 @@ def test_negative_reviews_do_not_fail_operational_gate() -> None:
 
 def setup_worker(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> MagicMock:
     index = MagicMock()
-    monkeypatch.setattr(worker.AllOffsetIndex, "from_verified_artifacts", lambda *a, **k: index)
+    monkeypatch.setattr(
+        worker.AllOffsetIndex, "from_verified_artifacts", lambda *args, **kwargs: index
+    )
     monkeypatch.setattr(
         worker,
         "sha256",
-        lambda p: (
+        lambda path: (
             worker.FULL_SHA
-            if p.name == "result.json"
+            if path.name == "result.json"
             else worker.INDEX_SHA
-            if p.name == "index.sqlite"
+            if path.name == "index.sqlite"
             else "mock"
         ),
     )
-    monkeypatch.setattr(worker, "load", lambda p: {})
-    monkeypatch.setattr(worker, "verify_dictionary", lambda *a: None)
-    monkeypatch.setattr(worker, "save_features", lambda *a: dict(seconds=30, query_shifts=4))
+    monkeypatch.setattr(worker, "load", lambda path: {})
+    monkeypatch.setattr(worker, "verify_dictionary", lambda *args: None)
+    monkeypatch.setattr(worker, "save_features", lambda *args: dict(seconds=30, query_shifts=4))
 
     def crop(row: dict[str, Any], target: Path, ffmpeg: str) -> dict[str, Any]:
         target.write_bytes(b"mock crop")
@@ -208,7 +210,9 @@ def test_qualification_never_opens_gtzan_archive(
         return np.zeros(30 * 11025, dtype=np.float32), "mock"
 
     monkeypatch.setattr(worker, "decode", decode)
-    monkeypatch.setattr(worker.tarfile, "open", lambda *a, **k: pytest.fail("GTZAN archive opened"))
+    monkeypatch.setattr(
+        worker.tarfile, "open", lambda *args, **kwargs: pytest.fail("GTZAN archive opened")
+    )
     worker.run(
         plan(),
         dict(
@@ -237,7 +241,9 @@ def test_failed_cached_control_prevents_fresh_audio(
         return fake_evidence(*args, **kwargs) | {"expected_retrieved": False}
 
     monkeypatch.setattr(worker, "write_evidence", failed)
-    monkeypatch.setattr(worker, "decode", lambda *a, **k: pytest.fail("Audio opened before gate"))
+    monkeypatch.setattr(
+        worker, "decode", lambda *args, **kwargs: pytest.fail("Audio opened before gate")
+    )
     with pytest.raises(ValueError, match="operational"):
         worker.run(
             plan(), dict(mode="qualification", deadline_epoch=10**12, query_seconds=120), tmp_path
@@ -255,18 +261,18 @@ def test_whole_tree_cpu_breach_terminates_only_owned_child(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path, cleanup_fails: bool
 ) -> None:
     value = config() | dict(output_root=str(tmp_path / "output"))
-    monkeypatch.setattr(guardian, "load", lambda p: permit() if p.name == "permit" else value)
-    monkeypatch.setattr(guardian, "sha256", lambda p: "bound")
-    monkeypatch.setattr(guardian, "environment", lambda c: None)
-    monkeypatch.setattr(guardian, "verify_bindings", lambda c: None)
-    monkeypatch.setattr(guardian, "execution_plan", lambda c: {})
-    monkeypatch.setattr(guardian, "reserve_check", lambda *a: None)
+    monkeypatch.setattr(guardian, "load", lambda path: permit() if path.name == "permit" else value)
+    monkeypatch.setattr(guardian, "sha256", lambda path: "bound")
+    monkeypatch.setattr(guardian, "environment", lambda runtime_config: None)
+    monkeypatch.setattr(guardian, "verify_bindings", lambda runtime_config: None)
+    monkeypatch.setattr(guardian, "execution_plan", lambda runtime_config: {})
+    monkeypatch.setattr(guardian, "reserve_check", lambda *args: None)
     monkeypatch.setattr(guardian.time, "time", lambda: 20)
-    monkeypatch.setattr(guardian, "start_identity", lambda p: 11)
-    monkeypatch.setattr(guardian, "process_tree", lambda p: (100, 7201))
+    monkeypatch.setattr(guardian, "start_identity", lambda pid: 11)
+    monkeypatch.setattr(guardian, "process_tree", lambda pid: (100, 7201))
     child = MagicMock(pid=12345)
     child.poll.return_value = None
-    monkeypatch.setattr(guardian.subprocess, "Popen", lambda *a, **k: child)
+    monkeypatch.setattr(guardian.subprocess, "Popen", lambda *args, **kwargs: child)
     stopped = MagicMock()
     if cleanup_fails:
         stopped.side_effect = RuntimeError("cleanup identity changed")
@@ -292,9 +298,9 @@ def test_identity_at_wrong_offset_does_not_pass_fresh_control(
         dict(ref_id=8, decision="review", offset_seconds=37.125, chromaprint_distance=0.4),
     ]
     monkeypatch.setattr(
-        worker, "match_query", lambda *a: (dict(complete=True, matches=matches), True)
+        worker, "match_query", lambda *args: (dict(complete=True, matches=matches), True)
     )
-    monkeypatch.setattr(worker, "sha256", lambda p: "mock")
+    monkeypatch.setattr(worker, "sha256", lambda path: "mock")
     result = worker.write_evidence(
         MagicMock(), tmp_path / "query.npz", tmp_path, tmp_path, 0, "fresh", 100, 7, "fresh", 37.125
     )
@@ -325,7 +331,7 @@ def test_streamed_union_is_queried_once_with_primary_membership(
             info.size = len(raw)
             archive.addfile(info, io.BytesIO(raw))
     value.update(archive_path=str(archive_path), archive_sha256=worker.ARCHIVE_SHA)
-    monkeypatch.setattr(worker, "validate_plan", lambda *a: None)
+    monkeypatch.setattr(worker, "validate_plan", lambda *args: None)
 
     def digest(path: Path) -> str:
         if path == archive_path:
@@ -333,7 +339,7 @@ def test_streamed_union_is_queried_once_with_primary_membership(
         return worker.FULL_SHA if path.name == "result.json" else worker.INDEX_SHA
 
     monkeypatch.setattr(worker, "sha256", digest)
-    monkeypatch.setattr(worker, "decode", lambda *a: (np.zeros(11025, dtype=np.float32), "pcm"))
+    monkeypatch.setattr(worker, "decode", lambda *args: (np.zeros(11025, dtype=np.float32), "pcm"))
     called = []
 
     def matched(*args: object, **kwargs: object) -> dict[str, Any]:
@@ -369,14 +375,14 @@ def test_streamed_union_is_queried_once_with_primary_membership(
                 outcome="insufficient_information",
             ),
         ]
-        monkeypatch.setattr(worker, "prior_ledger", lambda *a: (imported, {"item2"}))
+        monkeypatch.setattr(worker, "prior_ledger", lambda *args: (imported, {"item2"}))
     if scenario == "unknown_failure":
         with pytest.raises(RuntimeError, match="Unknown/nonlocal"):
             worker.run(value, execution, output)
         assert called == ["item0"]
         assert not (output / "result.json").exists()
         partial = guardian.load(output / "partial.json")
-        assert [r["status"] for r in partial["cohort_ledger"]] == [
+        assert [entry["status"] for entry in partial["cohort_ledger"]] == [
             "query_incomplete",
             "unvisited",
             "unvisited",
@@ -385,7 +391,7 @@ def test_streamed_union_is_queried_once_with_primary_membership(
     worker.run(value, execution, output)
     result = guardian.load(output / "result.json")
     assert len(result["results"]) == 3
-    assert [r["primary769"] for r in result["results"]] == [False, True, False]
+    assert [entry["primary769"] for entry in result["results"]] == [False, True, False]
     assert not list((output / "stage").iterdir())
     assert not result["qualification_passed"]
     if scenario in {"vote_budget", "continuation"}:
@@ -400,14 +406,15 @@ def test_shared_binary_different_venv_is_rejected(
 ) -> None:
     binary = tmp_path / "base-python"
     binary.write_bytes(b"same executable binary")
-    first, second = tmp_path / "venv-one/python", tmp_path / "venv-two/python"
+    first = tmp_path / "venv-one/python"
+    second = tmp_path / "venv-two/python"
     for path in (first, second):
         path.parent.mkdir()
         path.symlink_to(binary)
     assert first.resolve() == second.resolve()
     monkeypatch.setattr(guardian.sys, "executable", str(first))
-    monkeypatch.setattr(guardian.os, "sched_getaffinity", lambda p: {8, 9}, raising=False)
-    monkeypatch.setattr(guardian.os, "getpriority", lambda *a: 19, raising=False)
+    monkeypatch.setattr(guardian.os, "sched_getaffinity", lambda pid: {8, 9}, raising=False)
+    monkeypatch.setattr(guardian.os, "getpriority", lambda *args: 19, raising=False)
     monkeypatch.setattr(guardian.os, "PRIO_PROCESS", 0, raising=False)
     monkeypatch.setattr(guardian.shutil, "which", lambda name: "/mock/ffmpeg")
     monkeypatch.chdir(guardian.ROOT)

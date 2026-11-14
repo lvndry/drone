@@ -17,12 +17,13 @@ def summarize(screen: dict[str, Any], confirmation: dict[str, Any]) -> dict[str,
             raise ValueError(f"Screen and confirmation differ: {key}")
     if screen["status"] != "complete" or confirmation["status"] != "complete":
         raise ValueError("Both experiment stages must complete before a final summary")
-    original = {r["identity"]["recipe"]["name"]: r for r in screen["results"]}
+    original = {run["identity"]["recipe"]["name"]: run for run in screen["results"]}
     grouped = {}
     for run in confirmation["results"]:
         if run["status"] != "complete":
             raise ValueError("Incomplete confirmation run")
-        name, seed = run["identity"]["recipe"]["name"], run["identity"]["seed"]
+        name = run["identity"]["recipe"]["name"]
+        seed = run["identity"]["seed"]
         grouped.setdefault(name, {})[seed] = run
         if seed == 13:
             control = original[name]
@@ -32,7 +33,7 @@ def summarize(screen: dict[str, Any], confirmation: dict[str, Any]) -> dict[str,
     for name, seeds in grouped.items():
         if set(seeds) != {13, 37, 73}:
             raise ValueError(f"Wrong confirmation seeds for {name}")
-        scores = [seeds[s]["validation"]["mirex"] for s in (13, 37, 73)]
+        scores = [seeds[seed]["validation"]["mirex"] for seed in (13, 37, 73)]
         rows.append(
             {
                 "recipe": name,
@@ -40,18 +41,20 @@ def summarize(screen: dict[str, Any], confirmation: dict[str, Any]) -> dict[str,
                 "validation_mirex_mean": float(np.mean(scores)),
                 "validation_mirex_sample_sd": float(np.std(scores, ddof=1)),
                 "validation_exact_mean": float(
-                    np.mean([r["validation"]["exact"] for r in seeds.values()])
+                    np.mean([run["validation"]["exact"] for run in seeds.values()])
                 ),
                 "mirex_seed13": scores[0],
                 "mirex_seed37": scores[1],
                 "mirex_seed73": scores[2],
                 "mode_accuracy_mean": float(
-                    np.mean([r["validation"]["mode_accuracy"] for r in seeds.values()])
+                    np.mean([run["validation"]["mode_accuracy"] for run in seeds.values()])
                 ),
-                "total_training_seconds": sum(r["elapsed_seconds"] for r in seeds.values()),
+                "total_training_seconds": sum(run["elapsed_seconds"] for run in seeds.values()),
             }
         )
-    rows.sort(key=lambda r: (r["validation_mirex_mean"], r["validation_exact_mean"]), reverse=True)
+    rows.sort(
+        key=lambda row: (row["validation_mirex_mean"], row["validation_exact_mean"]), reverse=True
+    )
     return {
         "selection": "Highest mean validation symmetric MIREX over three fixed seeds; exact tie-breaker",
         "canonical_artifact_seed": 13,
@@ -59,16 +62,16 @@ def summarize(screen: dict[str, Any], confirmation: dict[str, Any]) -> dict[str,
         "confirmation": rows,
         "screening": [
             {
-                "recipe": r["identity"]["recipe"]["name"],
-                "mirex": r["validation"]["mirex"],
-                "exact": r["validation"]["exact"],
-                "best_epoch": r["best_epoch"],
-                "seconds": r["elapsed_seconds"],
+                "recipe": run["identity"]["recipe"]["name"],
+                "mirex": run["validation"]["mirex"],
+                "exact": run["validation"]["exact"],
+                "best_epoch": run["best_epoch"],
+                "seconds": run["elapsed_seconds"],
             }
-            for r in screen["results"]
+            for run in screen["results"]
         ],
-        "total_training_seconds": sum(r["elapsed_seconds"] for r in screen["results"])
-        + sum(r["elapsed_seconds"] for r in confirmation["results"]),
+        "total_training_seconds": sum(run["elapsed_seconds"] for run in screen["results"])
+        + sum(run["elapsed_seconds"] for run in confirmation["results"]),
         "manifest_sha256": screen["manifest_sha256"],
         "split_sha256": screen["split_sha256"],
         "source_sha256": screen["source_sha256"],
@@ -94,9 +97,9 @@ def main() -> None:
     print(
         json.dumps(
             {
-                k: v
-                for k, v in result.items()
-                if k in ("selected_recipe", "confirmation", "total_training_seconds")
+                key: value
+                for key, value in result.items()
+                if key in ("selected_recipe", "confirmation", "total_training_seconds")
             },
             indent=2,
         )

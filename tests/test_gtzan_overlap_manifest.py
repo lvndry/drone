@@ -26,16 +26,16 @@ from tools.prepare_gtzan_overlap import (
 def fixture() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     ledger = []
     inventory = []
-    for i in range(3):
-        ident = f"hiphop.{i:05d}"
-        member = f"genres/hiphop/{ident}.wav"
+    for index in range(3):
+        identity = f"hiphop.{index:05d}"
+        member = f"genres/hiphop/{identity}.wav"
         ledger.append(
             dict(
-                id=ident,
+                id=identity,
                 audio_member=member,
-                metadata_eligible=i != 1,
+                metadata_eligible=index != 1,
                 raw_single_key_reference=True,
-                expected_member_md5=str(i) * 32,
+                expected_member_md5=str(index) * 32,
                 drone_ref=17,
                 annotation_integer=13,
             )
@@ -43,9 +43,9 @@ def fixture() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         inventory.append(
             dict(
                 member=member,
-                expected_md5=str(i) * 32,
-                md5=str(i) * 32,
-                sha256=str(i) * 64,
+                expected_md5=str(index) * 32,
+                md5=str(index) * 32,
+                sha256=str(index) * 64,
                 member_identity_verified=True,
                 overlap_cleared=False,
                 admitted_for_scoring=False,
@@ -63,19 +63,19 @@ def fixture() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
 
 
 def release_fixture() -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    refs = [
+    references = [
         dict(
-            ref_id=i,
-            id=f"beatport:{i}",
+            ref_id=index,
+            id=f"beatport:{index}",
             domain="beatport",
             status="complete",
-            container_sha256=str(i) * 64,
-            pcm_sha256=str(i) * 64,
+            container_sha256=str(index) * 64,
+            pcm_sha256=str(index) * 64,
         )
-        for i in range(4)
+        for index in range(4)
     ]
-    refs[2]["container_sha256"] = refs[0]["container_sha256"]
-    refs[3]["pcm_sha256"] = refs[1]["pcm_sha256"]
+    references[2]["container_sha256"] = references[0]["container_sha256"]
+    references[3]["pcm_sha256"] = references[1]["pcm_sha256"]
     release = dict(
         checkpoint_sha256=CHECKPOINT_SHA,
         metadata=dict(
@@ -84,15 +84,15 @@ def release_fixture() -> tuple[dict[str, Any], list[dict[str, Any]]]:
             training_audio_sha256=["0" * 64, "1" * 64],
         ),
     )
-    return release, refs
+    return release, references
 
 
 def test_eligibility_and_label_nonleakage() -> None:
     ledger, inventory = fixture()
     result = queries(ledger, inventory)
-    assert [q.id for q in result] == ["hiphop.00000", "hiphop.00002"]
+    assert [query.id for query in result] == ["hiphop.00000", "hiphop.00002"]
     assert len(queries(ledger, inventory, eligibility_field="raw_single_key_reference")) == 3
-    raw = encode([asdict(q) for q in result])
+    raw = encode([asdict(query) for query in result])
     assert b"drone_ref" not in raw and b"annotation_integer" not in raw
     ledger[0]["drone_ref"] = 23
     ledger[0]["annotation_integer"] = 99
@@ -131,38 +131,38 @@ def test_query_tampering_rejected(fault: str) -> None:
 
 
 def test_release_declared_roles_and_both_alias_types() -> None:
-    release, refs = release_fixture()
-    anchor = release_anchor(release, refs)
+    release, references = release_fixture()
+    anchor = release_anchor(release, references)
     assert anchor["declared_counts"] == {"fitting": 1, "selection": 1}
     rows = anchor["known_exact_exposure_aliases"]
     assert rows[2]["release_roles"] == {"fitting": ["container_sha256"]}
     assert rows[3]["release_roles"] == {"selection": ["pcm_sha256"]}
     # Current candidate roles and old review flags cannot change release exposure.
-    refs[0]["role"] = "validation"
-    refs[0]["review_required"] = False
-    assert release_anchor(release, refs) == anchor
+    references[0]["role"] = "validation"
+    references[0]["review_required"] = False
+    assert release_anchor(release, references) == anchor
 
 
 @pytest.mark.parametrize(
     "fault", ["checkpoint", "duplicate", "cross_role", "uncovered", "witness", "ref_duplicate"]
 )
 def test_release_anchor_rejects_tampering(fault: str) -> None:
-    release, refs = release_fixture()
-    meta = release["metadata"]
+    release, references = release_fixture()
+    metadata = release["metadata"]
     if fault == "checkpoint":
         release["checkpoint_sha256"] = "f" * 64
     elif fault == "duplicate":
-        meta["train_ids"] = ["0", "beatport:0"]
+        metadata["train_ids"] = ["0", "beatport:0"]
     elif fault == "cross_role":
-        meta["validation_ids"] = ["0"]
+        metadata["validation_ids"] = ["0"]
     elif fault == "uncovered":
-        meta["train_ids"] = ["100"]
+        metadata["train_ids"] = ["100"]
     elif fault == "witness":
-        meta["training_audio_sha256"] = ["f" * 64]
+        metadata["training_audio_sha256"] = ["f" * 64]
     else:
-        refs.append(copy.deepcopy(refs[0]))
+        references.append(copy.deepcopy(references[0]))
     with pytest.raises(ValueError):
-        release_anchor(release, refs)
+        release_anchor(release, references)
 
 
 def test_pin_checks_exact_metadata_bytes(tmp_path: Path) -> None:

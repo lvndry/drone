@@ -79,8 +79,12 @@ def validate_projection(plan: dict[str, Any], physical: dict[str, Any]) -> None:
     rows = {row["id"]: row for row in physical["rows"]}
     require(len(rows) == len(physical["rows"]) == 5638, "Duplicate/missing physical rows")
     tracks = plan["tracks"]
-    require(len(tracks) == 5638 and {t["id"] for t in tracks} == set(rows), "Track membership")
-    require(Counter(t["role"] for t in tracks) == {"fit": 5262, "selection": 376}, "Role counts")
+    require(
+        len(tracks) == 5638 and {track["id"] for track in tracks} == set(rows), "Track membership"
+    )
+    require(
+        Counter(track["role"] for track in tracks) == {"fit": 5262, "selection": 376}, "Role counts"
+    )
     paths: set[str] = set()
     for track in tracks:
         row = rows[track["id"]]
@@ -98,7 +102,9 @@ def validate_projection(plan: dict[str, Any], physical: dict[str, Any]) -> None:
             require(track[key] == row[other], f"Physical metadata differs: {key}")
         require(row["bytes"] == row["samples"] * 4, "PCM byte geometry")
         shifts = list(range(-6, 7)) if track["role"] == "fit" else [0]
-        require([v["shift"] for v in track["views"]] == shifts, "Missing/extra/reordered views")
+        require(
+            [view["shift"] for view in track["views"]] == shifts, "Missing/extra/reordered views"
+        )
         for view in track["views"]:
             path = view["path"]
             require(path not in paths, "Duplicate blob path")
@@ -109,8 +115,14 @@ def validate_projection(plan: dict[str, Any], physical: dict[str, Any]) -> None:
             require(view["shape"] == [view["windows"], 384] and view["windows"] > 0, "View shape")
             require(
                 all(
-                    view[k] is None
-                    for k in ("raw_samples", "trimmed_samples", "padded_samples", "bytes", "sha256")
+                    view[key] is None
+                    for key in (
+                        "raw_samples",
+                        "trimmed_samples",
+                        "padded_samples",
+                        "bytes",
+                        "sha256",
+                    )
                 ),
                 "Projection contains fabricated observations",
             )
@@ -120,7 +132,7 @@ def projected_output_bound(plan: dict[str, Any]) -> int:
     """Payload, conservative NPY headers/receipts, and bounded metadata/progress overhead."""
     views = [view for track in plan["tracks"] for view in track["views"]]
     require(
-        bool(views) and all(type(v["windows"]) is int and v["windows"] > 0 for v in views),
+        bool(views) and all(type(view["windows"]) is int and view["windows"] > 0 for view in views),
         "Invalid projected output geometry",
     )
     payload = sum(view["windows"] for view in views) * 384 * 4
@@ -214,8 +226,8 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     require(
         admission["complete"] is True
         and all(
-            admission[k] is True
-            for k in (
+            admission[key] is True
+            for key in (
                 "all_pitch_views_passed",
                 "long_track_composed_parity_passed",
                 "sustained_head_cost_measured",
@@ -226,7 +238,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     identities = config["identities"]
     require(
         admission["identities"]
-        == {k: v for k, v in identities.items() if k != "qualification_sha256"},
+        == {name: value for name, value in identities.items() if name != "qualification_sha256"},
         "Admission identity mismatch",
     )
     bindings = {
@@ -238,7 +250,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         "qualification_sha256": "qualification_admission",
     }
     require(
-        all(identities[k] == config[v]["sha256"] for k, v in bindings.items()),
+        all(
+            identities[identity] == config[binding]["sha256"]
+            for identity, binding in bindings.items()
+        ),
         "Source/identity mismatch",
     )
     require(
@@ -347,16 +362,16 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
             not path.is_symlink() and identity == track["physical_pcm_identity"],
             "PCM identity changed",
         )
-        raw = path.read_bytes()
-        require(hashlib.sha256(raw).hexdigest() == track["pcm_sha256"], "PCM hash changed")
+        pcm_bytes = path.read_bytes()
+        require(hashlib.sha256(pcm_bytes).hexdigest() == track["pcm_sha256"], "PCM hash changed")
         after = path.stat()
         require(
             [after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns]
             == identity,
             "PCM changed during read",
         )
-        values = np.frombuffer(raw, dtype="<f4").copy()
-        del raw
+        values = np.frombuffer(pcm_bytes, dtype="<f4").copy()
+        del pcm_bytes
         require(
             values.shape == (track["samples_24k"],) and bool(np.isfinite(values).all()),
             "Invalid PCM",
@@ -419,11 +434,19 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 del shifted
         put(("track", index, 0, None))
 
-    total_windows = sum(v["windows"] for t in plan["tracks"] for v in t["views"])
-    completed_tracks = completed_views = completed_windows = 0
-    encoder_seconds = pitch_seconds_total = mel_seconds_total = 0.0
+    total_windows = sum(view["windows"] for track in plan["tracks"] for view in track["views"])
+    completed_tracks = 0
+    completed_views = 0
+    completed_windows = 0
+    encoder_seconds = 0.0
+    pitch_seconds_total = 0.0
+    mel_seconds_total = 0.0
     buffers: dict[tuple[int, int], ViewBuffer] = {}
-    views = {(i, v["shift"]): v for i, track in enumerate(plan["tracks"]) for v in track["views"]}
+    views = {
+        (index, view["shift"]): view
+        for index, track in enumerate(plan["tracks"])
+        for view in track["views"]
+    }
     futures: dict[int, Future[None]] = {}
     next_track = 0
     receipt_path = root / "view-receipts.jsonl"

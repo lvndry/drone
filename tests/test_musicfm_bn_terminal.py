@@ -28,7 +28,7 @@ def bundle(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     monkeypatch.setattr(terminal, "ORIGINAL_CONFIG_SHA", config_sha)
     best: dict[str, dict[str, Any]] = {
         domain: {
-            "ids": [f"{domain}:{i}" for i in range(count)],
+            "ids": [f"{domain}:{index}" for index in range(count)],
             "tracks": count,
             "exact_correct": correct,
             "symmetric_units10": 900,

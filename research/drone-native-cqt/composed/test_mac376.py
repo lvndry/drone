@@ -20,12 +20,14 @@ class Mac376Tests(unittest.TestCase):
     def test_original_phases_exact_union_and_failed_gates_preserved(self) -> None:
         result = summarize(ROOT)
         self.assertEqual(result["disjoint_phases"], [305, 71])
-        self.assertEqual([r["index"] for r in result["cases"]], list(range(376)))
+        self.assertEqual([row["index"] for row in result["cases"]], list(range(376)))
         self.assertEqual(
-            [x["passed"] for x in result["families"].values()],
+            [family["passed"] for family in result["families"].values()],
             [375, 375, 348, 350, 350, 376],
         )
-        self.assertTrue(all(x["key_disagreements"] == 0 for x in result["families"].values()))
+        self.assertTrue(
+            all(family["key_disagreements"] == 0 for family in result["families"].values())
+        )
         self.assertFalse(result["strict_passed"])
         self.assertFalse(result["timing_authorized"])
         self.assertFalse(result["promotion_authorized"])
@@ -40,9 +42,11 @@ class Mac376Tests(unittest.TestCase):
 
     def test_independent_certificate_is_recomputed_not_merely_trusted(self) -> None:
         files = dict(self.files)
-        root = json.loads(files["root/observed-margin-certificates.json"])
-        root["families"]["full_vs_mac"]["cases"][0]["minimum_pairwise_certificate_slack"] += 1
-        files["root/observed-margin-certificates.json"] = json.dumps(root)
+        certificates = json.loads(files["root/observed-margin-certificates.json"])
+        certificates["families"]["full_vs_mac"]["cases"][0][
+            "minimum_pairwise_certificate_slack"
+        ] += 1
+        files["root/observed-margin-certificates.json"] = json.dumps(certificates)
         receipt = json.loads(files["independent/observed-margin-verification.json"])
         receipt["root_certificate_sha256"] = hashlib.sha256(
             files["root/observed-margin-certificates.json"].encode()

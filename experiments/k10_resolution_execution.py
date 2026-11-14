@@ -54,7 +54,7 @@ def sources() -> dict[str, str]:
         "tools/run_k10_context_pair.py",
         "experiments/studies/k10-capacity/RESOLUTION_GPU_PAIR_PROTOCOL.md",
     }
-    return {n: sha(ROOT / n) for n in sorted(names)}
+    return {name: sha(ROOT / name) for name in sorted(names)}
 
 
 def qualification(root: Path) -> dict[str, Any]:
@@ -65,13 +65,13 @@ def qualification(root: Path) -> dict[str, Any]:
     if result.get("complete") is not True or result.get("cleanup_error") is not None:
         raise ValueError("V3 qualification incomplete")
     for name, initial in MODELS.items():
-        r = load(root / f"run-v1/{name}/result.json")
+        arm_result = load(root / f"run-v1/{name}/result.json")
         if (
-            not r["complete"]
-            or r["initial_state_sha256"] != initial
-            or r["task_fit"]
-            or r["predictions_retained"]
-            or r["evaluation"]["selection376"]["tracks"] != 376
+            not arm_result["complete"]
+            or arm_result["initial_state_sha256"] != initial
+            or arm_result["task_fit"]
+            or arm_result["predictions_retained"]
+            or arm_result["evaluation"]["selection376"]["tracks"] != 376
         ):
             raise ValueError("Qualification numerical/scope mismatch")
     return load(root / "sealed-config.json")
@@ -80,16 +80,17 @@ def qualification(root: Path) -> dict[str, Any]:
 def prepare(
     qualified: Path, data_config: Path, not_before: float, deadline: float
 ) -> dict[str, Any]:
-    q, data = qualification(qualified), load(data_config)
+    sealed = qualification(qualified)
+    data = load(data_config)
     value = {
         **data,
         "status": "PROPOSED_FRESH_GPU_RESOLUTION_PAIR",
         "caps": CAPS.copy(),
         "qualification_root": str(qualified),
         "qualification_sha256": QUALIFIED.copy(),
-        "runtime": q["runtime"],
-        "interpreter": q["interpreter"],
-        "protected": q["protected"],
+        "runtime": sealed["runtime"],
+        "interpreter": sealed["interpreter"],
+        "protected": sealed["protected"],
         "gpu_uuid": GPU1,
         "gpu0_uuid": GPU0,
         "policy": POLICY.copy(),
@@ -125,9 +126,9 @@ def contract(value: dict[str, Any]) -> None:
     services = value["protected"]["protected_starts"]
     jobs = value["protected"]["active_job_starts"]
     if (
-        {r["pid"] for r in services} != {1478814, 3448680, 1481756, 3451013}
+        {start["pid"] for start in services} != {1478814, 3448680, 1481756, 3451013}
         or len(services) != 4
-        or {r["pid"] for r in jobs} != {1294, 1307, 3814436, 3814440}
+        or {start["pid"] for start in jobs} != {1294, 1307, 3814436, 3814440}
         or len(jobs) != 4
     ):
         raise ValueError("Require exact eight protected starts")
@@ -135,11 +136,11 @@ def contract(value: dict[str, Any]) -> None:
 
 def bindings(value: dict[str, Any]) -> None:
     contract(value)
-    q = qualification(Path(value["qualification_root"]))
+    sealed = qualification(Path(value["qualification_root"]))
     if (
-        value["policy"] != q["policy"]
-        or value["protected"] != q["protected"]
-        or any(sha(ROOT / name) != expected for name, expected in q["source_sha256"].items())
+        value["policy"] != sealed["policy"]
+        or value["protected"] != sealed["protected"]
+        or any(sha(ROOT / name) != expected for name, expected in sealed["source_sha256"].items())
     ):
         raise ValueError("Qualified shared source/policy/protected identities changed")
     for name in ("historical_gpu_control", "groups"):
@@ -148,7 +149,7 @@ def bindings(value: dict[str, Any]) -> None:
     plan = load(Path(value["plan"]))
     if value["groups_sha256"] != plan["uncertainty_groups_sha256"]:
         raise ValueError("Frozen uncertainty groups differ")
-    if value["runtime"] != q["runtime"] or value["interpreter"] != q["interpreter"]:
+    if value["runtime"] != sealed["runtime"] or value["interpreter"] != sealed["interpreter"]:
         raise ValueError("Qualified runtime changed")
     if (
         value["source_sha256"] != sources()
@@ -157,8 +158,8 @@ def bindings(value: dict[str, Any]) -> None:
         raise ValueError("Source/interpreter changed")
     if str(Path(sys.executable).resolve()) != str(Path(value["interpreter"]["path"]).resolve()):
         raise ValueError("Interpreter path differs")
-    for r in [*value["runtime"]["modules"].values(), *value["runtime"]["files"]]:
-        if sha(Path(r["path"])) != r["sha256"]:
+    for pinned in [*value["runtime"]["modules"].values(), *value["runtime"]["files"]]:
+        if sha(Path(pinned["path"])) != pinned["sha256"]:
             raise ValueError("Pinned runtime changed")
     sensor = value["runtime"]["nvidia_smi"]
     if sha(Path(sensor["path"])) != sensor["sha256"]:
@@ -168,7 +169,8 @@ def bindings(value: dict[str, Any]) -> None:
 def worker(config: Path, approval: Path, output: Path, name: str, guardian: int) -> None:
     from tools.run_k10_gpu1_resource import environment, start_identity
 
-    value, permit = load(config), load(approval)
+    value = load(config)
+    permit = load(approval)
     digest = sha(config)  # Cached once: never hash the large configuration in watch().
     bindings(value)
     if (
@@ -182,12 +184,12 @@ def worker(config: Path, approval: Path, output: Path, name: str, guardian: int)
     ):
         raise ValueError("Exact root-approved pair and owning guardian required")
     environment(value)
-    for module_name, r in value["runtime"]["modules"].items():
+    for module_name, receipt in value["runtime"]["modules"].items():
         module = importlib.import_module(module_name)
         if (
             module.__file__ is None
-            or module.__file__ != r["path"]
-            or sha(Path(module.__file__)) != r["sha256"]
+            or module.__file__ != receipt["path"]
+            or sha(Path(module.__file__)) != receipt["sha256"]
         ):
             raise ValueError("Shadowed runtime module")
     guardian_start = start_identity(guardian)
@@ -213,25 +215,25 @@ def worker(config: Path, approval: Path, output: Path, name: str, guardian: int)
         last = now
 
     rows = verify_data(value, watch)
-    p = load(Path(value["plan"]))
-    validate_feature_manifest(p, load(Path(value["features"])))
+    plan = load(Path(value["plan"]))
+    validate_feature_manifest(plan, load(Path(value["features"])))
 
     @lru_cache(maxsize=64)
     def array(identity: str) -> np.ndarray:
         watch()
-        r = rows[identity]
-        path = Path(r["cache_path"])
-        if list(file_identity(path)) != list(r["cache_identity"]):
+        row = rows[identity]
+        path = Path(row["cache_path"])
+        if list(file_identity(path)) != list(row["cache_identity"]):
             raise ValueError("CQT stat changed")
-        a = np.load(path, allow_pickle=False, mmap_mode="r")
+        cqt = np.load(path, allow_pickle=False, mmap_mode="r")
         if (
-            a.shape != (208, r["frames"])
-            or a.dtype != np.float16
-            or not np.isfinite(a).all()
-            or list(file_identity(path)) != list(r["cache_identity"])
+            cqt.shape != (208, row["frames"])
+            or cqt.dtype != np.float16
+            or not np.isfinite(cqt).all()
+            or list(file_identity(path)) != list(row["cache_identity"])
         ):
             raise ValueError("CQT tensor invalid/changed")
-        return a
+        return cqt
 
     provenance = {
         "config_sha256": digest,
@@ -244,20 +246,20 @@ def worker(config: Path, approval: Path, output: Path, name: str, guardian: int)
         "seed": 13,
         "qualification_sha256": QUALIFIED,
     }
-    result = arm(name, p, rows, array, output, provenance, watch)
+    result = arm(name, plan, rows, array, output, provenance, watch)
     if result["status"] != STATUS:
         raise ValueError("Incomplete selected-reload proof")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="mode", required=True)
-    seal = sub.add_parser("prepare")
+    subparsers = parser.add_subparsers(dest="mode", required=True)
+    seal = subparsers.add_parser("prepare")
     for name in ("qualification-root", "data-config", "output"):
         seal.add_argument("--" + name, type=Path, required=True)
     seal.add_argument("--not-before", type=float, required=True)
     seal.add_argument("--deadline", type=float, required=True)
-    work = sub.add_parser("worker")
+    work = subparsers.add_parser("worker")
     for name in ("config", "approval", "output"):
         work.add_argument("--" + name, type=Path, required=True)
     work.add_argument("--model", choices=tuple(MODELS), required=True)

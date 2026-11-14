@@ -105,7 +105,7 @@ def resources(config: dict[str, Any], root: Path) -> None:
         text=True,
         timeout=5,
     )
-    fields = [x.strip() for x in raw.strip().split(",")]
+    fields = [field.strip() for field in raw.strip().split(",")]
     if len(fields) != 2 or fields[0] != config["gpu_uuid"]:
         raise RuntimeError("GPU identity changed")
     if int(fields[1]) * 1024**2 < 8 * 1024**3:
@@ -217,13 +217,13 @@ def verify_original_interpreter(launch: dict[str, Any]) -> None:
 
 
 def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
-    config_path, approval_path, root = (
-        config_path.resolve(),
-        approval_path.resolve(),
-        root.absolute(),
-    )
-    config_raw, approval_raw = config_path.read_bytes(), approval_path.read_bytes()
-    config, approval = json.loads(config_raw), json.loads(approval_raw)
+    config_path = config_path.resolve()
+    approval_path = approval_path.resolve()
+    root = root.absolute()
+    config_raw = config_path.read_bytes()
+    approval_raw = approval_path.read_bytes()
+    config = json.loads(config_raw)
+    approval = json.loads(approval_raw)
     config_sha = hashlib.sha256(config_raw).hexdigest()
     validate_launch(config, approval, config_sha)
     verify_import_paths(config["source_sha256"])
@@ -274,7 +274,8 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                 best_update=terminal.best_update,
             ),
         )
-        last_gpu = last_disk = 0.0
+        last_gpu = 0.0
+        last_disk = 0.0
         while True:
             owned_resources(config, peaks)
             capacity_guard(guard_view(config), root)
@@ -294,22 +295,22 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                 ),
             )
             if worker is None:
-                env = dict(
+                environment = dict(
                     os.environ,
                     HF_HUB_OFFLINE="1",
                     TRANSFORMERS_OFFLINE="1",
                     PYTHONDONTWRITEBYTECODE="1",
                     PYTHONNOUSERSITE="1",
                 )
-                for key, directory in (
+                for variable, directory in (
                     ("CUDA_CACHE_PATH", "cuda-cache"),
                     ("TORCHINDUCTOR_CACHE_DIR", "inductor-cache"),
                     ("TRITON_CACHE_DIR", "triton-cache"),
                     ("TMPDIR", "tmp"),
                 ):
                     (root / directory).mkdir()
-                    env[key] = str(root / directory)
-                env["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+                    environment[variable] = str(root / directory)
+                environment["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
                 command = [
                     sys.executable,
                     "-m",
@@ -328,7 +329,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                         command,
                         stdout=log,
                         stderr=subprocess.STDOUT,
-                        env=env,
+                        env=environment,
                         cwd=source,
                         start_new_session=True,
                     )

@@ -111,7 +111,7 @@ def verify_data(value: dict[str, Any], watch: Callable[[], None]) -> dict[str, d
     plan = load(Path(value["plan"]))
     if load(Path(value["labels"]))["labels"] != plan["expected_refs"]:
         raise ValueError("Pinned numeric labels differ")
-    rows = {r["id"]: r for r in value["rows"]}
+    rows = {row["id"]: row for row in value["rows"]}
     if len(rows) != 5638 or len(plan["bp_fit"]) != 1229 or len(plan["expanded_fma_fit"]) != 4033:
         raise ValueError("Changed fitting membership")
     expected = set(
@@ -150,14 +150,16 @@ def compare(
         "coverage",
         "actual_frames",
     )
-    if any(control[k] != candidate[k] for k in fields):
+    if any(control[field] != candidate[field] for field in fields):
         raise ValueError("GPU pair source/runtime/draw/exposure mismatch")
     common_provenance = []
     for name, result in (("baseline", control), ("candidate", candidate)):
         provenance = result["provenance"]
         if not isinstance(provenance, dict) or provenance.get("model_name") != name:
             raise ValueError("Checkpoint factory identity differs")
-        common_provenance.append({k: v for k, v in provenance.items() if k != "model_name"})
+        common_provenance.append(
+            {key: entry for key, entry in provenance.items() if key != "model_name"}
+        )
         proof = result.get("selected_reload_proof", {})
         if (
             result.get("status") != STATUS
@@ -176,16 +178,24 @@ def compare(
     if common_provenance[0] != common_provenance[1]:
         raise ValueError("GPU pair common provenance differs")
     keys = ("exact_correct", "symmetric_units10", "asymmetric_units10")
-    a, b, old = (x["best_metrics"] for x in (control, candidate, historical))
-    for domain, n in (("beatport", 126), ("fmak", 250)):
+    control_metrics = control["best_metrics"]
+    candidate_metrics = candidate["best_metrics"]
+    old = historical["best_metrics"]
+    for domain, expected_tracks in (("beatport", 126), ("fmak", 250)):
         if not (
-            a[domain]["ids"] == b[domain]["ids"] == old[domain]["ids"]
-            and len(a[domain]["ids"]) == n
+            control_metrics[domain]["ids"] == candidate_metrics[domain]["ids"] == old[domain]["ids"]
+            and len(control_metrics[domain]["ids"]) == expected_tracks
         ):
             raise ValueError("Selection identities/order differ")
-    gain = b["fmak"]["exact_correct"] - a["fmak"]["exact_correct"]
-    gate = gain >= 5 and all(b["beatport"][k] >= a["beatport"][k] for k in keys)
-    guard = all(a[d][k] >= old[d][k] for d in ("beatport", "fmak") for k in keys)
+    gain = candidate_metrics["fmak"]["exact_correct"] - control_metrics["fmak"]["exact_correct"]
+    gate = gain >= 5 and all(
+        candidate_metrics["beatport"][key] >= control_metrics["beatport"][key] for key in keys
+    )
+    guard = all(
+        control_metrics[domain][key] >= old[domain][key]
+        for domain in ("beatport", "fmak")
+        for key in keys
+    )
     return {
         "technical_pair_valid": True,
         "FMA_exact_gain": gain,
@@ -194,6 +204,7 @@ def compare(
         "continuation_earned": gate and guard,
         "promotion_authorized": False,
         "historical_gaps": {
-            d: {k: a[d][k] - old[d][k] for k in keys} for d in ("beatport", "fmak")
+            domain: {key: control_metrics[domain][key] - old[domain][key] for key in keys}
+            for domain in ("beatport", "fmak")
         },
     }

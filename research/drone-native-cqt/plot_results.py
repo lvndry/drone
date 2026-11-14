@@ -15,12 +15,12 @@ from evidence_io import load_json
 def validate_case_order(reference: list[dict[str, Any]], cases: list[dict[str, Any]]) -> None:
     identities = []
     for rows in (reference, cases):
-        ids = [row.get("id") for row in rows]
-        if any(not isinstance(identity, str) or not identity for identity in ids):
+        case_identities = [row.get("id") for row in rows]
+        if any(not isinstance(identity, str) or not identity for identity in case_identities):
             raise ValueError("Missing or invalid evidence case identity")
-        if len(set(ids)) != len(ids):
+        if len(set(case_identities)) != len(case_identities):
             raise ValueError("Duplicate evidence case identity")
-        identities.append(ids)
+        identities.append(case_identities)
     if identities[0] != identities[1]:
         raise ValueError("Report case identities/order differ from the reference")
 
@@ -46,13 +46,15 @@ def plot(root: Path) -> None:
     for index, (label, color, report) in enumerate(reports):
         ratios = [
             max(
-                abs(a - b) / (1e-5 + 1e-5 * abs(b))
-                for a, b in zip(row["logits"], expected["reference_logits"], strict=True)
+                abs(actual - reference_logit) / (1e-5 + 1e-5 * abs(reference_logit))
+                for actual, reference_logit in zip(
+                    row["logits"], expected["reference_logits"], strict=True
+                )
             )
             for row, expected in zip(report["cases"], reference, strict=True)
         ]
         rates = [row["features"]["fp16_mismatch_rate"] * 100 for row in report["cases"]]
-        positions = [i + (index - 0.5) * 0.19 for i in range(len(reference))]
+        positions = [position + (index - 0.5) * 0.19 for position in range(len(reference))]
         axes[0].scatter(
             ratios,
             positions,

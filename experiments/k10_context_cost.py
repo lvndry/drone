@@ -48,18 +48,19 @@ def make_plan(
 ) -> dict[str, Any]:
     if (sha(plan), sha(labels), sha(features)) != (PLAN, LABELS, FEATURES):
         raise ValueError("Require exact admitted cohort, targets and CQT manifest")
-    p, m = load(plan), load(features)
-    validate_feature_manifest(p, m)
-    if load(labels)["labels"] != p["expected_refs"]:
+    plan_document = load(plan)
+    feature_manifest = load(features)
+    validate_feature_manifest(plan_document, feature_manifest)
+    if load(labels)["labels"] != plan_document["expected_refs"]:
         raise ValueError("Pinned numeric annotation export differs")
     rows = []
-    for row in m["rows"]:
+    for row in feature_manifest["rows"]:
         path = (features.parent / row["cache"]).resolve()
         if not path.is_relative_to(features.parent.resolve()) or not path.is_file():
             raise ValueError("Missing/escaped existing CQT")
         rows.append({**row, "cache_path": str(path), "cache_identity": file_identity(path)})
     starts = load(protected)["protected_starts"]
-    if len(starts) != 6 or {x["pid"] for x in starts} != {
+    if len(starts) != 6 or {start["pid"] for start in starts} != {
         1478814,
         3448680,
         1481756,
@@ -88,9 +89,10 @@ def make_plan(
             for name in ("libtorch_cpu.so", "libtorch.so", "libc10.so")
         },
         "module_receipts": {
-            k: modules[k] for k in ("torch", "torch._C", "numpy", "numpy._core._multiarray_umath")
+            name: modules[name]
+            for name in ("torch", "torch._C", "numpy", "numpy._core._multiarray_umath")
         },
-        "source_sha256": {n: sha(root / n) for n in SOURCE_NAMES},
+        "source_sha256": {name: sha(root / name) for name in SOURCE_NAMES},
         "rows": rows,
         "cpus": [14, 15],
         "torch_threads": 2,
@@ -162,8 +164,8 @@ def make_crop(feature: np.ndarray, draw: Draw, length: int) -> tuple[np.ndarray,
 
 def cpu_seconds() -> float:
     return sum(
-        r.ru_utime + r.ru_stime
-        for r in (
+        usage.ru_utime + usage.ru_stime
+        for usage in (
             resource.getrusage(resource.RUSAGE_SELF),
             resource.getrusage(resource.RUSAGE_CHILDREN),
         )
@@ -195,8 +197,10 @@ def qualify_shape(
     if digest.hexdigest() != INITIAL:
         raise ValueError("Original seed13 K10 initialization differs")
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
-    updates, witnesses = [], []
-    start, cpu = time.monotonic(), cpu_seconds()
+    updates = []
+    witnesses = []
+    start = time.monotonic()
+    cpu_start = cpu_seconds()
     ordinal = 0
     for batch in batches:
         watch()
@@ -207,31 +211,32 @@ def qualify_shape(
             witness["synthetic_target"] = ordinal % 24
             witnesses.append(witness)
             ordinal += 1
-        x = torch.from_numpy(np.stack(prepared))
-        targets = torch.tensor([(ordinal - len(batch) + i) % 24 for i in range(len(batch))])
+        inputs = torch.from_numpy(np.stack(prepared))
+        targets = torch.tensor([(ordinal - len(batch) + index) % 24 for index in range(len(batch))])
         began = time.monotonic()
         model.train()
         optimizer.zero_grad()
-        loss = torch.nn.functional.cross_entropy(model(x), targets)
+        loss = torch.nn.functional.cross_entropy(model(inputs), targets)
         if not bool(torch.isfinite(loss)):
             raise ValueError("Nonfinite synthetic loss")
         loss.backward()
         if any(
-            p.grad is not None and not bool(torch.isfinite(p.grad).all())
-            for p in model.parameters()
+            parameter.grad is not None and not bool(torch.isfinite(parameter.grad).all())
+            for parameter in model.parameters()
         ):
             raise ValueError("Nonfinite gradient; no optimizer commit")
         optimizer.step()
-        if any(not bool(torch.isfinite(p).all()) for p in model.state_dict().values()):
+        if any(not bool(torch.isfinite(tensor).all()) for tensor in model.state_dict().values()):
             raise ValueError("Nonfinite optimizer result")
         updates.append(time.monotonic() - began)
         watch()
-    training = {"wall_seconds": time.monotonic() - start, "cpu_seconds": cpu_seconds() - cpu}
-    training["actual_frames"] = sum(w["actual_frames"] for w in witnesses)
-    training["padding_frames"] = sum(w["padding_frames"] for w in witnesses)
+    training = {"wall_seconds": time.monotonic() - start, "cpu_seconds": cpu_seconds() - cpu_start}
+    training["actual_frames"] = sum(witness["actual_frames"] for witness in witnesses)
+    training["padding_frames"] = sum(witness["padding_frames"] for witness in witnesses)
     if any(state["step"].item() != 3 for state in optimizer.state.values()):
         raise ValueError("Adam state did not complete exactly three commits")
-    val_started, val_cpu = time.monotonic(), cpu_seconds()
+    validation_started = time.monotonic()
+    validation_cpu_start = cpu_seconds()
     features = [window(array(identity)).astype(np.float32) for identity in selection]
     counts = {"tracks": 0, "frames": 0, "forward_batches": 0}
 
@@ -267,10 +272,12 @@ def qualify_shape(
         "draws": witnesses,
         "validation": {
             **counts,
-            "wall_seconds": time.monotonic() - val_started,
-            "cpu_seconds": cpu_seconds() - val_cpu,
+            "wall_seconds": time.monotonic() - validation_started,
+            "cpu_seconds": cpu_seconds() - validation_cpu_start,
             "finite": True,
-            "context": [{"id": i, "frames": rows[i]["frames"]} for i in selection],
+            "context": [
+                {"id": identity, "frames": rows[identity]["frames"]} for identity in selection
+            ],
         },
         "task_scores_computed": False,
         "predictions_retained": False,
@@ -286,7 +293,8 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
 
     from tools.run_k10_context_cost import worker_watch
 
-    value, permit = load(config), load(approval)
+    value = load(config)
+    permit = load(approval)
     contract(value)
     if (
         os.getppid() != guardian
@@ -298,13 +306,13 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         raise ValueError("Exact private CPU cost-only guardian approval required")
     watch = worker_watch(value, output.parent, guardian, sha(config))
     root = Path(__file__).resolve().parents[1]
-    if any(sha(root / n) != expected for n, expected in value["source_sha256"].items()):
+    if any(sha(root / name) != expected for name, expected in value["source_sha256"].items()):
         raise ValueError("Bound source changed")
     for name in ("plan", "labels", "features"):
         if sha(Path(value[name])) != value[name + "_sha256"]:
             raise ValueError("Pinned metadata changed")
     if (sys.version.split()[0], str(torch.__version__), np.__version__) != tuple(
-        value["runtime"][k] for k in ("python", "torch", "numpy")
+        value["runtime"][key] for key in ("python", "torch", "numpy")
     ):
         raise ValueError("Qualified runtime versions differ")
     for name, receipt in value["module_receipts"].items():
@@ -321,7 +329,7 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
     torch.set_num_interop_threads(1)
     output.mkdir(exist_ok=False)
     began = time.monotonic()
-    rows = {r["id"]: r for r in value["rows"]}
+    rows = {row["id"]: row for row in value["rows"]}
     for row in rows.values():
         watch()
         path = Path(row["cache_path"])
@@ -339,16 +347,20 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         path = Path(row["cache_path"])
         if list(file_identity(path)) != list(row["cache_identity"]):
             raise ValueError("Immutable CQT changed")
-        a = np.load(path, allow_pickle=False, mmap_mode="r")
-        if a.shape != (208, row["frames"]) or a.dtype != np.float16 or not np.isfinite(a).all():
+        cqt = np.load(path, allow_pickle=False, mmap_mode="r")
+        if (
+            cqt.shape != (208, row["frames"])
+            or cqt.dtype != np.float16
+            or not np.isfinite(cqt).all()
+        ):
             raise ValueError("Invalid CQT")
         if list(file_identity(path)) != list(row["cache_identity"]):
             raise ValueError("CQT changed during finite/shape verification")
-        return a
+        return cqt
 
-    p = load(Path(value["plan"]))
-    batches = list(itertools.islice(paired_batches(p["bp_fit"], p["expanded_fma_fit"]), 3))
-    selection = p["bp_selection_guard"] + p["fma_inner_selection"]
+    plan = load(Path(value["plan"]))
+    batches = list(itertools.islice(paired_batches(plan["bp_fit"], plan["expanded_fma_fit"]), 3))
+    selection = plan["bp_selection_guard"] + plan["fma_inner_selection"]
     arms = []
     for length in (320, 65):
         array.cache_clear()
@@ -357,8 +369,11 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
 
     def common(arm: dict[str, Any]) -> list[tuple[Any, ...]]:
         return [
-            tuple(w[k] for k in ("id", "domain", "augmentation_seed", "shift", "synthetic_target"))
-            for w in arm["draws"]
+            tuple(
+                draw[key]
+                for key in ("id", "domain", "augmentation_seed", "shift", "synthetic_target")
+            )
+            for draw in arm["draws"]
         ]
 
     if common(arms[0]) != common(arms[1]):
@@ -383,16 +398,16 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="mode", required=True)
-    planning = sub.add_parser("plan")
+    subparsers = parser.add_subparsers(dest="mode", required=True)
+    planning = subparsers.add_parser("plan")
     for name in ("plan", "labels", "features", "protected", "runtime", "output"):
         planning.add_argument("--" + name, type=Path, required=True)
-    sealing = sub.add_parser("seal")
+    sealing = subparsers.add_parser("seal")
     for name in ("config", "output"):
         sealing.add_argument("--" + name, type=Path, required=True)
     for name in ("begin", "end"):
         sealing.add_argument("--" + name, required=True)
-    run = sub.add_parser("worker")
+    run = subparsers.add_parser("worker")
     for name in ("config", "approval", "output"):
         run.add_argument("--" + name, type=Path, required=True)
     run.add_argument("--guardian", type=int, required=True)

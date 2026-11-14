@@ -70,16 +70,18 @@ def test_threads_preserve_order_and_losslessly_retain_all_stderr(
     with inputs.StreamProvider(
         {"id": metadata}, output, Path("/frozen/ffmpeg"), [10, 11, 12, 13], lambda: None
     ) as provider:
-        arrays = provider.resolve(provider.submit([("id", i, 1200) for i in range(32)]))
-        assert [int(a[0]) for a in arrays] == list(range(32))
+        arrays = provider.resolve(provider.submit([("id", index, 1200) for index in range(32)]))
+        assert [int(array[0]) for array in arrays] == list(range(32))
     assert peak <= 4 and len(commands) == 32
     records = [
         json.loads(line)
         for path in output.glob("worker-*.jsonl")
         for line in path.read_text().splitlines()
     ]
-    assert sorted(r["request"] for r in records) == list(range(32))
-    assert all(base64.b64decode(r["stderr_base64"]) == b"warning\x00\xff" for r in records)
+    assert sorted(record["request"] for record in records) == list(range(32))
+    assert all(
+        base64.b64decode(record["stderr_base64"]) == b"warning\x00\xff" for record in records
+    )
     assert not list(output.glob("pending-*.stderr"))
 
 
@@ -101,7 +103,7 @@ def test_failed_decoder_keeps_raw_stderr_and_never_returns_partial_batch(
         ) as provider:
             provider.resolve(provider.submit([("id", 0, 1200)] * 32))
     paths = list(output.glob("pending-*.stderr"))
-    assert paths and all(p.read_bytes() == b"actual failure evidence" for p in paths)
+    assert paths and all(path.read_bytes() == b"actual failure evidence" for path in paths)
 
 
 def test_identity_overlay_cannot_relabel_or_change_numeric_reference() -> None:
@@ -120,7 +122,7 @@ def test_identity_overlay_cannot_relabel_or_change_numeric_reference() -> None:
     }
     keys = ("id", "path", "role", "target", "sha256", "waveform_sha256", "samples", "bytes")
     record = {
-        "invariants": {k: base[k] for k in keys},
+        "invariants": {key: base[key] for key in keys},
         "source_identity_old": [1, 2, 13, 4, 5],
         "source_current": {"identity": [6, 7, 13, 4, 8], "sha256": "a" * 64, "bytes": 13},
     }

@@ -50,10 +50,10 @@ class Predictor:
     def predict(self, audio_path: str) -> tuple[str, str, float]:
         # Full-length feature; the net pools over time, so no fixed frame count.
         features, _ = prepare(Track("track", audio_path, ("C", "major")), self.workdir)
-        x = torch.from_numpy(features[None]).to(self.device)
+        batch = torch.from_numpy(features[None]).to(self.device)
         with torch.inference_mode():
-            prob = torch.softmax(self.model(x), 1).squeeze(0)
-        confidence, class_id = prob.max(0)
+            probabilities = torch.softmax(self.model(batch), 1).squeeze(0)
+        confidence, class_id = probabilities.max(0)
         return (*decode_key(int(class_id)), float(confidence))
 
 

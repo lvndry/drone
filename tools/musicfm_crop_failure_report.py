@@ -35,16 +35,16 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
         raise ValueError("Failed fixed outcome changed")
     if digest(files["corpus/run-approved.py"].encode()) != launch["wrapper_source_sha256"]:
         raise ValueError("Outer executed source changed")
-    for pid, before in launch["protected_before"].items():
-        after = terminal["protected_after"][pid]
+    for process_id, before in launch["protected_before"].items():
+        after = terminal["protected_after"][process_id]
         if before["start_ticks"] != after["start_ticks"] or after["state"] in ("Z", "X"):
             raise ValueError("Protected service identity changed")
-    names = sorted(n for n in files if n.startswith("corpus/prepared-v1/records/"))
+    names = sorted(name for name in files if name.startswith("corpus/prepared-v1/records/"))
     if len(names) != 2289:
         raise ValueError("Observed prefix count changed")
-    records = [json.loads(files[n]) for n in names]
+    records = [json.loads(files[name]) for name in names]
     for number, (row, expected) in enumerate(zip(records, config["rows"], strict=False), 1):
-        if any(row[k] != expected[k] for k in ("id", "role", "target", "sha256")):
+        if any(row[field] != expected[field] for field in ("id", "role", "target", "sha256")):
             raise ValueError("Fixed prefix identity/order changed")
         if row["crop"]["passed"] is not (number != 2289) or not row["crop"]["finite"]:
             raise ValueError("Observed numerical gate changed")
@@ -74,7 +74,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
     prefix = records[:-1]
     phases = {
         kind: {
-            field: sum(r[kind][field] for r in prefix)
+            field: sum(record[kind][field] for record in prefix)
             for field in ("wall_seconds", "child_cpu_seconds")
         }
         for kind in ("full_execution", "crop_execution")
@@ -85,12 +85,14 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
         "passed_prefix": 2288,
         "unprocessed": 5638 - 2289,
         "validation_processed": 0,
-        "first_failure": {k: last[k] for k in ("id", "samples", "crop_start", "crop")},
-        "prefix_audio_seconds": sum(r["samples"] / 24000 for r in prefix),
+        "first_failure": {field: last[field] for field in ("id", "samples", "crop_start", "crop")},
+        "prefix_audio_seconds": sum(record["samples"] / 24000 for record in prefix),
         "prefix_phase_costs": phases,
         "passed_files_with_nonempty_stderr": sum(
-            bool(r["full_execution"]["stderr_bytes"] or r["crop_execution"]["stderr_bytes"])
-            for r in prefix
+            bool(
+                record["full_execution"]["stderr_bytes"] or record["crop_execution"]["stderr_bytes"]
+            )
+            for record in prefix
         ),
         "terminal": terminal,
         "array_only_diagnostic": diagnostic,
@@ -146,9 +148,9 @@ def main() -> None:
     index_path = args.study / "data/corpus-failure-index.json.gz"
     if args.evidence is not None:
         files = {
-            p.relative_to(args.evidence).as_posix(): p.read_text()
-            for p in sorted(args.evidence.rglob("*"))
-            if p.is_file()
+            path.relative_to(args.evidence).as_posix(): path.read_text()
+            for path in sorted(args.evidence.rglob("*"))
+            if path.is_file()
         }
         result = verify(files)
         raw = json.dumps(files, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()

@@ -28,8 +28,8 @@ def require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def close(a: float, b: float) -> bool:
-    return math.isclose(a, b, rel_tol=0, abs_tol=1e-12)
+def close(actual: float, expected: float) -> bool:
+    return math.isclose(actual, expected, rel_tol=0, abs_tol=1e-12)
 
 
 def validate_pair(old: dict[str, Any], new: dict[str, Any], movements: dict[str, Any]) -> None:
@@ -75,7 +75,8 @@ def validate_pair(old: dict[str, Any], new: dict[str, Any], movements: dict[str,
 
 
 def check(root: Path = STUDIES) -> dict[str, Any]:
-    sam, ensemble = root / "k10-sam", root / "k10-ensemble"
+    sam = root / "k10-sam"
+    ensemble = root / "k10-ensemble"
     control = json.loads((sam / "data/control-result.json").read_text())
     candidate = json.loads((sam / "data/candidate-result.json").read_text())
     result = json.loads((ensemble / "data/result.json").read_text())
@@ -121,7 +122,7 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
             and histories["source_run_sha256"] == run_sha,
             "Figure history does not match actual run",
         )
-        best = max(run["history"], key=lambda r: r["mirex"])["epoch"]
+        best = max(run["history"], key=lambda entry: entry["mirex"])["epoch"]
         require(
             best == raw["selected_epoch"] == run["best_epoch"],
             "Earliest strict-best selection differs",
@@ -132,8 +133,8 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
             "Parameter/cache identity differs",
         )
         require(
-            sum(i.startswith("beatport:") for i in run["fit_ids"]) == 1230
-            and sum(i.startswith("fmak:") for i in run["fit_ids"]) == 976,
+            sum(track_id.startswith("beatport:") for track_id in run["fit_ids"]) == 1230
+            and sum(track_id.startswith("fmak:") for track_id in run["fit_ids"]) == 976,
             "Fitting domain counts differ",
         )
         require(
@@ -147,8 +148,8 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
     sam_gate = candidate["metrics"]["fmak"]["mirex"] - control["metrics"]["fmak"][
         "mirex"
     ] >= 0.01 and all(
-        candidate["metrics"][d][k] >= control["metrics"][d][k]
-        for d, k in (("beatport", "mirex"), ("beatport", "exact"), ("fmak", "exact"))
+        candidate["metrics"][domain][metric] >= control["metrics"][domain][metric]
+        for domain, metric in (("beatport", "mirex"), ("beatport", "exact"), ("fmak", "exact"))
     )
     require(
         sam_gate == candidate["method_gate"]["qualifies_for_confirmation"] is False,
@@ -186,10 +187,10 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
                     "Ensemble member delta differs",
                 )
     uniform = all(
-        result["metrics"][d][k] >= result["member_metrics"][seed][d][k]
+        result["metrics"][domain][metric] >= result["member_metrics"][seed][domain][metric]
         for seed in ("13", "37", "73")
-        for d in ("beatport", "fmak")
-        for k in ("mirex", "exact")
+        for domain in ("beatport", "fmak")
+        for metric in ("mirex", "exact")
     )
     require(
         uniform == result["uniformly_nonregressing_vs_all_members"] is False,
@@ -205,8 +206,8 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
         )
     canonical = result["member_metrics"]["13"]
     teacher = result["metrics"]["fmak"]["mirex"] - canonical["fmak"]["mirex"] >= 0.01 and all(
-        result["metrics"][d][k] >= canonical[d][k]
-        for d, k in (("beatport", "mirex"), ("beatport", "exact"), ("fmak", "exact"))
+        result["metrics"][domain][metric] >= canonical[domain][metric]
+        for domain, metric in (("beatport", "mirex"), ("beatport", "exact"), ("fmak", "exact"))
     )
     bp_gate = (
         result["bp_reference_hurdle_delta"]["fmak"] >= 0.02
@@ -236,7 +237,8 @@ def check(root: Path = STUDIES) -> dict[str, Any]:
         )
         proof = json.loads((directory / "data/execution-provenance.json").read_text())
         require(
-            all(v == "0" for v in proof["exit_receipts"].values()), "Authoritative execution failed"
+            all(receipt == "0" for receipt in proof["exit_receipts"].values()),
+            "Authoritative execution failed",
         )
         raw = directory / ("data/candidate-result.json" if directory == sam else "data/result.json")
         server_key = (

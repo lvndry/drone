@@ -31,15 +31,16 @@ def powers(signal: Tensor, expected: list[float]) -> dict[str, Any]:
     if not torch.isfinite(total) or total <= 0:
         raise ValueError("Invalid spectral power")
     masks = [
-        (frequencies >= hz * 2 ** (-1 / 24)) & (frequencies <= hz * 2 ** (1 / 24))
-        for hz in expected
+        (frequencies >= frequency_hz * 2 ** (-1 / 24))
+        & (frequencies <= frequency_hz * 2 ** (1 / 24))
+        for frequency_hz in expected
     ]
     ratios = [float(spectrum[mask].sum() / total) for mask in masks]
     union = float(spectrum[torch.stack(masks).any(0)].sum() / total)
     return {
         "union_fraction": union,
         "component_fractions": ratios,
-        "passed": union >= 0.90 and all(r >= 0.20 for r in ratios),
+        "passed": union >= 0.90 and all(ratio >= 0.20 for ratio in ratios),
     }
 
 
@@ -76,7 +77,10 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
 
     def chord(frequencies: list[float], amplitude: float = 0.08) -> Tensor:
         return torch.stack(
-            [amplitude * torch.sin(2 * math.pi * hz * grid) for hz in frequencies]
+            [
+                amplitude * torch.sin(2 * math.pi * frequency_hz * grid)
+                for frequency_hz in frequencies
+            ]
         ).sum(0)
 
     fixtures = {
@@ -93,7 +97,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         original_rms = center_ten(original).square().mean().sqrt()
         for shift in range(-6, 7):
             shifted, metadata = recipe.shift_playback(original, shift)
-            expected = [hz * 2 ** (shift / 12) for hz in source_frequencies]
+            expected = [frequency_hz * 2 ** (shift / 12) for frequency_hz in source_frequencies]
             finite = bool(torch.isfinite(shifted).all())
             exact_length = shifted.numel() == metadata["output_samples"]
             zero_identity = shift != 0 or bool(torch.equal(original, shifted))
@@ -114,16 +118,22 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 peak = int(magnitude.argmax())
                 if not 0 < peak < len(magnitude) - 1:
                     raise ValueError("Invalid global tone peak")
-                y = magnitude[peak - 1 : peak + 2].clamp_min(1e-20).log()
-                offset = float(0.5 * (y[0] - y[2]) / (y[0] - 2 * y[1] + y[2]))
-                hz = (peak + offset) / 10
-                cents = 1200 * math.log2(hz / expected[0])
-                result.update(global_peak_hz=hz, error_cents=cents)
+                log_magnitudes = magnitude[peak - 1 : peak + 2].clamp_min(1e-20).log()
+                offset = float(
+                    0.5
+                    * (log_magnitudes[0] - log_magnitudes[2])
+                    / (log_magnitudes[0] - 2 * log_magnitudes[1] + log_magnitudes[2])
+                )
+                peak_hz = (peak + offset) / 10
+                cents = 1200 * math.log2(peak_hz / expected[0])
+                result.update(global_peak_hz=peak_hz, error_cents=cents)
                 passed = passed and abs(cents) <= 5
             else:
                 measured = powers(shifted, expected)
                 correct = powers(chord(expected), expected)
-                wrong = powers(chord([hz * 2 ** (1 / 12) for hz in expected]), expected)
+                wrong = powers(
+                    chord([frequency_hz * 2 ** (1 / 12) for frequency_hz in expected]), expected
+                )
                 deleted = powers(chord([expected[0], expected[2]]), expected)
                 controls = correct["passed"] and not wrong["passed"] and not deleted["passed"]
                 result.update(

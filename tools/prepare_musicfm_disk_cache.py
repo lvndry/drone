@@ -30,16 +30,18 @@ def config(canonical: Path, overlay: Path, reference: Path) -> dict[str, Any]:
     prior = load(reference)
     if sha(reference) != original["config_sha256"]:
         raise ValueError("Different full decoder reference")
-    rows = apply_identity_overlay({r["id"]: r for r in original["rows"]}, load(overlay), CANONICAL)
-    if len(rows) != 5638 or sum(r["role"] == "fit" for r in rows.values()) != 5262:
+    rows = apply_identity_overlay(
+        {row["id"]: row for row in original["rows"]}, load(overlay), CANONICAL
+    )
+    if len(rows) != 5638 or sum(row["role"] == "fit" for row in rows.values()) != 5262:
         raise ValueError("Wrong approved fitting/selection membership")
     families: dict[str, tuple[str, int]] = {}
     for row in rows.values():
-        key = row["waveform_sha256"]
-        value = (row["role"], row["target"])
-        if key in families and families[key] != value:
+        waveform_sha256 = row["waveform_sha256"]
+        family = (row["role"], row["target"])
+        if waveform_sha256 in families and families[waveform_sha256] != family:
             raise ValueError("Conflicting/cross-role canonical family")
-        families[key] = value
+        families[waveform_sha256] = family
     root = Path(__file__).resolve().parents[1]
     names = [
         "tools/prepare_musicfm_disk_cache.py",
@@ -193,7 +195,8 @@ def publish_ready(output: Path, payload: dict[str, Any], final_guard: Callable[[
 
 
 def execute(config_path: Path, approval_path: Path, output: Path) -> None:
-    value, approval = load(config_path), load(approval_path)
+    value = load(config_path)
+    approval = load(approval_path)
     if (
         approval.get("authorized") is not True
         or approval.get("allow_training") is not False
@@ -220,8 +223,8 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
     ):
         raise ValueError("Require exact CPU set and CUDA masked")
     if any(
-        os.environ.get(k) != "1"
-        for k in (
+        os.environ.get(name) != "1"
+        for name in (
             "OMP_NUM_THREADS",
             "MKL_NUM_THREADS",
             "OPENBLAS_NUM_THREADS",
@@ -236,11 +239,11 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
         raise ValueError("Ordinary disk required, not tmpfs")
     for name in ("fit", "records", "logs"):
         (output / name).mkdir()
-    fitting = [r for r in value["rows"] if r["role"] == "fit"]
-    validation = [r for r in value["rows"] if r["role"] == "validation"]
+    fitting = [row for row in value["rows"] if row["role"] == "fit"]
+    validation = [row for row in value["rows"] if row["role"] == "validation"]
     if (len(fitting), len(validation)) != (5262, 376):
         raise ValueError("Different fixed pools")
-    forecast = sum(r["bytes"] for r in fitting)
+    forecast = sum(row["bytes"] for row in fitting)
     if forecast + 64 * 1024**2 > LIMIT:
         raise ValueError("Whole fitting cache+metadata forecast exceeds100GB")
     stats = os.statvfs(output)
@@ -259,7 +262,10 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
     try:
         for row in validation:
             stage.validation(row)
-        futures = {pool.submit(stage.one, row, i): row["id"] for i, row in enumerate(fitting, 1)}
+        futures = {
+            pool.submit(stage.one, row, ordinal): row["id"]
+            for ordinal, row in enumerate(fitting, 1)
+        }
         for future in as_completed(futures):
             result = future.result()
             results[result["id"]] = result
@@ -269,7 +275,7 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
             write_json(output / "progress.json", stage.progress(False))
         pool.shutdown(wait=True)
         stage.guard(True)
-        rows = [results[r["id"]] if r["role"] == "fit" else r for r in value["rows"]]
+        rows = [results[row["id"]] if row["role"] == "fit" else row for row in value["rows"]]
         if len(results) != 5262:
             raise ValueError("Incomplete fitting cache")
         publish_ready(
@@ -285,7 +291,7 @@ def execute(config_path: Path, approval_path: Path, output: Path) -> None:
                 "labels_sha256": load(Path(value["canonical"]))["labels_sha256"],
                 "rows": rows,
                 "resources": stage.progress(True),
-                "fit_bytes": sum(r["bytes"] for r in fitting),
+                "fit_bytes": sum(row["bytes"] for row in fitting),
                 "validation_reused": 376,
                 "no_seek_quantization_role_or_label_changes": True,
             },

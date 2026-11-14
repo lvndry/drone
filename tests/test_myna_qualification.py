@@ -15,8 +15,8 @@ def test_streamed_frames_have_exact_global_centers(samples: int) -> None:
         assert 0 <= left < right <= samples
         assert right - left > 1024
         assert right - left <= 196 * 512 + 2048
-        for i in range(count):
-            center = left + (offset + i) * 512
+        for index in range(count):
+            center = left + (offset + index) * 512
             assert left == 0 or center - 1024 >= left
             assert right == samples or center + 1024 <= right
             centers.append(center)

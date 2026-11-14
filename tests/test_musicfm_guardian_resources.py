@@ -45,8 +45,11 @@ def record(
     path = root / str(pid)
     path.mkdir()
     fields = ["0"] * 50
-    fields[0], fields[1], fields[19] = "S", str(parent), str(start)
-    fields[11], fields[13] = str(cpu), str(reaped)
+    fields[0] = "S"
+    fields[1] = str(parent)
+    fields[19] = str(start)
+    fields[11] = str(cpu)
+    fields[13] = str(reaped)
     (path / "stat").write_text(f"{pid} (synthetic) " + " ".join(fields))
     (path / "statm").write_text(f"{pages} {pages}")
     (path / "task" / str(pid)).mkdir(parents=True)

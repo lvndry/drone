@@ -31,9 +31,9 @@ def test_width2_checkpoint_restores_declared_shape_and_parameter_count(tmp_path:
     restored, payload = load_checkpoint(path)
     assert params_count(model) == params_count(restored) == 361080
     assert payload["model_config"] == {"width": 2.0}
-    x = torch.zeros(1, 192, 16)
+    features = torch.zeros(1, 192, 16)
     with torch.inference_mode():
-        assert torch.equal(model(x), restored(x))
+        assert torch.equal(model(features), restored(features))
     assert params_count(KeyCNN()) == 109128
 
 
@@ -114,11 +114,9 @@ def fixture_control(
 ) -> tuple[Namespace, dict[str, Any], dict[str, Any]]:
     if reviewed is None:
         reviewed = json.loads(REVIEWED.read_bytes())
-    archive, control_dir, output = (
-        tmp_path / "archive",
-        tmp_path / "control13",
-        tmp_path / "candidate13",
-    )
+    archive = tmp_path / "archive"
+    control_dir = tmp_path / "control13"
+    output = tmp_path / "candidate13"
     for path in (archive, control_dir, output):
         path.mkdir()
     model = KeyCNN()
@@ -132,8 +130,10 @@ def fixture_control(
         parameters=109128,
         feature_manifest_sha256="fixed",
         source_sha256=reviewed["archived"]["sources"],
-        fit_ids=[f"beatport:{i}" for i in range(1230)] + [f"fmak:{i}" for i in range(976)],
-        validation_ids=[f"beatport:v{i}" for i in range(126)] + [f"fmak:v{i}" for i in range(250)],
+        fit_ids=[f"beatport:{index}" for index in range(1230)]
+        + [f"fmak:{index}" for index in range(976)],
+        validation_ids=[f"beatport:v{index}" for index in range(126)]
+        + [f"fmak:v{index}" for index in range(250)],
         history=[dict(epoch=1, loss=1.0, mirex=0.5)],
         best_epoch=1,
         early_stopped=True,
@@ -144,9 +144,9 @@ def fixture_control(
         checkpoint_sha256=audio_digest(archive / "best.pt"),
     )
     (archive / "joint.json").write_text(json.dumps(archived))
-    bp = copy.deepcopy(archived)
-    bp.update(arm="control", fit_ids=archived["fit_ids"][:1230])
-    (archive / "bp.json").write_text(json.dumps(bp))
+    beatport_run = copy.deepcopy(archived)
+    beatport_run.update(arm="control", fit_ids=archived["fit_ids"][:1230])
+    (archive / "bp.json").write_text(json.dumps(beatport_run))
     control = copy.deepcopy(archived)
     control["source_sha256"] = reviewed["reusable_control"]["sources"]
     control["loss_spec"] = {"name": "hard-cross-entropy", "smoothing": 0.0}
@@ -254,12 +254,12 @@ def result(seed: int, gain: float) -> dict[str, Any]:
 
 
 def test_capacity_gate_preserves_original_hurdle_and_never_buys_weighted_gain_with_exact() -> None:
-    candidates = [result(s, 0.015) for s in (13, 37, 73)]
+    candidates = [result(seed, 0.015) for seed in (13, 37, 73)]
     summary = summarize(candidates, VERSION)
     assert (
         summary["method_gate"]["qualifies_for_confirmation"] and not summary["original_hurdle_pass"]
     )
-    candidates = [result(s, 0.03) for s in (13, 37, 73)]
+    candidates = [result(seed, 0.03) for seed in (13, 37, 73)]
     assert summarize(candidates, VERSION)["qualifies_for_external_freeze"]
     for candidate in candidates:
         candidate["metrics"]["beatport"]["exact"] -= 0.001
@@ -288,33 +288,35 @@ def test_wide_selected_logits_use45minute_budget_and_preserve_rng(tmp_path: Path
 
     model = KeyCNN(width=2.0)
     save_checkpoint(tmp_path / "best.pt", model, width=2.0)
-    rows = [dict(id=f"{d}:v", domain=d, sha256=d) for d in ("beatport", "fmak")]
-    features = [window(np.ones((208, t), dtype=np.float16)).astype(np.float32) for t in (16, 24)]
-    refs = np.array([0, 1])
-    expected = domain_metrics(evaluate_features(model, features, "cpu", 4), refs, rows)
-    rng = torch.get_rng_state().clone()
+    rows = [dict(id=f"{domain}:v", domain=domain, sha256=domain) for domain in ("beatport", "fmak")]
+    features = [
+        window(np.ones((208, frames), dtype=np.float16)).astype(np.float32) for frames in (16, 24)
+    ]
+    references = np.array([0, 1])
+    expected = domain_metrics(evaluate_features(model, features, "cpu", 4), references, rows)
+    random_state = torch.get_rng_state().clone()
     scored = score_selected(
         tmp_path,
         dict(domain_metrics=expected),
         features,
-        refs,
+        references,
         rows,
         "cpu",
         time.monotonic() - 1300,
         2700,
         2.0,
     )
-    assert scored["metrics"] == expected and torch.equal(torch.get_rng_state(), rng)
+    assert scored["metrics"] == expected and torch.equal(torch.get_rng_state(), random_state)
     artifact = json.loads((tmp_path / scored["validation_artifact"]).read_bytes())
-    assert artifact["ids"] == [r["id"] for r in rows]
-    assert artifact["refs"] == refs.tolist()
+    assert artifact["ids"] == [row["id"] for row in rows]
+    assert artifact["refs"] == references.tolist()
     assert np.asarray(artifact["logits"]).shape == (2, 24)
     with pytest.raises(ValueError, match="width metadata"):
         score_selected(
             tmp_path,
             dict(domain_metrics=expected),
             features,
-            refs,
+            references,
             rows,
             "cpu",
             time.monotonic(),

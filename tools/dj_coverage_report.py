@@ -19,21 +19,22 @@ def require(condition: bool, message: str) -> None:
 
 
 def verify(data: dict[str, Any]) -> dict[str, Any]:
-    fma, bp = data["fma"], data["bp"]
+    fma = data["fma"]
+    beatport = data["bp"]
     require(
-        "per_track" not in bp and "wider_graph_bridge_witnesses" not in fma,
+        "per_track" not in beatport and "wider_graph_bridge_witnesses" not in fma,
         "Only aggregate evidence may be published",
     )
     require(
         not fma["reference_labels_or_scores_used"]
-        and not bp["key_labels_selected_or_scored"]
+        and not beatport["key_labels_selected_or_scored"]
         and not fma["dataset_or_pool_changes"]
-        and not bp["pool_changes"],
+        and not beatport["pool_changes"],
         "metadata-only scope",
     )
     require(
         fma["sources"]["plan"]["sha256"]
-        == bp["sources"]["plan"]["sha256"]
+        == beatport["sources"]["plan"]["sha256"]
         == "c3e59ffb764ca5f51444447b0a18a69543228e60a9e3723d925ddd82b0fc8373",
         "cohort identity",
     )
@@ -57,13 +58,14 @@ def verify(data: dict[str, Any]) -> dict[str, Any]:
         "current FMA roles",
     )
     for role, expected in (("fit", 1229), ("inner_selection", 126)):
-        summary = bp["roles"][role]
+        summary = beatport["roles"][role]
         require(
             summary["tracks"] == summary["workbook_genres_nonempty"] == expected,
             "complete current BP workbook genre coverage",
         )
         require(
-            sum(v[role]["tracks"] for v in bp["workbook_genres"].values()) == expected,
+            sum(genre[role]["tracks"] for genre in beatport["workbook_genres"].values())
+            == expected,
             "BP native workbook counts",
         )
         require(sum(summary["preview_bands"].values()) == expected, "BP preview partition")
@@ -76,13 +78,13 @@ def verify(data: dict[str, Any]) -> dict[str, Any]:
             and not summary["artist_album_components_verified"],
             "BP preview/group scope",
         )
-        for genre in bp["workbook_genres"].values():
+        for genre in beatport["workbook_genres"].values():
             require(
                 sum(genre[role]["preview_bands"].values()) == genre[role]["tracks"],
                 "BP genre preview partition",
             )
     require(
-        bp["store_duration_differs_from_actual_preview_more_than1s"] == 673,
+        beatport["store_duration_differs_from_actual_preview_more_than1s"] == 673,
         "store duration must not be substituted for actual previews",
     )
     return data
@@ -136,19 +138,22 @@ def plot(data: dict[str, Any], study: Path = STUDY) -> None:
         "Dubstep",
     ]
     left = [
-        [data["fma"]["coverage"][name]["inner_selection"]["bands"][b]["tracks"] for b in BANDS]
+        [
+            data["fma"]["coverage"][name]["inner_selection"]["bands"][band]["tracks"]
+            for band in BANDS
+        ]
         for name in fma_names
     ]
     right = [
         [
-            data["bp"]["workbook_genres"][name]["inner_selection"]["preview_bands"].get(b, 0)
-            for b in BANDS
+            data["bp"]["workbook_genres"][name]["inner_selection"]["preview_bands"].get(band, 0)
+            for band in BANDS
         ]
         for name in bp_names
     ]
-    limit = max(v for panel in (left, right) for row in panel for v in row)
-    fig, axes = plt.subplots(1, 2, figsize=(12.4, 5.3), layout="constrained")
-    for ax, values, names, title, is_fma in zip(
+    limit = max(count for panel in (left, right) for row in panel for count in row)
+    figure, axes = plt.subplots(1, 2, figsize=(12.4, 5.3), layout="constrained")
+    for axis, values, names, title, is_fma in zip(
         axes,
         (left, right),
         (fma_names, bp_names),
@@ -156,7 +161,7 @@ def plot(data: dict[str, Any], study: Path = STUDY) -> None:
         (True, False),
         strict=True,
     ):
-        ax.imshow(
+        axis.imshow(
             np.asarray(values),
             cmap="Blues",
             vmin=0,
@@ -165,12 +170,12 @@ def plot(data: dict[str, Any], study: Path = STUDY) -> None:
             interpolation="nearest",
         )
         display = [
-            n.replace("House_minus_Chill-out_metadata_slice", "House minus Chill-out").replace(
+            name.replace("House_minus_Chill-out_metadata_slice", "House minus Chill-out").replace(
                 "named_dance_related_union", "Named dance-tag union"
             )
-            for n in names
+            for name in names
         ]
-        ax.set(
+        axis.set(
             yticks=range(len(names)),
             yticklabels=display,
             xticks=range(5),
@@ -178,43 +183,43 @@ def plot(data: dict[str, Any], study: Path = STUDY) -> None:
             title=title,
             xlabel="Duration band (BP 2–<5m cells hug the 120s boundary)",
         )
-        for i, name in enumerate(names):
-            for j, b in enumerate(BANDS):
-                count = values[i][j]
+        for row_index, name in enumerate(names):
+            for column_index, band in enumerate(BANDS):
+                count = values[row_index][column_index]
                 text = str(count)
                 if is_fma:
-                    groups = data["fma"]["coverage"][name]["inner_selection"]["bands"][b][
+                    groups = data["fma"]["coverage"][name]["inner_selection"]["bands"][band][
                         "components"
                     ]
                     text += f"/{groups}"
-                ax.text(
-                    j,
-                    i,
+                axis.text(
+                    column_index,
+                    row_index,
                     text,
                     ha="center",
                     va="center",
                     color="white" if count > limit * 0.55 else "#17334a",
                 )
-        ax.tick_params(length=0)
-        for spine in ax.spines.values():
+        axis.tick_params(length=0)
+        for spine in axis.spines.values():
             spine.set_visible(False)
-    fig.suptitle(
+    figure.suptitle(
         "Observed selection coverage: FMA tracks/components; BP tracks only (artist groups unverified)",
         fontsize=11,
     )
-    fig.savefig(
+    figure.savefig(
         study / "coverage-genre-duration.png",
         dpi=180,
         metadata={"Software": "Drone metadata coverage"},
     )
-    fig.savefig(
+    figure.savefig(
         study / "coverage-genre-duration.svg",
         metadata={"Date": None, "Creator": "Drone metadata coverage"},
     )
     # Preserve XML/path line separators while removing generated line-end whitespace.
     svg = study / "coverage-genre-duration.svg"
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
-    plt.close(fig)
+    plt.close(figure)
 
 
 def main() -> None:
@@ -239,7 +244,9 @@ def main() -> None:
         json.dumps(
             {
                 "metadata_only": True,
-                "fma_roles": {k: v["all"]["tracks"] for k, v in data["fma"]["roles"].items()},
+                "fma_roles": {
+                    role: summary["all"]["tracks"] for role, summary in data["fma"]["roles"].items()
+                },
                 "bp_roles": data["bp"]["roles"],
             },
             indent=2,

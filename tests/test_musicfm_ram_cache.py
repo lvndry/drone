@@ -11,7 +11,8 @@ from tools.musicfm_crop_io import file_identity
 
 
 def owned(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> ram.OwnedCache:
-    parent, output = tmp_path / "shm", tmp_path / "receipts"
+    parent = tmp_path / "shm"
+    output = tmp_path / "receipts"
     parent.mkdir()
     output.mkdir()
     monkeypatch.setattr(ram, "RAM_PARENT", parent)

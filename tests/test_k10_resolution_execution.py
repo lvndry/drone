@@ -34,31 +34,31 @@ def config() -> dict[str, Any]:
         "deadline_epoch": 1801.0,
         "protected": {
             "protected_starts": [
-                {"pid": p, "start_ticks": 100} for p in (1478814, 3448680, 1481756, 3451013)
+                {"pid": pid, "start_ticks": 100} for pid in (1478814, 3448680, 1481756, 3451013)
             ],
             "active_job_starts": [
-                {"pid": p, "start_ticks": 100} for p in (1294, 1307, 3814436, 3814440)
+                {"pid": pid, "start_ticks": 100} for pid in (1294, 1307, 3814436, 3814440)
             ],
         },
     }
 
 
 def test_fixed_contract_requires_all_caps_backend_and_protected_jobs() -> None:
-    v = config()
-    execution.contract(v)
-    for key, bad in (
+    contract_config = config()
+    execution.contract(contract_config)
+    for key, invalid in (
         ("caps", None),
         ("backend_policy", {}),
         ("model_order", ["candidate", "baseline"]),
         ("updates_per_model", 8279),
     ):
-        changed = copy.deepcopy(v)
-        changed[key] = bad
+        changed = copy.deepcopy(contract_config)
+        changed[key] = invalid
         with pytest.raises(ValueError):
             execution.contract(changed)
-    v["protected"]["active_job_starts"].pop()
+    contract_config["protected"]["active_job_starts"].pop()
     with pytest.raises(ValueError, match="eight"):
-        execution.contract(v)
+        execution.contract(contract_config)
 
 
 def test_qualified_pure_helpers_are_reused_without_policy_mutation() -> None:
@@ -72,9 +72,9 @@ def test_qualified_pure_helpers_are_reused_without_policy_mutation() -> None:
 def test_guardian_separate_workers_releases_and_completed_pair(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fail_second: bool
 ) -> None:
-    v = config()
+    run_config = config()
     now = time.time()
-    v.update(not_before_epoch=now - 1, deadline_epoch=now + 1799)
+    run_config.update(not_before_epoch=now - 1, deadline_epoch=now + 1799)
     # Time window is checked separately in contract; use a live fake wall here.
     monkeypatch.setattr(guardian, "contract", lambda _: None)
     monkeypatch.setattr(guardian, "bindings", lambda _: None)
@@ -101,43 +101,48 @@ def test_guardian_separate_workers_releases_and_completed_pair(
         "sensor",
         lambda *_: {"owned_bytes": 0, "free_bytes": 10 * 1024**3, "gpu0_free_bytes": 10 * 1024**3},
     )
-    a, b, old = gpu_arms()
+    baseline_result, candidate_result, historical_result = gpu_arms()
     historical = tmp_path / "old.json"
-    save(historical, old)
+    save(historical, historical_result)
     import gzip
 
     groups = tmp_path / "groups.csv.gz"
     groups.write_bytes(gzip.compress(b"id,derived_uncertainty_group\nb0,g0\n", mtime=0))
-    v.update(
+    run_config.update(
         historical_gpu_control=str(historical),
         historical_gpu_control_sha256=sha(historical),
         groups=str(groups),
         rows=[],
     )
-    conf, approval = tmp_path / "config.json", tmp_path / "approval.json"
-    save(conf, v)
+    config_path = tmp_path / "config.json"
+    approval = tmp_path / "approval.json"
+    save(config_path, run_config)
     save(
         approval,
         {
             "authorized": True,
             "allow_sequential_pair": True,
             "allow_training": True,
-            "config_sha256": sha(conf),
-            "deadline_epoch": v["deadline_epoch"],
+            "config_sha256": sha(config_path),
+            "deadline_epoch": run_config["deadline_epoch"],
         },
     )
     pids = []
 
     class Child:
         def __init__(self, command: list[str], **_kwargs: Any) -> None:  # noqa: ANN401
-            self.pid, self.returncode = 1000 + len(pids), 0
+            self.pid = 1000 + len(pids)
+            self.returncode = 0
             pids.append(self.pid)
             name = command[command.index("--model") + 1]
             if fail_second and name == "candidate":
                 self.returncode = 1
-            out = Path(command[command.index("--output") + 1])
-            out.mkdir()
-            save(out / "result.json", a if name == "baseline" else b)
+            output_dir = Path(command[command.index("--output") + 1])
+            output_dir.mkdir()
+            save(
+                output_dir / "result.json",
+                baseline_result if name == "baseline" else candidate_result,
+            )
 
         def poll(self) -> int:
             return self.returncode
@@ -149,13 +154,13 @@ def test_guardian_separate_workers_releases_and_completed_pair(
     output = tmp_path / "run"
     if fail_second:
         with pytest.raises(RuntimeError, match="no retry"):
-            guardian.supervise(conf, approval, output)
+            guardian.supervise(config_path, approval, output)
         assert len(set(pids)) == 2
         assert not load(output / "controller.json")["complete"]
         assert (output / "baseline/result.json").exists()
         assert not (output / "result.json").exists()
         return
-    guardian.supervise(conf, approval, output)
+    guardian.supervise(config_path, approval, output)
     assert len(set(pids)) == 2
     assert load(output / "controller.json")["complete"]
     assert load(output / "result.json")["continuation_gate"]["continuation_earned"]
@@ -167,11 +172,12 @@ def test_missing_approval_never_creates_output(
 ) -> None:
     monkeypatch.setattr(guardian, "contract", lambda _: None)
     monkeypatch.setattr(guardian, "bindings", lambda _: None)
-    c, p = tmp_path / "c.json", tmp_path / "p.json"
-    save(c, config())
-    save(p, {"authorized": False})
+    config_path = tmp_path / "c.json"
+    approval_path = tmp_path / "p.json"
+    save(config_path, config())
+    save(approval_path, {"authorized": False})
     with pytest.raises(ValueError, match="approval"):
-        guardian.supervise(c, p, tmp_path / "run")
+        guardian.supervise(config_path, approval_path, tmp_path / "run")
     assert not (tmp_path / "run").exists()
 
 
@@ -181,14 +187,16 @@ def test_bindings_reject_changed_qualified_source_and_evidence_before_models(
 ) -> None:
     import sys
 
-    helper, history, groups, plan, sensor = (
-        tmp_path / n for n in ("helper.py", "old.json", "groups.gz", "plan.json", "sensor")
-    )
+    helper = tmp_path / "helper.py"
+    history = tmp_path / "old.json"
+    groups = tmp_path / "groups.gz"
+    plan = tmp_path / "plan.json"
+    sensor = tmp_path / "sensor"
     for path in (helper, history, groups, sensor):
         path.write_bytes(b"pinned")
     save(plan, {"uncertainty_groups_sha256": sha(groups)})
     interpreter = {"path": sys.executable, "sha256": sha(Path(sys.executable))}
-    q = {
+    qualification = {
         "policy": POLICY.copy(),
         "protected": {"starts": [1]},
         "source_sha256": {"helper.py": sha(helper)},
@@ -199,8 +207,8 @@ def test_bindings_reject_changed_qualified_source_and_evidence_before_models(
             "nvidia_smi": {"path": str(sensor), "sha256": sha(sensor)},
         },
     }
-    v = {
-        **copy.deepcopy(q),
+    run_config = {
+        **copy.deepcopy(qualification),
         "qualification_root": str(tmp_path),
         "plan": str(plan),
         "historical_gpu_control": str(history),
@@ -209,15 +217,15 @@ def test_bindings_reject_changed_qualified_source_and_evidence_before_models(
         "groups_sha256": sha(groups),
     }
     monkeypatch.setattr(execution, "contract", lambda _: None)
-    monkeypatch.setattr(execution, "qualification", lambda _: q)
+    monkeypatch.setattr(execution, "qualification", lambda _: qualification)
     monkeypatch.setattr(execution, "ROOT", tmp_path)
-    monkeypatch.setattr(execution, "sources", lambda: q["source_sha256"])
-    execution.bindings(v)
+    monkeypatch.setattr(execution, "sources", lambda: qualification["source_sha256"])
+    execution.bindings(run_config)
     if change == "forward":
         helper.write_bytes(b"different forward, same init")
     elif change in ("policy", "protected"):
-        v[change] = {}
+        run_config[change] = {}
     else:
         (history if change == "historical" else groups).write_bytes(b"changed")
     with pytest.raises(ValueError):
-        execution.bindings(v)
+        execution.bindings(run_config)

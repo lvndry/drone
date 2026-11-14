@@ -19,13 +19,13 @@ from tools.musicfm_crop_io import save
 @pytest.mark.parametrize("length", [65, 320])
 @pytest.mark.parametrize("frames", [62, 104, 400])
 def test_crop_exactly_replays_legacy_rng_pitch_start_and_padding(length: int, frames: int) -> None:
-    a = np.random.default_rng(42).normal(size=(208, frames)).astype(np.float16)
-    d = Draw("f", "fmak", 12345)
-    actual, witness = cost.make_crop(a, d, length)
-    rng = np.random.default_rng(d.augmentation_seed)
-    shift = int(rng.integers(-4, 5))
-    view = features.window(a, shift)
-    start = int(rng.integers(0, frames - length + 1)) if frames >= length else 0
+    spectrogram = np.random.default_rng(42).normal(size=(208, frames)).astype(np.float16)
+    draw = Draw("f", "fmak", 12345)
+    actual, witness = cost.make_crop(spectrogram, draw, length)
+    random_generator = np.random.default_rng(draw.augmentation_seed)
+    shift = int(random_generator.integers(-4, 5))
+    view = features.window(spectrogram, shift)
+    start = int(random_generator.integers(0, frames - length + 1)) if frames >= length else 0
     expected = view[:, start : start + length].astype(np.float32)
     expected = np.pad(expected, ((0, 0), (0, max(0, length - expected.shape[1]))))
     np.testing.assert_array_equal(actual, expected)
@@ -39,8 +39,8 @@ class Tiny(torch.nn.Module):
         super().__init__()
         self.linear = torch.nn.Linear(1, 24)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.linear(x.mean((1, 2)).unsqueeze(1))
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        return self.linear(features.mean((1, 2)).unsqueeze(1))
 
 
 def test_both_shapes_commit_three_synthetic_updates_and_cover_full376(
@@ -65,9 +65,9 @@ def test_both_shapes_commit_three_synthetic_updates_and_cover_full376(
 
     monkeypatch.setattr(torch.nn.functional, "cross_entropy", loss)
     batches = list(paired_batches(["b"], ["f"], updates=3))
-    ids = [f"v{i}" for i in range(376)]
+    ids = [f"v{index}" for index in range(376)]
     rows: dict[str, dict[str, Any]] = {
-        i: {"frames": 104 + n % 5, "ref": 999} for n, i in enumerate(ids)
+        identity: {"frames": 104 + index % 5, "ref": 999} for index, identity in enumerate(ids)
     }
 
     def array(identity: str) -> np.ndarray:
@@ -75,19 +75,25 @@ def test_both_shapes_commit_three_synthetic_updates_and_cover_full376(
             (208, rows.get(identity, {"frames": 400})["frames"]), 0.125, dtype=np.float16
         )
 
-    results = [cost.qualify_shape(n, batches, array, ids, rows, lambda: None) for n in (320, 65)]
-    assert targets == [[i % 24 for i in range(32 * u, 32 * u + 32)] for u in range(3)] * 2
+    results = [
+        cost.qualify_shape(length, batches, array, ids, rows, lambda: None) for length in (320, 65)
+    ]
+    assert (
+        targets
+        == [[index % 24 for index in range(32 * update, 32 * update + 32)] for update in range(3)]
+        * 2
+    )
     for result in results:
         assert result["optimizer_commits"] == 3 and result["synthetic_examples"] == 96
         assert result["validation"]["tracks"] == 376
-        assert result["validation"]["frames"] == sum(r["frames"] for r in rows.values())
+        assert result["validation"]["frames"] == sum(row["frames"] for row in rows.values())
         assert result["validation"]["finite"]
         assert not result["weights_retained"] and not result["task_scores_computed"]
         assert not result["predictions_retained"]
         assert result["initial_state_sha256"] == expected.hexdigest()
 
-    def common(r: dict[str, Any]) -> list[tuple[str, int, int]]:
-        return [(x["id"], x["augmentation_seed"], x["shift"]) for x in r["draws"]]
+    def common(result: dict[str, Any]) -> list[tuple[str, int, int]]:
+        return [(draw["id"], draw["augmentation_seed"], draw["shift"]) for draw in result["draws"]]
 
     assert common(results[0]) == common(results[1])
 
@@ -95,7 +101,8 @@ def test_both_shapes_commit_three_synthetic_updates_and_cover_full376(
 def test_guard_rejects_training_authority_without_cost_only_permission(tmp_path: Path) -> None:
     from tools.run_k10_context_cost import supervise
 
-    config, permit = tmp_path / "config.json", tmp_path / "permit.json"
+    config = tmp_path / "config.json"
+    permit = tmp_path / "permit.json"
     save(config, {})
     save(
         permit,
@@ -117,9 +124,9 @@ def test_nonfinite_validation_cannot_complete_resource_qualification(
     import drone.model
 
     class BrokenEvaluation(Tiny):
-        def forward(self, x: torch.Tensor) -> torch.Tensor:
-            out = super().forward(x)
-            return out if self.training else out * float("nan")
+        def forward(self, features: torch.Tensor) -> torch.Tensor:
+            logits = super().forward(features)
+            return logits if self.training else logits * float("nan")
 
     torch.manual_seed(13)
     model = BrokenEvaluation()
@@ -179,7 +186,7 @@ def test_worker_watch_checks_own_start_config_and_finite_heartbeat(
         tmp_path / "ready.json",
         {"pid": 123, "start_ticks": 456, "config_sha256": "frozen", "epoch": 97.0},
     )
-    monkeypatch.setattr(guard, "alive", lambda p, s: (p, s) == (123, 456))
+    monkeypatch.setattr(guard, "alive", lambda pid, start_ticks: (pid, start_ticks) == (123, 456))
     monkeypatch.setattr(guard, "capacity_guard", lambda *_: None)
     clock = [100.0]
     tick = [1.0]

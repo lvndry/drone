@@ -24,7 +24,7 @@ def tiny_loop(monkeypatch: pytest.MonkeyPatch) -> tuple[dict[str, Any], dict[str
 def test_default_cpu_equals_explicit_factory_state_and_trajectory(
     tmp_path: Path, tiny_loop: tuple[dict[str, Any], dict[str, dict[str, Any]]]
 ) -> None:
-    p, rows = tiny_loop
+    partitions, rows = tiny_loop
     raw = gzip.decompress(
         (Path(__file__).parent / "data/k10-context-training-90a318e.py.gz").read_bytes()
     )
@@ -45,7 +45,7 @@ def test_default_cpu_equals_explicit_factory_state_and_trajectory(
         results.append(
             trainer(
                 320,
-                p,
+                partitions,
                 rows,
                 lambda _: np.full((208, 104), 0.125, np.float16),
                 tmp_path / name,
@@ -64,18 +64,24 @@ def test_default_cpu_equals_explicit_factory_state_and_trajectory(
             ):
                 assert results[0][key] == result[key], key
     for checkpoint in ("best.pt", "final.pt"):
-        a = torch.load(tmp_path / "legacy90" / checkpoint, weights_only=True)
+        legacy_state = torch.load(tmp_path / "legacy90" / checkpoint, weights_only=True)
         for name in ("default", "explicit"):
-            b = torch.load(tmp_path / name / checkpoint, weights_only=True)
-            assert a["format"] == b["format"] and a["provenance"] == b["provenance"]
-            assert all(torch.equal(v, b["state_dict"][k]) for k, v in a["state_dict"].items())
+            state = torch.load(tmp_path / name / checkpoint, weights_only=True)
+            assert (
+                legacy_state["format"] == state["format"]
+                and legacy_state["provenance"] == state["provenance"]
+            )
+            assert all(
+                torch.equal(tensor, state["state_dict"][key])
+                for key, tensor in legacy_state["state_dict"].items()
+            )
 
 
 def test_explicit_artifact_and_init_are_enforced(
     tmp_path: Path, tiny_loop: tuple[dict[str, Any], dict[str, dict[str, Any]]]
 ) -> None:
-    p, rows = tiny_loop
-    args = (320, p, rows, lambda _: np.zeros((208, 104), np.float16))
+    partitions, rows = tiny_loop
+    args = (320, partitions, rows, lambda _: np.zeros((208, 104), np.float16))
     with pytest.raises(ValueError, match="Fresh initialization"):
         shared.train_arm(
             *args, tmp_path / "bad", {}, lambda: None, model_factory=Tiny, expected_init="wrong"
@@ -95,23 +101,27 @@ def test_explicit_artifact_and_init_are_enforced(
 
 
 def gpu_arms() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    a, b, old = arm(320), arm(320, fm=181), arm(320)
-    b["initial_state_sha256"] = fit.CANDIDATE_INITIAL
-    for name, x in (("baseline", a), ("candidate", b)):
-        x["status"] = fit.STATUS
-        x["provenance"]["model_name"] = name
-        x.update(temporal_sha256="same", bp_augmented_sha256="same", actual_frames={"beatport": 1})
-    return a, b, old
+    baseline = arm(320)
+    candidate = arm(320, 89, 181)
+    historical = arm(320)
+    candidate["initial_state_sha256"] = fit.CANDIDATE_INITIAL
+    for name, result in (("baseline", baseline), ("candidate", candidate)):
+        result["status"] = fit.STATUS
+        result["provenance"]["model_name"] = name
+        result.update(
+            temporal_sha256="same", bp_augmented_sha256="same", actual_frames={"beatport": 1}
+        )
+    return baseline, candidate, historical
 
 
 def test_fresh_gpu_control_gate_and_failed_control_are_distinct() -> None:
-    a, b, old = gpu_arms()
-    assert fit.compare(a, b, old)["continuation_earned"]
-    b["best_metrics"]["fmak"]["exact_correct"] -= 1
-    assert not fit.compare(a, b, old)["resolution_gate"]
-    b["best_metrics"]["fmak"]["exact_correct"] += 1
-    old["best_metrics"]["beatport"]["symmetric_units10"] += 1
-    gate = fit.compare(a, b, old)
+    baseline, candidate, historical = gpu_arms()
+    assert fit.compare(baseline, candidate, historical)["continuation_earned"]
+    candidate["best_metrics"]["fmak"]["exact_correct"] -= 1
+    assert not fit.compare(baseline, candidate, historical)["resolution_gate"]
+    candidate["best_metrics"]["fmak"]["exact_correct"] += 1
+    historical["best_metrics"]["beatport"]["symmetric_units10"] += 1
+    gate = fit.compare(baseline, candidate, historical)
     assert gate["resolution_gate"] and not gate["historical_GPU_control_noninferiority_guard"]
     assert not gate["continuation_earned"] and not gate["promotion_authorized"]
 
@@ -120,21 +130,21 @@ def test_fresh_gpu_control_gate_and_failed_control_are_distinct() -> None:
     "field", ["temporal_sha256", "coverage", "provenance", "initial_state_sha256"]
 )
 def test_pair_rejects_unmatched_runtime_crop_or_initialization(field: str) -> None:
-    a, b, old = gpu_arms()
-    b[field] = "different"
+    baseline, candidate, historical = gpu_arms()
+    candidate[field] = "different"
     with pytest.raises(ValueError):
-        fit.compare(a, b, old)
+        fit.compare(baseline, candidate, historical)
 
 
 def test_gpu_status_and_all_common_provenance_fields_are_required() -> None:
-    a, b, old = gpu_arms()
-    b["status"] = "COMPLETE_CONTEXT_ARM_NOT_PROMOTED"
+    baseline, candidate, historical = gpu_arms()
+    candidate["status"] = "COMPLETE_CONTEXT_ARM_NOT_PROMOTED"
     with pytest.raises(ValueError, match="Incomplete"):
-        fit.compare(a, b, old)
-    b["status"] = fit.STATUS
-    b["provenance"]["runtime"] = "other"
+        fit.compare(baseline, candidate, historical)
+    candidate["status"] = fit.STATUS
+    candidate["provenance"]["runtime"] = "other"
     with pytest.raises(ValueError, match="common provenance"):
-        fit.compare(a, b, old)
+        fit.compare(baseline, candidate, historical)
 
 
 def test_gpu_arm_injects_factory_identity_without_constructing_model(

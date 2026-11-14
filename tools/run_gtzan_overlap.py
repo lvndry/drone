@@ -62,7 +62,7 @@ def qualification_binding(config: dict[str, Any]) -> str:
         "historical_controls_sha256",
     )
     return hashlib.sha256(
-        json.dumps({k: config[k] for k in keys}, sort_keys=True, allow_nan=False).encode()
+        json.dumps({key: config[key] for key in keys}, sort_keys=True, allow_nan=False).encode()
     ).hexdigest()
 
 
@@ -96,10 +96,11 @@ def check_contract(config: dict[str, Any], permit: dict[str, Any], digest: str, 
             or not 0 < value <= maximum
         ):
             raise ValueError("Invalid finite resource cap: " + name)
-    start, end = config["not_before_epoch"], config["deadline_epoch"]
+    start = config["not_before_epoch"]
+    end = config["deadline_epoch"]
     if not all(
-        isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
-        for v in (start, end)
+        isinstance(bound, (int, float)) and not isinstance(bound, bool) and math.isfinite(bound)
+        for bound in (start, end)
     ):
         raise ValueError("Finite UTC window required")
     if not start <= now < end or not 0 < end - start <= config["caps"]["wall_seconds"]:
@@ -180,14 +181,14 @@ def resolve_fresh_controls(
     This publication adapter was not used by the archived execution. It changes
     where local paths are supplied, not selected identities or numerical rules.
     """
-    by_ref = {row["ref_id"]: row for row in references}
-    if len(by_ref) != len(references):
+    by_reference_id = {row["ref_id"]: row for row in references}
+    if len(by_reference_id) != len(references):
         raise ValueError("Duplicate operational reference ID")
     resolved = []
     for row in fixed["controls"]:
         if "source_path" in row:
             raise ValueError("Public fresh controls must not contain local source paths")
-        source = by_ref[row["expected_ref_id"]]
+        source = by_reference_id[row["expected_ref_id"]]
         if (
             row["expected_identity"] != source["id"]
             or row["source_container_sha256"] != source["container_sha256"]
@@ -237,19 +238,19 @@ def execution_plan(config: dict[str, Any]) -> dict[str, Any]:
         descriptor_sha256=config["descriptor_sha256"],
         artifact_sha256=witness["reference_artifact_sha256"],
         dictionary=[
-            {k: r[k] for k in ("ref_id", "id", "hashes")}
-            for r in sorted(descriptor["records"], key=lambda r: r["ref_id"])
+            {field: record[field] for field in ("ref_id", "id", "hashes")}
+            for record in sorted(descriptor["records"], key=lambda record: record["ref_id"])
         ],
         controls=[
-            {k: r[k] for k in ("id", "path", "sha256", "expected_ref", "panel")}
-            for r in witness["controls"]
+            {field: control[field] for field in ("id", "path", "sha256", "expected_ref", "panel")}
+            for control in witness["controls"]
         ],
         fresh_controls=config["fresh_controls"],
         vendor_path=config["vendor_path"],
-        primary_ids=[r["id"] for r in metadata["queries"]],
+        primary_ids=[query["id"] for query in metadata["queries"]],
         cohort=[
-            dict(id=r["id"], member=r["member"], container_sha256=r["wav_sha256"])
-            for r in metadata["sensitivity_queries"]
+            dict(id=query["id"], member=query["member"], container_sha256=query["wav_sha256"])
+            for query in metadata["sensitivity_queries"]
         ],
         archive_path=config["archive_path"],
         archive_sha256=metadata["audio_archive"]["sha256"],
@@ -305,7 +306,10 @@ def environment(config: dict[str, Any]) -> None:
 
 
 def reserve_check(config: dict[str, Any], output: Path) -> None:
-    if any(start_identity(r["pid"]) != r["start_ticks"] for r in config["protected_starts"]):
+    if any(
+        start_identity(process["pid"]) != process["start_ticks"]
+        for process in config["protected_starts"]
+    ):
         raise RuntimeError("Protected vLLM start identity changed")
     memory = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())
     if int(memory["MemAvailable"].split()[0]) * 1024 < config["host_reserve_bytes"]:
@@ -328,7 +332,8 @@ def reserve_check(config: dict[str, Any], output: Path) -> None:
 
 def supervise(config_path: Path, permit_path: Path, output: Path) -> None:
     began = time.monotonic()
-    config, permit = load(config_path), load(permit_path)
+    config = load(config_path)
+    permit = load(permit_path)
     digest = sha256(config_path)
     check_contract(config, permit, digest, time.time())
     if output != Path(config["output_root"]).absolute():
@@ -441,7 +446,8 @@ def supervise(config_path: Path, permit_path: Path, output: Path) -> None:
                 terminate_own(child, child_start)
             except BaseException as cleanup_failure:
                 cleanup_error = repr(cleanup_failure)
-        ledger, progress_error = None, None
+        ledger = None
+        progress_error = None
         if config["mode"] == "audit" and "cohort" in plan:
             from experiments.gtzan_overlap_continuation import cohort_ledger
 

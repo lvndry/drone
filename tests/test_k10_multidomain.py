@@ -52,7 +52,8 @@ def paired_runs() -> tuple[dict[str, Any], dict[str, Any]]:
         calibration_used=False,
         final_holdout_used=False,
         domain_metrics={
-            d: dict(ids=[d + ":val"], tracks=1, mirex=0.5) for d in ("beatport", "fmak")
+            domain: dict(ids=[domain + ":val"], tracks=1, mirex=0.5)
+            for domain in ("beatport", "fmak")
         },
     )
     joint = copy.deepcopy(control)

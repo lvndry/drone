@@ -569,7 +569,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         nn.ReLU(),
         nn.Linear(4096, 24),
     ).to(device)
-    if sum(p.numel() for p in head.parameters()) != 18456600:
+    if sum(parameter.numel() for parameter in head.parameters()) != 18456600:
         raise ValueError("Head parameter contract differs")
     optimizer = torch.optim.Adam(head.parameters(), lr=3e-4, weight_decay=1e-5)
     inputs = torch.randn(64, 384, device=device)
@@ -581,7 +581,8 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         loss = nn.functional.cross_entropy(head(inputs), targets)
         loss.backward()
         if not torch.isfinite(loss) or any(
-            p.grad is not None and not torch.isfinite(p.grad).all() for p in head.parameters()
+            parameter.grad is not None and not torch.isfinite(parameter.grad).all()
+            for parameter in head.parameters()
         ):
             raise ValueError("Nonfinite synthetic training step")
         optimizer.step()

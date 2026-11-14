@@ -16,11 +16,11 @@ def plot(root: Path) -> None:
     result = summarize(root)
     comparisons = result["complete_array_comparisons"]
     plt.rcParams["svg.hashsalt"] = "cqt-fixed-boundary-v1"
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 5.4), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(11.4, 5.4), layout="constrained")
     groups = [
         (
-            [f"stage{i}.response" for i in range(9)],
-            [f"Stage {i}" for i in range(9)],
+            [f"stage{index}.response" for index in range(9)],
+            [f"Stage {index}" for index in range(9)],
             "CSR outputs differ at every stage",
         ),
         (
@@ -46,16 +46,16 @@ def plot(root: Path) -> None:
         axis.spines[["top", "right"]].set_visible(False)
         axis.grid(axis="x", alpha=0.15)
         axis.set_axisbelow(True)
-    fig.suptitle("Fixed Mac CQT case: identical CSR operands, different responses", fontsize=14)
-    fig.supxlabel(
+    figure.suptitle("Fixed Mac CQT case: identical CSR operands, different responses", fontsize=14)
+    figure.supxlabel(
         "Full arrays, not probes. Labels show differing element counts.\n"
         "All stage inputs/resamples agree; the single FFT difference is outside CSR support.\n"
         "No model execution. The historical strict portability gate remains failed.",
         fontsize=9,
     )
-    fig.savefig(root / "boundary-trace.png", dpi=180)
-    fig.savefig(root / "boundary-trace.svg", metadata={"Date": None})
-    plt.close(fig)
+    figure.savefig(root / "boundary-trace.png", dpi=180)
+    figure.savefig(root / "boundary-trace.svg", metadata={"Date": None})
+    plt.close(figure)
 
 
 if __name__ == "__main__":

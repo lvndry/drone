@@ -38,35 +38,46 @@ def summarize(root: Path = ROOT) -> dict[str, Any]:
     return result
 
 
-def compare(a: NDArray[Any], b: NDArray[Any]) -> dict[str, Any]:
+def compare(python_array: NDArray[Any], native_array: NDArray[Any]) -> dict[str, Any]:
     import numpy as np
 
-    if a.shape != b.shape or a.dtype != b.dtype or not np.isfinite(a).all():
+    if (
+        python_array.shape != native_array.shape
+        or python_array.dtype != native_array.dtype
+        or not np.isfinite(python_array).all()
+    ):
         raise ValueError("Array geometry/dtype/finite contract failed")
-    if not np.isfinite(b).all():
+    if not np.isfinite(native_array).all():
         raise ValueError("Nonfinite native array")
-    equal = same_bits(a, b)
-    difference = np.abs(a.astype("complex128" if a.dtype.kind == "c" else "float64") - b)
+    equal = same_bits(python_array, native_array)
+    difference = np.abs(
+        python_array.astype("complex128" if python_array.dtype.kind == "c" else "float64")
+        - native_array
+    )
     return {
-        "shape": list(a.shape),
-        "dtype": str(a.dtype),
-        "elements": int(a.size),
+        "shape": list(python_array.shape),
+        "dtype": str(python_array.dtype),
+        "elements": int(python_array.size),
         "unequal_bits": int((~equal).sum()),
-        "unequal_values": int((a != b).sum()),
+        "unequal_values": int((python_array != native_array).sum()),
         "max_abs": float(difference.max()),
         "mean_abs": float(difference.mean()),
         "rmse": float(np.sqrt(np.mean(difference**2))),
-        "max_abs_location": list(map(int, np.unravel_index(difference.argmax(), a.shape))),
-        "python_sha256": hashlib.sha256(a.tobytes()).hexdigest(),
-        "native_sha256": hashlib.sha256(b.tobytes()).hexdigest(),
+        "max_abs_location": list(
+            map(int, np.unravel_index(difference.argmax(), python_array.shape))
+        ),
+        "python_sha256": hashlib.sha256(python_array.tobytes()).hexdigest(),
+        "native_sha256": hashlib.sha256(native_array.tobytes()).hexdigest(),
     }
 
 
-def same_bits(a: NDArray[Any], b: NDArray[Any]) -> NDArray[np.bool_]:
-    if a.dtype.kind == "c":
-        return (a.real.view("u4") == b.real.view("u4")) & (a.imag.view("u4") == b.imag.view("u4"))
-    dtype = "u" + str(a.dtype.itemsize)
-    return a.view(dtype) == b.view(dtype)
+def same_bits(left: NDArray[Any], right: NDArray[Any]) -> NDArray[np.bool_]:
+    if left.dtype.kind == "c":
+        return (left.real.view("u4") == right.real.view("u4")) & (
+            left.imag.view("u4") == right.imag.view("u4")
+        )
+    dtype = "u" + str(left.dtype.itemsize)
+    return left.view(dtype) == right.view(dtype)
 
 
 def replay(trace_root: Path, result: dict[str, Any]) -> dict[str, int | str]:
@@ -103,19 +114,20 @@ def replay(trace_root: Path, result: dict[str, Any]) -> dict[str, int | str]:
                 walk(item)
 
     walk(traces)
-    python, native = traces["python"], traces["native"]
+    python = traces["python"]
+    native = traces["native"]
     records = dict(python["records"])
     for stage in python["stages"]:
         for source, target in (("input", "input"), ("stft", "spectrum"), ("response", "response")):
             name = f"stage{stage['index']}.{target}"
             records[name] = stage[source]
-            for i, probe in enumerate(stage[source].get("probes", [])):
-                records[f"{name}.probe{i}"] = probe["artifact"]
+            for probe_index, probe in enumerate(stage[source].get("probes", [])):
+                records[f"{name}.probe{probe_index}"] = probe["artifact"]
     for stage in python["resamplings"]:
         name = f"after_stage{stage['after_stage']}.resampled"
         records[name] = stage["output"]
-        for i, probe in enumerate(stage["output"].get("probes", [])):
-            records[f"{name}.probe{i}"] = probe["artifact"]
+        for probe_index, probe in enumerate(stage["output"].get("probes", [])):
+            records[f"{name}.probe{probe_index}"] = probe["artifact"]
 
     def array(mapping: dict[str, Any], name: str) -> NDArray[Any]:
         return cache[mapping[name]["sha256"]]
@@ -154,7 +166,9 @@ def replay(trace_root: Path, result: dict[str, Any]) -> dict[str, int | str]:
     if lengths.tobytes() != array(records, "terminal.lengths").tobytes():
         raise ValueError("Normalization input lengths differ")
     for mapping in (records, native["records"]):
-        stacked = np.concatenate([array(mapping, f"stage{i}.response") for i in range(8, -1, -1)])
+        stacked = np.concatenate(
+            [array(mapping, f"stage{index}.response") for index in range(8, -1, -1)]
+        )
         if stacked[8:200].tobytes() != array(mapping, "terminal.pre_normalization").tobytes():
             raise ValueError("Stacking is not the recorded row selection")
     for transition, observation in result["conditional_terminal_comparisons"].items():

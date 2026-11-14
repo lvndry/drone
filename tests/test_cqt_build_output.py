@@ -33,7 +33,8 @@ def scanner(root: Path) -> tuple[Callable[[], int], dict[str, Any]]:
 
 def test_removed_object_is_ignored_and_remaining_outputs_are_counted(tmp_path: Path) -> None:
     scan, namespace = scanner(tmp_path)
-    transient, retained = tmp_path / "temporary.rcgu.o", tmp_path / "retained.o"
+    transient = tmp_path / "temporary.rcgu.o"
+    retained = tmp_path / "retained.o"
     transient.write_bytes(b"temporary")
     retained.write_bytes(b"1234567")
 

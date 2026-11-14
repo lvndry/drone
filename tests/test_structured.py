@@ -34,22 +34,22 @@ def test_targets_match_relation_contract_normalize_and_are_transposition_equivar
     matrix = target_matrix()
     assert matrix.shape == (24, 24) and torch.isfinite(matrix).all()
     torch.testing.assert_close(matrix.sum(1), torch.ones(24))
-    for ref in range(24):
-        for pred in range(24):
+    for reference in range(24):
+        for prediction in range(24):
             expected = {
                 "exact": 0.8,
                 "fifth": 0.2 * 0.5 / 1.5,
                 "relative": 0.2 * 0.3 / 1.5,
                 "parallel": 0.2 * 0.2 / 1.5,
                 "other": 0.0,
-            }[key_relation(pred, ref)]
-            assert float(matrix[ref, pred]) == pytest.approx(expected)
+            }[key_relation(prediction, reference)]
+            assert float(matrix[reference, prediction]) == pytest.approx(expected)
             for shift in range(12):
                 assert (
-                    matrix[transpose_key(ref, shift), transpose_key(pred, shift)]
-                    == matrix[ref, pred]
+                    matrix[transpose_key(reference, shift), transpose_key(prediction, shift)]
+                    == matrix[reference, prediction]
                 )
-        assert torch.count_nonzero(matrix[ref]) == 5
+        assert torch.count_nonzero(matrix[reference]) == 5
     # C major gives weight to G/F major, A minor and C minor, never C# major.
     assert matrix[0, 14] > 0 and matrix[0, 10] > 0
     assert matrix[0, 19] > 0 and matrix[0, 1] > 0 and matrix[0, 2] == 0
@@ -63,7 +63,8 @@ def trajectory(with_table: bool) -> tuple[dict[str, torch.Tensor], list[float], 
         target_matrix()  # Control identity/provenance construction must consume no RNG.
     losses = []
     for _ in range(3):
-        data, labels = torch.randn(4, 2), torch.randint(0, 24, (4,))
+        data = torch.randn(4, 2)
+        labels = torch.randint(0, 24, (4,))
         optimizer.zero_grad()
         loss = nn.functional.cross_entropy(model(data), labels)
         loss.backward()
@@ -83,12 +84,12 @@ def test_target_metadata_leaves_hard_ce_trajectory_and_rng_exact() -> None:
 def test_soft_target_loss_and_gradient_use_the_full_declared_distribution() -> None:
     logits = torch.randn(3, 24, requires_grad=True)
     labels = torch.tensor([0, 3, 22])
-    q = target_matrix()[labels]
-    loss = nn.functional.cross_entropy(logits, q)
-    expected = -(q * nn.functional.log_softmax(logits, 1)).sum(1).mean()
+    targets = target_matrix()[labels]
+    loss = nn.functional.cross_entropy(logits, targets)
+    expected = -(targets * nn.functional.log_softmax(logits, 1)).sum(1).mean()
     torch.testing.assert_close(loss, expected)
     loss.backward()
-    torch.testing.assert_close(logits.grad, (logits.detach().softmax(1) - q) / 3)
+    torch.testing.assert_close(logits.grad, (logits.detach().softmax(1) - targets) / 3)
 
 
 def metrics(fmak: float = 0.5) -> dict[str, Any]:
@@ -108,8 +109,10 @@ def reference_record() -> dict[str, Any]:
         parameters=109128,
         source_sha256=reviewed["archived"],
         feature_manifest_sha256="fixed",
-        fit_ids=[f"beatport:{i}" for i in range(1230)] + [f"fmak:{i}" for i in range(976)],
-        validation_ids=[f"beatport:v{i}" for i in range(126)] + [f"fmak:v{i}" for i in range(250)],
+        fit_ids=[f"beatport:{index}" for index in range(1230)]
+        + [f"fmak:{index}" for index in range(976)],
+        validation_ids=[f"beatport:v{index}" for index in range(126)]
+        + [f"fmak:v{index}" for index in range(250)],
         history=[dict(epoch=1, loss=1.0, mirex=0.5)],
         best_epoch=1,
         early_stopped=True,
@@ -127,9 +130,9 @@ def probe_args(tmp_path: Path) -> tuple[Namespace, dict[str, Any]]:
     joint = archived / "joint.json"
     bp_path = archived / "bp.json"
     joint.write_text(json.dumps(reference))
-    bp = copy.deepcopy(reference)
-    bp.update(arm="control", fit_ids=reference["fit_ids"][:1230])
-    bp_path.write_text(json.dumps(bp))
+    beatport_run = copy.deepcopy(reference)
+    beatport_run.update(arm="control", fit_ids=reference["fit_ids"][:1230])
+    bp_path.write_text(json.dumps(beatport_run))
     torch.save({"state_dict": {}}, archived / "best.pt")
     output = tmp_path / "control-seed13"
     output.mkdir()
@@ -250,13 +253,13 @@ def result(seed: int, gain: float) -> dict[str, Any]:
 
 
 def test_confirmation_keeps_original_hurdle_all_seeds_and_joint_safeguard() -> None:
-    results = [result(s, 0.015) for s in (13, 37, 73)]
+    results = [result(seed, 0.015) for seed in (13, 37, 73)]
     summary = summarize(results)
     assert summary["method_gate"]["qualifies_for_confirmation"]
     assert not summary["original_hurdle_pass"] and not summary["qualifies_for_external_freeze"]
     results = [result(13, 0.03), result(37, 0.001), result(73, 0.001)]
     assert not summarize(results)["qualifies_for_external_freeze"]
-    results = [result(s, 0.03) for s in (13, 37, 73)]
+    results = [result(seed, 0.03) for seed in (13, 37, 73)]
     assert summarize(results)["qualifies_for_external_freeze"]
     for item in results:
         item["archived_joint_metrics"]["beatport"]["exact"] += 0.01
@@ -283,28 +286,31 @@ def test_final_artifacts_replay_control_then_score_loss_only_candidate(tmp_path:
         dict(id=f"{domain}:val", domain=domain, sha256=domain) for domain in ("beatport", "fmak")
     ]
     features = [window(np.ones((208, 16), dtype=np.float16)).astype(np.float32) for _ in rows]
-    refs = np.array([0, 0])
+    references = np.array([0, 0])
     record["domain_metrics"] = domain_metrics(
-        evaluate_features(model, features, "cpu", 4), refs, rows
+        evaluate_features(model, features, "cpu", 4), references, rows
     )
     args.reference_run.write_text(
         json.dumps({**record, "source_sha256": json.loads(REVIEWED.read_bytes())["archived"]})
     )
-    bp = json.loads(args.reference_bp.read_bytes())
-    bp["domain_metrics"] = record["domain_metrics"]
-    args.reference_bp.write_text(json.dumps(bp))
+    beatport_run = json.loads(args.reference_bp.read_bytes())
+    beatport_run["domain_metrics"] = record["domain_metrics"]
+    args.reference_bp.write_text(json.dumps(beatport_run))
     control = StructuredProbe(args, record)
     (args.output / "run.json").write_text(json.dumps(record))
-    rng = torch.get_rng_state().clone()
-    completed = control.finish(record, features, refs, rows, time.monotonic())
+    random_state = torch.get_rng_state().clone()
+    completed = control.finish(record, features, references, rows, time.monotonic())
     assert completed["status"] == "complete" and completed["checkpoint_state_checked"]
-    assert completed["control_reproduced"] and torch.equal(torch.get_rng_state(), rng)
+    assert completed["control_reproduced"] and torch.equal(torch.get_rng_state(), random_state)
     artifact = json.loads((args.output / completed["validation_artifact"]).read_bytes())
     assert np.array(artifact["logits"]).shape == (2, 24)
-    assert artifact["ids"] == [r["id"] for r in rows] and artifact["refs"] == refs.tolist()
-    assert artifact["audio_sha256"] == [r["sha256"] for r in rows]
+    assert (
+        artifact["ids"] == [row["id"] for row in rows] and artifact["refs"] == references.tolist()
+    )
+    assert artifact["audio_sha256"] == [row["sha256"] for row in rows]
     candidate_args = copy.copy(args)
-    candidate_args.structured_targets, candidate_args.structured_control = True, False
+    candidate_args.structured_targets = True
+    candidate_args.structured_control = False
     candidate_args.paired_control = args.output / "run.json"
     candidate_args.output = tmp_path / "candidate-seed13"
     candidate_args.output.mkdir()
@@ -312,12 +318,14 @@ def test_final_artifacts_replay_control_then_score_loss_only_candidate(tmp_path:
     candidate = StructuredProbe(candidate_args, candidate_record)
     (candidate_args.output / "run.json").write_text(json.dumps(candidate_record))
     save_checkpoint(candidate_args.output / "best.pt", model)
-    completed_candidate = candidate.finish(candidate_record, features, refs, rows, time.monotonic())
+    completed_candidate = candidate.finish(
+        candidate_record, features, references, rows, time.monotonic()
+    )
     assert completed_candidate["status"] == "complete"
     assert not completed_candidate["method_gate"]["qualifies_for_confirmation"]
     changed = copy.deepcopy(record)
     changed["history"][0]["loss"] += 1e-12
-    failed = control.finish(changed, features, refs, rows, time.monotonic())
+    failed = control.finish(changed, features, references, rows, time.monotonic())
     assert (
         failed["status"] == "reproduction_or_protocol_failed" and not failed["control_reproduced"]
     )

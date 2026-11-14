@@ -66,7 +66,7 @@ def test_exact_parameter_allocation_and_unchanged_first_two_initializations() ->
     actual = candidate.net[:14].state_dict()
     assert expected.keys() == actual.keys()
     assert all(torch.equal(expected[name], actual[name]) for name in expected)
-    assert [m.kernel_size for m in candidate.net if isinstance(m, nn.MaxPool2d)] == [
+    assert [layer.kernel_size for layer in candidate.net if isinstance(layer, nn.MaxPool2d)] == [
         (2, 2),
         (1, 2),
         (1, 2),
@@ -77,7 +77,7 @@ def test_synthetic_update_reaches_every_convolution_and_absolute_frequency_head(
     torch.manual_seed(13)
     model = SemitoneGridCNN().train()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
-    before = {name: p.detach().clone() for name, p in model.named_parameters()}
+    before = {name: parameter.detach().clone() for name, parameter in model.named_parameters()}
     loss = nn.functional.cross_entropy(model(torch.randn(2, 192, 16)), torch.tensor([0, 23]))
     assert torch.isfinite(loss)
     loss.backward()

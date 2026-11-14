@@ -91,15 +91,15 @@ def test_archive_keeps_exact_original_csv_bytes() -> None:
 
 def test_corrected_kf_uses_fresh_typed_rows_and_complete_cohorts() -> None:
     result = analyze()
-    kf = result["detectors"]["libkeyfinder"]
+    keyfinder = result["detectors"]["libkeyfinder"]
     assert result["libkeyfinder_status"] == "corrected"
-    assert kf["overall"]["counts"]["exact"] == 57
-    assert kf["overall"]["exact"] == 0.6129 and kf["overall"]["mirex"] == 0.7366
-    assert kf["overall"]["n_error"] == kf["overall"]["n_abstain"] == 0
-    assert kf["by_source"]["swd-v2.1"]["n_total"] == 48
-    assert kf["by_source"]["swd-v2.1"]["counts"]["exact"] == 28
-    assert kf["by_source"]["giantsteps"]["n_total"] == 45
-    assert kf["by_source"]["giantsteps"]["counts"]["exact"] == 29
+    assert keyfinder["overall"]["counts"]["exact"] == 57
+    assert keyfinder["overall"]["exact"] == 0.6129 and keyfinder["overall"]["mirex"] == 0.7366
+    assert keyfinder["overall"]["n_error"] == keyfinder["overall"]["n_abstain"] == 0
+    assert keyfinder["by_source"]["swd-v2.1"]["n_total"] == 48
+    assert keyfinder["by_source"]["swd-v2.1"]["counts"]["exact"] == 28
+    assert keyfinder["by_source"]["giantsteps"]["n_total"] == 45
+    assert keyfinder["by_source"]["giantsteps"]["counts"]["exact"] == 29
 
 
 def test_corrected_archive_tamper_rejected(tmp_path: Path) -> None:
@@ -128,26 +128,26 @@ def test_resealed_wrong_fresh_prediction_rejected(tmp_path: Path) -> None:
 
 
 def slice_fixture(
-    *, seconds: float | None = 120.0, ref: int = 0, status: str = "key", ident: str = "a"
+    *, seconds: float | None = 120.0, reference: int = 0, status: str = "key", identity: str = "a"
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     row: dict[str, Any] = {
-        "track_id": ident,
-        "ref": ref,
+        "track_id": identity,
+        "ref": reference,
         "genre": "drum-and-bass",
         "bucket": "dubstep",
     }
     for name in ("drone", "madmom", "libkeyfinder"):
-        row[name + "_pred"] = ref if status == "key" else None
+        row[name + "_pred"] = reference if status == "key" else None
         row[name + "_status"] = status
         row[name + "_rel"] = "exact" if status == "key" else status
     track: dict[str, Any] = {
-        "track_id": ident,
+        "track_id": identity,
         "corpus_id": "synthetic",
         "genre": {"raw": "drum-and-bass", "bucket": "dubstep"},
-        "key_label": {"class_id": ref},
+        "key_label": {"class_id": reference},
         "duration": {"analyzed": {"value": seconds}, "full_recording": {"value": None}},
         "bpm": {"value": None},
-        "grouping": {"work_id": "one-repeated-work", "performance_id": ident},
+        "grouping": {"work_id": "one-repeated-work", "performance_id": identity},
     }
     return row, track
 
@@ -156,10 +156,10 @@ def test_slice_empty_is_na_and_failures_keep_full_denominator() -> None:
     from tools.report_key_references import descriptive_slices, slice_csv
 
     fixtures = [
-        slice_fixture(status=status, ident=str(i))
-        for i, status in enumerate(("key", "error", "abstain"))
+        slice_fixture(status=status, identity=str(index))
+        for index, status in enumerate(("key", "error", "abstain"))
     ]
-    result = descriptive_slices([r for r, _ in fixtures], [t for _, t in fixtures])
+    result = descriptive_slices([row for row, _ in fixtures], [track for _, track in fixtures])
     group = result["slices"]["analyzed_duration"]["<3m"]
     for metrics in group["detectors"].values():
         assert metrics["n_total"] == 3
@@ -178,12 +178,12 @@ def test_slice_edges_raw_genre_and_key_encoding_are_fixed() -> None:
     from tools.report_key_references import DURATION_SLICES, descriptive_slices
 
     fixtures = [
-        slice_fixture(seconds=seconds, ref=i, ident=str(i))
-        for i, seconds in enumerate((179.999, 180.0, 300.0, 480.0, None))
+        slice_fixture(seconds=seconds, reference=index, identity=str(index))
+        for index, seconds in enumerate((179.999, 180.0, 300.0, 480.0, None))
     ]
-    result = descriptive_slices([r for r, _ in fixtures], [t for _, t in fixtures])
+    result = descriptive_slices([row for row, _ in fixtures], [track for _, track in fixtures])
     assert list(result["slices"]["analyzed_duration"]) == list(DURATION_SLICES)
-    assert [v["n"] for v in result["slices"]["analyzed_duration"].values()] == [1] * 5
+    assert [cell["n"] for cell in result["slices"]["analyzed_duration"].values()] == [1] * 5
     assert list(result["slices"]["genre_original"]) == ["drum-and-bass"]
     assert list(result["slices"]["genre_legacy_group"]) == ["dubstep"]
     assert result["slices"]["key"]["C# minor"]["n"] == 1
@@ -229,7 +229,13 @@ def test_catalog_slices_replay_complete_panel_and_leave_historical_artifacts_unc
     assert result["provenance"]["catalog_sha256"] == sha(CATALOG.read_bytes())
     assert result["coverage"]["bpm"] == {"known": 0, "unknown": 93}
     assert result["coverage"]["full_recording_duration"] == {"known": 0, "unknown": 93}
-    assert [v["n"] for v in result["slices"]["analyzed_duration"].values()] == [71, 20, 2, 0, 0]
+    assert [cell["n"] for cell in result["slices"]["analyzed_duration"].values()] == [
+        71,
+        20,
+        2,
+        0,
+        0,
+    ]
     assert result["corpus_by_duration"]["giantsteps"]["3-5m"]["n"] == 0
     assert result["corpus_by_duration"]["swd-v2.1"]["3-5m"]["n"] == 20
     assert len(result["grouping_by_corpus"]["swd-v2.1"]["known_work_ids"]) == 24

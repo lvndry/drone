@@ -28,15 +28,15 @@ def rubberband(
         return signals.clone(), [{"identity_bypass": True, "samples": signals.shape[-1]}]
     outputs = []
     records = []
-    r3 = None
+    rubberband_r3 = None
     if config.get("r3_source"):
         spec = importlib.util.spec_from_file_location(
             "qualified_r3_adapter", config["r3_source"]["path"]
         )
         if spec is None or spec.loader is None:
             raise ValueError("Cannot load R3 adapter")
-        r3 = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(r3)
+        rubberband_r3 = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(rubberband_r3)
     for signal in signals:
         command = [
             config["ffmpeg"]["path"],
@@ -72,35 +72,41 @@ def rubberband(
             "pipe:1",
         ]
         engine_details: dict[str, Any] = {}
-        if r3 is not None:
-            raw, engine_details = r3.shift_r3(signal, shift, config["rubberband_library"])
-            if raw.numel() != signal.numel():
-                raise ValueError(f"Offline R3 changed length: {raw.numel()} != {signal.numel()}")
+        if rubberband_r3 is not None:
+            shifted_signal, engine_details = rubberband_r3.shift_r3(
+                signal, shift, config["rubberband_library"]
+            )
+            if shifted_signal.numel() != signal.numel():
+                raise ValueError(
+                    f"Offline R3 changed length: {shifted_signal.numel()} != {signal.numel()}"
+                )
         else:
             completed = subprocess.run(
                 command, input=signal.numpy().tobytes(), capture_output=True, check=True, timeout=20
             )
-            raw = torch.from_numpy(np.frombuffer(completed.stdout, dtype="<f4").copy())
-        if raw.numel() < 32000:
+            shifted_signal = torch.from_numpy(np.frombuffer(completed.stdout, dtype="<f4").copy())
+        if shifted_signal.numel() < 32000:
             raise ValueError("Unexpectedly short RubberBand output")
-        active = torch.nonzero(raw.abs() > 1e-5).flatten()
+        active = torch.nonzero(shifted_signal.abs() > 1e-5).flatten()
         records.append(
             {
-                "samples_before_length_fix": raw.numel(),
+                "samples_before_length_fix": shifted_signal.numel(),
                 "engine_details": engine_details,
                 "input_samples": signal.numel(),
-                "tail_trimmed_samples": max(0, raw.numel() - signal.numel()),
-                "tail_zero_padded_samples": max(0, signal.numel() - raw.numel()),
+                "tail_trimmed_samples": max(0, shifted_signal.numel() - signal.numel()),
+                "tail_zero_padded_samples": max(0, signal.numel() - shifted_signal.numel()),
                 "active_support_threshold": 1e-5,
                 "first_active_sample": int(active[0]) if active.numel() else None,
                 "last_active_sample": int(active[-1]) if active.numel() else None,
-                "first_second_rms": float(raw[:16000].square().mean().sqrt()),
-                "last_second_rms": float(raw[-16000:].square().mean().sqrt()),
+                "first_second_rms": float(shifted_signal[:16000].square().mean().sqrt()),
+                "last_second_rms": float(shifted_signal[-16000:].square().mean().sqrt()),
             }
         )
-        if raw.numel() < signal.numel():
-            raw = torch.nn.functional.pad(raw, (0, signal.numel() - raw.numel()))
-        outputs.append(raw[: signal.numel()])
+        if shifted_signal.numel() < signal.numel():
+            shifted_signal = torch.nn.functional.pad(
+                shifted_signal, (0, signal.numel() - shifted_signal.numel())
+            )
+        outputs.append(shifted_signal[: signal.numel()])
     return torch.stack(outputs), records
 
 
@@ -205,9 +211,11 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     torch.use_deterministic_algorithms(True)
     grid = torch.arange(16000 * 12, dtype=torch.float32) / 16000
     frequencies = [41.2034, 55.0, 110.0, 440.0]
-    tones = [0.2 * torch.sin(2 * math.pi * hz * grid) for hz in frequencies]
+    tones = [0.2 * torch.sin(2 * math.pi * frequency_hz * grid) for frequency_hz in frequencies]
     chord_hz = [55.0, 69.2957, 82.4069]
-    chord = torch.stack([0.08 * torch.sin(2 * math.pi * hz * grid) for hz in chord_hz]).sum(0)
+    chord = torch.stack(
+        [0.08 * torch.sin(2 * math.pi * frequency_hz * grid) for frequency_hz in chord_hz]
+    ).sum(0)
     signals = torch.stack([*tones, chord])
     stage_result = (
         stages(signals, recipe.pitch_shift_cpu) if config.get("stage_diagnostic") else None
@@ -224,15 +232,25 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         center = shifted[:, 16000:-16000]
         spectra = torch.fft.rfft(center * torch.hann_window(center.shape[-1])).abs()
         errors = []
-        for row, hz in [*enumerate(frequencies), *((4, hz) for hz in chord_hz)]:
-            target = hz * 2 ** (steps / 12)
+        for row, frequency_hz in [
+            *enumerate(frequencies),
+            *((4, frequency_hz) for frequency_hz in chord_hz),
+        ]:
+            target = frequency_hz * 2 ** (steps / 12)
             nominal = target * center.shape[-1] / 16000
-            left, right = int(nominal) - 3, int(nominal) + 4
+            left = int(nominal) - 3
+            right = int(nominal) + 4
             peak = left + int(spectra[row, left:right].argmax())
-            y = spectra[row, peak - 1 : peak + 2].clamp_min(1e-20).log()
-            offset = float(0.5 * (y[0] - y[2]) / (y[0] - 2 * y[1] + y[2]))
+            log_magnitudes = spectra[row, peak - 1 : peak + 2].clamp_min(1e-20).log()
+            offset = float(
+                0.5
+                * (log_magnitudes[0] - log_magnitudes[2])
+                / (log_magnitudes[0] - 2 * log_magnitudes[1] + log_magnitudes[2])
+            )
             frequency = (peak + offset) * 16000 / center.shape[-1]
-            errors.append({"source_hz": hz, "error_cents": 1200 * math.log2(frequency / target)})
+            errors.append(
+                {"source_hz": frequency_hz, "error_cents": 1200 * math.log2(frequency / target)}
+            )
         rms_ratio = (
             center.square().mean(-1).sqrt() / signals[:, 16000:-16000].square().mean(-1).sqrt()
         )
@@ -252,7 +270,7 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
                 "passes_original_amplitude_gate": bool(
                     ((rms_ratio >= 0.5) & (rms_ratio <= 1.5)).all()
                 ),
-                "passes_original_pitch_gate": all(abs(e["error_cents"]) <= 5 for e in errors),
+                "passes_original_pitch_gate": all(abs(tone["error_cents"]) <= 5 for tone in errors),
             }
         )
         Path(config["progress_path"]).write_text(json.dumps({"rows": rows}, indent=2) + "\n")
@@ -268,12 +286,12 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         ),
         "rows": rows,
         "qualification_pass": all(
-            r["passes_original_amplitude_gate"]
-            and r["passes_original_pitch_gate"]
-            and r["finite"]
-            and r["shape_matches"]
-            and r["zero_shift_identity"]
-            for r in rows
+            row["passes_original_amplitude_gate"]
+            and row["passes_original_pitch_gate"]
+            and row["finite"]
+            and row["shape_matches"]
+            and row["zero_shift_identity"]
+            for row in rows
         ),
         "model_loaded": False,
         "cuda_initialized": torch.cuda.is_initialized(),

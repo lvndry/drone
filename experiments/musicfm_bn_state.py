@@ -287,14 +287,19 @@ def fingerprint_state_tensor(
 ) -> StateEntry:
     """Hash one registered state field, including its kind/name and metadata."""
     if value is None:
-        dtype, shape, requires_grad, raw = None, None, None, b""
+        dtype = None
+        shape = None
+        requires_grad = None
+        raw = b""
     else:
         if value.layout != torch.strided or value.is_quantized or value.device.type == "meta":
             raise ValueError("State fingerprint requires dense, materialized, unquantized tensors")
         watch()
         copied = value.detach().to(device="cpu", copy=True).contiguous()
         watch()
-        dtype, shape, requires_grad = str(value.dtype), tuple(value.shape), value.requires_grad
+        dtype = str(value.dtype)
+        shape = tuple(value.shape)
+        requires_grad = value.requires_grad
         raw = copied.reshape(-1).view(torch.uint8).numpy().tobytes(order="C")
     header = json.dumps(
         [kind, name, dtype, shape, requires_grad, persistent],

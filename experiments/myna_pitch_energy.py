@@ -24,7 +24,10 @@ def energy(signal: Tensor, frequencies: list[float]) -> dict[str, Any]:
     total = spectrum.sum()
     if not torch.isfinite(total) or total <= 0:
         raise ValueError("Invalid diagnostic spectral power")
-    masks = [(bins >= hz * 2 ** (-1 / 24)) & (bins <= hz * 2 ** (1 / 24)) for hz in frequencies]
+    masks = [
+        (bins >= frequency_hz * 2 ** (-1 / 24)) & (bins <= frequency_hz * 2 ** (1 / 24))
+        for frequency_hz in frequencies
+    ]
     union = torch.stack(masks).any(dim=0)
     band_ratios = [float(spectrum[mask].sum() / total) for mask in masks]
     union_ratio = float(spectrum[union].sum() / total)
@@ -76,8 +79,8 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     spec = importlib.util.spec_from_file_location("myna_bound_r3", config["r3_source"]["path"])
     if spec is None or spec.loader is None:
         raise ValueError("Missing R3 adapter")
-    r3 = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(r3)
+    rubberband_r3 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rubberband_r3)
     import torch
 
     torch.set_num_threads(1)
@@ -87,7 +90,9 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
     grid = torch.arange(16000 * 12, dtype=torch.float32) / 16000
 
     def chord(frequencies: list[float]) -> Tensor:
-        return torch.stack([0.08 * torch.sin(2 * math.pi * hz * grid) for hz in frequencies]).sum(0)
+        return torch.stack(
+            [0.08 * torch.sin(2 * math.pi * frequency_hz * grid) for frequency_hz in frequencies]
+        ).sum(0)
 
     rows = []
     for mode, source_frequencies in (
@@ -97,16 +102,20 @@ def run(config: dict[str, Any]) -> dict[str, Any]:
         original = chord(source_frequencies)
         original_rms = original[16000:-16000].square().mean().sqrt()
         for shift in range(-6, 7):
-            expected = [hz * 2 ** (shift / 12) for hz in source_frequencies]
+            expected = [frequency_hz * 2 ** (shift / 12) for frequency_hz in source_frequencies]
             correct = energy(chord(expected), expected)
-            wrong = energy(chord([hz * 2 ** (1 / 12) for hz in expected]), expected)
+            wrong = energy(
+                chord([frequency_hz * 2 ** (1 / 12) for frequency_hz in expected]), expected
+            )
             deleted = energy(chord([expected[0], expected[2]]), expected)
             controls_pass = (
                 correct["passes_energy_rule"]
                 and not wrong["passes_energy_rule"]
                 and not deleted["passes_energy_rule"]
             )
-            shifted, metadata = r3.shift_r3(original, shift, config["rubberband_library"])
+            shifted, metadata = rubberband_r3.shift_r3(
+                original, shift, config["rubberband_library"]
+            )
             exact_length = shifted.shape == original.shape
             finite = bool(torch.isfinite(shifted).all())
             zero_identity = shift != 0 or bool(torch.equal(shifted, original))

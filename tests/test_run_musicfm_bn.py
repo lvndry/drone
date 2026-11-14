@@ -182,7 +182,8 @@ def test_late_timeout_and_cleanup_error_cannot_leave_complete_controller(
     permit: tuple[dict[str, Any], dict[str, Any]], monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     config, approval = permit
-    config_path, approval_path = tmp_path / "config.json", tmp_path / "approval.json"
+    config_path = tmp_path / "config.json"
+    approval_path = tmp_path / "approval.json"
     raw = json.dumps(config).encode()
     config_path.write_bytes(raw)
     approval["config_sha256"] = hashlib.sha256(raw).hexdigest()

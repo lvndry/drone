@@ -65,10 +65,10 @@ def validate(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, Any
     full = cpu_session(args.full_model)
     records: list[dict[str, Any]] = []
     for row in rows:
-        x = load_cached_features(args.manifest, row)
-        baseline = np.asarray(full.run(["logits"], {"features": x})[0])
-        reduced = runtime.full_prefix_logits(x)
-        chunked = runtime.predict(x)
+        features = load_cached_features(args.manifest, row)
+        baseline = np.asarray(full.run(["logits"], {"features": features})[0])
+        reduced = runtime.full_prefix_logits(features)
+        chunked = runtime.predict(features)
         records.append(
             {
                 "id": row.id,
@@ -82,16 +82,16 @@ def validate(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, Any
         if len(records) % 20 == 0:
             print(f"Validated {len(records)}/{len(rows)}", flush=True)
     passed = all(
-        all(r[key][gate] for gate in ("finite", "allclose", "argmax_agrees"))
-        for r in records
+        all(record[key][gate] for gate in ("finite", "allclose", "argmax_agrees"))
+        for record in records
         for key in ("full_prefix_vs_full_ort", "chunked_vs_full_ort")
     )
     summary = {}
     for key in ("full_prefix_vs_full_ort", "chunked_vs_full_ort"):
         summary[key] = {
-            "argmax_disagreements": sum(not r[key]["argmax_agrees"] for r in records),
-            "numerical_failures": sum(not r[key]["allclose"] for r in records),
-            "max_abs_error": max(r[key]["max_abs_error"] or 0.0 for r in records),
+            "argmax_disagreements": sum(not record[key]["argmax_agrees"] for record in records),
+            "numerical_failures": sum(not record[key]["allclose"] for record in records),
+            "max_abs_error": max(record[key]["max_abs_error"] or 0.0 for record in records),
         }
     return {"passed": passed, "tracks": len(records), "summary": summary, "records": records}
 
@@ -111,17 +111,19 @@ def diagnose(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, Any
     full = cpu_session(args.full_model)
     records = []
     for row in rows:
-        x = load_cached_features(args.manifest, row)
+        features = load_cached_features(args.manifest, row)
         with torch.inference_mode():
-            expected = model(torch.from_numpy(x)).numpy()
-            expected_hidden = prefix(torch.from_numpy(x)).numpy()
-        actual_hidden = runtime.hidden(x)
+            expected = model(torch.from_numpy(features)).numpy()
+            expected_hidden = prefix(torch.from_numpy(features)).numpy()
+        actual_hidden = runtime.hidden(features)
         stitched_max = 0.0
         stitched_close = True
-        for q0, q1, a, b in core_windows(x.shape[-1], args.core_outputs):
-            local = runtime.hidden(np.ascontiguousarray(x[:, :, a:b]))
-            kept = local[:, :, :, q0 - a // 8 : q1 - a // 8]
-            reference = actual_hidden[:, :, :, q0:q1]
+        for core_start, core_end, frame_start, frame_end in core_windows(
+            features.shape[-1], args.core_outputs
+        ):
+            local = runtime.hidden(np.ascontiguousarray(features[:, :, frame_start:frame_end]))
+            kept = local[:, :, :, core_start - frame_start // 8 : core_end - frame_start // 8]
+            reference = actual_hidden[:, :, :, core_start:core_end]
             stitched_max = max(stitched_max, float(np.max(np.abs(kept - reference))))
             stitched_close &= bool(np.allclose(kept, reference, atol=ATOL, rtol=RTOL))
         records.append(
@@ -129,7 +131,7 @@ def diagnose(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, Any
                 "id": row.id,
                 "domain": row.domain,
                 "torch_vs_full_ort": compare_logits(
-                    np.asarray(full.run(["logits"], {"features": x})[0]), expected
+                    np.asarray(full.run(["logits"], {"features": features})[0]), expected
                 ),
                 "torch_vs_ort_hidden_max_abs_error": float(
                     np.max(np.abs(expected_hidden - actual_hidden))
@@ -164,14 +166,14 @@ def benchmark(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, An
     else:
         full = cpu_session(args.full_model)
 
-        def predict(x: np.ndarray) -> np.ndarray:
-            return np.asarray(full.run(["logits"], {"features": x})[0])
+        def predict(features: np.ndarray) -> np.ndarray:
+            return np.asarray(full.run(["logits"], {"features": features})[0])
 
     loaded_rss = peak_rss_kib()
     records: list[TimedTrackRecord] = []
     for row in chosen:
-        x = load_cached_features(args.manifest, row)
-        timing = time_prediction(predict, x)
+        features = load_cached_features(args.manifest, row)
+        timing = time_prediction(predict, features)
         records.append(
             {
                 "id": row.id,
@@ -183,7 +185,7 @@ def benchmark(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, An
                 "logits": timing.logits.tolist(),
             }
         )
-        del x
+        del features
     result: dict[str, Any] = {
         "bench_mode": args.bench_mode,
         "records": records,
@@ -193,11 +195,16 @@ def benchmark(args: argparse.Namespace, rows: list[CachedTrack]) -> dict[str, An
         "warmups_per_track": 1,
         "runtime_loaded_peak_rss_kib": loaded_rss,
         "peak_process_rss_kib": peak_rss_kib(),
-        "median_track_median_seconds": float(np.median([r["median_seconds"] for r in records])),
+        "median_track_median_seconds": float(
+            np.median([record["median_seconds"] for record in records])
+        ),
         "note": "Cached features only; excludes decoder/CQT. Pair separate fresh full/chunked processes.",
     }
     if baseline is not None:
-        ratios = [r["median_seconds"] / baseline.median_seconds[r["sha256"]] for r in records]
+        ratios = [
+            record["median_seconds"] / baseline.median_seconds[record["sha256"]]
+            for record in records
+        ]
         comparison = {
             "median_paired_latency_ratio": float(np.median(ratios)),
             "paired_peak_rss_reduction": baseline.peak_rss_kib / result["peak_process_rss_kib"],
@@ -266,7 +273,7 @@ def main() -> None:
     result["cpu_seconds"] = time.process_time() - start
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
-    print(json.dumps({k: v for k, v in result.items() if k != "records"}, indent=2))
+    print(json.dumps({key: value for key, value in result.items() if key != "records"}, indent=2))
     if "error" in result or (args.mode == "validate" and not result.get("passed")):
         raise SystemExit(1)
 

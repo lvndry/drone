@@ -14,7 +14,7 @@ def apply_identity_overlay(
         or overlay.get("format") != "musicfm-source-physical-identity-overlay-v1"
     ):
         raise ValueError("Unbound/incomplete physical identity overlay")
-    records = {r["invariants"]["id"]: r for r in overlay["rows"]}
+    records = {record["invariants"]["id"]: record for record in overlay["rows"]}
     if len(records) != len(rows) or len(overlay["rows"]) != len(rows) or set(records) != set(rows):
         raise ValueError("Identity overlay changes membership")
     keys = ("id", "path", "role", "target", "sha256", "waveform_sha256", "samples", "bytes")

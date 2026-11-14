@@ -73,9 +73,9 @@ def source_manifest(root: str | Path | None = None) -> dict[str, str]:
     for directory in ("drone", "experiments"):
         paths += sorted((root / directory).rglob("*.py"))
     return {
-        str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in paths
-        if p.is_file() and not p.name.startswith(".")
+        str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in paths
+        if path.is_file() and not path.name.startswith(".")
     }
 
 
@@ -99,15 +99,17 @@ def snapshot_sources(output: Path) -> dict[str, str]:
 
 def load_development(data: str | Path) -> tuple[np.ndarray, dict[str, Any], list[int], list[int]]:
     features, meta = load_prepared(data, "train")
-    train, val = validation_split(meta["refs"], SEED, [t["sha256"] for t in meta["tracks"]])
-    if set(meta["ids"][i] for i in train) & set(meta["ids"][i] for i in val):
+    train, validation = validation_split(
+        meta["refs"], SEED, [track["sha256"] for track in meta["tracks"]]
+    )
+    if set(meta["ids"][index] for index in train) & set(meta["ids"][index] for index in validation):
         raise ValueError("Duplicate IDs cross the training/validation boundary")
-    if set(meta["tracks"][i]["sha256"] for i in train) & set(
-        meta["tracks"][i]["sha256"] for i in val
+    if set(meta["tracks"][index]["sha256"] for index in train) & set(
+        meta["tracks"][index]["sha256"] for index in validation
     ):
         raise ValueError("Identical audio crosses the training/validation boundary")
     # No test features or labels are opened here.
-    return features, meta, train, val
+    return features, meta, train, validation
 
 
 def probabilities(model: nn.Module, features: np.ndarray, batch: int = 128) -> np.ndarray:
@@ -123,41 +125,49 @@ def probabilities(model: nn.Module, features: np.ndarray, batch: int = 128) -> n
     return np.concatenate(results)
 
 
-def development_metrics(model: nn.Module, features: np.ndarray, refs: KeyIndices) -> dict[str, Any]:
-    prob = probabilities(model, features)
-    pred = prob.argmax(1)
-    refs = np.asarray(refs)
-    exact, mirex = score_mirex([int(c) for c in pred], [int(c) for c in refs])
+def development_metrics(
+    model: nn.Module, features: np.ndarray, references: KeyIndices
+) -> dict[str, Any]:
+    probability = probabilities(model, features)
+    prediction = probability.argmax(1)
+    reference_array = np.asarray(references)
+    predicted_classes = [int(predicted) for predicted in prediction]
+    reference_classes = [int(reference) for reference in reference_array]
+    exact, mirex = score_mirex(predicted_classes, reference_classes)
     matrix = np.zeros((24, 24), dtype=int)
-    np.add.at(matrix, (refs, pred), 1)
+    np.add.at(matrix, (reference_array, prediction), 1)
     support = matrix.sum(1)
     recalls = np.divide(matrix.diagonal(), support, out=np.zeros(24), where=support > 0)
     return {
         "exact": exact,
         "mirex": mirex,
-        "mirex_asymmetric": score_mirex(
-            [int(c) for c in pred], [int(c) for c in refs], symmetric=False
-        )[1],
-        "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
+        "mirex_asymmetric": score_mirex(predicted_classes, reference_classes, symmetric=False)[1],
+        "mode_accuracy": float(np.mean(prediction % 2 == reference_array % 2)),
         "macro_recall_present_classes": float(recalls[support > 0].mean()),
-        "nll": float(-np.log(np.maximum(prob[np.arange(len(refs)), refs], 1e-12)).mean()),
-        "counts": dict(score_breakdown([int(c) for c in pred], [int(c) for c in refs])),
-        "predicted_counts": np.bincount(pred, minlength=24).tolist(),
-        "reference_counts": np.bincount(refs, minlength=24).tolist(),
+        "nll": float(
+            -np.log(
+                np.maximum(probability[np.arange(len(reference_array)), reference_array], 1e-12)
+            ).mean()
+        ),
+        "counts": dict(score_breakdown(predicted_classes, reference_classes)),
+        "predicted_counts": np.bincount(prediction, minlength=24).tolist(),
+        "reference_counts": np.bincount(reference_array, minlength=24).tolist(),
         "confusion_matrix": matrix.tolist(),
-        "predictions": pred.tolist(),
+        "predictions": prediction.tolist(),
     }
 
 
-def mode_weights(refs: KeyIndices) -> torch.Tensor:
-    modes = np.bincount(np.asarray(refs) % 2, minlength=2)
+def mode_weights(references: KeyIndices) -> torch.Tensor:
+    modes = np.bincount(np.asarray(references) % 2, minlength=2)
     if np.any(modes == 0):
         raise ValueError("Mode balancing needs both major and minor examples")
-    return torch.tensor([len(refs) / (2 * modes[k % 2]) for k in range(24)], dtype=torch.float32)
+    return torch.tensor(
+        [len(references) / (2 * modes[key % 2]) for key in range(24)], dtype=torch.float32
+    )
 
 
 def initial_state(
-    recipe: Recipe, seed: int, epochs: int, refs: KeyIndices
+    recipe: Recipe, seed: int, epochs: int, references: KeyIndices
 ) -> tuple[
     KeyCNN, torch.optim.AdamW, torch.optim.lr_scheduler.CosineAnnealingLR, nn.CrossEntropyLoss
 ]:
@@ -168,7 +178,8 @@ def initial_state(
     )
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs)
     loss = nn.CrossEntropyLoss(
-        weight=mode_weights(refs) if recipe.mode_balance else None, label_smoothing=recipe.smoothing
+        weight=mode_weights(references) if recipe.mode_balance else None,
+        label_smoothing=recipe.smoothing,
     )
     return model, optimizer, scheduler, loss
 
@@ -176,8 +187,8 @@ def initial_state(
 def run_recipe(
     features: np.ndarray,
     meta: dict[str, Any],
-    tr: Sequence[int],
-    val: Sequence[int],
+    training: Sequence[int],
+    validation: Sequence[int],
     recipe: Recipe,
     *,
     seed: int,
@@ -200,7 +211,7 @@ def run_recipe(
         "threads": threads,
         "feature_spec": FEATURE_SPEC,
         "manifest_sha256": signature(meta),
-        "split_sha256": signature({"train": tr, "validation": val}),
+        "split_sha256": signature({"train": training, "validation": validation}),
         "split_policy": split_policy,
         "source_sha256": source_manifest(),
     }
@@ -213,8 +224,10 @@ def run_recipe(
         if old["status"] == "complete":
             return old
     torch.set_num_threads(threads)
-    refs = np.asarray(meta["refs"])
-    model, optimizer, scheduler, criterion = initial_state(recipe, seed, epochs, refs[tr])
+    references = np.asarray(meta["refs"])
+    model, optimizer, scheduler, criterion = initial_state(
+        recipe, seed, epochs, references[training]
+    )
     rng = np.random.default_rng(seed)
     record: dict[str, Any] = {
         "identity": identity,
@@ -229,7 +242,8 @@ def run_recipe(
         "numpy": np.__version__,
         "hardware": platform.platform(),
     }
-    first_epoch, best = 1, -1.0
+    first_epoch = 1
+    best = -1.0
     if state_path.exists():
         state = torch.load(state_path, weights_only=True)
         if state["identity"] != identity:
@@ -239,38 +253,45 @@ def run_recipe(
         scheduler.load_state_dict(state["scheduler"])
         torch.set_rng_state(state["torch_rng"])
         rng.bit_generator.state = state["numpy_rng"]
-        record, first_epoch, best = state["record"], state["epoch"] + 1, state["best"]
+        record = state["record"]
+        first_epoch = state["epoch"] + 1
+        best = state["best"]
     prior_elapsed = record["elapsed_seconds"]
     start = time.monotonic()
     atomic_json(result_path, record)
     try:
         for epoch in range(first_epoch, epochs + 1):
             model.train()
-            order = rng.permutation(tr)
+            order = rng.permutation(training)
             loss_sum = 0.0
             for offset in range(0, len(order), batch):
                 if prior_elapsed + time.monotonic() - start > max_seconds:
                     raise TimeoutError(f"Run exceeded its {max_seconds}s training wall budget")
                 indices = order[offset : offset + batch]
                 if recipe.augmentation:
-                    x, y = augment_batch(
-                        features[indices], refs[indices], rng.integers(-6, 6, len(indices))
+                    inputs, targets = augment_batch(
+                        features[indices], references[indices], rng.integers(-6, 6, len(indices))
                     )
                 else:
-                    x, y = features[indices], refs[indices]
+                    inputs = features[indices]
+                    targets = references[indices]
                 optimizer.zero_grad()
-                loss = criterion(model(torch.from_numpy(x).transpose(1, 2)), torch.from_numpy(y))
+                loss = criterion(
+                    model(torch.from_numpy(inputs).transpose(1, 2)), torch.from_numpy(targets)
+                )
                 if not torch.isfinite(loss):
                     raise RuntimeError("Nonfinite loss")
                 loss.backward()
                 optimizer.step()
                 loss_sum += loss.item() * len(indices)
             scheduler.step()
-            _, exact, mirex = evaluate_set(model, features[val], refs[val], "cpu")
+            _, exact, mirex = evaluate_set(
+                model, features[validation], references[validation], "cpu"
+            )
             record["history"].append(
                 {
                     "epoch": epoch,
-                    "loss": loss_sum / len(tr),
+                    "loss": loss_sum / len(training),
                     "validation_exact": exact,
                     "validation_mirex": mirex,
                 }
@@ -285,10 +306,10 @@ def run_recipe(
                     recipe=asdict(recipe),
                     seed=seed,
                     validation_mirex=mirex,
-                    train_ids=[meta["ids"][i] for i in tr],
-                    validation_ids=[meta["ids"][i] for i in val],
+                    train_ids=[meta["ids"][index] for index in training],
+                    validation_ids=[meta["ids"][index] for index in validation],
                     source_sha256=identity["source_sha256"],
-                    training_audio_sha256=[meta["tracks"][i]["sha256"] for i in tr],
+                    training_audio_sha256=[meta["tracks"][index]["sha256"] for index in training],
                 )
             record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
             atomic_json(result_path, record)
@@ -317,8 +338,10 @@ def run_recipe(
                 atomic_json(result_path, record)
                 return record
         model, _ = load_checkpoint(output / "best.pt")
-        record["train"] = development_metrics(model, features[tr], refs[tr])
-        record["validation"] = development_metrics(model, features[val], refs[val])
+        record["train"] = development_metrics(model, features[training], references[training])
+        record["validation"] = development_metrics(
+            model, features[validation], references[validation]
+        )
         record["best_checkpoint_sha256"] = hashlib.sha256(
             (output / "best.pt").read_bytes()
         ).hexdigest()
@@ -326,10 +349,10 @@ def run_recipe(
         record["elapsed_seconds"] = float(prior_elapsed + time.monotonic() - start)
         atomic_json(result_path, record)
         return record
-    except Exception as exc:
+    except Exception as error:
         record.update(
             status="failed",
-            error=str(exc),
+            error=str(error),
             elapsed_seconds=float(prior_elapsed + time.monotonic() - start),
         )
         atomic_json(result_path, record)
@@ -339,14 +362,14 @@ def run_recipe(
 def diagnostics(
     features: np.ndarray,
     meta: dict[str, Any],
-    tr: Sequence[int],
-    val: Sequence[int],
+    training: Sequence[int],
+    validation: Sequence[int],
     checkpoint: Path,
     output: Path,
     threads: int = 16,
 ) -> dict[str, Any]:
     torch.set_num_threads(threads)
-    refs = np.asarray(meta["refs"])
+    references = np.asarray(meta["refs"])
     model, payload = load_checkpoint(checkpoint)
     expected_spec = payload["feature_spec"]
     if expected_spec != meta["feature_spec"]:
@@ -355,19 +378,21 @@ def diagnostics(
     current_sources = source_manifest()
     # Show differing files explicitly; architecture additions do not rewrite baseline provenance.
     differences = [
-        p
-        for p, h in frozen_sources.items()
-        if not Path(p).name.startswith(".") and current_sources.get(p) != h
+        name
+        for name, digest in frozen_sources.items()
+        if not Path(name).name.startswith(".") and current_sources.get(name) != digest
     ]
-    original_tr, original_val = validation_split(meta["refs"], SEED)
+    original_training, original_validation = validation_split(meta["refs"], SEED)
     result = {
         "split_audit": {
-            "original_training_rows": len(original_tr),
-            "clean_training_rows": len(tr),
-            "original_validation_rows": len(original_val),
-            "clean_validation_rows": len(val),
-            "removed_training_ids": [meta["ids"][i] for i in original_tr if i not in set(tr)],
-            "validation_ids_preserved": original_val == val,
+            "original_training_rows": len(original_training),
+            "clean_training_rows": len(training),
+            "original_validation_rows": len(original_validation),
+            "clean_validation_rows": len(validation),
+            "removed_training_ids": [
+                meta["ids"][index] for index in original_training if index not in set(training)
+            ],
+            "validation_ids_preserved": original_validation == validation,
         },
         "baseline_warning": "Checkpoint trained on original split with duplicate-audio leakage; diagnostic only",
         "baseline_checkpoint": str(checkpoint),
@@ -375,18 +400,22 @@ def diagnostics(
         "feature_shape": list(features.shape),
         "finite": bool(np.isfinite(features).all()),
         "zero_variance_tracks": np.flatnonzero(features.std(axis=(1, 2)) < 1e-8).tolist(),
-        "train_tracks": len(tr),
-        "validation_tracks": len(val),
-        "class_counts": dict(Counter(map(int, refs))),
+        "train_tracks": len(training),
+        "validation_tracks": len(validation),
+        "class_counts": dict(Counter(map(int, references))),
         "source_differences_from_baseline": differences,
-        "train": development_metrics(model, features[tr], refs[tr]),
-        "validation": development_metrics(model, features[val], refs[val]),
+        "train": development_metrics(model, features[training], references[training]),
+        "validation": development_metrics(model, features[validation], references[validation]),
         "overfit": {},
     }
     # One/two examples per class, from training only; no validation/test fitting.
-    subset = [i for key in range(24) for i in [j for j in tr if refs[j] == key][:2]]
-    x = torch.from_numpy(features[subset]).transpose(1, 2)
-    y = torch.from_numpy(refs[subset])
+    subset = [
+        index
+        for key in range(24)
+        for index in [candidate for candidate in training if references[candidate] == key][:2]
+    ]
+    inputs = torch.from_numpy(features[subset]).transpose(1, 2)
+    targets = torch.from_numpy(references[subset])
     for pooling in ("global", "frequency"):
         torch.manual_seed(13)
         candidate = KeyCNN(pooling=pooling, dropout=0)
@@ -395,13 +424,13 @@ def diagnostics(
         for step in range(200):
             candidate.train()
             optimizer.zero_grad()
-            loss = nn.functional.cross_entropy(candidate(x), y)
+            loss = nn.functional.cross_entropy(candidate(inputs), targets)
             loss.backward()
             optimizer.step()
             if (step + 1) % 20 == 0:
                 candidate.eval()
                 with torch.inference_mode():
-                    accuracy = float((candidate(x).argmax(1) == y).float().mean())
+                    accuracy = float((candidate(inputs).argmax(1) == targets).float().mean())
                 if accuracy >= 0.99:
                     break
         result["overfit"][pooling] = {
@@ -416,9 +445,9 @@ def diagnostics(
         json.dumps(
             {
                 "validation": {
-                    k: v
-                    for k, v in result["validation"].items()
-                    if k in ("exact", "mirex", "mode_accuracy")
+                    name: value
+                    for name, value in result["validation"].items()
+                    if name in ("exact", "mirex", "mode_accuracy")
                 },
                 "overfit": result["overfit"],
             },
@@ -443,22 +472,25 @@ def confirmation_recipes(
             "Confirmation requires a completed screen with matching data, split and source"
         )
     results = summary["results"]
-    if len(results) != len(RECIPES) or any(r["status"] != "complete" for r in results):
+    if len(results) != len(RECIPES) or any(result["status"] != "complete" for result in results):
         raise ValueError("All eight screening recipes must finish before promotion")
-    by_name = {r["identity"]["recipe"]["name"]: r for r in results}
-    if set(by_name) != {r.name for r in RECIPES}:
+    by_name = {result["identity"]["recipe"]["name"]: result for result in results}
+    if set(by_name) != {recipe.name for recipe in RECIPES}:
         raise ValueError("Screen contains unexpected recipe names")
     for recipe in RECIPES:
         if by_name[recipe.name]["identity"]["recipe"] != asdict(recipe):
             raise ValueError("Screen recipe parameters differ from the registered experiment")
     threshold = by_name["control"]["validation"]["mirex"] + 0.02
     ranked = sorted(
-        results, key=lambda r: (r["validation"]["mirex"], r["validation"]["exact"]), reverse=True
+        results,
+        key=lambda result: (result["validation"]["mirex"], result["validation"]["exact"]),
+        reverse=True,
     )
     names = ["control"] + [
-        r["identity"]["recipe"]["name"]
-        for r in ranked
-        if r["identity"]["recipe"]["name"] != "control" and r["validation"]["mirex"] >= threshold
+        result["identity"]["recipe"]["name"]
+        for result in ranked
+        if result["identity"]["recipe"]["name"] != "control"
+        and result["validation"]["mirex"] >= threshold
     ][:2]
     return [recipe for recipe in RECIPES if recipe.name in names]
 
@@ -484,9 +516,9 @@ def main() -> None:
         parser.error("confirm requires --screen")
     args.output.mkdir(parents=True, exist_ok=True)
     hashes = snapshot_sources(args.output)
-    features, meta, tr, val = load_development(args.data)
+    features, meta, training, validation = load_development(args.data)
     if args.command == "diagnose":
-        diagnostics(features, meta, tr, val, args.baseline, args.output, args.threads)
+        diagnostics(features, meta, training, validation, args.baseline, args.output, args.threads)
         return
     if args.command == "screen":
         jobs = [(recipe, 13) for recipe in RECIPES]
@@ -495,7 +527,7 @@ def main() -> None:
         selected = confirmation_recipes(
             screen,
             signature(meta),
-            signature({"train": tr, "validation": val}),
+            signature({"train": training, "validation": validation}),
             hashes,
         )
         jobs = [(recipe, seed) for recipe in selected for seed in (13, 37, 73)]
@@ -504,9 +536,9 @@ def main() -> None:
         "command": args.command,
         "source_sha256": hashes,
         "manifest_sha256": signature(meta),
-        "split_sha256": signature({"train": tr, "validation": val}),
+        "split_sha256": signature({"train": training, "validation": validation}),
         "split_policy": "stratified-seed13-validation-priority-audio-dedup-v1",
-        "jobs": [{"recipe": asdict(r), "seed": seed} for r, seed in jobs],
+        "jobs": [{"recipe": asdict(recipe), "seed": seed} for recipe, seed in jobs],
         "status": "running",
         "results": [],
     }
@@ -522,8 +554,8 @@ def main() -> None:
         result = run_recipe(
             features,
             meta,
-            tr,
-            val,
+            training,
+            validation,
             recipe,
             seed=seed,
             output=output,

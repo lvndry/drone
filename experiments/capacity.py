@@ -26,7 +26,8 @@ from experiments.small import atomic_json
 
 VERSION = "k10-width2-capacity-v1"
 STUDY = Path(__file__).parent / "studies" / "k10-capacity"
-PROTOCOL, REVIEWED = STUDY / "PROTOCOL.md", STUDY / "data" / "reviewed-sources.json"
+PROTOCOL = STUDY / "PROTOCOL.md"
+REVIEWED = STUDY / "data" / "reviewed-sources.json"
 
 
 def memory_guard(device: str) -> dict[str, Any]:
@@ -91,7 +92,9 @@ class CapacityProbe:
             or record["parameters"] != (361080 if self.candidate else 109128)
         ):
             raise ValueError("Need fixed joint identities and declared K10 width/parameter count")
-        if [i for i in record["fit_ids"] if i.startswith("beatport:")] != self.bp["fit_ids"]:
+        if [
+            identity for identity in record["fit_ids"] if identity.startswith("beatport:")
+        ] != self.bp["fit_ids"]:
             raise ValueError("Archived BP fitting identities differ")
         reviewed = json.loads(REVIEWED.read_bytes())
         if self.reference["source_sha256"] != reviewed["archived"]["sources"]:
@@ -235,7 +238,7 @@ class CapacityProbe:
         self,
         record: dict[str, Any],
         features: list[np.ndarray],
-        refs: np.ndarray,
+        references: np.ndarray,
         rows: list[dict[str, Any]],
         start: float,
     ) -> dict[str, Any]:
@@ -251,7 +254,7 @@ class CapacityProbe:
                 self.args.output,
                 record,
                 features,
-                refs,
+                references,
                 rows,
                 self.args.device,
                 start,
@@ -281,7 +284,7 @@ class CapacityProbe:
                     bp_metrics=self.bp["domain_metrics"],
                     method_gate=compare(self.control["domain_metrics"], scores["metrics"]),
                     confusion_movements=movements(
-                        self.control["domain_metrics"], scores["metrics"], refs, rows
+                        self.control["domain_metrics"], scores["metrics"], references, rows
                     ),
                 )
             if self.args.device.startswith("cuda"):
@@ -296,13 +299,13 @@ class CapacityProbe:
                 raise TimeoutError("Fixed fit budget exhausted including scoring/artifacts")
             atomic_json(self.args.output / "capacity-result.json", result)
             return result
-        except (ValueError, TimeoutError, RuntimeError, OSError) as exc:
+        except (ValueError, TimeoutError, RuntimeError, OSError) as error:
             return self.failure(
                 record,
                 start,
-                str(exc),
-                budget=isinstance(exc, TimeoutError),
-                resource=isinstance(exc, torch.OutOfMemoryError),
+                str(error),
+                budget=isinstance(error, TimeoutError),
+                resource=isinstance(error, torch.OutOfMemoryError),
             )
 
 
@@ -311,8 +314,8 @@ def main() -> None:
     parser.add_argument("--results", type=Path, nargs=3, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = summarize([json.loads(p.read_bytes()) for p in args.results], VERSION)
-    result["result_sha256"] = {str(p): audio_digest(p) for p in args.results}
+    result = summarize([json.loads(path.read_bytes()) for path in args.results], VERSION)
+    result["result_sha256"] = {str(path): audio_digest(path) for path in args.results}
     result["summary_source_sha256"] = audio_digest(Path(__file__))
     atomic_json(args.output, result)
     print(json.dumps(result, indent=2))
