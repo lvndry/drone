@@ -1,6 +1,6 @@
 [project]
 name = "drone-key"
-version = "0.1.0"
+version = "0.2.0"
 description = "A small neural classifier for musical key detection"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
@@ -49,4 +49,8 @@ select = ["E4", "E7", "E9", "F", "I", "ANN"]
 testpaths = ["tests"]
 
 [tool.ty.environment]
-extra-paths = ["research/drone-native-cqt", "research/drone-native-cqt/composed"]
+extra-paths = [
+  "research/drone-native-cqt",
+  "research/drone-native-cqt/composed",
+  "experiments/studies/frontier-distillation/scripts",
+]

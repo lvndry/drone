@@ -1,29 +1,36 @@
 # Weights
 
-`drone-v1` — the K10 (MIREX 2026) port, confirmed by the 3-seed gate.
+`drone-v2` is the default release. `drone-v1` stays available for comparison
+and for hosts pinned to it. Both use the same architecture (109,128
+parameters), feature contract `cqt24-8oct-c1-pad4-hop4096-v2` and label schema
+`tonic-times-two-plus-minor-v1`, so they are interchangeable files.
 
-| file | contents |
+| File | Contents |
 | --- | --- |
-| `drone-v1.pt` | PyTorch checkpoint, `format_version: 2`, feature contract `cqt24-8oct-c1-pad4-hop4096-v2`, 109,128 parameters, run `w1.0-seed13-20261111-185528-lr7fvv4k` (seed 13) |
-| `drone-v1.onnx` | ONNX export of the same weights, opset 18, dynamic batch and time; CPU parity verified at export time |
+| `drone-v2.pt` | PyTorch checkpoint, `format_version: 2`. Seed 42, epoch 88 of the shift12 recipe, with its configuration and 6,263 training IDs in `metadata` |
+| `drone-v2.onnx` | ONNX export, opset 18, dynamic batch and time; matches the checkpoint within 1.7e-5 |
+| `drone-v2.json` | The ONNX export's contracts and parity error |
+| `drone-v2.safetensors` | Every float32 tensor under its PyTorch name, for native hosts |
+| `drone-v1.pt`, `drone-v1.onnx` | The previous release, unchanged |
+| `MODEL_CARD.md` | The Hugging Face model card |
 
-Input is `(batch, 192 frequency bins, time frames)`, with at least eight frames.
-The ONNX artifact was regenerated to accept full-length tracks rather than only
-the 320-frame training crop. Export parity checks cover 8, 56, 319, 320 and 645
-frames. The PyTorch checkpoint and learned parameters are unchanged.
+Exact accuracy, from original audio through the packaged `Predictor`
+([evaluation](../experiments/studies/drone-v2-release/REPORT.md)):
 
-Held-out GiantSteps (604 tracks, single evaluation per seed):
+| Panel | libkeyfinder 2.2.8 | drone-v1 | drone-v2 |
+| --- | ---: | ---: | ---: |
+| GiantSteps, original labels (604) | 60.4% | 68.5% | 69.9% |
+| GiantSteps+ expert labels (571) | 69.9% | 77.4% | 80.7% |
+| GiantSteps+ expert labels, single-key tracks (457) | 76.2% | 83.4% | 88.0% |
+| FMAKv2 `valid` (250, mixed genres) | not run | 62.4% | 72.4% |
+| FMAKv2 `holdout` (250, mixed genres) | not run | 68.4% | 77.6% |
 
-| seed | exact | MIREX |
-| --- | --- | --- |
-| 13 | 68.5% | 74.8% |
-| 37 | 66.1% | 73.0% |
-| 73 | 65.7% | 72.9% |
-| **mean** | **66.8%** | **73.58%** |
+GiantSteps was used during development of both releases (never for training).
+drone-v1 was trained on 1,363 Beatport previews; drone-v2 on 4,988 FMAKv2 and
+1,275 GiantSteps-MTG-Key tracks with ensemble distillation and pitch shifts of
+up to 12 semitones ([study](../experiments/studies/frontier-distillation/REPORT.md)).
 
-Reference: native libkeyfinder scores 69.35% MIREX on the same files.
-
-Use the default resolution (packaged `drone/weights/drone-v1.pt`, then the
-checkout's `weights/drone-v1.pt`) or point `DRONE_WEIGHTS` at your own
-checkpoint. Do not distribute old unversioned checkpoints: they do not describe
-the current feature or label contracts.
+The package loads `drone/weights/drone-v2.pt` when installed, then the
+checkout's `weights/drone-v2.pt`. Set `DRONE_WEIGHTS` to use another checkpoint,
+for example `weights/drone-v1.pt`. Do not distribute old unversioned
+checkpoints: they do not describe the current feature or label contracts.

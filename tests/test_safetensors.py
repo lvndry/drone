@@ -60,3 +60,15 @@ def test_export_refuses_to_overwrite_files(tmp_path: Path, destination: str) -> 
     assert output.read_bytes() == previous
     assert checkpoint.read_bytes() == checkpoint_bytes
     load_checkpoint(checkpoint)
+
+
+def test_shipped_safetensors_hold_the_shipped_drone_v2_checkpoint() -> None:
+    weights = Path(__file__).resolve().parents[1] / "weights"
+    model, _ = load_checkpoint(weights / "drone-v2.pt")
+    tensors, metadata = read_safetensors(weights / "drone-v2.safetensors")
+    expected = model.state_dict()
+    float_names = {name for name, tensor in expected.items() if tensor.is_floating_point()}
+    assert set(tensors) == float_names
+    for name in float_names:
+        assert torch.equal(tensors[name], expected[name].float()), name
+    assert metadata["feature_spec"] == "cqt24-8oct-c1-pad4-hop4096-v2"
