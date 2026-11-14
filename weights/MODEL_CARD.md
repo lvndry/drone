@@ -142,9 +142,10 @@ TONICS = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
 samples, _ = librosa.load("track.mp3", sr=22050, mono=True)
 lowest = librosa.note_to_hz("C1") * 2 ** (-4 / 12)  # four semitones below C1
-spectrogram = np.log1p(np.abs(librosa.cqt(
-    samples, sr=22050, hop_length=4096, fmin=lowest, n_bins=208, bins_per_octave=24,
-)))
+transform = librosa.cqt(
+    samples, sr=22050, hop_length=4096, fmin=lowest, n_bins=208, bins_per_octave=24
+)
+spectrogram = np.log1p(np.abs(transform))
 features = spectrogram[8:200].astype(np.float32)[None]  # (1, 192, frames)
 
 session = ort.InferenceSession("drone-v2.onnx")
