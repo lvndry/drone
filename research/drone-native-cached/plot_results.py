@@ -42,11 +42,11 @@ def load_reports() -> tuple[dict[str, Any], dict[str, Any]]:
             raise ValueError(f"Changed measured evidence: {name}")
         reports.append(json.loads(path.read_text()))
     full, chunked = reports
-    if full["identity"] != chunked["identity"] or not all(r["passed"] for r in reports):
+    if full["identity"] != chunked["identity"] or not all(report["passed"] for report in reports):
         raise ValueError("Reports are not the same passing experiment")
-    if any(r["tracks"] != 20 or r["repetitions"] != 20 for r in reports):
+    if any(report["tracks"] != 20 or report["repetitions"] != 20 for report in reports):
         raise ValueError("Unexpected track/repetition counts")
-    if any({row["process_threads"] for row in r["records"]} != {2} for r in reports):
+    if any({row["process_threads"] for row in report["records"]} != {2} for report in reports):
         raise ValueError("Figure's observed thread note no longer matches evidence")
     return full, chunked
 
@@ -57,9 +57,12 @@ def make_figure() -> None:
     selected = sorted(chunked["records"], key=lambda row: row["frames"])
     full_ms = [baseline[row["audio_sha256"]]["median_seconds"] * 1000 for row in selected]
     chunked_ms = [row["median_seconds"] * 1000 for row in selected]
-    ratios = [c / f for c, f in zip(chunked_ms, full_ms, strict=True)]
+    ratios = [
+        chunked_value / full_value
+        for chunked_value, full_value in zip(chunked_ms, full_ms, strict=True)
+    ]
     paired_change = (statistics.median(ratios) - 1) * 100
-    rss_mib = [r["peak_process_rss_kib"] / 1024 for r in (full, chunked)]
+    rss_mib = [report["peak_process_rss_kib"] / 1024 for report in (full, chunked)]
     matplotlib.rcParams.update(
         {
             "font.family": "DejaVu Sans",

@@ -54,9 +54,12 @@ def percentile95(values: list[float]) -> float:
 def verify_logits(actual: list[float], reference: list[float]) -> None:
     if len(actual) != 24 or len(reference) != 24:
         raise ValueError("24-class logit shape")
-    if not all(math.isfinite(v) for v in actual + reference):
+    if not all(math.isfinite(value) for value in actual + reference):
         raise ValueError("nonfinite recorded logits")
-    if any(abs(a - b) > 1e-5 + 1e-5 * abs(b) for a, b in zip(actual, reference, strict=True)):
+    if any(
+        abs(actual_value - reference_value) > 1e-5 + 1e-5 * abs(reference_value)
+        for actual_value, reference_value in zip(actual, reference, strict=True)
+    ):
         raise ValueError("recorded logit tolerance")
     if max(range(24), key=actual.__getitem__) != max(range(24), key=reference.__getitem__):
         raise ValueError("recorded key disagreement")
@@ -86,7 +89,7 @@ def verify_native(
             or iteration["core_sha256"] != expected["core"]["sha256"]
         ):
             raise ValueError("recorded native core identity")
-        if {p["backend"] for p in iteration["predictions"]} != backends or len(
+        if {prediction["backend"] for prediction in iteration["predictions"]} != backends or len(
             iteration["predictions"]
         ) != len(backends):
             raise ValueError("native backend coverage")
@@ -186,10 +189,10 @@ def summarize(root: Path) -> dict[str, Any]:
     for mode in ("python", "full", "chunked"):
         values = [row["modes"][mode] for row in rows]
         aggregate[mode] = {
-            "median_seconds": statistics.median(v["median_seconds"] for v in values),
-            "p95_seconds": percentile95([v["median_seconds"] for v in values]),
-            "median_peak_rss_bytes": statistics.median(v["peak_rss_bytes"] for v in values),
-            "maximum_peak_rss_bytes": max(v["peak_rss_bytes"] for v in values),
+            "median_seconds": statistics.median(value["median_seconds"] for value in values),
+            "p95_seconds": percentile95([value["median_seconds"] for value in values]),
+            "median_peak_rss_bytes": statistics.median(value["peak_rss_bytes"] for value in values),
+            "maximum_peak_rss_bytes": max(value["peak_rss_bytes"] for value in values),
         }
     paired = {}
     for numerator, denominator in (

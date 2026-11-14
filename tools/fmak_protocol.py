@@ -28,25 +28,26 @@ def partition(
         grouped,
         key=lambda digest: hashlib.sha256(("drone-fmak-holdout-v1:" + digest).encode()).hexdigest(),
     )
-    test, dev = [], []
+    test = []
+    development = []
     for digest in ordered:
         rows = grouped[digest]
         if len(test) + len(rows) <= holdout_size:
             test.extend(rows)
         else:
-            dev.extend(rows)
-    if len(test) != holdout_size or not dev:
+            development.extend(rows)
+    if len(test) != holdout_size or not development:
         raise ValueError("Cannot form the requested grouped holdout and nonempty development set")
     test.sort()
-    dev.sort()
+    development.sort()
     return {
         "policy": "drone-fmak-holdout-v1",
-        "development_indices": dev,
+        "development_indices": development,
         "final_holdout_indices": test,
         "excluded_indices": excluded,
-        "development_ids": [meta["ids"][i] for i in dev],
-        "final_holdout_ids": [meta["ids"][i] for i in test],
-        "excluded_ids": [meta["ids"][i] for i in excluded],
+        "development_ids": [meta["ids"][index] for index in development],
+        "final_holdout_ids": [meta["ids"][index] for index in test],
+        "excluded_ids": [meta["ids"][index] for index in excluded],
         "unique_audio_groups": len(grouped),
         "metadata_sha256": hashlib.sha256(json.dumps(meta, sort_keys=True).encode()).hexdigest(),
     }
@@ -60,7 +61,7 @@ def main() -> None:
     args = parser.parse_args()
     _, meta = load_prepared(args.data, "fmak")
     _, beatport = load_prepared(args.beatport_data, "train")
-    result = partition(meta, [t["sha256"] for t in beatport["tracks"]])
+    result = partition(meta, [track["sha256"] for track in beatport["tracks"]])
     args.output.parent.mkdir(parents=True, exist_ok=True)
     if args.output.exists():
         if json.loads(args.output.read_text()) != result:

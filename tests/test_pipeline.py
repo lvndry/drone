@@ -35,20 +35,20 @@ from train import (
 
 @pytest.fixture(autouse=True)
 def one_cpu_thread() -> Iterator[None]:
-    old = torch.get_num_threads()
+    previous_threads = torch.get_num_threads()
     torch.set_num_threads(1)
     yield
-    torch.set_num_threads(old)
+    torch.set_num_threads(previous_threads)
 
 
-def write_tone(path: Path, hz: float, seconds: float = 3) -> None:
-    t = np.arange(int(SR * seconds)) / SR
-    samples = (np.sin(2 * np.pi * hz * t) * 0.5).astype(np.float32)
-    with wave.open(str(path), "wb") as out:
-        out.setnchannels(1)
-        out.setsampwidth(2)
-        out.setframerate(SR)
-        out.writeframes((samples * 32767).astype(np.int16).tobytes())
+def write_tone(path: Path, frequency_hz: float, seconds: float = 3) -> None:
+    times = np.arange(int(SR * seconds)) / SR
+    samples = (np.sin(2 * np.pi * frequency_hz * times) * 0.5).astype(np.float32)
+    with wave.open(str(path), "wb") as stream:
+        stream.setnchannels(1)
+        stream.setsampwidth(2)
+        stream.setframerate(SR)
+        stream.writeframes((samples * 32767).astype(np.int16).tobytes())
 
 
 def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
@@ -57,9 +57,9 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
     path = tmp_path / "model.pt"
     save_checkpoint(path, model)
     restored = load_model(path)
-    x = torch.randn(2, N_CORE, 128)
+    features = torch.randn(2, N_CORE, 128)
     with torch.no_grad():
-        torch.testing.assert_close(model(x), restored(x))
+        torch.testing.assert_close(model(features), restored(features))
     torch.save(model.state_dict(), path)
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
@@ -91,13 +91,13 @@ def test_inference_decodes_interleaved_classes(tmp_path: Path) -> None:
 
 
 def test_split_and_overlap_guards() -> None:
-    refs = [key for key in range(24) for _ in range(10)]
-    train, val = validation_split(refs)
-    assert validation_split(refs) == (train, val)
-    assert not set(train) & set(val)
-    assert set(train) | set(val) == set(range(len(refs)))
+    references = [key for key in range(24) for _ in range(10)]
+    train, validation = validation_split(references)
+    assert validation_split(references) == (train, validation)
+    assert not set(train) & set(validation)
+    assert set(train) | set(validation) == set(range(len(references)))
     # stratified: every class appears in validation
-    assert sorted(refs[i] for i in val) == list(range(24))
+    assert sorted(references[index] for index in validation) == list(range(24))
     with pytest.raises(ValueError, match="overlap"):
         assert_disjoint(["1", "2"], ["2", "3"])
     with pytest.raises(ValueError, match="at least two"):
@@ -128,10 +128,10 @@ def test_loaders_fail_for_missing_data(tmp_path: Path) -> None:
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
 def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
     tracks: list[Track] = []
-    for i in range(8):
-        audio = tmp_path / f"{i}.wav"
-        write_tone(audio, (110 if i < 4 else 220) + i)
-        tracks.append(Track(str(i), str(audio), ("A", "major" if i < 4 else "minor")))
+    for index in range(8):
+        audio = tmp_path / f"{index}.wav"
+        write_tone(audio, (110 if index < 4 else 220) + index)
+        tracks.append(Track(str(index), str(audio), ("A", "major" if index < 4 else "minor")))
     (tmp_path / "labels").mkdir()
     # write label files for the loader used by prepare_dir
     meta = prepare_dir("train", tracks, tmp_path, data=tmp_path)
@@ -148,10 +148,12 @@ def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
     prepare_dir("train", tracks, tmp_path, data=tmp_path)
 
     held_out: list[Track] = []
-    for i in range(2):
-        audio = tmp_path / f"test-{i}.wav"
-        write_tone(audio, 165 + i * 110)
-        held_out.append(Track(f"test-{i}", str(audio), ("E", "major" if i == 0 else "minor")))
+    for index in range(2):
+        audio = tmp_path / f"test-{index}.wav"
+        write_tone(audio, 165 + index * 110)
+        held_out.append(
+            Track(f"test-{index}", str(audio), ("E", "major" if index == 0 else "minor"))
+        )
     prepare_dir("test", held_out, tmp_path, data=tmp_path)
     checkpoint = train_model(tmp_path, "cpu", epochs=1, batch=4)
     record = json.loads((checkpoint.parent / "run.json").read_text())
@@ -172,12 +174,16 @@ def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
 
 
 def test_extract_cqt_shapes_and_finiteness() -> None:
-    import drone.features as feats
+    import drone.features as feature_module
 
     samples = np.random.default_rng(0).standard_normal(SR * 4).astype(np.float32)
-    features = feats.cqt(samples)
-    n_frames = 1 + (int(SR * 4) - feats.FFT) // feats.HOP + feats.FFT // feats.HOP
-    assert features.shape == (feats.N_TOTAL, n_frames)
+    features = feature_module.cqt(samples)
+    n_frames = (
+        1
+        + (int(SR * 4) - feature_module.FFT) // feature_module.HOP
+        + feature_module.FFT // feature_module.HOP
+    )
+    assert features.shape == (feature_module.N_TOTAL, n_frames)
     assert features.shape[0] == 208
     assert np.isfinite(features).all()
     core = window(features, 0)
@@ -188,19 +194,19 @@ def test_small_crop_can_overfit() -> None:
     torch.manual_seed(13)
     model = KeyCNN()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    x = torch.zeros(4, N_CORE, 128)
-    x[:2, :48, :] = 1
-    x[2:, 48:, :] = 2
+    features = torch.zeros(4, N_CORE, 128)
+    features[:2, :48, :] = 1
+    features[2:, 48:, :] = 2
     target = torch.tensor([0, 0, 1, 1])
     for _ in range(40):
         model.train()
         optimizer.zero_grad()
-        loss = torch.nn.functional.cross_entropy(model(x), target)
+        loss = torch.nn.functional.cross_entropy(model(features), target)
         loss.backward()
         optimizer.step()
     model.eval()
     with torch.no_grad():
-        assert model(x).argmax(1).tolist() == target.tolist()
+        assert model(features).argmax(1).tolist() == target.tolist()
 
 
 def test_width_scales_parameters_and_checkpoint_config(tmp_path: Path) -> None:

@@ -10,8 +10,8 @@ from drone.features import N_CORE
 
 
 class MeanClassifier(torch.nn.Module):
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        signal = x.mean((1, 2)) - 0.75
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        signal = features.mean((1, 2)) - 0.75
         return torch.stack((signal, torch.zeros_like(signal)), dim=1)
 
 
@@ -24,7 +24,7 @@ def test_evaluation_predictions_are_independent_of_other_track_lengths(
         np.full((N_CORE, 8), 0.1, dtype=np.float32),
     ]
     monkeypatch.setattr(train, "prepare", lambda track, _: (features[int(track.id)], None))
-    tracks = [Track(str(i), "unused.wav", ("C", "major")) for i in range(3)]
+    tracks = [Track(str(index), "unused.wav", ("C", "major")) for index in range(3)]
     for batch in (1, 2, 3):
         prediction = train.evaluate_tracks(MeanClassifier(), tracks, "unused", "cpu", batch)
         np.testing.assert_array_equal(prediction, [0, 0, 1])
@@ -38,15 +38,15 @@ def test_evaluation_requires_tracks_and_positive_batch(empty: bool, batch: int) 
 
 
 def test_k10_split_quarantines_training_copies_of_validation_audio() -> None:
-    refs = [0] * 20 + [1] * 20
-    original_train, original_val = train.validation_split(refs)
-    hashes = [str(i) for i in range(len(refs))]
+    references = [0] * 20 + [1] * 20
+    original_train, original_validation = train.validation_split(references)
+    hashes = [str(index) for index in range(len(references))]
     duplicate = original_train[0]
-    hashes[duplicate] = hashes[original_val[0]]
-    fit, validation = train.validation_split(refs, audio_hashes=hashes)
-    assert validation == original_val
+    hashes[duplicate] = hashes[original_validation[0]]
+    fit, validation = train.validation_split(references, audio_hashes=hashes)
+    assert validation == original_validation
     assert duplicate not in fit
-    assert not {hashes[i] for i in fit} & {hashes[i] for i in validation}
-    hashes[original_val[-1]] = hashes[original_val[0]]
+    assert not {hashes[index] for index in fit} & {hashes[index] for index in validation}
+    hashes[original_validation[-1]] = hashes[original_validation[0]]
     with pytest.raises(ValueError, match="conflicting labels"):
-        train.validation_split(refs, audio_hashes=hashes)
+        train.validation_split(references, audio_hashes=hashes)

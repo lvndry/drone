@@ -65,7 +65,8 @@ def verify_bn_budget(report: dict[str, Any], study: Path = STUDY) -> dict[str, A
         and math.isclose(projected, admission["projected_calibration_seconds"], abs_tol=1e-9),
         "Calibration projection mismatch",
     )
-    remaining, required = admission["remaining_seconds"], admission["required_seconds"]
+    remaining = admission["remaining_seconds"]
+    required = admission["required_seconds"]
     overhead = (
         required - 2 * projected - 2 * report["prospective_complete_comparison_seconds"] - 120
     )
@@ -105,9 +106,9 @@ def load_evidence(study: Path = STUDY) -> tuple[dict[str, Any], dict[str, Any]]:
     index = json.loads((study / "data/terminal-index.json").read_bytes())
     packed = (study / "data" / index["path"]).read_bytes()
     require(digest(packed) == index["sha256"], "compressed terminal evidence integrity")
-    raw = gzip.decompress(packed)
-    require(digest(raw) == index["decoded_sha256"], "decoded terminal evidence integrity")
-    files = json.loads(raw)["files"]
+    decoded = gzip.decompress(packed)
+    require(digest(decoded) == index["decoded_sha256"], "decoded terminal evidence integrity")
+    files = json.loads(decoded)["files"]
     require(set(files) == set(index["files"]), "terminal evidence inventory")
     documents = {}
     for name, entry in files.items():
@@ -144,7 +145,10 @@ def check_metrics(metrics: dict[str, Any], expected: dict[str, Any]) -> None:
         require(len(set(row["ids"])) == count, "unique metric identities")
         require(
             len(row["predictions"]) == count
-            and all(type(p) is int and 0 <= p < 24 for p in row["predictions"]),
+            and all(
+                type(prediction) is int and 0 <= prediction < 24
+                for prediction in row["predictions"]
+            ),
             "24-class prediction inventory",
         )
         for numerator, field, scale in (
@@ -162,22 +166,22 @@ def check_metrics(metrics: dict[str, Any], expected: dict[str, Any]) -> None:
 
 def check_proof(result: dict[str, Any]) -> dict[str, float | int]:
     proof = result["selected_teacher_composed_batch_proof"]
-    reference, candidate, songs = (
-        proof["reference_logits"],
-        proof["candidate_logits"],
-        proof["per_song"],
-    )
+    reference = proof["reference_logits"]
+    candidate = proof["candidate_logits"]
+    songs = proof["per_song"]
     require(
         len(reference) == len(candidate) == len(songs) == proof["tracks"] == 376,
         "complete selected-checkpoint proof",
     )
     ids = [identity for domain, _ in DOMAINS for identity in result["best_metrics"][domain]["ids"]]
     predictions = [
-        p for domain, _ in DOMAINS for p in result["best_metrics"][domain]["predictions"]
+        prediction
+        for domain, _ in DOMAINS
+        for prediction in result["best_metrics"][domain]["predictions"]
     ]
-    require([s["id"] for s in songs] == ids, "proof membership order")
+    require([song["id"] for song in songs] == ids, "proof membership order")
     require(
-        [s["domain"] for s in proof["domain_schedule"]] == [d for d, _ in DOMAINS],
+        [entry["domain"] for entry in proof["domain_schedule"]] == [name for name, _ in DOMAINS],
         "proof domain order",
     )
     for schedule, (domain, count) in zip(proof["domain_schedule"], DOMAINS, strict=True):
@@ -190,7 +194,7 @@ def check_proof(result: dict[str, Any]) -> dict[str, float | int]:
     disagreements = 0
     for song, left, right, prediction in zip(songs, reference, candidate, predictions, strict=True):
         require(
-            len(left) == len(right) == 24 and all(math.isfinite(v) for v in left + right),
+            len(left) == len(right) == 24 and all(math.isfinite(logit) for logit in left + right),
             "finite 24-logit proof",
         )
         samples = song["samples"]
@@ -198,11 +202,18 @@ def check_proof(result: dict[str, Any]) -> dict[str, float | int]:
         windows, tail = divmod(samples, 288000)
         require(song["windows"] == windows + bool(tail), "proof complete-song contexts")
         require(math.isfinite(song["seconds"]) and song["seconds"] > 0, "proof B1 timing")
-        a, b = (max(range(24), key=vector.__getitem__) for vector in (left, right))
-        require(a == prediction, "selected metric prediction matches B1 proof")
-        disagreements += a != b
-        maximum = max(maximum, max(abs(a - b) for a, b in zip(left, right, strict=True)))
-    require(sum(s["windows"] for s in songs) == proof["windows"] == 5893, "proof window total")
+        reference_class, candidate_class = (
+            max(range(24), key=vector.__getitem__) for vector in (left, right)
+        )
+        require(reference_class == prediction, "selected metric prediction matches B1 proof")
+        disagreements += reference_class != candidate_class
+        maximum = max(
+            maximum,
+            max(abs(first - second) for first, second in zip(left, right, strict=True)),
+        )
+    require(
+        sum(song["windows"] for song in songs) == proof["windows"] == 5893, "proof window total"
+    )
     require(maximum == proof["max_absolute_logit_error"] <= LIMIT, "selected proof logit tolerance")
     require(
         disagreements == proof["argmax_disagreements"] == 0 and proof["passed"] is True,
@@ -211,14 +222,14 @@ def check_proof(result: dict[str, Any]) -> dict[str, float | int]:
     return {
         "max_absolute_error": maximum,
         "disagreements": disagreements,
-        "b1_seconds": sum(s["seconds"] for s in songs),
+        "b1_seconds": sum(song["seconds"] for song in songs),
     }
 
 
 def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
     """Validate recorded claims; this does not independently rescore reference labels."""
     config, result, controller, audit = (
-        documents[k + ".json"] for k in ("config", "result", "controller", "audit")
+        documents[name + ".json"] for name in ("config", "result", "controller", "audit")
     )
     require(
         documents["success.json"]["result_sha256"] == index["files"]["result.json"],
@@ -238,7 +249,8 @@ def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
         "complete fixed horizon",
     )
     require(
-        [e["update"] for e in result["history"]] == list(range(69, 8281, 69)), "selection cadence"
+        [event["update"] for event in result["history"]] == list(range(69, 8281, 69)),
+        "selection cadence",
     )
     best = result["best_metrics"]
     b16_seconds = []
@@ -251,16 +263,21 @@ def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
             event["selection_exact"] == float(exact) and event["selection_mirex"] == float(mirex),
             "exact-first selection values",
         )
-        contexts = [s for domain, _ in DOMAINS for s in event["validation"][domain]["per_song"]]
+        contexts = [
+            song for domain, _ in DOMAINS for song in event["validation"][domain]["per_song"]
+        ]
         require(
-            [(s["id"], s["samples"], s["windows"]) for s in contexts]
-            == [(s["id"], s["samples"], s["windows"]) for s in proof_songs],
+            [(song["id"], song["samples"], song["windows"]) for song in contexts]
+            == [(song["id"], song["samples"], song["windows"]) for song in proof_songs],
             "history/proof complete-song context identity",
         )
-        timings = [event["validation"][d]["elapsed_seconds"] for d, _ in DOMAINS]
-        require(all(math.isfinite(t) and t > 0 for t in timings), "finite B16 event timing")
+        timings = [event["validation"][domain]["elapsed_seconds"] for domain, _ in DOMAINS]
+        require(
+            all(math.isfinite(seconds) and seconds > 0 for seconds in timings),
+            "finite B16 event timing",
+        )
         b16_seconds.append(sum(timings))
-    selected = max(result["history"], key=lambda e: selection_key(e["metrics"]))
+    selected = max(result["history"], key=lambda event: selection_key(event["metrics"]))
     require(
         selected["update"] == result["best_update"] and selected["metrics"] == best,
         "earliest exact-first selected checkpoint",
@@ -273,14 +290,15 @@ def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
             "fma_exact_plus5": best["fmak"]["exact_correct"]
             >= baseline["fmak"]["exact_correct"] + 5,
             "bp_nondecline": all(
-                best["beatport"][k] >= baseline["beatport"][k]
-                for k in ("exact_correct", "symmetric_units10", "asymmetric_units10")
+                best["beatport"][field] >= baseline["beatport"][field]
+                for field in ("exact_correct", "symmetric_units10", "asymmetric_units10")
             ),
         }
     gate = result["continuation_gate"]
     require(gate["checks_against_each_control"] == checks, "control gate recomputation")
     require(
-        gate["continuation_earned"] == all(all(v.values()) for v in checks.values()),
+        gate["continuation_earned"]
+        == all(all(arm_checks.values()) for arm_checks in checks.values()),
         "continuation decision",
     )
     require(
@@ -302,17 +320,20 @@ def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
     )
     require(
         len(audit["failures"]) == 2
-        and all(not f["exists"] and not f["symlink"] for f in audit["failures"].values()),
+        and all(
+            not failure["exists"] and not failure["symlink"]
+            for failure in audit["failures"].values()
+        ),
         "independent absence of both failure artifacts",
     )
     require(
         len(audit["original_processes"]) == 2
-        and all(v is None for v in audit["original_processes"].values()),
+        and all(process is None for process in audit["original_processes"].values()),
         "original job retirement",
     )
-    protected = {r["pid"]: r for r in audit["protected"]}
+    protected = {record["pid"]: record for record in audit["protected"]}
     require(
-        set(protected) == {p["pid"] for p in config["protected_starts"]},
+        set(protected) == {start["pid"] for start in config["protected_starts"]},
         "protected process inventory",
     )
     for expected in config["protected_starts"]:
@@ -365,15 +386,20 @@ def verify(documents: dict[str, Any], index: dict[str, Any]) -> dict[str, Any]:
         "control_checks": checks,
         "metrics": {
             "teacher": best,
-            **{k: v["best_metrics"] for k, v in documents["controls"].items()},
+            **{arm: control["best_metrics"] for arm, control in documents["controls"].items()},
         },
         "history": [
             {
-                "update": e["update"],
-                "train_ce": e["train_ce"],
-                **{d: {k: e["metrics"][d][k] for k in ("exact", "mirex")} for d, _ in DOMAINS},
+                "update": event["update"],
+                "train_ce": event["train_ce"],
+                **{
+                    domain: {
+                        metric: event["metrics"][domain][metric] for metric in ("exact", "mirex")
+                    }
+                    for domain, _ in DOMAINS
+                },
             }
-            for e in result["history"]
+            for event in result["history"]
         ],
         "resources": {
             **resources,
@@ -406,7 +432,9 @@ def plot(report: dict[str, Any], directory: Path) -> None:
         }
     )
     directory.mkdir(parents=True, exist_ok=True)
-    blue, orange, gray = "#2563eb", "#c2410c", "#64748b"
+    blue = "#2563eb"
+    orange = "#c2410c"
+    gray = "#64748b"
 
     def save(figure: Figure, name: str, caption: str) -> None:
         figure.text(0.06, 0.035, caption, fontsize=9, color="#475569")
@@ -424,12 +452,12 @@ def plot(report: dict[str, Any], directory: Path) -> None:
         plt.close(figure)
 
     history = report["history"]
-    updates = [e["update"] for e in history]
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.6))
-    fig.suptitle(
+    updates = [event["update"] for event in history]
+    figure, axes = plt.subplots(1, 3, figsize=(13, 4.6))
+    figure.suptitle(
         "Full MusicFM fit: early selection, no continuation earned", x=0.06, ha="left", fontsize=16
     )
-    axes[0].plot(updates, [e["train_ce"] for e in history], color=gray)
+    axes[0].plot(updates, [event["train_ce"] for event in history], color=gray)
     axes[0].set(title="Training cross-entropy", ylabel="Mean across preceding 69 updates")
     for axis, metric, title in zip(
         axes[1:], ("exact", "mirex"), ("Exact accuracy", "Symmetric MIREX"), strict=True
@@ -438,7 +466,12 @@ def plot(report: dict[str, Any], directory: Path) -> None:
             ("beatport", "Beatport · 126", blue),
             ("fmak", "FMA · 250", orange),
         ):
-            axis.plot(updates, [100 * e[domain][metric] for e in history], label=label, color=color)
+            axis.plot(
+                updates,
+                [100 * event[domain][metric] for event in history],
+                label=label,
+                color=color,
+            )
         axis.set(title=title, ylabel="Percent")
         axis.legend(frameon=False, fontsize=9, loc="lower right")
     for axis in axes:
@@ -446,26 +479,26 @@ def plot(report: dict[str, Any], directory: Path) -> None:
         axis.set_xlabel("Optimizer update")
         axis.grid(axis="y", alpha=0.15)
     save(
-        fig,
+        figure,
         "teacher-learning",
         "120 recorded selection events · dashed line: selected update 828 / event 12 · full horizon 8,280 updates",
     )
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.6))
-    fig.suptitle(
+    figure, axes = plt.subplots(1, 2, figsize=(12, 4.6))
+    figure.suptitle(
         "Selected teacher trails both matched K10 controls", x=0.06, ha="left", fontsize=16
     )
     arms = ("restricted", "expanded", "teacher")
     names = ("K10 restricted", "K10 expanded", "MusicFM selected")
     for axis, (domain, count) in zip(axes, DOMAINS, strict=True):
-        values = [100 * report["metrics"][a][domain]["exact"] for a in arms]
+        values = [100 * report["metrics"][arm][domain]["exact"] for arm in arms]
         axis.barh(names, values, color=(gray, blue, orange), height=0.55)
-        for y, (arm, value) in enumerate(zip(arms, values, strict=True)):
-            n = report["metrics"][arm][domain]["exact_correct"]
+        for row, (arm, value) in enumerate(zip(arms, values, strict=True)):
+            correct = report["metrics"][arm][domain]["exact_correct"]
             axis.text(
                 value - 1.3,
-                y,
-                f"{n}/{count} · {value:.2f}%",
+                row,
+                f"{correct}/{count} · {value:.2f}%",
                 va="center",
                 ha="right",
                 fontsize=9,
@@ -479,31 +512,32 @@ def plot(report: dict[str, Any], directory: Path) -> None:
             title="Beatport" if domain == "beatport" else "FMA",
         )
         axis.invert_yaxis()
-    fig.subplots_adjust(wspace=0.45)
+    figure.subplots_adjust(wspace=0.45)
     save(
-        fig,
+        figure,
         "teacher-controls",
         "Dashed: BP exact nondecline (89/126); FMA +5 versus each control (181/250). BP also requires both weighted scores.",
     )
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.6))
-    fig.suptitle(
+    figure, axes = plt.subplots(1, 3, figsize=(13, 4.6))
+    figure.suptitle(
         "Observed whole-job cost and recorded evaluation timings", x=0.06, ha="left", fontsize=16
     )
     resources = report["resources"]
-    hours = [resources[k] / 3600 for k in ("wall_seconds", "cpu_seconds")]
+    hours = [resources[field] / 3600 for field in ("wall_seconds", "cpu_seconds")]
     axes[0].barh(("Wall", "Owned CPU"), hours, color=(blue, gray))
-    for y, value in enumerate(hours):
-        axes[0].text(value + 0.15, y, f"{value:.2f} h", va="center")
+    for row, value in enumerate(hours):
+        axes[0].text(value + 0.15, row, f"{value:.2f} h", va="center")
     axes[0].set(xlim=(0, 12), xlabel="Hours", title="Guardian + worker scope")
     memories = [
-        resources[k] / 2**30 for k in ("rss_bytes", "cuda_allocated_bytes", "cuda_reserved_bytes")
+        resources[field] / 2**30
+        for field in ("rss_bytes", "cuda_allocated_bytes", "cuda_reserved_bytes")
     ]
     axes[1].barh(
         ("Host RSS", "CUDA allocated", "CUDA reserved"), memories, color=(gray, blue, orange)
     )
-    for y, value in enumerate(memories):
-        axes[1].text(value + 0.12, y, f"{value:.2f}", va="center", fontsize=9)
+    for row, value in enumerate(memories):
+        axes[1].text(value + 0.12, row, f"{value:.2f}", va="center", fontsize=9)
     axes[1].set(xlim=(0, 14), xlabel="GiB", title="Recorded peaks")
     axes[2].plot(updates, report["b16_event_seconds"], color=blue, lw=1.1)
     axes[2].axhline(
@@ -517,7 +551,7 @@ def plot(report: dict[str, Any], directory: Path) -> None:
     )
     axes[2].legend(frameon=False, fontsize=8, loc="lower right")
     save(
-        fig,
+        figure,
         "teacher-cost",
         "Contended server; no model-only or product CPU benchmark. B1 proof is a separate phase, not a paired speedup measurement.",
     )
@@ -531,7 +565,9 @@ def main() -> None:
     if args.plot:
         plot(report, STUDY / "figures")
     concise = {
-        k: v for k, v in report.items() if k not in ("history", "metrics", "b16_event_seconds")
+        key: value
+        for key, value in report.items()
+        if key not in ("history", "metrics", "b16_event_seconds")
     }
     concise["bn_diagnostic"] = verify_bn_budget(report)
     print(json.dumps(concise, indent=2, allow_nan=False))

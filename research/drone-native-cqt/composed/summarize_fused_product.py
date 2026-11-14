@@ -62,10 +62,10 @@ def summarize(root: Path = ROOT, run_root: Path | None = None) -> dict[str, Any]
             raise ValueError("Retained candidate differs from archived Python core")
         coordinates = [
             {"bin": index // 399, "frame": index % 399}
-            for index, (a, b) in enumerate(
+            for index, (control_bits, candidate_bits) in enumerate(
                 zip(struct.iter_unpack("<I", raw_control), struct.iter_unpack("<I", raw_candidate))
             )
-            if a != b
+            if control_bits != candidate_bits
         ]
         if coordinates != control["first_different_coordinates"]:
             raise ValueError("Original differing coordinates changed")
@@ -145,11 +145,11 @@ def summarize_goldens(root: Path = ROOT, run_root: Path | None = None) -> dict[s
             if hashlib.sha256(baseline).hexdigest() != case["archived_native_core_sha256"]:
                 raise ValueError("Golden original control differs")
             coordinates = [
-                {"bin": i // frames, "frame": i % frames}
-                for i, (a, b) in enumerate(
+                {"bin": element // frames, "frame": element % frames}
+                for element, (baseline_bits, candidate_bits) in enumerate(
                     zip(struct.iter_unpack("<I", baseline), struct.iter_unpack("<I", candidate))
                 )
-                if a != b
+                if baseline_bits != candidate_bits
             ]
             observed = case["baseline_python_comparison"]
             if (

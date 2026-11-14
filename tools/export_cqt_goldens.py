@@ -18,7 +18,7 @@ from pathlib import Path
 from types import FrameType, ModuleType
 from typing import Any, Literal
 
-import librosa.core.constantq as cq
+import librosa.core.constantq as constantq
 import numpy as np
 import soxr
 from numpy.typing import DTypeLike
@@ -28,7 +28,7 @@ from experiments.chunked import FEATURE_SPEC, LABEL_SCHEMA, cpu_session, sha256
 from tools.research.contracts import load_validation_tracks, select_performance_tracks
 from tools.research.measurements import runtime_environment
 
-SR = 22050
+SAMPLE_RATE = 22050
 HOP = 4096
 PUBLIC = (
     ("fmak:110544", "77bea21b8fc4e58323d5d48953b9ce4e6b2ec0c3452663fe0f2510a9ef2f18c9"),
@@ -61,8 +61,8 @@ def synthetic_cases() -> list[tuple[str, np.ndarray]]:
     impulse[[0, lengths[1] // 2, lengths[1] - 1]] = [0.8, -0.4, 0.6]
 
     def tones(length: int, frequencies: list[float]) -> np.ndarray:
-        t = np.arange(length, dtype=np.float64) / SR
-        return sum(0.2 * np.sin(2 * np.pi * frequency * t) for frequency in frequencies)
+        seconds = np.arange(length, dtype=np.float64) / SAMPLE_RATE
+        return sum(0.2 * np.sin(2 * np.pi * frequency * seconds) for frequency in frequencies)
 
     major = [130.8127826502993, 164.81377845643496, 195.99771799087463]
     minor = [110.0, 130.8127826502993, 164.81377845643496]
@@ -88,7 +88,7 @@ def pcm16_wav(path: Path, samples: np.ndarray) -> None:
     with wave.open(str(path), "wb") as writer:
         writer.setnchannels(1)
         writer.setsampwidth(2)
-        writer.setframerate(SR)
+        writer.setframerate(SAMPLE_RATE)
         writer.writeframes(quantized.tobytes())
 
 
@@ -149,11 +149,11 @@ class Trace:
         setattr(owner, name, replacement)
 
     def __enter__(self) -> Trace:
-        original_filter = getattr(cq, "__vqt_filter_fft")
-        original_response = getattr(cq, "__cqt_response")
-        original_stft = cq.stft
-        original_resample = cq.audio.resample
-        original_lengths = cq.filters.wavelet_lengths
+        original_filter = getattr(constantq, "__vqt_filter_fft")
+        original_response = getattr(constantq, "__cqt_response")
+        original_stft = constantq.stft
+        original_resample = constantq.audio.resample
+        original_lengths = constantq.filters.wavelet_lengths
 
         def filter_call(
             sr: float,
@@ -287,11 +287,11 @@ class Trace:
                 )
             return output
 
-        self.patch(cq, "__vqt_filter_fft", filter_call)
-        self.patch(cq, "__cqt_response", response_call)
-        self.patch(cq, "stft", stft_call)
-        self.patch(cq.audio, "resample", resample_call)
-        self.patch(cq.filters, "wavelet_lengths", length_call)
+        self.patch(constantq, "__vqt_filter_fft", filter_call)
+        self.patch(constantq, "__cqt_response", response_call)
+        self.patch(constantq, "stft", stft_call)
+        self.patch(constantq.audio, "resample", resample_call)
+        self.patch(constantq.filters, "wavelet_lengths", length_call)
         return self
 
     def __exit__(self, *exception: object) -> None:
@@ -304,12 +304,12 @@ def source_identity(features: ModuleType) -> dict[str, Any]:
         "features": features.cqt,
         "decode": features.decode_mp3,
         "read_wav": features.read_wav_mono,
-        "cqt": cq.cqt,
-        "vqt": cq.vqt,
-        "filter_fft": getattr(cq, "__vqt_filter_fft"),
-        "response": getattr(cq, "__cqt_response"),
-        "stft": cq.stft,
-        "resample": cq.audio.resample,
+        "cqt": constantq.cqt,
+        "vqt": constantq.vqt,
+        "filter_fft": getattr(constantq, "__vqt_filter_fft"),
+        "response": getattr(constantq, "__cqt_response"),
+        "stft": constantq.stft,
+        "resample": constantq.audio.resample,
         "soxr_resample": soxr.resample,
     }
     return {
@@ -333,7 +333,8 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
     sources = source_identity(feature_source)
     tracks = load_validation_tracks(args.data_manifest)
     selection = sorted(
-        select_performance_tracks(tracks, args.selection), key=lambda t: (t.frames, t.id)
+        select_performance_tracks(tracks, args.selection),
+        key=lambda track: (track.frames, track.id),
     )
     chosen = [selection[index] for index in (0, 10, 19)]
     if tuple((track.id, track.sha256) for track in chosen) != PUBLIC:
@@ -349,7 +350,7 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
         complete=False,
         feature_spec=FEATURE_SPEC,
         label_schema=LABEL_SCHEMA,
-        sample_rate=SR,
+        sample_rate=SAMPLE_RATE,
         hop=HOP,
         bins=208,
         core_slice=[8, 200],
@@ -386,7 +387,7 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
         decoded = args.output / f"{name}.decoded.wav"
         feature_source.decode_mp3(path, decoded)
         pcm, rate = feature_source.read_wav_mono(decoded)
-        pcm = feature_source.resample_linear(pcm, rate, SR)
+        pcm = feature_source.resample_linear(pcm, rate, SAMPLE_RATE)
         decoded.unlink()
         with Trace(args.output, name, public) as trace:
             padded_float32 = feature_source.cqt(pcm)
@@ -412,7 +413,7 @@ def export(args: argparse.Namespace) -> dict[str, Any]:
         manifest["cases"].append(case)
         manifest["elapsed_seconds"] = time.monotonic() - started
         write_json(args.output / "manifest.json", manifest)
-        size = sum(p.stat().st_size for p in args.output.rglob("*") if p.is_file())
+        size = sum(path.stat().st_size for path in args.output.rglob("*") if path.is_file())
         if size > 2 * 1024**3:
             raise RuntimeError("Golden storage budget exceeded")
         print(f"Exported {name}: {core.shape[-1]}frames, {size}bytes", flush=True)
@@ -454,7 +455,7 @@ def main() -> None:
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.setitimer(signal.ITIMER_PROF, 0)
-    print(json.dumps({k: v for k, v in result.items() if k != "cases"}, indent=2))
+    print(json.dumps({key: value for key, value in result.items() if key != "cases"}, indent=2))
 
 
 if __name__ == "__main__":

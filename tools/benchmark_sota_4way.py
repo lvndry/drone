@@ -53,15 +53,15 @@ def norm_key(text: str) -> int | None:
     """'D:min', 'C minor', 'D# minor | E major', 'Eb: maj' -> class id (first key)."""
     if text is None:
         return None
-    t = str(text).strip().strip('"').split("|")[0].strip()
-    if not t:
+    label = str(text).strip().strip('"').split("|")[0].strip()
+    if not label:
         return None
-    if ":" in t:
-        tonic, mode = t.split(":", 1)
+    if ":" in label:
+        tonic, mode = label.split(":", 1)
     else:
-        parts0 = t.split()
-        tonic = parts0[0] if parts0 else ""
-        mode = parts0[1] if len(parts0) > 1 else "maj"
+        words = label.split()
+        tonic = words[0] if words else ""
+        mode = words[1] if len(words) > 1 else "maj"
     tonic = tonic.strip()
     mode = mode.strip().lower()
     modes = {"maj": "major", "major": "major", "min": "minor", "minor": "minor"}
@@ -76,7 +76,7 @@ def norm_key(text: str) -> int | None:
 
 def ffprobe_duration(path: Path) -> float:
     try:
-        out = subprocess.check_output(
+        output = subprocess.check_output(
             [
                 "ffprobe",
                 "-v",
@@ -89,12 +89,12 @@ def ffprobe_duration(path: Path) -> float:
             ],
             stderr=subprocess.DEVNULL,
         )
-        return float(out.strip() or 0.0)
+        return float(output.strip() or 0.0)
     except Exception:
         return 0.0
 
 
-def ff_decode(src: Path, out: Path) -> None:
+def ff_decode(source: Path, output: Path) -> None:
     """The ONE identical decode used for every detector."""
     subprocess.run(
         [
@@ -103,14 +103,14 @@ def ff_decode(src: Path, out: Path) -> None:
             "error",
             "-y",
             "-i",
-            str(src),
+            str(source),
             "-ac",
             "1",
             "-ar",
             "44100",
             "-c:a",
             "pcm_s16le",
-            str(out),
+            str(output),
         ],
         check=True,
     )
@@ -121,30 +121,30 @@ def ff_decode(src: Path, out: Path) -> None:
 
 
 def gs_bucket(tag: str) -> str:
-    g = (tag or "").strip().lower()
-    if not g:
+    genre = (tag or "").strip().lower()
+    if not genre:
         return "unknown"
-    if "house" in g:
+    if "house" in genre:
         return "house"
-    if "techno" in g or "minimal" in g or "minimale" in g:
+    if "techno" in genre or "minimal" in genre or "minimale" in genre:
         return "techno"
-    if "trance" in g:
+    if "trance" in genre:
         return "trance"
-    if "hip-hop" in g or "hiphop" in g or "glitch-hop" in g:
+    if "hip-hop" in genre or "hiphop" in genre or "glitch-hop" in genre:
         return "hip-hop"
-    if "pop" in g:
+    if "pop" in genre:
         return "pop"
-    if "dubstep" in g:
+    if "dubstep" in genre:
         return "dubstep"
-    if "drum-and-bass" in g:
+    if "drum-and-bass" in genre:
         return "dubstep"
-    if "break" in g:
+    if "break" in genre:
         return "breaks"
-    if "electronica" in g or "chill" in g:
+    if "electronica" in genre or "chill" in genre:
         return "electronica"
-    if "funk" in g:
+    if "funk" in genre:
         return "funk"
-    if "hard" in g:
+    if "hard" in genre:
         return "hard"
     return "other"
 
@@ -173,25 +173,27 @@ def build_panel(swd_dir: Path, gs_dir: Path, n_gs: int) -> list[dict[str, Any]]:
             line = line.strip()
             if not line:
                 continue
-            parts = [p.strip().strip('"') for p in line.split(";")]
+            parts = [part.strip().strip('"') for part in line.split(";")]
             if len(parts) < 3:
                 continue
-            workid, perf, key = parts[0], parts[1], parts[2]
-            wav = swd_wav / f"{workid}_{perf}.wav"
+            work_id = parts[0]
+            performance = parts[1]
+            key = parts[2]
+            wav = swd_wav / f"{work_id}_{performance}.wav"
             if not wav.is_file():
                 continue
-            cid = norm_key(key)
-            if cid is None:
+            class_id = norm_key(key)
+            if class_id is None:
                 continue
             panel.append(
                 {
-                    "track_id": f"swd-{workid}_{perf}",
+                    "track_id": f"swd-{work_id}_{performance}",
                     "source": "swd-v2.1",
                     "audio": str(wav),
                     "genre": "classical",
                     "bucket": "classical",
                     "ref_raw": key,
-                    "ref": cid,
+                    "ref": class_id,
                     "dev_contaminated": False,
                 }
             )
@@ -203,18 +205,18 @@ def build_panel(swd_dir: Path, gs_dir: Path, n_gs: int) -> list[dict[str, Any]]:
     gs_genre = gs_dir / "annotations" / "genre"
     rows: list[dict[str, Any]] = []
     if gs_key.is_dir():
-        for keyf in sorted(gs_key.iterdir()):
-            tid = keyf.name  # e.g. 1004923.LOFI.key
-            base = tid[:-4]  # 1004923.LOFI
+        for key_file in sorted(gs_key.iterdir()):
+            file_name = key_file.name  # e.g. 1004923.LOFI.key
+            base = file_name[:-4]  # 1004923.LOFI
             mp3 = gs_audio / f"{base}.mp3"
             if not mp3.is_file():
                 continue
-            keytext = keyf.read_text(errors="replace").strip()
-            cid = norm_key(keytext)
-            if cid is None:
+            key_text = key_file.read_text(errors="replace").strip()
+            class_id = norm_key(key_text)
+            if class_id is None:
                 continue
-            gfile = gs_genre / f"{base}.genre"
-            tag = gfile.read_text(errors="replace").strip() if gfile.is_file() else ""
+            genre_file = gs_genre / f"{base}.genre"
+            tag = genre_file.read_text(errors="replace").strip() if genre_file.is_file() else ""
             rows.append(
                 {
                     "track_id": f"gs-{base}",
@@ -222,8 +224,8 @@ def build_panel(swd_dir: Path, gs_dir: Path, n_gs: int) -> list[dict[str, Any]]:
                     "audio": str(mp3),
                     "genre_raw": tag,
                     "bucket": gs_bucket(tag),
-                    "ref_raw": keytext,
-                    "ref": cid,
+                    "ref_raw": key_text,
+                    "ref": class_id,
                     "dev_contaminated": True,
                     "tid_sort": base,
                 }
@@ -233,33 +235,33 @@ def build_panel(swd_dir: Path, gs_dir: Path, n_gs: int) -> list[dict[str, Any]]:
             f"warning: {gs_key} not found; GiantSteps part of the panel is empty", file=sys.stderr
         )
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for r in rows:
-        groups[r["bucket"]].append(r)
-    for g in groups:
-        groups[g].sort(key=lambda x: x["tid_sort"])
+    for row in rows:
+        groups[row["bucket"]].append(row)
+    for bucket in groups:
+        groups[bucket].sort(key=lambda track: track["tid_sort"])
     order = sorted(groups.keys())
-    idx = {g: 0 for g in groups}
+    next_position = {bucket: 0 for bucket in groups}
     picked: list[dict[str, Any]] = []
     while len(picked) < n_gs:
         progressed = False
-        for g in order:
+        for bucket in order:
             if len(picked) >= n_gs:
                 break
-            if idx[g] < len(groups[g]):
-                picked.append(groups[g][idx[g]])
-                idx[g] += 1
+            if next_position[bucket] < len(groups[bucket]):
+                picked.append(groups[bucket][next_position[bucket]])
+                next_position[bucket] += 1
                 progressed = True
         if not progressed:
             break
-    for r in picked:
-        r.pop("tid_sort", None)
-        panel.append(r)
+    for track in picked:
+        track.pop("tid_sort", None)
+        panel.append(track)
     if not panel:
         raise SystemExit(
             "Panel is empty: pass --swd-dir and --giantsteps-dir that contain the corpora"
         )
-    for r in panel:
-        r["duration"] = ffprobe_duration(Path(r["audio"]))
+    for track in panel:
+        track["duration"] = ffprobe_duration(Path(track["audio"]))
     return panel
 
 
@@ -321,7 +323,7 @@ def qualify_keyfinder(path: Path) -> dict[str, Any]:
     before = artifact(path)
     raw = subprocess.check_output([str(path), "--self-test"], text=True, timeout=30)
     rows = [keyfinder_result(line) for line in raw.splitlines()]
-    if [r["raw_enum"] for r in rows] != list(range(25)) or artifact(path) != before:
+    if [row["raw_enum"] for row in rows] != list(range(25)) or artifact(path) != before:
         raise ValueError("KeyFinder self-test must cover all25 enums with stable binary bytes")
     source = Path(__file__).parent / "native/keyfinder_reference.cpp"
     return dict(
@@ -370,20 +372,21 @@ def validate_wav(path: Path) -> None:
 
 
 def cached_decode(
-    src: Path, directory: Path, contract: dict[str, Any]
+    source: Path, directory: Path, contract: dict[str, Any]
 ) -> tuple[Path, dict[str, Any]]:
     """Only content/policy-bound, complete WAVs can enter the shared decode cache."""
-    source_sha = file_sha(src)
+    source_sha = file_sha(source)
     identity = dict(source_sha256=source_sha, decode_contract=contract)
     digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
-    wav, receipt = directory / f"{digest}.wav", directory / f"{digest}.json"
+    wav = directory / f"{digest}.wav"
+    receipt = directory / f"{digest}.json"
     if wav.is_file() and receipt.is_file():
         try:
             previous = json.loads(receipt.read_text())
             if previous["identity"] == identity and previous["wav_sha256"] == file_sha(wav):
                 validate_wav(wav)
                 return wav, dict(
-                    source=artifact(src),
+                    source=artifact(source),
                     wav=artifact(wav),
                     cache_hit=True,
                     decode_identity_sha256=digest,
@@ -393,52 +396,52 @@ def cached_decode(
     directory.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=directory) as scratch:
         pending = Path(scratch) / "decode.wav"
-        ff_decode(src, pending)
+        ff_decode(source, pending)
         validate_wav(pending)
-        if file_sha(src) != source_sha:
+        if file_sha(source) != source_sha:
             raise ValueError("Source audio changed during decode")
         metadata = Path(scratch) / "receipt.json"
         metadata.write_text(json.dumps(dict(identity=identity, wav_sha256=file_sha(pending))))
         os.replace(pending, wav)
         os.replace(metadata, receipt)
     return wav, dict(
-        source=artifact(src), wav=artifact(wav), cache_hit=False, decode_identity_sha256=digest
+        source=artifact(source), wav=artifact(wav), cache_hit=False, decode_identity_sha256=digest
     )
 
 
 def aggregate_rows(rows: list[dict[str, Any]], name: str) -> dict[str, Any]:
     """Headline scores retain the complete panel; errors and abstentions earn zero."""
-    valid = [(r[f"{name}_pred"], r["ref"]) for r in rows if r[f"{name}_pred"] is not None]
+    valid = [(row[f"{name}_pred"], row["ref"]) for row in rows if row[f"{name}_pred"] is not None]
     statuses = [
-        r.get(
+        row.get(
             f"{name}_status",
             "error"
-            if r[f"{name}_rel"] == "error"
+            if row[f"{name}_rel"] == "error"
             else "abstain"
-            if r[f"{name}_pred"] is None
+            if row[f"{name}_pred"] is None
             else "key",
         )
-        for r in rows
+        for row in rows
     ]
     if any(status not in {"key", "error", "abstain"} for status in statuses):
         raise ValueError("Unknown detector status")
     for row, status in zip(rows, statuses, strict=True):
         if (row[f"{name}_pred"] is None) != (status != "key"):
             raise ValueError("Detector status/prediction mismatch")
-    counts = dict(score_breakdown([p for p, _ in valid], [q for _, q in valid])) if valid else {}
-    valid_exact, valid_mirex = (
-        score_mirex([p for p, _ in valid], [q for _, q in valid]) if valid else (0.0, 0.0)
-    )
-    n = len(rows)
+    predictions = [prediction for prediction, _ in valid]
+    references = [reference for _, reference in valid]
+    counts = dict(score_breakdown(predictions, references)) if valid else {}
+    valid_exact, valid_mirex = score_mirex(predictions, references) if valid else (0.0, 0.0)
+    total = len(rows)
     return dict(
-        n=n,
-        n_total=n,
+        n=total,
+        n_total=total,
         n_valid=len(valid),
         n_error=statuses.count("error"),
         n_abstain=statuses.count("abstain"),
         counts=counts,
-        exact=round(valid_exact * len(valid) / n, 4) if n else 0.0,
-        mirex=round(valid_mirex * len(valid) / n, 4) if n else 0.0,
+        exact=round(valid_exact * len(valid) / total, 4) if total else 0.0,
+        mirex=round(valid_mirex * len(valid) / total, 4) if total else 0.0,
     )
 
 
@@ -520,11 +523,11 @@ class Detectors:
     def madmom(self, wav: Path) -> int | None:
         if self.mm_proc is None:
             raise RuntimeError("madmom CNN unavailable")
-        probs = np.asarray(self.mm_proc(str(wav)))
-        if probs.shape != (1, 24) or not np.isfinite(probs).all():
+        probabilities = np.asarray(self.mm_proc(str(wav)))
+        if probabilities.shape != (1, 24) or not np.isfinite(probabilities).all():
             raise ValueError("Expected finite madmom CNN output shape(1,24)")
-        idx = int(np.argmax(probs[0]))
-        tonic, mode = self.mm_labels[idx].split()
+        best_class = int(np.argmax(probabilities[0]))
+        tonic, mode = self.mm_labels[best_class].split()
         return encode_key(FLATS.get(tonic, tonic), mode)
 
 
@@ -548,34 +551,36 @@ def musicfm_status() -> dict[str, Any]:
 def summarize(
     rows: list[dict[str, Any]],
     name: str,
-    ms: Sequence[float],
+    latencies_ms: Sequence[float],
 ) -> dict[str, Any]:
-    out = aggregate_rows(rows, name)
-    out.update(
-        median_ms=round(statistics.median(ms), 1) if ms else None,
-        p95_ms=round(float(np.percentile(ms, 95)), 1) if ms else None,
-        total_s=round(sum(ms) / 1000, 1),
+    summary = aggregate_rows(rows, name)
+    summary.update(
+        median_ms=round(statistics.median(latencies_ms), 1) if latencies_ms else None,
+        p95_ms=round(float(np.percentile(latencies_ms, 95)), 1) if latencies_ms else None,
+        total_s=round(sum(latencies_ms) / 1000, 1),
     )
-    out["by_genre"] = {
-        g: aggregate_rows([r for r in rows if r["bucket"] == g], name)
-        for g in sorted({r["bucket"] for r in rows})
+    summary["by_genre"] = {
+        genre: aggregate_rows([row for row in rows if row["bucket"] == genre], name)
+        for genre in sorted({row["bucket"] for row in rows})
     }
-    out["by_duration"] = {
-        b: aggregate_rows([r for r in rows if duration_bucket(r["duration"]) == b], name)
-        for b in ("<3m", "3-5m", "5-8m", "8m+")
-        if any(duration_bucket(r["duration"]) == b for r in rows)
+    summary["by_duration"] = {
+        bucket: aggregate_rows(
+            [row for row in rows if duration_bucket(row["duration"]) == bucket], name
+        )
+        for bucket in ("<3m", "3-5m", "5-8m", "8m+")
+        if any(duration_bucket(row["duration"]) == bucket for row in rows)
     }
-    return out
+    return summary
 
 
-def track_record(t: dict[str, Any]) -> dict[str, Any]:
+def track_record(track: dict[str, Any]) -> dict[str, Any]:
     return {
         **{
-            k: t[k]
-            for k in ("track_id", "source", "ref_raw", "ref", "duration", "dev_contaminated")
+            key: track[key]
+            for key in ("track_id", "source", "ref_raw", "ref", "duration", "dev_contaminated")
         },
-        "genre": t.get("genre", t.get("genre_raw", "")),
-        "bucket": t["bucket"],
+        "genre": track.get("genre", track.get("genre_raw", "")),
+        "bucket": track["bucket"],
     }
 
 
@@ -626,41 +631,42 @@ def main() -> None:
     out_dir = args.out_dir or args.work_dir / "results"
     decode_dir = args.work_dir / "decode"
     cache_dir = args.work_dir / "cache"
-    for d in (out_dir, decode_dir, cache_dir):
-        d.mkdir(parents=True, exist_ok=True)
+    for directory in (out_dir, decode_dir, cache_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
-    t0 = time.time()
+    started = time.time()
     panel = build_panel(args.swd_dir, args.giantsteps_dir, args.n_gs)
     if args.smoke:
-        swd = [t for t in panel if t["source"] == "swd-v2.1"]
-        gs = [t for t in panel if t["source"] == "giantsteps"]
-        panel = swd[:2] + gs[:2]
+        swd = [track for track in panel if track["source"] == "swd-v2.1"]
+        giantsteps = [track for track in panel if track["source"] == "giantsteps"]
+        panel = swd[:2] + giantsteps[:2]
     if args.limit:
         panel = panel[: args.limit]
     print(
         f"panel: {len(panel)} tracks "
-        f"(swd={sum(t['source'] == 'swd-v2.1' for t in panel)}, "
-        f"gs={sum(t['source'] == 'giantsteps' for t in panel)})",
+        f"(swd={sum(track['source'] == 'swd-v2.1' for track in panel)}, "
+        f"gs={sum(track['source'] == 'giantsteps' for track in panel)})",
         flush=True,
     )
     manifest: dict[str, Any] = {
         "n": len(panel),
         "source_counts": {
-            s: sum(1 for t in panel if t["source"] == s) for s in ("swd-v2.1", "giantsteps")
+            source: sum(1 for track in panel if track["source"] == source)
+            for source in ("swd-v2.1", "giantsteps")
         },
         "bucket_counts": {
-            b: sum(1 for t in panel if t["bucket"] == b)
-            for b in sorted({t["bucket"] for t in panel})
+            bucket: sum(1 for track in panel if track["bucket"] == bucket)
+            for bucket in sorted({track["bucket"] for track in panel})
         },
         "duration_buckets": {
-            b: sum(1 for t in panel if duration_bucket(t["duration"]) == b)
-            for b in ("<3m", "3-5m", "5-8m", "8m+")
+            bucket: sum(1 for track in panel if duration_bucket(track["duration"]) == bucket)
+            for bucket in ("<3m", "3-5m", "5-8m", "8m+")
         },
-        "tracks": [track_record(t) for t in panel],
+        "tracks": [track_record(track) for track in panel],
     }
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
     print(
-        f"manifest written ({len(panel)} tracks), building panel took {time.time() - t0:.1f}s",
+        f"manifest written ({len(panel)} tracks), building panel took {time.time() - started:.1f}s",
         flush=True,
     )
 
@@ -688,41 +694,43 @@ def main() -> None:
     ms_by_detector: dict[str, list[float]] = {name: [] for name, _ in active}
     errors: dict[str, list[str]] = defaultdict(list)
     decode_policy = decode_contract()
-    for i, t in enumerate(panel):
-        wav, decode_receipt = cached_decode(Path(t["audio"]), decode_dir, decode_policy)
-        rec = track_record(t)
-        rec["decode_artifact"] = decode_receipt
-        for name, fn in active:
-            t_s = time.perf_counter()
+    for index, track in enumerate(panel):
+        wav, decode_receipt = cached_decode(Path(track["audio"]), decode_dir, decode_policy)
+        record = track_record(track)
+        record["decode_artifact"] = decode_receipt
+        for name, detect in active:
+            detection_started = time.perf_counter()
             status = "key"
             try:
-                pred = fn(wav)
-                if pred is None:
+                prediction = detect(wav)
+                if prediction is None:
                     status = "abstain"
-            except Exception as e:
-                pred = None
+            except Exception as error:
+                prediction = None
                 status = "error"
-                errors[f"{name}:{t['track_id']}"].append(f"{type(e).__name__}: {e}")
-            ms = 1000 * (time.perf_counter() - t_s)
-            ms_by_detector[name].append(ms)
-            rec[f"{name}_pred"] = pred
-            rec[f"{name}_status"] = status
-            rec[f"{name}_ms"] = round(ms, 1)
-            if pred is None:
-                rec[f"{name}_rel"] = status
-                rec[f"{name}_score"] = 0.0
+                errors[f"{name}:{track['track_id']}"].append(f"{type(error).__name__}: {error}")
+            elapsed_ms = 1000 * (time.perf_counter() - detection_started)
+            ms_by_detector[name].append(elapsed_ms)
+            record[f"{name}_pred"] = prediction
+            record[f"{name}_status"] = status
+            record[f"{name}_ms"] = round(elapsed_ms, 1)
+            if prediction is None:
+                record[f"{name}_rel"] = status
+                record[f"{name}_score"] = 0.0
             else:
-                bd = score_breakdown([pred], [t["ref"]])
-                rec[f"{name}_rel"] = [k for k, v in bd.items() if v][0]
-                rec[f"{name}_score"] = score_mirex([pred], [t["ref"]])[1]
-        rec["musicfm_pred"] = None
-        rec["musicfm_score"] = None
-        rows.append(rec)
-        if (i + 1) % 5 == 0 or args.smoke:
+                breakdown = score_breakdown([prediction], [track["ref"]])
+                record[f"{name}_rel"] = [
+                    relation for relation, matched in breakdown.items() if matched
+                ][0]
+                record[f"{name}_score"] = score_mirex([prediction], [track["ref"]])[1]
+        record["musicfm_pred"] = None
+        record["musicfm_score"] = None
+        rows.append(record)
+        if (index + 1) % 5 == 0 or args.smoke:
             print(
-                f"[{i + 1}/{len(panel)}] {t['track_id']} ref={t['ref']} "
-                + " ".join(f"{name}={rec[f'{name}_pred']}" for name, _ in active)
-                + f"  ({time.time() - t0:.0f}s elapsed)",
+                f"[{index + 1}/{len(panel)}] {track['track_id']} ref={track['ref']} "
+                + " ".join(f"{name}={record[f'{name}_pred']}" for name, _ in active)
+                + f"  ({time.time() - started:.0f}s elapsed)",
                 flush=True,
             )
 
@@ -733,7 +741,7 @@ def main() -> None:
             "source_counts": manifest["source_counts"],
             "bucket_counts": manifest["bucket_counts"],
             "duration_buckets": manifest["duration_buckets"],
-            "median_duration_s": round(statistics.median([r["duration"] for r in rows]), 1),
+            "median_duration_s": round(statistics.median([row["duration"] for row in rows]), 1),
         },
         "decode": {
             "command": "ffmpeg -ac 1 -ar 44100 -c:a pcm_s16le (once per track, shared by all detectors)",
@@ -753,12 +761,14 @@ def main() -> None:
         },
         "detectors": {},
         "provenance": {"harness": artifact(Path(__file__)), "torch_version": torch.__version__},
-        "track_artifacts": [{"track_id": r["track_id"], **r["decode_artifact"]} for r in rows],
+        "track_artifacts": [
+            {"track_id": row["track_id"], **row["decode_artifact"]} for row in rows
+        ],
         "detectors_extra": {
             "madmom_mode": detectors.madmom_mode,
             "provenance": detectors.provenance,
             "per_detector_errors": dict(errors) if errors else "none",
-            "wall_clock_total_s": round(time.time() - t0, 1),
+            "wall_clock_total_s": round(time.time() - started, 1),
         },
     }
     summary["detectors"]["drone-v1"] = (
@@ -786,7 +796,7 @@ def main() -> None:
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
     (out_dir / "bench.json").write_text(json.dumps(summary, indent=2))
 
-    cols = [
+    columns = [
         "track_id",
         "source",
         "genre",
@@ -813,12 +823,12 @@ def main() -> None:
         "musicfm_pred",
         "musicfm_score",
     ]
-    with open(out_dir / "bench.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols)
-        w.writeheader()
-        for r in rows:
-            w.writerow({k: r.get(k, "") for k in cols})
-    print(f"DONE in {time.time() - t0:.0f}s. results -> {out_dir}", flush=True)
+    with open(out_dir / "bench.csv", "w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=columns)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({column: row.get(column, "") for column in columns})
+    print(f"DONE in {time.time() - started:.0f}s. results -> {out_dir}", flush=True)
 
 
 if __name__ == "__main__":

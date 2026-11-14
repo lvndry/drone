@@ -9,20 +9,32 @@ applications can use Drone independently.
 The bundled artifacts and their provenance are documented in
 [weights/README.md](weights/README.md).
 
-**Status:** the K10 (MIREX 2026) architecture is trained and confirmed. The
-`drone-v1` weights (109,128 parameters) score a **73.58% MIREX three-seed mean**
-on the held-out GiantSteps 604 (66.8% exact), versus 69.35% for the native
-libkeyfinder reference on the same files. Pre-K10 features and unversioned
-checkpoints are incompatible and must be regenerated. The full training story
-is in [docs/training.md](docs/training.md).
+## Current state
 
-Inference processes the full-duration audio: `Predictor.predict` extracts full-length
-features and the CNN pools across time. The current release was trained on
-approximately two-minute EDM previews. Reliable accuracy on 5–10 minute
-house/deep-house/melodic-house tracks has not yet been established; the
-[latest matched-data study](experiments/studies/k10-v2-pilot/REPORT.md) records
-the full-song acceptance gap. Softmax outputs are uncalibrated model scores,
-not validated probabilities of a correct key.
+| Question | Answer |
+|---|---|
+| Released model | `drone-v1`: our own training of the published K10 architecture (MIREX 2026, MIT-licensed `jhurliman/jams`), a three-block CNN that pools over time only. |
+| Size | 109,128 parameters. Runs on CPU. |
+| Shipped checkpoint accuracy | Seed 13: **74.8% symmetric MIREX / 68.5% exact** on GiantSteps (604 two-minute EDM previews, 24 major/minor key labels). See [weights/README.md](weights/README.md). |
+| Recipe accuracy | The same recipe at seeds 13, 37 and 73 averages **73.58% MIREX / 66.8% exact**. This is the recipe mean, not the score of the shipped checkpoint. |
+| Baseline | libkeyfinder 2.2.8 as run inside Euphoria scores 69.35% MIREX / 60.60% exact on the same 604 files. |
+| Training | 1,363 Beatport EDM previews (1,237 fitting, 126 validation), 320-frame crops, +/-4 semitone shifts, AdamW, 120 epochs. Details in [docs/training.md](docs/training.md). |
+| Research index | [experiments/README.md](experiments/README.md) lists every study with its question, result and decision. |
+
+GiantSteps was used during development, so it is not a held-out test for this
+model. On a separate 93-recording reference panel (48 Winterreise performances
+and 45 GiantSteps tracks), madmom's KEY_CNN agrees exactly on 72/93 recordings,
+Drone on 63/93 and corrected libkeyfinder on 57/93: **madmom leads on that
+panel** ([reference comparison](experiments/studies/key-sota-4way/REPORT.md)).
+
+The research goal is a compact CPU model that beats commercial DJ key detection
+on full-length club music; 90% exact accuracy is an aspiration, not a measured
+result. The release was trained on roughly two-minute EDM previews, and accuracy
+on 5 to 10 minute house, deep-house and melodic-house tracks has not been
+established (see the [matched-data pilot](experiments/studies/k10-v2-pilot/REPORT.md)).
+Softmax outputs are uncalibrated model scores, not validated probabilities of a
+correct key. Features and checkpoints from before K10 are incompatible and must
+be regenerated.
 
 ## Setup
 
@@ -62,26 +74,18 @@ The network is a three-block CNN (16/32/64 filters) whose head pools over time
 only, leaving a 24x1 readout so absolute frequency position reaches the final
 layer. At width 1.0 it has 109,128 parameters; `--width` scales the channels
 for smaller or larger profiles, which must each be trained and evaluated
-independently.
-We adopted K10 (MIT, `jhurliman/jams`) rather than our own architecture after
-independently confirming K10's core insight — pooling over time only — beat our
-global-pooling control by ~22 MIREX; the full rationale is in the "Why K10"
-section of [docs/training.md](docs/training.md).
-
-We adopted the published K10 architecture and trained our own weights after the
-compact-model screen supported retaining absolute frequency position. The
-measured release recipe improved on the native reference, while remaining small
-enough for CPU deployment. See the "Why K10" section of
-[docs/training.md](docs/training.md) for the evidence and comparison limits.
+independently. We adopted K10 after our own controlled screen showed that
+pooling over time only beat a global-pooling control by about 22 MIREX points;
+the reasoning is in the "Why K10" section of [docs/training.md](docs/training.md).
 
 Training follows the K10 recipe: 320-frame crops, uniform +/-4 semitone shifts
 applied as exact feature re-slices with a transposed label, AdamW at 1e-3,
 cosine decay over 120 epochs, batch 32, plain cross-entropy. A fixed seeded
 stratified validation split selects checkpoints; changing the training seed
-leaves the split fixed. Label smoothing is available but off in the confirmed
-run. The training command does not score the held-out test set; ID/content
-overlap checks reject training/test leakage, and evaluation does not need
-training features.
+leaves the split fixed. Label smoothing is available but off in the released
+run. The training command does not score the test set; ID and content overlap
+checks reject training/test leakage, and evaluation does not need training
+features.
 
 Every run writes `run.json` with source hashes, Git revision, dependency-lock
 hash, data manifests, split IDs, configuration, per-epoch metrics, timing, and
@@ -98,11 +102,11 @@ explicit human key annotations mixed with the base training data. Euphoria's
 JSONL export is one compatible adapter, not Drone's core data source; other tools
 can produce the same portable format described in [DATA.md](DATA.md#personal-corrections).
 Drone does not automatically collect annotations, scan private libraries or upload
-user audio. Only explicitly supplied local files participate. No public-model or
-real-world correction improvement
-or GiantSteps nonregression is claimed; synthetic tests validate the pipeline only.
-Keep a copy of the starting checkpoint and compare the written report before using
-tuned weights. The commands do not replace bundled release weights.
+user audio. Only explicitly supplied local files participate. No improvement on
+real corrections and no GiantSteps nonregression is claimed; synthetic tests
+validate the pipeline only. Keep a copy of the starting checkpoint and compare
+the written report before using tuned weights. The commands do not replace
+bundled release weights.
 
 After preparing the base train/test data above, save the JSONL output of
 `euphoria corrections export` and run:
@@ -113,30 +117,30 @@ uv run --extra corrections train.py prepare-corrections \
 uv run train.py finetune weights/drone-v1.pt --device cpu --threads 4
 ```
 
-BLAKE3 is needed only for matching/hashing this optional adapter. Base inference,
-ordinary training, export and JSONL schema parsing do not require that dependency;
+BLAKE3 is needed only for matching and hashing in this optional adapter. Base
+inference, ordinary training, export and JSONL schema parsing do not require it;
 `uv sync --extra corrections` installs it. Existing helper and CLI names remain
-compatible. Matching uses Euphoria's BLAKE3 hash of every file byte, including tags; renamed
-or nested files still match. Tempo-only corrections are counted and skipped.
-A deterministic hash rule holds roughly one fifth of matching files out, and both
-parts must be nonempty. Stability applies to identical file bytes: retagging or
-re-encoding changes identity and can change the split. This does not establish
-artist, recording or near-duplicate independence.
+compatible. Matching uses Euphoria's BLAKE3 hash of every file byte, including
+tags, so renamed or nested files still match. Tempo-only corrections are counted
+and skipped. A deterministic hash rule holds roughly one fifth of matching files
+out, and both parts must be nonempty. The split is stable only for identical file
+bytes: retagging or re-encoding changes identity and can change the split. It
+does not establish artist, recording or near-duplicate independence.
 
 Fine-tuning defaults to 10 epochs, lr 1e-4, batch 32, eight correction examples per
 batch mixed with the remaining base data (the final partial batch may have a
-higher correction fraction). It keeps the last epoch, never selecting on either
-held-out score. Before any scoring or gradient update, known starting-checkpoint
-train/validation exposure and actual new fitting data must be disjoint from
-GiantSteps and correction-held-out identities/hashes. Known overlap fails clearly;
-no sample is reassigned. Missing historical checkpoint witnesses remain unknown,
-not proof that a set was unseen.
+higher correction fraction). It keeps the last epoch and never selects on either
+held-out score. Before any scoring or gradient update, the starting checkpoint's
+known train/validation exposure and the new fitting data must be disjoint from
+GiantSteps and the correction held-out set. Known overlap fails with an error;
+no sample is reassigned. Missing historical checkpoint records mean exposure is
+unknown, not that a set was unseen.
 
 Each fresh `data/runs/finetune-.../` directory contains `drone.pt` and
-`finetune.json`: configuration, inherited witness availability, per-epoch loss,
+`finetune.json`: configuration, inherited exposure records, per-epoch loss,
 starting/tuned scores and paired improved/worsened/unchanged MIREX credit counts
-on both sets. This fixed pre/post comparison is deliberate; do not repeatedly tune
-settings against the reported evaluation scores. See
+on both sets. This fixed before/after comparison is deliberate; do not repeatedly
+tune settings against the reported evaluation scores. See
 [the detailed workflow](docs/training.md#11-optional-annotation-fine-tuning)
 and [data limitations](DATA.md#personal-corrections).
 
@@ -146,8 +150,8 @@ Audio is decoded to mono 22.05 kHz PCM and transformed with a constant-Q
 transform (24 bins per octave, 208 bins from four semitones below C1, 4096-sample
 hop, log1p amplitude). The 192 core bins cover C1 through the top of the
 eighth octave; the 16 outer bins are the +/-4 semitone shift pad. A pitch shift
-is therefore an exact re-slice of this grid — no resampling, no interpolation
-error — and the same shift transposes the label.
+is therefore an exact re-slice of this grid (no resampling, no interpolation
+error), and the same shift transposes the label.
 
 Inference reads the full track at natural length; training crops 320 frames
 uniformly from each track. The model input is `(batch, 192, frames)`. Pitch
@@ -211,23 +215,13 @@ PyTorch, not the export extra.
 Benchmarks separate model loading, warm forward latency, cold decoding/features/
 forward time, and warm feature-cache time. They report parameter and artifact size,
 thread count, and hardware. Parent-process CPU timing excludes ffmpeg; it is not a
-whole-system CPU or energy measurement. No CPU latency/accuracy guarantee is claimed
-before measuring a trained artifact on representative deployment hardware.
+whole-system CPU or energy measurement. No CPU latency or accuracy guarantee is
+claimed before measuring a trained artifact on representative deployment hardware.
 
 ## Development
 
-See [research studies](experiments/README.md) for the problems, methods, measured
-results and decisions behind the models. Each result report includes its figures,
-raw evidence and reproduction instructions.
-
-## Key detector reference comparison
-
-The [reference comparison](experiments/studies/key-sota-4way/REPORT.md) covers
-48 Schubert Winterreise recordings and 45 GiantSteps development-exposed tracks.
-It is descriptive evidence, not an independent SOTA ranking. The original
-libkeyfinder wrapper result is invalid and preserved; a fresh corrected
-comparator now accompanies unchanged Drone/madmom predictions on byte-identical
-canonical WAVs. This corrects the comparator, not Drone accuracy. MusicFM was not run. See the report for corpus-level figures, fixed denominators
+The [research index](experiments/README.md) lists the questions, methods, results
+and decisions behind the models. Each study report includes its figures, evidence
 and reproduction instructions.
 
 ```bash
@@ -243,9 +237,9 @@ Tests cover all key encodings and relationships, CQT tone placement and octave
 specificity, the shift re-slice contract, content-cache invalidation, checkpoint
 versions, ONNX parity, and a synthetic prepare/train/evaluate/predict run.
 They validate pipeline correctness, not real-world musical-key accuracy.
-See [docs/TYPING.md](docs/TYPING.md) for the type-checking scope and research extra.
 All Python functions, including research scripts and tests, have parameter and
 return annotations. CI enforces their presence with Ruff's `ANN` rules and checks
-compatibility with `ty`.
+compatibility with `ty`, which needs `--all-extras` because research modules import
+optional packages such as nnAudio.
 
 Code: MIT. Dataset provenance and audio-use notes: [DATA.md](DATA.md).

@@ -120,17 +120,17 @@ def check(study: Path = STUDY) -> dict[str, Any]:
             )
         )
     )
-    if {r["id"] for r in role_rows} != {r["id"] for r in overlay}:
+    if {row["id"] for row in role_rows} != {row["id"] for row in overlay}:
         raise ValueError("Overlay coverage differs")
-    raw_by_id = {r["id"]: r for r in role_rows}
+    raw_by_id = {row["id"]: row for row in role_rows}
     conflicts = set(diagnostic["conflicting_saved_audio_sha256"])
-    track_by_id = {t.identity: t for t in tracks}
+    track_by_id = {track.identity: track for track in tracks}
     links: dict[str, dict[str, set[str]]] = {
-        k: defaultdict(set) for k in ("artist", "album", "audio")
+        kind: defaultdict(set) for kind in ("artist", "album", "audio")
     }
     for row in overlay:
         original = raw_by_id[row["id"]]
-        if any(row[k] != original[k] for k in ("old_role", "proposed_role")):
+        if any(row[column] != original[column] for column in ("old_role", "proposed_role")):
             raise ValueError("Overlay reassigned a role")
         track = track_by_id[row["id"]]
         flagged = track.audio_sha256 in conflicts
@@ -143,7 +143,10 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         ):
             if identity:
                 links[kind][identity].add(row["proposed_role"])
-    violations = {k: sum(len(v) > 1 for v in values.values()) for k, values in links.items()}
+    violations = {
+        kind: sum(len(roles) > 1 for roles in identities.values())
+        for kind, identities in links.items()
+    }
     if any(violations.values()):
         raise ValueError("Observed positive-ID or saved-audio cross-role violation")
     # Recreate the overlay without reading labels again or touching the frozen study.
@@ -157,18 +160,19 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         ):
             raise ValueError("Eligibility overlay does not reproduce")
     eligible_panels = {}
-    for role in sorted({r["proposed_role"] for r in role_rows}):
+    for role in sorted({row["proposed_role"] for row in role_rows}):
         panel_rows = [
-            track_by_id[r["id"]]
-            for r in overlay
-            if r["proposed_role"] == role and r["source_integrity_status"] != "PROPOSED_QUARANTINE"
+            track_by_id[row["id"]]
+            for row in overlay
+            if row["proposed_role"] == role
+            and row["source_integrity_status"] != "PROPOSED_QUARANTINE"
         ]
         eligible_panels[role] = describe(panel_rows)
         class_counts = diagnostic["panels"][role]
         if sum(class_counts["eligible_raw_counts24"]) != len(panel_rows):
             raise ValueError("Diagnostic eligible row count differs")
         if sum(class_counts["eligible_unique_counts24"]) != len(
-            {r.audio_sha256 for r in panel_rows}
+            {track.audio_sha256 for track in panel_rows}
         ):
             raise ValueError("Diagnostic eligible unique count differs")
     return {
@@ -178,14 +182,14 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         "rows": len(tracks),
         "ledger_sha256": sha(ledger),
         "quarantined_rows": sum(
-            r["source_integrity_status"] == "PROPOSED_QUARANTINE" for r in overlay
+            row["source_integrity_status"] == "PROPOSED_QUARANTINE" for row in overlay
         ),
         "old_fit_quarantined": sum(
-            r["old_role"] == "fit" and r["source_integrity_status"] == "PROPOSED_QUARANTINE"
-            for r in overlay
+            row["old_role"] == "fit" and row["source_integrity_status"] == "PROPOSED_QUARANTINE"
+            for row in overlay
         ),
         "observed_cross_role_violations": violations,
-        "old_roles": dict(Counter(t.old_role for t in tracks)),
+        "old_roles": dict(Counter(track.old_role for track in tracks)),
     }
 
 

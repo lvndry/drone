@@ -17,14 +17,17 @@ class PlotEvidenceTests(unittest.TestCase):
         validate_case_order(reference, reference)
 
     def test_plot_rejects_invalid_case_alignment_even_with_valid_hashes(self) -> None:
-        for ids in [
+        for case_identities in [
             ["tone", "silence"],
             ["silence", "substitute"],
             ["silence", "silence"],
             ["silence"],
             ["silence", None],
         ]:
-            with self.subTest(ids=ids), tempfile.TemporaryDirectory() as temporary:
+            with (
+                self.subTest(case_identities=case_identities),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
                 root = Path(temporary)
                 evidence = root / "evidence"
                 evidence.mkdir()
@@ -32,7 +35,7 @@ class PlotEvidenceTests(unittest.TestCase):
                 files = {}
                 for name, cases in [
                     ("reference-summary.json", reference),
-                    ("owner-d8424bf.json", [{"id": identity} for identity in ids]),
+                    ("owner-d8424bf.json", [{"id": identity} for identity in case_identities]),
                     ("exported-d8424bf.json", reference),
                 ]:
                     raw = json.dumps({"cases": cases}).encode()

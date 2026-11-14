@@ -21,19 +21,19 @@ from experiments.reference.train import augment_batch
 
 
 def write_tone(path: Path, frequency: float, seconds: float = 0.25) -> None:
-    t = np.arange(int(SR * seconds)) / SR
-    samples = (np.sin(2 * np.pi * frequency * t) * 16000).astype("<i2")
-    with wave.open(str(path), "wb") as out:
-        out.setnchannels(1)
-        out.setsampwidth(2)
-        out.setframerate(SR)
-        out.writeframes(samples.tobytes())
+    times = np.arange(int(SR * seconds)) / SR
+    samples = (np.sin(2 * np.pi * frequency * times) * 16000).astype("<i2")
+    with wave.open(str(path), "wb") as stream:
+        stream.setnchannels(1)
+        stream.setsampwidth(2)
+        stream.setframerate(SR)
+        stream.writeframes(samples.tobytes())
 
 
 @pytest.mark.parametrize("band", [0, 3, 12, 24, 31, 32])
 def test_tones_land_in_semitone_bands(band: int) -> None:
-    t = np.arange(SR) / SR
-    features = build_cqt(np.sin(2 * np.pi * 55 * 2 ** (band / 12) * t))
+    times = np.arange(SR) / SR
+    features = build_cqt(np.sin(2 * np.pi * 55 * 2 ** (band / 12) * times))
     assert features.shape[1] == N_SEM
     assert features.mean(axis=0).argmax(axis=0) == band
 
@@ -82,16 +82,17 @@ def test_short_and_silent_audio_are_finite() -> None:
 
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
 def test_cache_distinguishes_files_and_changed_content(tmp_path: Path) -> None:
-    first, second = tmp_path / "first.wav", tmp_path / "second.wav"
+    first = tmp_path / "first.wav"
+    second = tmp_path / "second.wav"
     write_tone(first, 110)
     write_tone(second, 220)
-    a = extract("track", first, tmp_path)
-    b = extract("track", second, tmp_path)
-    assert a.mean(axis=0).argmax(axis=0) == 12
-    assert b.mean(axis=0).argmax(axis=0) == 24
-    np.testing.assert_array_equal(extract("different-id", first, tmp_path), a)
+    low_tone = extract("track", first, tmp_path)
+    high_tone = extract("track", second, tmp_path)
+    assert low_tone.mean(axis=0).argmax(axis=0) == 12
+    assert high_tone.mean(axis=0).argmax(axis=0) == 24
+    np.testing.assert_array_equal(extract("different-id", first, tmp_path), low_tone)
     write_tone(first, 220)
-    np.testing.assert_array_equal(extract("track", first, tmp_path), b)
+    np.testing.assert_array_equal(extract("track", first, tmp_path), high_tone)
     assert len(list((tmp_path / "cqt").rglob("*.npy"))) == 2
 
 

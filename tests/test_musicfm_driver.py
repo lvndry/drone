@@ -29,20 +29,21 @@ class FakeProvider:
         self.peak_pending = max(self.peak_pending, self.submitted - self.resolved)
         result = []
         for identity, start, length in requests:
-            f: Future[Any] = Future()
-            f.set_result(np.full(1200, 0.25, dtype="<f4"))
-            result.append(f)
+            future: Future[Any] = Future()
+            future.set_result(np.full(1200, 0.25, dtype="<f4"))
+            result.append(future)
         return result
 
     def resolve(self, ticket: list[Future[Any]]) -> list[Any]:
         self.resolved += 1
-        return [f.result() for f in ticket]
+        return [future.result() for future in ticket]
 
 
 def test_ordered_prefetch_preserves_requests_and_only_one_next_batch() -> None:
     rows = {"b": {"samples": 288000}, "f": {"samples": 288000}}
     source = [
-        [Draw("b" if i % 2 else "f", "domain", 32 * u + i) for i in range(32)] for u in range(3)
+        [Draw("b" if index % 2 else "f", "domain", 32 * update + index) for index in range(32)]
+        for update in range(3)
     ]
     provider = FakeProvider()
     seen = []
@@ -72,7 +73,7 @@ def patch_training(monkeypatch: pytest.MonkeyPatch) -> tuple[list[list[int]], li
         optimizer: torch.optim.Optimizer,
         examples: list[tuple[torch.Tensor, int]],
     ) -> float:
-        targets.append([y for _, y in examples])
+        targets.append([target for _, target in examples])
         optimizer.step()
         return 1.0
 
@@ -107,8 +108,8 @@ def test_disposable_probe_uses96synthetic_targets_and_no_task_scores(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     targets, evals = patch_training(monkeypatch)
-    ids = [str(i) for i in range(16)]
-    rows = {i: {"role": "fit", "samples": 288000, "target": 999} for i in ids}
+    ids = [str(index) for index in range(16)]
+    rows = {identity: {"role": "fit", "samples": 288000, "target": 999} for identity in ids}
     result = pilot.probe(
         toy(),
         rows,
@@ -117,7 +118,7 @@ def test_disposable_probe_uses96synthetic_targets_and_no_task_scores(
         lambda: None,
         FakeProvider(),
     )  # type: ignore[arg-type]
-    assert targets == [[((32 * u + i) % 24) for i in range(32)] for u in range(3)]
+    assert targets == [[((32 * update + index) % 24) for index in range(32)] for update in range(3)]
     assert evals == [False, False]
     assert result["synthetic_target_updates"] == 3
     assert not result["task_scores_computed"] and not result["weights_saved_or_reused"]
@@ -165,12 +166,12 @@ def test_real_loop_completes8280updates120events_and_earliest_tie(
 
 
 def test_five_exact_gate_against_each_control_is_not_weakened() -> None:
-    def metric(n: int) -> dict[str, Any]:
+    def metric(correct: int) -> dict[str, Any]:
         return {
             "ids": ["x"],
-            "exact_correct": n,
-            "symmetric_units10": 10 * n,
-            "asymmetric_units10": 10 * n,
+            "exact_correct": correct,
+            "symmetric_units10": 10 * correct,
+            "asymmetric_units10": 10 * correct,
         }
 
     controls = {
@@ -198,10 +199,10 @@ def test_guardian_rejects_probe_with_training_only_authority(tmp_path: Path) -> 
 
 def metadata_fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     plan = {
-        "bp_fit": [f"beatport:{i}" for i in range(1229)],
-        "expanded_fma_fit": [f"fmak:{i}" for i in range(4033)],
-        "bp_selection_guard": [f"beatport:{i}" for i in range(1229, 1355)],
-        "fma_inner_selection": [f"fmak:{i}" for i in range(4033, 4283)],
+        "bp_fit": [f"beatport:{index}" for index in range(1229)],
+        "expanded_fma_fit": [f"fmak:{index}" for index in range(4033)],
+        "bp_selection_guard": [f"beatport:{index}" for index in range(1229, 1355)],
+        "fma_inner_selection": [f"fmak:{index}" for index in range(4033, 4283)],
     }
     rows = []
     for key in plan:
@@ -215,7 +216,7 @@ def metadata_fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
                     "bytes": 4800,
                 }
             )
-    return plan, {"labels": {r["id"]: 0 for r in rows}}, {"complete": True, "rows": rows}
+    return plan, {"labels": {row["id"]: 0 for row in rows}}, {"complete": True, "rows": rows}
 
 
 @pytest.mark.parametrize(
@@ -247,10 +248,11 @@ def test_canonical_bp_trace_matches_interleaved_stream_without_comparing_old_for
 
     from experiments.musicfm_sampling import batches
 
-    bp, fm = ["b1", "b2"], ["f1", "f2", "f3"]
-    expected, _ = pilot.canonical_bp_trace(bp, fm, updates=100)
+    beatport = ["b1", "b2"]
+    fmak = ["f1", "f2", "f3"]
+    expected, _ = pilot.canonical_bp_trace(beatport, fmak, updates=100)
     actual = hashlib.sha256()
-    for batch in batches(bp, fm, updates=100):
+    for batch in batches(beatport, fmak, updates=100):
         for draw in batch:
             if draw.domain == "beatport":
                 actual.update(f"{draw.identity}:{draw.augmentation_seed}\n".encode())
@@ -274,9 +276,9 @@ def test_cost_binding_rejects_changed_source_data_or_evaluation() -> None:
     }
     provenance = {
         **{
-            k: v
-            for k, v in config.items()
-            if k not in {"weight_sha256", "eval_batch_size", "ram_config_sha256"}
+            key: value
+            for key, value in config.items()
+            if key not in {"weight_sha256", "eval_batch_size", "ram_config_sha256"}
         },
         "pretrained_checkpoint_sha256": "original",
         "decoder_reference_sha256": "decoder",

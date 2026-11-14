@@ -95,19 +95,22 @@ def main() -> None:
         match = re.search(r'"' + field + r'"\s*:\s*(\[[^\]]*\])', text)
         assert match is not None
         ids = json.loads(match.group(1))
-        assert all(isinstance(i, str) and re.fullmatch(r"(fmak|beatport):[0-9]+", i) for i in ids)
+        assert all(
+            isinstance(identity, str) and re.fullmatch(r"(fmak|beatport):[0-9]+", identity)
+            for identity in ids
+        )
         plan[field] = set(ids)
         assert len(ids) == len(plan[field])
     ledger = list(
         csv.DictReader(io.StringIO(gzip.decompress(paths["exposure_ledger"].read_bytes()).decode()))
     )
-    exposed = {r["id"]: r for r in ledger}
+    exposed = {row["id"]: row for row in ledger}
     assert len(exposed) == len(ledger) == 5489
     safe = json.loads(gzip.decompress(paths["sanitized_group_input"].read_bytes()))
     assert safe["provenance"]["no_target_labels"] is True
     assert safe["provenance"]["metadata_csv"]["sha256"] == sources["master_metadata"]["sha256"]
     assert all(
-        set(r)
+        set(track)
         == {
             "identity",
             "component",
@@ -118,9 +121,9 @@ def main() -> None:
             "genre",
             "duration",
         }
-        for r in safe["tracks"]
+        for track in safe["tracks"]
     )
-    groups = {r["identity"]: r for r in safe["tracks"]}
+    groups = {track["identity"]: track for track in safe["tracks"]}
     assert set(groups) == set(exposed)
     roles: dict[str, set[str]] = {
         "all_fmak": set(exposed),
@@ -129,20 +132,24 @@ def main() -> None:
         "inner_selection": plan["fma_inner_selection"],
         "confirmation_reserved_unique": plan["confirmation_reserved_container_unique"],
         "confirmation_reserved_raw": {
-            i
-            for i, r in exposed.items()
-            if r["proposed_role"] == "PROPOSED_development_confirmation"
+            identity
+            for identity, row in exposed.items()
+            if row["proposed_role"] == "PROPOSED_development_confirmation"
         },
         "calibration_excluded": {
-            i for i, r in exposed.items() if r["proposed_role"] == "PROPOSED_calibration"
+            identity
+            for identity, row in exposed.items()
+            if row["proposed_role"] == "PROPOSED_calibration"
         },
     }
     roles["inactive_or_quarantined_fit"] = {
-        i for i, r in exposed.items() if r["proposed_role"] == "PROPOSED_expanded_fit"
+        identity
+        for identity, row in exposed.items()
+        if row["proposed_role"] == "PROPOSED_expanded_fit"
     } - roles["expanded_fit"]
     assert tuple(
-        len(roles[k])
-        for k in (
+        len(roles[role])
+        for role in (
             "expanded_fit",
             "restricted_fit_nested",
             "inner_selection",
@@ -159,8 +166,8 @@ def main() -> None:
         "calibration_excluded",
         "inactive_or_quarantined_fit",
     ]
-    assert set.union(*(roles[k] for k in partition)) == roles["all_fmak"]
-    assert sum(len(roles[k]) for k in partition) == 5489
+    assert set.union(*(roles[role] for role in partition)) == roles["all_fmak"]
+    assert sum(len(roles[role]) for role in partition) == 5489
     tracks: dict[str, dict[str, Any]] = {}
     for row in csv.DictReader(paths["master_metadata"].open(newline="")):
         identity = "fmak:" + f"{int(row['track_id']):06}"
@@ -170,7 +177,7 @@ def main() -> None:
             if row["track_genres_all"]
             else frozenset()
         )
-        assert all(type(t) is int and t in taxonomy for t in tags)
+        assert all(type(tag) is int and tag in taxonomy for tag in tags)
         try:
             duration = float(row["track_duration"])
         except ValueError:
@@ -186,59 +193,60 @@ def main() -> None:
             "license": row["track_license"],
         }
     assert roles["all_fmak"] <= tracks.keys()
-    for i in roles["all_fmak"]:
-        assert groups[i]["component"] == exposed[i]["component"]
-        assert groups[i]["duration"] == tracks[i]["duration"]
-        assert groups[i]["artist_id"] == (tracks[i]["artist"] or "")
-        assert groups[i]["album_id"] == (tracks[i]["album"] or "")
+    for identity in roles["all_fmak"]:
+        assert groups[identity]["component"] == exposed[identity]["component"]
+        assert groups[identity]["duration"] == tracks[identity]["duration"]
+        assert groups[identity]["artist_id"] == (tracks[identity]["artist"] or "")
+        assert groups[identity]["album_id"] == (tracks[identity]["album"] or "")
     # Master metadata-only artist/album graph. No audio-identity joins are available here.
-    parent = {i: i for i in tracks}
+    parent = {identity: identity for identity in tracks}
 
-    def root(i: str) -> str:
-        while parent[i] != i:
-            parent[i] = parent[parent[i]]
-            i = parent[i]
-        return i
+    def root(identity: str) -> str:
+        while parent[identity] != identity:
+            parent[identity] = parent[parent[identity]]
+            identity = parent[identity]
+        return identity
 
     links = {}
-    for i, row in tracks.items():
+    for identity, row in tracks.items():
         for kind in ("artist", "album"):
             value = row[kind]
             if value is None:
                 continue
             key = (kind, value)
             if key in links:
-                a, b = root(i), root(links[key])
-                parent[max(a, b)] = min(a, b)
+                own_root = root(identity)
+                linked_root = root(links[key])
+                parent[max(own_root, linked_root)] = min(own_root, linked_root)
             else:
-                links[key] = i
-    master_components = {i: root(i) for i in tracks}
+                links[key] = identity
+    master_components = {identity: root(identity) for identity in tracks}
     roles["master_metadata_all"] = set(tracks)
     roles["master_outside_fmak_metadata_only"] = set(tracks) - roles["all_fmak"]
-    exposed_master_components = {master_components[i] for i in roles["all_fmak"]}
+    exposed_master_components = {master_components[identity] for identity in roles["all_fmak"]}
     roles["master_outside_fmak_unlinked_primary_credits"] = {
-        i
-        for i in roles["master_outside_fmak_metadata_only"]
-        if master_components[i] not in exposed_master_components
+        identity
+        for identity in roles["master_outside_fmak_metadata_only"]
+        if master_components[identity] not in exposed_master_components
     }
 
     def stats(ids: set[str], scope: str) -> dict[str, Any]:
-        data = [tracks[i] for i in ids]
+        data = [tracks[identity] for identity in ids]
         components = (
             master_components
             if scope.startswith("master_")
-            else {i: exposed[i]["component"] for i in ids}
+            else {identity: exposed[identity]["component"] for identity in ids}
         )
         return {
             "tracks": len(ids),
-            "known_artists": len({r["artist"] for r in data if r["artist"]}),
-            "known_albums": len({r["album"] for r in data if r["album"]}),
-            "components": len({components[i] for i in ids}),
-            "missing_artist_tracks": sum(r["artist"] is None for r in data),
-            "missing_album_tracks": sum(r["album"] is None for r in data),
-            "missing_top_genre_tracks": sum(not r["top"] for r in data),
-            "empty_genres_all_tracks": sum(not r["tags"] for r in data),
-            "unknown_duration_tracks": sum(r["duration"] is None for r in data),
+            "known_artists": len({track["artist"] for track in data if track["artist"]}),
+            "known_albums": len({track["album"] for track in data if track["album"]}),
+            "components": len({components[identity] for identity in ids}),
+            "missing_artist_tracks": sum(track["artist"] is None for track in data),
+            "missing_album_tracks": sum(track["album"] is None for track in data),
+            "missing_top_genre_tracks": sum(not track["top"] for track in data),
+            "empty_genres_all_tracks": sum(not track["tags"] for track in data),
+            "unknown_duration_tracks": sum(track["duration"] is None for track in data),
         }
 
     specific = [
@@ -319,11 +327,12 @@ def main() -> None:
         "kind": "no_matching_taxonomy_tag_not_music_absence",
     }
     coverage = {}
-    for name, cat in categories.items():
+    for name, category in categories.items():
         members = {
-            i
-            for i, row in tracks.items()
-            if row["tags"] & set(cat["ids"]) and not row["tags"] & set(cat.get("exclude_ids", []))
+            identity
+            for identity, row in tracks.items()
+            if row["tags"] & set(category["ids"])
+            and not row["tags"] & set(category.get("exclude_ids", []))
         }
         coverage[name] = {}
         for role, ids in roles.items():
@@ -331,12 +340,20 @@ def main() -> None:
             coverage[name][role] = {
                 "all": stats(relevant, role),
                 "bands": {
-                    b: stats({i for i in relevant if tracks[i]["band"] == b}, role) for b in BANDS
+                    duration_band: stats(
+                        {
+                            identity
+                            for identity in relevant
+                            if tracks[identity]["band"] == duration_band
+                        },
+                        role,
+                    )
+                    for duration_band in BANDS
                 },
             }
     inventory = []
     for tag, row in taxonomy.items():
-        members = {i for i, r in tracks.items() if tag in r["tags"]}
+        members = {identity for identity, track in tracks.items() if tag in track["tags"]}
         inventory.append(
             {
                 "id": tag,
@@ -347,10 +364,20 @@ def main() -> None:
     role_summary = {
         role: {
             "all": stats(ids, role),
-            "bands": {b: stats({i for i in ids if tracks[i]["band"] == b}, role) for b in BANDS},
+            "bands": {
+                duration_band: stats(
+                    {identity for identity in ids if tracks[identity]["band"] == duration_band},
+                    role,
+                )
+                for duration_band in BANDS
+            },
             "historical_exposure": dict(
                 sorted(
-                    Counter(exposed[i]["historical_exposure"] for i in ids if i in exposed).items()
+                    Counter(
+                        exposed[identity]["historical_exposure"]
+                        for identity in ids
+                        if identity in exposed
+                    ).items()
                 )
             ),
         }
@@ -365,34 +392,39 @@ def main() -> None:
         "named_dance_related_union": set(categories["named_dance_related_union"]["ids"]),
         "Electronic": {titles["Electronic"]},
     }
-    for a in selected:
-        for b in selected:
-            if a >= b:
+    for first in selected:
+        for second in selected:
+            if first >= second:
                 continue
             common = {
-                i for i, r in tracks.items() if r["tags"] & selected[a] and r["tags"] & selected[b]
+                identity
+                for identity, track in tracks.items()
+                if track["tags"] & selected[first] and track["tags"] & selected[second]
             }
-            overlaps[a + " & " + b] = {
+            overlaps[first + " & " + second] = {
                 role: stats(ids & common, role) for role, ids in roles.items()
             }
     role_overlap = []
-    for j, a in enumerate(partition):
-        for b in partition[j + 1 :]:
-            ca = {exposed[i]["component"] for i in roles[a]}
-            cb = {exposed[i]["component"] for i in roles[b]}
-            ma = {master_components[i] for i in roles[a]}
-            mb = {master_components[i] for i in roles[b]}
+    for index, first in enumerate(partition):
+        for second in partition[index + 1 :]:
+            first_components = {exposed[identity]["component"] for identity in roles[first]}
+            second_components = {exposed[identity]["component"] for identity in roles[second]}
+            first_master = {master_components[identity] for identity in roles[first]}
+            second_master = {master_components[identity] for identity in roles[second]}
             role_overlap.append(
                 {
-                    "roles": [a, b],
-                    "track_overlap": len(roles[a] & roles[b]),
-                    "frozen_component_overlap": len(ca & cb),
-                    "full_master_artist_album_component_overlap": len(ma & mb),
+                    "roles": [first, second],
+                    "track_overlap": len(roles[first] & roles[second]),
+                    "frozen_component_overlap": len(first_components & second_components),
+                    "full_master_artist_album_component_overlap": len(first_master & second_master),
                 }
             )
     genre_parent_omissions = sum(
-        any(taxonomy[t]["parent"] and taxonomy[t]["parent"] not in r["tags"] for t in r["tags"])
-        for r in tracks.values()
+        any(
+            taxonomy[tag]["parent"] and taxonomy[tag]["parent"] not in track["tags"]
+            for tag in track["tags"]
+        )
+        for track in tracks.values()
     )
     present_titles = set(titles)
     absent = [

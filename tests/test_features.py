@@ -38,27 +38,27 @@ def test_wav_reader_rejects_audio_without_a_format_chunk(tmp_path: Path) -> None
         read_wav_mono(path)
 
 
-def _tone(hz: float, seconds: float = 2) -> np.ndarray:
-    t = np.arange(int(SR * seconds)) / SR
-    return (np.sin(2 * np.pi * hz * t) * 0.5).astype(np.float32)
+def _tone(frequency_hz: float, seconds: float = 2) -> np.ndarray:
+    times = np.arange(int(SR * seconds)) / SR
+    return (np.sin(2 * np.pi * frequency_hz * times) * 0.5).astype(np.float32)
 
 
-@pytest.mark.parametrize("n", [4, 24, 96, 150, 204])
-def test_tone_lands_in_its_cqt_bin(n: int) -> None:
-    freq = FMIN_HZ * 2 ** (n / 24)
-    features = cqt(_tone(freq))
-    got = int(features.mean(axis=1).argmax(axis=0))
-    assert abs(got - n) <= 1, f"tone at bin {n} detected at column {got}"
+@pytest.mark.parametrize("cqt_bin", [4, 24, 96, 150, 204])
+def test_tone_lands_in_its_cqt_bin(cqt_bin: int) -> None:
+    frequency = FMIN_HZ * 2 ** (cqt_bin / 24)
+    features = cqt(_tone(frequency))
+    detected = int(features.mean(axis=1).argmax(axis=0))
+    assert abs(detected - cqt_bin) <= 1, f"tone at bin {cqt_bin} detected at column {detected}"
 
 
 def test_tone_is_pitch_specific_not_octave_specific() -> None:
     # 24 bins per octave: a tone one octave up must land 24 columns away.
-    freq = FMIN_HZ * 2 ** (2.0 + PAD_SEMI / 12)  # C1 * 2 octaves = C3
-    t = np.arange(int(SR * 2)) / SR
-    features = cqt((np.sin(2 * np.pi * freq * t) * 0.5).astype(np.float32))
+    frequency = FMIN_HZ * 2 ** (2.0 + PAD_SEMI / 12)  # C1 * 2 octaves = C3
+    times = np.arange(int(SR * 2)) / SR
+    features = cqt((np.sin(2 * np.pi * frequency * times) * 0.5).astype(np.float32))
     profile = features.mean(axis=1)
-    got = int(profile.argmax(axis=0))
-    assert abs(got - 56) <= 1, f"expected column ~56 (C3), got {got}"
+    detected = int(profile.argmax(axis=0))
+    assert abs(detected - 56) <= 1, f"expected column ~56 (C3), got {detected}"
 
 
 def test_window_slices_core_bins_and_shifts_exactly() -> None:

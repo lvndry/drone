@@ -29,11 +29,13 @@ def supervise(config_path: Path) -> None:
     for item in config["source_files"]:
         if digest(Path(item["path"])) != item["sha256"]:
             raise ValueError("Qualification source changed")
-    spec = importlib.util.spec_from_file_location("myna_runtime_guard", config["guard_helper"])
-    if spec is None or spec.loader is None:
+    specification = importlib.util.spec_from_file_location(
+        "myna_runtime_guard", config["guard_helper"]
+    )
+    if specification is None or specification.loader is None:
         raise ValueError("Cannot load verified guardian helper")
-    guard = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(guard)
+    guard = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(guard)
     root = Path(config["output_root"])
     root.mkdir()
     guard.protected(config)
@@ -42,10 +44,10 @@ def supervise(config_path: Path) -> None:
         raise RuntimeError("Linux affinity required")
     affinity(0, config["cpus"])
     os.nice(19)
-    env = os.environ.copy()
+    environment = os.environ.copy()
     for key in ("PYTHONHOME", "PYTHONPATH", "VIRTUAL_ENV", "LD_PRELOAD", "LD_LIBRARY_PATH"):
-        env.pop(key, None)
-    env.update(
+        environment.pop(key, None)
+    environment.update(
         CUDA_VISIBLE_DEVICES=config.get("cuda_visible_devices", config["gpu_uuid"]),
         CUDA_DEVICE_ORDER="PCI_BUS_ID",
         CUBLAS_WORKSPACE_CONFIG=":4096:8",
@@ -80,7 +82,7 @@ def supervise(config_path: Path) -> None:
                 "--config",
                 str(config_path),
             ],
-            env=env,
+            env=environment,
             stdout=log,
             stderr=log,
             start_new_session=True,
@@ -114,7 +116,8 @@ def supervise(config_path: Path) -> None:
                     - base_children.ru_stime
                     + live_cpu
                 )
-                peak_rss, peak_size = max(peak_rss, rss), max(peak_size, size)
+                peak_rss = max(peak_rss, rss)
+                peak_size = max(peak_size, size)
                 query = subprocess.run(
                     [
                         "nvidia-smi",
@@ -141,7 +144,7 @@ def supervise(config_path: Path) -> None:
                     timeout=5,
                 )
                 for line in apps.stdout.splitlines():
-                    pid, used = [x.strip() for x in line.split(",")]
+                    pid, used = [field.strip() for field in line.split(",")]
                     if int(pid) == child.pid:
                         max_owned_gpu = max(max_owned_gpu, int(used) * 1024**2)
                 if (

@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-MANIFEST_SHA = "7d56908dc5e84c165c7844d1e810ed678123ae7d0a93939c60a2e600b6402b4c"
+MANIFEST_SHA256 = "7d56908dc5e84c165c7844d1e810ed678123ae7d0a93939c60a2e600b6402b4c"
 PROTECTED = [(1478814, 35698640), (3448680, 111966827), (1481756, 35700162), (3451013, 111967770)]
 
 
@@ -31,7 +31,7 @@ def write(path: Path, value: object) -> None:
         stream.write("\n")
 
 
-def sha(path: Path, watch: Callable[[], None]) -> str:  # noqa: ANN401
+def file_sha256(path: Path, watch: Callable[[], None]) -> str:  # noqa: ANN401
     digest = hashlib.sha256()
     with path.open("rb") as stream:
         for block in iter(lambda: stream.read(4 * 1024**2), b""):
@@ -42,7 +42,7 @@ def sha(path: Path, watch: Callable[[], None]) -> str:  # noqa: ANN401
 
 def checked(
     path: Path,
-    expected_sha: str,
+    expected_sha256: str,
     expected_size: int,
     watch: Callable[[], None],
     readonly: bool = False,
@@ -51,9 +51,9 @@ def checked(
     mode = path.stat().st_mode
     if before[2] != expected_size or readonly and mode & 0o222:
         raise ValueError("Size/read-only contract mismatch: " + str(path))
-    actual = sha(path, watch)
+    actual = file_sha256(path, watch)
     after = identity(path)
-    if actual != expected_sha or before != after:
+    if actual != expected_sha256 or before != after:
         raise ValueError("Content mismatch or unstable identity: " + str(path))
     return {
         "identity": before,
@@ -95,7 +95,9 @@ class Watch:
             self.cpu = sum(value.ru_utime + value.ru_stime for value in usages)
             if time.monotonic() - self.last_disk >= 1:
                 self.last_disk = time.monotonic()
-                self.owned = sum(p.stat().st_size for p in self.output.rglob("*") if p.is_file())
+                self.owned = sum(
+                    path.stat().st_size for path in self.output.rglob("*") if path.is_file()
+                )
             if (
                 self.peak_rss > 512 * 1024**2
                 or self.cpu > 600
@@ -122,8 +124,8 @@ def audit(manifest: Path, output: Path) -> None:
     ):
         raise ValueError("Require CPUs10–13 and CUDA masked")
     if any(
-        os.environ.get(k) != "1"
-        for k in (
+        os.environ.get(name) != "1"
+        for name in (
             "OMP_NUM_THREADS",
             "MKL_NUM_THREADS",
             "OPENBLAS_NUM_THREADS",
@@ -131,14 +133,14 @@ def audit(manifest: Path, output: Path) -> None:
         )
     ):
         raise ValueError("Require numeric threads1")
-    if hashlib.sha256(manifest.read_bytes()).hexdigest() != MANIFEST_SHA:
+    if hashlib.sha256(manifest.read_bytes()).hexdigest() != MANIFEST_SHA256:
         raise ValueError("Canonical manifest changed")
     original = json.loads(manifest.read_bytes())
     rows = original["rows"]
     if (
         original.get("complete") is not True
         or len(rows) != 5638
-        or len({r["id"] for r in rows}) != 5638
+        or len({row["id"] for row in rows}) != 5638
     ):
         raise ValueError("Wrong complete5638 membership")
     output.mkdir(exist_ok=False)
@@ -165,7 +167,7 @@ def audit(manifest: Path, output: Path) -> None:
         "bytes",
     )
 
-    def one(row: dict[str, Any]) -> dict[str, Any]:
+    def audit_row(row: dict[str, Any]) -> dict[str, Any]:
         source = checked(Path(row["path"]), row["sha256"], row["source_stable_identity"][2], watch)
         result = {
             "invariants": {key: row[key] for key in invariant_keys},
@@ -182,16 +184,16 @@ def audit(manifest: Path, output: Path) -> None:
 
     pool = ThreadPoolExecutor(max_workers=4)
     try:
-        futures = {pool.submit(one, row): row["id"] for row in rows}
+        futures = {pool.submit(audit_row, row): row["id"] for row in rows}
         for future in as_completed(futures):
             watch()
             records[futures[future]] = future.result()
         pool.shutdown(wait=True)
         watch()
         representatives = [
-            Path(next(r["path"] for r in rows if r["id"].startswith("fmak:"))),
-            Path(next(r["path"] for r in rows if r["id"].startswith("beatport:"))),
-            Path(next(r["cache"] for r in rows if r["role"] == "validation")),
+            Path(next(row["path"] for row in rows if row["id"].startswith("fmak:"))),
+            Path(next(row["path"] for row in rows if row["id"].startswith("beatport:"))),
+            Path(next(row["cache"] for row in rows if row["role"] == "validation")),
         ]
         mounts = {"proc_mountinfo": Path("/proc/self/mountinfo").read_text(), "df": {}}
         for path in representatives:
@@ -199,7 +201,7 @@ def audit(manifest: Path, output: Path) -> None:
                 ["df", "-B1", "-T", str(path)], text=True, timeout=10
             )
         write(output / "mount-metadata.json", mounts)
-        ordered = [records[r["id"]] for r in rows]
+        ordered = [records[row["id"]] for row in rows]
         if any(
             record["invariants"] != {key: row[key] for key in invariant_keys}
             for record, row in zip(ordered, rows, strict=True)
@@ -210,14 +212,14 @@ def audit(manifest: Path, output: Path) -> None:
             {
                 "complete": True,
                 "format": "musicfm-source-physical-identity-overlay-v1",
-                "canonical_manifest_sha256": MANIFEST_SHA,
+                "canonical_manifest_sha256": MANIFEST_SHA256,
                 "tool_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                 "rows": ordered,
                 "no_decode_model_admission_or_repair": True,
             },
         )
         watch()
-        assert hashlib.sha256(manifest.read_bytes()).hexdigest() == MANIFEST_SHA
+        assert hashlib.sha256(manifest.read_bytes()).hexdigest() == MANIFEST_SHA256
         if Path(original["cache_ownership"]["root"]).exists():
             raise ValueError("Old fitting RAM root unexpectedly present")
         write(
@@ -225,18 +227,20 @@ def audit(manifest: Path, output: Path) -> None:
             {
                 "status": "COMPLETE_READ_ONLY_IDENTITIES_REFRESHED_NOT_ACTIVATED",
                 "sources": 5638,
-                "validation_files": sum(r["role"] == "validation" for r in rows),
+                "validation_files": sum(row["role"] == "validation" for row in rows),
                 "source_identities_changed": sum(
-                    r["source_identity_old"] != r["source_current"]["identity"] for r in ordered
+                    record["source_identity_old"] != record["source_current"]["identity"]
+                    for record in ordered
                 ),
                 "validation_identities_changed": sum(
-                    "validation_current" in r
-                    and r["validation_identity_old"] != r["validation_current"]["identity"]
-                    for r in ordered
+                    "validation_current" in record
+                    and record["validation_identity_old"]
+                    != record["validation_current"]["identity"]
+                    for record in ordered
                 ),
-                "manifest_sha256": MANIFEST_SHA,
-                "overlay_sha256": sha(output / "identity-overlay.json", watch),
-                "mount_metadata_sha256": sha(output / "mount-metadata.json", watch),
+                "manifest_sha256": MANIFEST_SHA256,
+                "overlay_sha256": file_sha256(output / "identity-overlay.json", watch),
+                "mount_metadata_sha256": file_sha256(output / "mount-metadata.json", watch),
                 "started_epoch": started,
                 "finished_epoch": time.time(),
                 "protected_starts_unchanged": PROTECTED,

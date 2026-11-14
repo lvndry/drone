@@ -35,16 +35,17 @@ def load_evidence(path: Path = EVIDENCE) -> dict[str, Any]:
         names.add(name)
         require(sha((path / name).read_bytes()) == expected, "Evidence hash mismatch: " + name)
     require(
-        names == {p.name for p in path.iterdir()} - {"SHA256SUMS"},
+        names == {member.name for member in path.iterdir()} - {"SHA256SUMS"},
         "Unlisted evidence member",
     )
-    return {p.stem: json.loads(p.read_bytes()) for p in path.glob("*.json")}
+    return {member.stem: json.loads(member.read_bytes()) for member in path.glob("*.json")}
 
 
 def verify(docs: dict[str, Any]) -> dict[str, Any]:
-    run, controller, result, lock = (
-        docs[k] for k in ("run", "controller", "result", "source-lock")
-    )
+    run = docs["run"]
+    controller = docs["controller"]
+    result = docs["result"]
+    lock = docs["source-lock"]
     require(
         run["config_sha256"] == controller["config_sha256"] == result["config_sha256"],
         "Controller/config/result binding mismatch",
@@ -107,7 +108,8 @@ def verify(docs: dict[str, Any]) -> dict[str, Any]:
     )
     deltas = {}
     for domain, total in (("beatport", 126), ("fmak", 250)):
-        before, after = (result[k][domain] for k in ("baseline_metrics", "candidate_metrics"))
+        before = result["baseline_metrics"][domain]
+        after = result["candidate_metrics"][domain]
         require(
             before["ids"] == after["ids"] and len(set(before["ids"])) == total, "Panel mismatch"
         )

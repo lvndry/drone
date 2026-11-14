@@ -80,13 +80,13 @@ def extract_zip(archive: str | Path, target: str | Path, suffix: str) -> int:
             if name in seen:
                 raise ValueError(f"Duplicate dataset filename: {name}")
             seen.add(name)
-            out = target / name
+            destination = target / name
             # Stage replacement so an interrupted extraction can be retried safely.
             with tempfile.TemporaryDirectory(dir=target) as scratch:
                 pending = Path(scratch) / "entry"
                 with bundle.open(member) as source, pending.open("wb") as dest:
                     shutil.copyfileobj(source, dest)
-                os.replace(pending, out)
+                os.replace(pending, destination)
     if not seen:
         raise ValueError(f"No {suffix} files in {archive}")
     return len(seen)
@@ -102,12 +102,12 @@ def extract_giantsteps(archive: str | Path, target: str | Path) -> None:
                 continue
             if not (relative.parts[:2] == ("annotations", "key") or relative.parts[:1] == ("md5",)):
                 continue
-            out = target / relative
-            out.parent.mkdir(parents=True, exist_ok=True)
+            destination = target / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
             source = bundle.extractfile(member)
             if source is None:
                 continue
-            with source, out.open("wb") as dest:
+            with source, destination.open("wb") as dest:
                 shutil.copyfileobj(source, dest)
             if relative.suffix == ".key":
                 count += 1
@@ -142,7 +142,7 @@ def fetch_datasets(data: str | Path, dataset: str = "all") -> None:
         )
         target = data / "giantsteps"
         extract_giantsteps(archive, target)
-        for i, label in enumerate(sorted((target / "annotations" / "key").glob("*.key")), 1):
+        for verified, label in enumerate(sorted((target / "annotations" / "key").glob("*.key")), 1):
             name = label.stem
             checksum_file = target / "md5" / f"{name}.md5"
             checksum = "md5:" + checksum_file.read_text().strip()
@@ -153,8 +153,8 @@ def fetch_datasets(data: str | Path, dataset: str = "all") -> None:
                 except (subprocess.CalledProcessError, ValueError):
                     if base == AUDIO_BASES[-1]:
                         raise
-            if i % 50 == 0:
-                print(f"GiantSteps: {i}/604 verified previews", flush=True)
+            if verified % 50 == 0:
+                print(f"GiantSteps: {verified}/604 verified previews", flush=True)
     provenance_path = data / "sources.json"
     provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else {}
     if dataset in ("all", "train"):

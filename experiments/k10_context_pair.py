@@ -30,7 +30,9 @@ if TYPE_CHECKING:
 COST = "6c04aa1b138f5ebf4483e0fd58a064cc13685f3507d72b738837e7d45a27dc4b"
 COST_CONFIG = "f1cc26a5211be8f9ce149572e45e5be39b2a5a5b575633539df213ab8aa101a8"
 COST_CONTROLLER = "418e6919ceb0a1464d26b41aa4df4c3005454db9d6fe6af8736d30f3a7195c35"
-UPDATES, EVERY, EVENTS = 8280, 69, 120
+UPDATES = 8280
+EVERY = 69
+EVENTS = 120
 CAPS = {
     "wall_seconds": 21600,
     "cpu_seconds": 40000,
@@ -42,17 +44,19 @@ CAPS = {
 def make_plan(cost_config: Path, cost: Path, controller: Path, groups: Path) -> dict[str, Any]:
     if (sha(cost_config), sha(cost), sha(controller)) != (COST_CONFIG, COST, COST_CONTROLLER):
         raise ValueError("Require the exact reviewed CPU cost and resource evidence")
-    value, result, receipt = load(cost_config), load(cost), load(controller)
+    value = load(cost_config)
+    result = load(cost)
+    receipt = load(controller)
     if not receipt["complete"] or receipt["worker_exit"] != 0 or result["task_scores_computed"]:
         raise ValueError("Incomplete or task-scored qualification")
     root = Path(__file__).resolve().parents[1]
-    if any(sha(root / n) != h for n, h in value["source_sha256"].items()):
+    if any(sha(root / name) != expected for name, expected in value["source_sha256"].items()):
         raise ValueError("Qualified shared numerical/resource source changed")
-    p = load(Path(value["plan"]))
-    if sha(groups) != p["uncertainty_groups_sha256"]:
+    plan = load(Path(value["plan"]))
+    if sha(groups) != plan["uncertainty_groups_sha256"]:
         raise ValueError("Uncertainty groups differ from admitted data contract")
     old = root / "experiments/studies/k10-v2-pilot/data/results/expanded.json.gz"
-    teacher_starts = [x for x in value["protected_starts"] if x["pid"] in (1294, 1307)]
+    teacher_starts = [start for start in value["protected_starts"] if start["pid"] in (1294, 1307)]
     value.update(
         status="PROPOSED_CONTEXT_PAIR_NOT_AUTHORIZED",
         crop_frames=[320, 65],
@@ -63,7 +67,9 @@ def make_plan(cost_config: Path, cost: Path, controller: Path, groups: Path) -> 
         full_task_fit_allowed=True,
         not_before_epoch=None,
         deadline_epoch=None,
-        protected_starts=[x for x in value["protected_starts"] if x["pid"] not in (1294, 1307)],
+        protected_starts=[
+            start for start in value["protected_starts"] if start["pid"] not in (1294, 1307)
+        ],
         teacher={
             "root": "/home/lysk-admin/drone-experiments/musicfm-key-pilot-20261112-seed13-051e4ad",
             "starts": teacher_starts,
@@ -91,39 +97,44 @@ def make_plan(cost_config: Path, cost: Path, controller: Path, groups: Path) -> 
         },
     )
     value["source_sha256"] = {
-        n: sha(root / n)
-        for n in (*SOURCE_NAMES, "experiments/k10_context_pair.py", "tools/run_k10_context_pair.py")
+        name: sha(root / name)
+        for name in (
+            *SOURCE_NAMES,
+            "experiments/k10_context_pair.py",
+            "tools/run_k10_context_pair.py",
+        )
     }
     return value
 
 
-def contract(v: dict[str, Any]) -> None:
+def contract(value: dict[str, Any]) -> None:
     if (
-        v["crop_frames"] != [320, 65]
-        or v["updates_per_shape"] != 8280
-        or v["events"] != 120
-        or v["updates_per_event"] != 69
-        or v["batch"] != 32
-        or v["seed"] != 13
-        or v["cpus"] != [14, 15]
-        or v["torch_threads"] != 2
-        or v["interop_threads"] != 1
-        or v["nice"] != 19
-        or v["caps"] != CAPS
-        or v["cost_sha256"] != COST
-        or v["candidate_crop_frames"] != 65
-        or v["control_crop_frames"] != 320
-        or v["full_task_fit_allowed"] is not True
-        or v["plan_sha256"] != PLAN
-        or v["labels_sha256"] != LABELS
-        or v["features_sha256"] != FEATURES
-        or len(v["rows"]) != 5638
-        or len({r["id"] for r in v["rows"]}) != 5638
-        or v["runtime"] != {"python": "3.12.3", "torch": "2.15.0+cu132", "numpy": "2.5.4"}
-        or {r["pid"] for r in v["protected_starts"]} != {1478814, 3448680, 1481756, 3451013}
-        or len(v["protected_starts"]) != 4
-        or {r["pid"] for r in v["teacher"]["starts"]} != {1294, 1307}
-        or v["teacher"]["config_sha256"]
+        value["crop_frames"] != [320, 65]
+        or value["updates_per_shape"] != 8280
+        or value["events"] != 120
+        or value["updates_per_event"] != 69
+        or value["batch"] != 32
+        or value["seed"] != 13
+        or value["cpus"] != [14, 15]
+        or value["torch_threads"] != 2
+        or value["interop_threads"] != 1
+        or value["nice"] != 19
+        or value["caps"] != CAPS
+        or value["cost_sha256"] != COST
+        or value["candidate_crop_frames"] != 65
+        or value["control_crop_frames"] != 320
+        or value["full_task_fit_allowed"] is not True
+        or value["plan_sha256"] != PLAN
+        or value["labels_sha256"] != LABELS
+        or value["features_sha256"] != FEATURES
+        or len(value["rows"]) != 5638
+        or len({row["id"] for row in value["rows"]}) != 5638
+        or value["runtime"] != {"python": "3.12.3", "torch": "2.15.0+cu132", "numpy": "2.5.4"}
+        or {start["pid"] for start in value["protected_starts"]}
+        != {1478814, 3448680, 1481756, 3451013}
+        or len(value["protected_starts"]) != 4
+        or {start["pid"] for start in value["teacher"]["starts"]} != {1294, 1307}
+        or value["teacher"]["config_sha256"]
         != "069d1afc396c65fcaa1d7cb993db7d4c930aec93eae377a0a611842dfcbbac28"
     ):
         raise ValueError("Frozen matched CPU pair contract differs")
@@ -191,18 +202,18 @@ def evaluate_complete(
             super().__init__()
             self.base = model
 
-        def forward(self, x: torch.Tensor) -> torch.Tensor:
+        def forward(self, inputs: torch.Tensor) -> torch.Tensor:
             watch()
-            y = self.base(x)
+            logits = self.base(inputs)
             if (
-                y.shape != (x.shape[0], 24)
-                or y.dtype != torch.float32
-                or not bool(torch.isfinite(y).all())
+                logits.shape != (inputs.shape[0], 24)
+                or logits.dtype != torch.float32
+                or not bool(torch.isfinite(logits).all())
             ):
                 raise ValueError("Invalid full-song FP32 logits")
-            counts["tracks"] += x.shape[0]
-            counts["frames"] += x.shape[0] * x.shape[2]
-            return y
+            counts["tracks"] += inputs.shape[0]
+            counts["frames"] += inputs.shape[0] * inputs.shape[2]
+            return logits
 
     predictions = evaluate_features(Finite(), full, device, batch=4)
     if (
@@ -210,7 +221,7 @@ def evaluate_complete(
         or not np.issubdtype(predictions.dtype, np.integer)
         or np.any((predictions < 0) | (predictions >= 24))
         or counts["tracks"] != len(full)
-        or counts["frames"] != sum(x.shape[1] for x in full)
+        or counts["frames"] != sum(feature.shape[1] for feature in full)
     ):
         raise ValueError("Incomplete full-song prediction coverage/shape/range")
     return predictions
@@ -218,7 +229,7 @@ def evaluate_complete(
 
 def train_arm(
     length: int,
-    p: dict[str, Any],
+    plan: dict[str, Any],
     rows: dict[str, dict[str, Any]],
     array: Callable[[str], np.ndarray],
     output: Path,
@@ -255,11 +266,13 @@ def train_arm(
     output.mkdir(exist_ok=False)
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.0001)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, EVENTS)
-    panels = {"beatport": p["bp_selection_guard"], "fmak": p["fma_inner_selection"]}
+    panels = {"beatport": plan["bp_selection_guard"], "fmak": plan["fma_inner_selection"]}
     ids = panels["beatport"] + panels["fmak"]
-    refs = {i: r["ref"] for i, r in rows.items()}
-    full = [window(array(i)).astype(np.float32) for i in ids]
-    common, temporal, bp = hashlib.sha256(), hashlib.sha256(), hashlib.sha256()
+    references = {identity: row["ref"] for identity, row in rows.items()}
+    full = [window(array(identity)).astype(np.float32) for identity in ids]
+    common = hashlib.sha256()
+    temporal = hashlib.sha256()
+    beatport_trace = hashlib.sha256()
     exposure = Counter()
     coverage = Counter()
     history = []
@@ -269,61 +282,66 @@ def train_arm(
     best_update = None
     start = time.monotonic()
     for update, batch in enumerate(
-        paired_batches(p["bp_fit"], p["expanded_fma_fit"], updates=UPDATES), 1
+        paired_batches(plan["bp_fit"], plan["expanded_fma_fit"], updates=UPDATES), 1
     ):
         watch()
-        xs = []
+        crops = []
         targets = []
         for draw in batch:
-            x, w = make_crop(array(draw.identity), draw, length)
-            xs.append(x)
-            targets.append(transpose_key(refs[draw.identity], -w["shift"]))
+            crop, witness = make_crop(array(draw.identity), draw, length)
+            crops.append(crop)
+            targets.append(transpose_key(references[draw.identity], -witness["shift"]))
             common.update(
-                f"{draw.domain}:{draw.identity}:{draw.augmentation_seed}:{w['shift']}\n".encode()
+                f"{draw.domain}:{draw.identity}:{draw.augmentation_seed}:{witness['shift']}\n".encode()
             )
             temporal.update(
-                f"{draw.identity}:{draw.augmentation_seed}:{w['shift']}:{w['first']}\n".encode()
+                f"{draw.identity}:{draw.augmentation_seed}:{witness['shift']}:{witness['first']}\n".encode()
             )
             if draw.domain == "beatport":
-                bp.update(
-                    f"{draw.identity}:{draw.augmentation_seed}:{w['shift']}:{w['first']}\n".encode()
+                beatport_trace.update(
+                    f"{draw.identity}:{draw.augmentation_seed}:{witness['shift']}:{witness['first']}\n".encode()
                 )
             coverage[draw.identity] += 1
-            exposure[draw.domain] += w["actual_frames"]
+            exposure[draw.domain] += witness["actual_frames"]
         model.train()
         optimizer.zero_grad()
         loss = torch.nn.functional.cross_entropy(
-            model(torch.from_numpy(np.stack(xs)).to(device)), torch.tensor(targets, device=device)
+            model(torch.from_numpy(np.stack(crops)).to(device)),
+            torch.tensor(targets, device=device),
         )
         if not bool(torch.isfinite(loss)):
             raise ValueError("Nonfinite training loss")
         loss.backward()
         if any(
-            t.grad is not None and not bool(torch.isfinite(t.grad).all())
-            for t in model.parameters()
+            parameter.grad is not None and not bool(torch.isfinite(parameter.grad).all())
+            for parameter in model.parameters()
         ):
             raise ValueError("Nonfinite gradients; no optimizer commit")
         optimizer.step()
         loss_sum += float(loss.detach())
-        if any(not bool(torch.isfinite(t).all()) for t in model.state_dict().values()):
+        if any(not bool(torch.isfinite(tensor).all()) for tensor in model.state_dict().values()):
             raise ValueError("Nonfinite updated state")
         if update % EVERY:
             continue
         scheduler.step()  # Same timing as original K10 v2 driver.
         predictions = evaluate_complete(model, full, watch, **evaluation_options)
         measured = {
-            d: metrics(
+            domain: metrics(
                 domain_ids,
                 predictions[
-                    (0 if d == "beatport" else 126) : (126 if d == "beatport" else len(ids))
+                    (0 if domain == "beatport" else 126) : (
+                        126 if domain == "beatport" else len(ids)
+                    )
                 ].tolist(),
-                refs,
+                references,
             )
-            for d, domain_ids in panels.items()
+            for domain, domain_ids in panels.items()
         }
         key = selection_key(measured)
         if best is None or key > best:
-            best, best_update, best_metrics = key, update, measured
+            best = key
+            best_update = update
+            best_metrics = measured
             best_sha = checkpoint(
                 output / "best.pt",
                 model,
@@ -382,7 +400,7 @@ def train_arm(
         "history": history,
         "common_draw_pitch_sha256": common.hexdigest(),
         "temporal_sha256": temporal.hexdigest(),
-        "bp_augmented_sha256": bp.hexdigest(),
+        "bp_augmented_sha256": beatport_trace.hexdigest(),
         "coverage": dict(coverage),
         "actual_frames": dict(exposure),
         "elapsed_seconds": time.monotonic() - start,
@@ -392,7 +410,7 @@ def train_arm(
         "selected_reload_proof": {
             "strict_state_load": True,
             "tracks": len(ids),
-            "frames": sum(x.shape[1] for x in full),
+            "frames": sum(feature.shape[1] for feature in full),
             "argmax_disagreements": 0,
             "scores_identical": True,
             "checkpoint_sha256": best_sha,
@@ -596,8 +614,9 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
 
     from tools.run_k10_context_pair import worker_watch
 
-    v, permit = load(config), load(approval)
-    contract(v)
+    value = load(config)
+    permit = load(approval)
+    contract(value)
     if (
         os.getppid() != guardian
         or permit.get("authorized") is not True
@@ -606,12 +625,12 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         or permit.get("config_sha256") != sha(config)
     ):
         raise ValueError("Exact private matched-pair approval required")
-    watch = worker_watch(v, output.parent, guardian, sha(config))
+    watch = worker_watch(value, output.parent, guardian, sha(config))
     watch()
     root = Path(__file__).resolve().parents[1]
-    if any(sha(root / n) != h for n, h in v["source_sha256"].items()):
+    if any(sha(root / name) != expected for name, expected in value["source_sha256"].items()):
         raise ValueError("Source changed")
-    for k in (
+    for name in (
         "plan",
         "labels",
         "features",
@@ -621,9 +640,9 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         "cost_controller",
         "historical_gpu_control",
     ):
-        if sha(Path(v[k])) != v[k + "_sha256"]:
+        if sha(Path(value[name])) != value[name + "_sha256"]:
             raise ValueError("Bound data/evidence changed")
-    base = load(Path(v["cost_config"]))
+    base = load(Path(value["cost_config"]))
     for field in (
         "rows",
         "plan",
@@ -639,19 +658,19 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         "interop_threads",
         "nice",
     ):
-        if v[field] != base[field]:
+        if value[field] != base[field]:
             raise ValueError("Qualified data/runtime invariant differs: " + field)
-    validate_feature_manifest(load(Path(v["plan"])), load(Path(v["features"])))
-    for name, receipt in v["module_receipts"].items():
+    validate_feature_manifest(load(Path(value["plan"])), load(Path(value["features"])))
+    for name, receipt in value["module_receipts"].items():
         module = importlib.import_module(name)
         if module.__file__ is None or sha(Path(module.__file__)) != receipt["sha256"]:
             raise ValueError("Runtime module changed")
     if (
-        sha(Path(sys.executable)) != v["interpreter"]["sha256"]
-        or any(sha(Path(p)) != h for p, h in v["native_cpu_sha256"].items())
-        or str(torch.__version__) != v["runtime"]["torch"]
-        or np.__version__ != v["runtime"]["numpy"]
-        or sys.version.split()[0] != v["runtime"]["python"]
+        sha(Path(sys.executable)) != value["interpreter"]["sha256"]
+        or any(sha(Path(path)) != expected for path, expected in value["native_cpu_sha256"].items())
+        or str(torch.__version__) != value["runtime"]["torch"]
+        or np.__version__ != value["runtime"]["numpy"]
+        or sys.version.split()[0] != value["runtime"]["python"]
         or os.environ.get("CUDA_VISIBLE_DEVICES") != ""
         or torch.cuda.is_initialized()
     ):
@@ -659,14 +678,14 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
     torch.set_num_threads(2)
     torch.set_num_interop_threads(1)
     output.mkdir(exist_ok=False)
-    rows = {r["id"]: r for r in v["rows"]}
-    for r in rows.values():
+    rows = {row["id"]: row for row in value["rows"]}
+    for row in rows.values():
         watch()
-        path = Path(r["cache_path"])
+        path = Path(row["cache_path"])
         before = file_identity(path)
         if (
-            list(before) != list(r["cache_identity"])
-            or sha(path) != r["cache_sha256"]
+            list(before) != list(row["cache_identity"])
+            or sha(path) != row["cache_sha256"]
             or file_identity(path) != before
         ):
             raise ValueError("CQT identity changed")
@@ -674,45 +693,47 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
     @lru_cache(maxsize=64)
     def array(identity: str) -> np.ndarray:
         watch()
-        r = rows[identity]
-        path = Path(r["cache_path"])
-        if list(file_identity(path)) != list(r["cache_identity"]):
+        row = rows[identity]
+        path = Path(row["cache_path"])
+        if list(file_identity(path)) != list(row["cache_identity"]):
             raise ValueError("CQT stat changed")
-        a = np.load(path, allow_pickle=False, mmap_mode="r")
+        cqt = np.load(path, allow_pickle=False, mmap_mode="r")
         if (
-            a.shape != (208, r["frames"])
-            or a.dtype != np.float16
-            or not np.isfinite(a).all()
-            or list(file_identity(path)) != list(r["cache_identity"])
+            cqt.shape != (208, row["frames"])
+            or cqt.dtype != np.float16
+            or not np.isfinite(cqt).all()
+            or list(file_identity(path)) != list(row["cache_identity"])
         ):
             raise ValueError("Invalid CQT")
-        return a
+        return cqt
 
-    p = load(Path(v["plan"]))
+    plan = load(Path(value["plan"]))
     provenance = {
         "config_sha256": sha(config),
-        "source_sha256": v["source_sha256"],
-        "plan_sha256": v["plan_sha256"],
-        "labels_sha256": v["labels_sha256"],
-        "features_sha256": v["features_sha256"],
-        "runtime": v["runtime"],
-        "modules": v["module_receipts"],
+        "source_sha256": value["source_sha256"],
+        "plan_sha256": value["plan_sha256"],
+        "labels_sha256": value["labels_sha256"],
+        "features_sha256": value["features_sha256"],
+        "runtime": value["runtime"],
+        "modules": value["module_receipts"],
         "threads": 2,
         "seed": 13,
     }
     arms = []
     for length in (320, 65):
         array.cache_clear()
-        arms.append(train_arm(length, p, rows, array, output / f"crop-{length}", provenance, watch))
-    old = load(Path(v["historical_gpu_control"]))
+        arms.append(
+            train_arm(length, plan, rows, array, output / f"crop-{length}", provenance, watch)
+        )
+    old = load(Path(value["historical_gpu_control"]))
     if arms[0]["bp_augmented_sha256"] != old["bp_trace_sha256"]:
         raise ValueError("CPU320 crop/pitch replay differs from historical source")
     gate = compare(*arms, old)
     group_rows = list(
-        csv.DictReader(io.StringIO(gzip.decompress(Path(v["groups"]).read_bytes()).decode()))
+        csv.DictReader(io.StringIO(gzip.decompress(Path(value["groups"]).read_bytes()).decode()))
     )
-    groups = {r["id"]: r["derived_uncertainty_group"] for r in group_rows}
-    ci = uncertainty(*arms, {i: r["ref"] for i, r in rows.items()}, groups)
+    groups = {row["id"]: row["derived_uncertainty_group"] for row in group_rows}
+    intervals = uncertainty(*arms, {identity: row["ref"] for identity, row in rows.items()}, groups)
     errors = movements(*arms, rows, groups)
     watch()
     save(
@@ -720,11 +741,14 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
         {
             "status": "COMPLETE_MATCHED_CONTEXT_PAIR_NOT_PROMOTED",
             "arms": [
-                {"path": f"crop-{n}/result.json", "sha256": sha(output / f"crop-{n}/result.json")}
-                for n in (320, 65)
+                {
+                    "path": f"crop-{length}/result.json",
+                    "sha256": sha(output / f"crop-{length}/result.json"),
+                }
+                for length in (320, 65)
             ],
             "gate": gate,
-            "uncertainty": ci,
+            "uncertainty": intervals,
             "paired_errors_and_duration": errors,
             "provenance": provenance,
             "confirmation_used": False,
@@ -736,18 +760,18 @@ def worker(config: Path, approval: Path, output: Path, guardian: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    sub = parser.add_subparsers(dest="mode", required=True)
-    planning = sub.add_parser("plan")
-    for n in ("cost-config", "cost", "controller", "groups", "output"):
-        planning.add_argument("--" + n, type=Path, required=True)
-    sealing = sub.add_parser("seal")
-    for n in ("config", "output"):
-        sealing.add_argument("--" + n, type=Path, required=True)
-    for n in ("begin", "end"):
-        sealing.add_argument("--" + n, required=True)
-    run = sub.add_parser("worker")
-    for n in ("config", "approval", "output"):
-        run.add_argument("--" + n, type=Path, required=True)
+    subparsers = parser.add_subparsers(dest="mode", required=True)
+    planning = subparsers.add_parser("plan")
+    for name in ("cost-config", "cost", "controller", "groups", "output"):
+        planning.add_argument("--" + name, type=Path, required=True)
+    sealing = subparsers.add_parser("seal")
+    for name in ("config", "output"):
+        sealing.add_argument("--" + name, type=Path, required=True)
+    for name in ("begin", "end"):
+        sealing.add_argument("--" + name, required=True)
+    run = subparsers.add_parser("worker")
+    for name in ("config", "approval", "output"):
+        run.add_argument("--" + name, type=Path, required=True)
     run.add_argument("--guardian", type=int, required=True)
     args = parser.parse_args()
     if args.mode == "plan":

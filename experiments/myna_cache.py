@@ -64,14 +64,14 @@ def sha256(path: Path, watch: Callable[[], None]) -> str:
 def checked_bytes(path: Path, expected: str, watch: Callable[[], None]) -> bytes:
     require(path.is_file() and not path.is_symlink(), "Missing/nonregular metadata")
     require(path.stat().st_size <= 64 * 1024**2, "Oversized metadata")
-    raw = path.read_bytes()
+    payload = path.read_bytes()
     watch()
-    require(hashlib.sha256(raw).hexdigest() == expected, "Metadata hash mismatch")
+    require(hashlib.sha256(payload).hexdigest() == expected, "Metadata hash mismatch")
     if path.suffix == ".gz":
-        with gzip.GzipFile(fileobj=io.BytesIO(raw)) as stream:
-            raw = stream.read(64 * 1024**2 + 1)
-        require(len(raw) <= 64 * 1024**2, "Oversized decoded metadata")
-    return raw
+        with gzip.GzipFile(fileobj=io.BytesIO(payload)) as stream:
+            payload = stream.read(64 * 1024**2 + 1)
+        require(len(payload) <= 64 * 1024**2, "Oversized decoded metadata")
+    return payload
 
 
 def checked_json(path: Path, expected: str, watch: Callable[[], None]) -> dict[str, Any]:
@@ -82,7 +82,9 @@ def checked_json(path: Path, expected: str, watch: Callable[[], None]) -> dict[s
 
 def is_sha(value: object) -> bool:
     return (
-        isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
+        isinstance(value, str)
+        and len(value) == 64
+        and all(character in "0123456789abcdef" for character in value)
     )
 
 
@@ -110,8 +112,9 @@ def rate_geometry(samples_16k: int, shift: int) -> RateGeometry:
         type(samples_16k) is int and samples_16k > 0 and type(shift) is int and -6 <= shift <= 6,
         "Invalid rate geometry input",
     )
-    up, down = 16000, round(16000 * 2 ** (shift / 12))
-    output = (samples_16k * up + down - 1) // down
+    rate_up = 16000
+    rate_down = round(16000 * 2 ** (shift / 12))
+    output = (samples_16k * rate_up + rate_down - 1) // rate_down
     frames = output // 512 + 1
     windows, tail = divmod(frames, 196)
     return {
@@ -119,10 +122,10 @@ def rate_geometry(samples_16k: int, shift: int) -> RateGeometry:
         "mel_frames": frames,
         "windows": windows,
         "discarded_frames": tail,
-        "rate_up": up,
-        "rate_down": down,
-        "actual_rate": down / up,
-        "pitch_cents_error": 1200 * math.log2(down / up) - 100 * shift,
+        "rate_up": rate_up,
+        "rate_down": rate_down,
+        "actual_rate": rate_down / rate_up,
+        "pitch_cents_error": 1200 * math.log2(rate_down / rate_up) - 100 * shift,
     }
 
 
@@ -199,22 +202,32 @@ def validate_manifest(
         require(isinstance(ids, list) and len(ids) == len(set(ids)), "Duplicate role IDs")
         if require_production_counts:
             require(len(ids) == count, "Different approved role counts")
-        require(all(isinstance(i, str) and i.startswith(domain + ":") for i in ids), "Wrong domain")
+        require(
+            all(
+                isinstance(identity, str) and identity.startswith(domain + ":") for identity in ids
+            ),
+            "Wrong domain",
+        )
         require(not set(ids) & expected.keys(), "Cross-role identity")
         expected.update((identity, (domain, role)) for identity in ids)
         if role == "selection":
             selection[domain] = ids.copy()
     require(set(labels) == set(expected), "Extra/missing reference labels")
-    require(all(type(y) is int and 0 <= y < 24 for y in labels.values()), "Invalid key class")
-    require(plan["expected_refs"] == labels, "Plan/label export differs")
-    wave = {row["id"]: row for row in waveforms}
-    group = {row["id"]: row for row in groups}
     require(
-        len(wave) == len(waveforms) == len(expected) and set(wave) == set(expected),
+        all(type(label) is int and 0 <= label < 24 for label in labels.values()),
+        "Invalid key class",
+    )
+    require(plan["expected_refs"] == labels, "Plan/label export differs")
+    waveform_rows = {row["id"]: row for row in waveforms}
+    group_rows_by_id = {row["id"]: row for row in groups}
+    require(
+        len(waveform_rows) == len(waveforms) == len(expected)
+        and set(waveform_rows) == set(expected),
         "Waveform membership differs",
     )
     require(
-        len(group) == len(groups) == len(expected) and set(group) == set(expected),
+        len(group_rows_by_id) == len(groups) == len(expected)
+        and set(group_rows_by_id) == set(expected),
         "Group membership differs",
     )
     rows = {row["id"]: row for row in manifest["tracks"]}
@@ -226,7 +239,9 @@ def validate_manifest(
     resolved_root = root.resolve()
     used_paths: set[Path] = set()
     for identity, (domain, role) in expected.items():
-        row, source, family = rows[identity], wave[identity], group[identity]
+        row = rows[identity]
+        source = waveform_rows[identity]
+        family = group_rows_by_id[identity]
         require(row["domain"] == family["domain"] == domain, "Different domain")
         require(row["role"] == family["logical_role"] == role, "Different logical role")
         require(
@@ -240,10 +255,13 @@ def validate_manifest(
             "Different source/PCM",
         )
         require(is_sha(row["source_sha256"]) and is_sha(row["pcm_sha256"]), "Invalid source hash")
-        n24 = source["samples"]
-        require(type(n24) is int and n24 > 0 and row["samples_24k"] == n24, "Different PCM support")
-        n16 = base_sample_count(n24)
-        frames = n16 // 512 + 1
+        samples_24k = source["samples"]
+        require(
+            type(samples_24k) is int and samples_24k > 0 and row["samples_24k"] == samples_24k,
+            "Different PCM support",
+        )
+        samples_16k = base_sample_count(samples_24k)
+        frames = samples_16k // 512 + 1
         windows, tail = divmod(frames, 196)
         require(windows > 0, "No complete input window")
         require(
@@ -253,19 +271,19 @@ def validate_manifest(
                 row["complete_windows"],
                 row["discarded_frames"],
             )
-            == (n16, frames, windows, tail),
+            == (samples_16k, frames, windows, tail),
             "Window geometry differs",
         )
         required_shifts = set(range(-6, 7)) if role == "fit" else {0}
         actual_shifts = [view["shift"] for view in row["views"]]
         require(
-            all(type(s) is int for s in actual_shifts)
+            all(type(shift) is int for shift in actual_shifts)
             and len(actual_shifts) == len(required_shifts)
             and set(actual_shifts) == required_shifts,
             "Missing/duplicate/extra pitch views",
         )
         for view in sorted(row["views"], key=lambda item: item["shift"]):
-            geometry = rate_geometry(n16, view["shift"])
+            geometry = rate_geometry(samples_16k, view["shift"])
             view_windows = geometry["windows"]
             require(view_windows > 0, "No complete shifted input window")
             require(
@@ -303,8 +321,8 @@ def validate_manifest(
             if metadata_only:
                 require(
                     all(
-                        view[k] is None
-                        for k in (
+                        view[key] is None
+                        for key in (
                             "raw_samples",
                             "trimmed_samples",
                             "padded_samples",
@@ -315,12 +333,12 @@ def validate_manifest(
                     "Projected artifacts must remain unobserved",
                 )
             else:
-                raw, trimmed, padded = (
-                    view[k] for k in ("raw_samples", "trimmed_samples", "padded_samples")
+                raw_samples, trimmed, padded = (
+                    view[key] for key in ("raw_samples", "trimmed_samples", "padded_samples")
                 )
                 require(
-                    all(type(v) is int for v in (raw, trimmed, padded))
-                    and (raw, trimmed, padded) == (geometry["samples_16k"], 0, 0),
+                    all(type(count) is int for count in (raw_samples, trimmed, padded))
+                    and (raw_samples, trimmed, padded) == (geometry["samples_16k"], 0, 0),
                     "Playback-rate views forbid padding, trimming or altered output lengths",
                 )
             relative = Path(view["path"])
@@ -362,18 +380,21 @@ def validate_manifest(
         tuple(views),
         selection,
         labels,
-        sum(v.windows for v in views if v.role == "fit"),
-        sum(v.windows for v in views if v.role == "selection"),
+        sum(view.windows for view in views if view.role == "fit"),
+        sum(view.windows for view in views if view.role == "selection"),
         {
-            domain: sum(d == domain and r == "fit" for d, r in expected.values())
+            domain: sum(
+                view_domain == domain and view_role == "fit"
+                for view_domain, view_role in expected.values()
+            )
             for domain in DOMAIN_MASS
         },
         measured=not metadata_only,
     )
 
 
-def group_rows(raw: bytes) -> list[dict[str, str]]:
-    return list(csv.DictReader(io.StringIO(raw.decode())))
+def group_rows(payload: bytes) -> list[dict[str, str]]:
+    return list(csv.DictReader(io.StringIO(payload.decode())))
 
 
 def loss_weight(view: View, contract: Contract) -> float:
@@ -399,8 +420,8 @@ def load_cache(
 ) -> LoadedCache:
     require(contract.measured, "A metadata-only projection cannot load embeddings or train")
     require(contract.embedding_bytes <= max_embedding_bytes, "Embedding RAM admission exceeded")
-    ordered = [v for v in contract.views if v.role == "fit"] + [
-        v for v in contract.views if v.role == "selection"
+    ordered = [view for view in contract.views if view.role == "fit"] + [
+        view for view in contract.views if view.role == "selection"
     ]
     embeddings = np.empty(
         (contract.fit_windows + contract.selection_windows, 384), dtype=np.float32
@@ -444,7 +465,9 @@ def load_cache(
         else:
             selection[view.identity] = slice(offset, end)
         offset = end
-    embeddings.flags.writeable = targets.flags.writeable = weights.flags.writeable = False
+    embeddings.flags.writeable = False
+    targets.flags.writeable = False
+    weights.flags.writeable = False
     return LoadedCache(embeddings, targets, weights, selection, contract)
 
 

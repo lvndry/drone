@@ -20,9 +20,9 @@ def main() -> None:
     parser.add_argument("--pilot", type=Path, required=True)
     args = parser.parse_args()
     seeds = (13, 37, 73)
-    runs = [read(args.root / f"seed{s}/seed{s}/run.json") for s in seeds]
-    results = [read(args.root / f"seed{s}/result.json") for s in seeds]
-    splits = [read(args.root / f"seed{s}/split.json") for s in seeds]
+    runs = [read(args.root / f"seed{seed}/seed{seed}/run.json") for seed in seeds]
+    results = [read(args.root / f"seed{seed}/result.json") for seed in seeds]
+    splits = [read(args.root / f"seed{seed}/split.json") for seed in seeds]
     pilot = read(args.pilot / "seed13/run.json")
     assert all(run["status"] == "complete" for run in runs)
     assert [run["identity"]["seed"] for run in runs] == list(seeds)

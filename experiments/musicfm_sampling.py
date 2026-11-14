@@ -17,14 +17,14 @@ def seed(purpose: str) -> int:
     )
 
 
-def batches(bp: list[str], fma: list[str], updates: int = 8280) -> Iterator[list[Draw]]:
+def batches(beatport: list[str], fma: list[str], updates: int = 8280) -> Iterator[list[Draw]]:
     """Shuffle domain positions within each update, preserving each ID subsequence."""
     if type(updates) is not int or updates <= 0:
         raise ValueError("A positive integer update count is required")
-    for step, original in enumerate(paired_batches(bp, fma, updates=updates)):
+    for step, original in enumerate(paired_batches(beatport, fma, updates=updates)):
         positions = [draw.domain for draw in original]
         streams = {
-            domain: deque(d for d in original if d.domain == domain)
+            domain: deque(draw for draw in original if draw.domain == domain)
             for domain in ("beatport", "fmak")
         }
         random.Random(seed(f"interleave:13:{step}")).shuffle(positions)

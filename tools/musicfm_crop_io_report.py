@@ -47,8 +47,9 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
     if digest(files["run_once.py"].encode()) != launch["wrapper_source_sha256"]:
         raise ValueError("Outer supervisor source changed")
     if set(approval["protected_before"]) != set(after) or any(
-        row["start_ticks"] != after[pid]["start_ticks"] or after[pid]["state"] in ("Z", "X")
-        for pid, row in approval["protected_before"].items()
+        row["start_ticks"] != after[process_id]["start_ticks"]
+        or after[process_id]["state"] in ("Z", "X")
+        for process_id, row in approval["protected_before"].items()
     ):
         raise ValueError("Protected process identity changed")
     if len(report["rows"]) != 16 or len(config["rows"]) != 16:
@@ -62,7 +63,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
             or row != json.loads(files[f"qualification-v1/track-{number:02}.json"])
         ):
             raise ValueError("Track/order/source binding changed")
-        if [c["start_sample"] for c in row["cases"]] != crop_positions(
+        if [case["start_sample"] for case in row["cases"]] != crop_positions(
             row["full_samples"], row["id"]
         ):
             raise ValueError("Crop membership changed")
@@ -71,8 +72,8 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
             if standalone != {"id": row["id"], **case} or not case["passed"] or not case["finite"]:
                 raise ValueError("Per-case result changed")
             if any(
-                case[k] != 0
-                for k in (
+                case[field] != 0
+                for field in (
                     "max_absolute_error",
                     "rms_error",
                     "bitwise_mismatch_samples",
@@ -88,7 +89,9 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
                 "id": row["id"],
                 "duration_seconds": row["full_samples"] / 24000,
                 "full_wall_seconds": row["full_execution"]["wall_seconds"],
-                "mean_crop_wall_seconds": sum(c["execution"]["wall_seconds"] for c in row["cases"])
+                "mean_crop_wall_seconds": sum(
+                    case["execution"]["wall_seconds"] for case in row["cases"]
+                )
                 / len(row["cases"]),
             }
         )
@@ -101,7 +104,7 @@ def verify(files: dict[str, str]) -> dict[str, Any]:
         "all_bit_exact": True,
         "points": points,
         "stderr_files": len(stderr),
-        "nonempty_stderr_files": sum(bool(x) for x in stderr),
+        "nonempty_stderr_files": sum(bool(text) for text in stderr),
         "terminal": terminal,
         "report_sha256": REPORT_SHA,
         "config_sha256": CONFIG_SHA,
@@ -118,15 +121,15 @@ def plot(result: dict[str, Any], study: Path) -> None:
     points = result["points"]
     figure, axis = plt.subplots(figsize=(8, 4.4), constrained_layout=True)
     axis.scatter(
-        [p["duration_seconds"] / 60 for p in points],
-        [p["full_wall_seconds"] * 1000 for p in points],
+        [point["duration_seconds"] / 60 for point in points],
+        [point["full_wall_seconds"] * 1000 for point in points],
         label="One full decode",
         marker="o",
         color="#295b85",
     )
     axis.scatter(
-        [p["duration_seconds"] / 60 for p in points],
-        [p["mean_crop_wall_seconds"] * 1000 for p in points],
+        [point["duration_seconds"] / 60 for point in points],
+        [point["mean_crop_wall_seconds"] * 1000 for point in points],
         label="Mean of nine bounded crop decodes",
         marker="x",
         color="#b35430",
@@ -160,9 +163,9 @@ def main() -> None:
     packet = data / "runtime-raw.json.gz"
     if args.evidence is not None:
         files = {
-            p.relative_to(args.evidence).as_posix(): p.read_text()
-            for p in sorted(args.evidence.rglob("*"))
-            if p.is_file()
+            path.relative_to(args.evidence).as_posix(): path.read_text()
+            for path in sorted(args.evidence.rglob("*"))
+            if path.is_file()
         }
         result = verify(files)
         raw = json.dumps(files, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()

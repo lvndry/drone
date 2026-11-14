@@ -29,11 +29,11 @@ ANNOTATION_URL = "https://zenodo.org/api/records/12759100/files/fmakv2.csv/conte
 ANNOTATION_MD5 = "3b2d16784ffbda850c8ddf0519478bfd"
 
 
-def prep_one(arguments: tuple[str, str, Path, Key]) -> tuple[str, np.ndarray, int, str, float]:
+def prepare_one(arguments: tuple[str, str, Path, Key]) -> tuple[str, np.ndarray, int, str, float]:
     identity, path, cache, key = arguments
     start = time.monotonic()
-    features, ref = prepare(Track(identity, path, key), cache)
-    return identity, features, ref, audio_digest(path), time.monotonic() - start
+    features, reference = prepare(Track(identity, path, key), cache)
+    return identity, features, reference, audio_digest(path), time.monotonic() - start
 
 
 def write_json(path: Path, value: object) -> None:
@@ -53,7 +53,8 @@ def main() -> None:
     if not 1 <= args.workers <= 8:
         parser.error("workers must be between 1 and 8")
     args.output.mkdir(parents=True, exist_ok=True)
-    downloads, audio = args.output / "downloads", args.output / "audio"
+    downloads = args.output / "downloads"
+    audio = args.output / "audio"
     downloads.mkdir(exist_ok=True)
     audio.mkdir(exist_ok=True)
     metadata_bytes = args.audio_metadata.read_bytes()
@@ -86,7 +87,7 @@ def main() -> None:
     }
     all_start = time.monotonic()
     found = {}
-    for item in sorted(audio_record["files"], key=lambda x: x["key"]):
+    for item in sorted(audio_record["files"], key=lambda file_record: file_record["key"]):
         name = item["key"]
         if not name.endswith(".zip"):
             continue
@@ -124,8 +125,8 @@ def main() -> None:
                 # Always finish the ZIP read, which checks the entry CRC. Files are
                 # replaced only after verified extraction from the MD5-checked archive.
                 pending = target.with_suffix(".pending")
-                with bundle.open(member) as source, pending.open("wb") as dest:
-                    shutil.copyfileobj(source, dest)
+                with bundle.open(member) as source, pending.open("wb") as destination:
+                    shutil.copyfileobj(source, destination)
                 os.replace(pending, target)
                 found[identity] = target
                 matched += 1
@@ -150,27 +151,32 @@ def main() -> None:
         raise ValueError(f"Missing {len(missing)} annotated audio tracks: {sorted(missing)[:10]}")
     if shutil.disk_usage(args.output).free < 60 * 1024**3:
         raise RuntimeError("Need 60 GiB free before feature preparation")
-    ids = sorted(labels)
+    identities = sorted(labels)
     jobs = [
-        (identity, str(found[identity]), str(args.output), labels[identity]) for identity in ids
+        (identity, str(found[identity]), str(args.output), labels[identity])
+        for identity in identities
     ]
-    features, refs, tracks = [], [], []
+    features = []
+    references = []
+    tracks = []
     start = time.monotonic()
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
-        for count, (identity, f, ref, digest, seconds) in enumerate(pool.map(prep_one, jobs), 1):
-            features.append(f)
-            refs.append(ref)
+        for count, (identity, feature, reference, digest, seconds) in enumerate(
+            pool.map(prepare_one, jobs), 1
+        ):
+            features.append(feature)
+            references.append(reference)
             tracks.append({"id": identity, "sha256": digest, "key": list(labels[identity])})
             if count % 100 == 0:
                 record.update(feature_tracks=count, elapsed_seconds=time.monotonic() - all_start)
                 write_json(status_path, record)
                 print(f"Features ready: {count}/5489", flush=True)
-    meta = {
+    metadata = {
         "feature_spec": FEATURE_SPEC,
         "label_schema": LABEL_SCHEMA,
         "frames": 300,
-        "refs": refs,
-        "ids": ids,
+        "refs": references,
+        "ids": identities,
         "tracks": tracks,
         "provenance": {
             "annotation_url": ANNOTATION_URL,
@@ -183,11 +189,11 @@ def main() -> None:
     target.parent.mkdir(parents=True, exist_ok=True)
     pending = target.with_suffix(".pending")
     with pending.open("wb") as stream:
-        np.savez(stream, features=np.stack(features), metadata=json.dumps(meta))
+        np.savez(stream, features=np.stack(features), metadata=json.dumps(metadata))
     os.replace(pending, target)
     record.update(
         status="complete",
-        feature_tracks=len(ids),
+        feature_tracks=len(identities),
         prepared_bundle=str(target),
         feature_seconds=time.monotonic() - start,
         elapsed_seconds=time.monotonic() - all_start,

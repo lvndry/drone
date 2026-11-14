@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 
 class _TimeMean(torch.nn.Module):
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return x.mean(dim=-1, keepdim=True)
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        return features.mean(dim=-1, keepdim=True)
 
 
 def cpu_session(path: str | Path, threads: int = 1) -> ort.InferenceSession:
@@ -65,13 +65,15 @@ def export_checkpoint(checkpoint: str | Path, output: str | Path) -> dict[str, A
     session = cpu_session(output)
     errors: list[float] = []
     for batch, frames in ((1, 8), (2, 56), (3, 319), (1, CROP_FRAMES), (2, 645)):
-        x = torch.randn(batch, N_CORE, frames, generator=generator)
+        features = torch.randn(batch, N_CORE, frames, generator=generator)
         with torch.inference_mode():
-            expected = model(x).numpy()
-        actual = np.asarray(session.run(["logits"], {"features": x.numpy()})[0], dtype=np.float32)
+            expected = model(features).numpy()
+        actual = np.asarray(
+            session.run(["logits"], {"features": features.numpy()})[0], dtype=np.float32
+        )
         np.testing.assert_allclose(actual, expected, rtol=1e-4, atol=1e-5)
         errors.append(float(np.max(np.abs(actual - expected))))
-    metadata = {k: v for k, v in payload.items() if k != "state_dict"}
+    metadata = {name: value for name, value in payload.items() if name != "state_dict"}
     metadata.update(
         {
             "input_layout": "batch,bands,time",

@@ -1,173 +1,190 @@
-# More fitting data under matched updates: K10 v2 pilot
+# K10 v2 pilot: more FMA fitting data at a fixed number of updates
 
-**The expanded-data pilot failed its frozen gate.** FMA exact accuracy increased
-from **172/250 to 176/250 (+1.60 percentage points)**, below the required +2.00.
-Beatport exact and both MIREX conventions improved. Both arms finished the full
-8,280 updates; no confirmation, calibration, GiantSteps or private DJ evaluation
-was performed. Release weights remain unchanged. This is one seed on adaptive
-inner-selection panels, not an independent final test or a CPU performance result.
+Training K10 on 4,033 instead of 976 FMA recordings, with the number of updates held
+fixed, raised FMA exact accuracy from 172/250 to 176/250 (+1.60 points). That is
+below the pre-set threshold of +2.00 points, so the pilot did not pass. Beatport
+exact and both MIREX scores also improved. The 95% interval for the FMA gain (-1.94
+to +5.08 points) contains both zero and the threshold, so at this sample size the
+result is inconclusive rather than evidence of no effect. The study ran in November
+2026 with one seed.
 
-## Problem and comparison
+## Question
 
-Could recovering additional FMA fitting data improve this small classifier without
-changing its deployed architecture? The [component-first proposal](../v2-data-contract/REPORT.md)
-retired historical roles and fixed a new whole-component assignment using a
-**label-independent metadata rule** and one deterministic seed. Its restricted
-fitting pool retains the
-old 976 FMA records; the expanded pool adds eligible records on the same new inner
-panels. Old final recordings can enter the new fitting pool: the exposure ledger is
-explicit, and the old benchmarks do not become pristine through repartitioning.
+Can more FMA fitting data improve this small classifier without changing its
+architecture? The [v2 data contract](../v2-data-contract/REPORT.md) reassigned
+recordings to new roles using whole metadata components, a rule that does not look
+at labels, and one fixed seed. The restricted fitting pool keeps the old 976 FMA
+recordings; the expanded pool adds eligible recordings, and both are evaluated on
+the same new validation panels. Recordings from the old final test set can enter
+the new fitting pool. That exposure is documented, and the old benchmarks do not
+become untouched again through repartitioning.
 
-After the source-integrity amendment below, the comparison is **976 versus 4,033
-container-unique FMA fitting records**, with the same **1,229 BP fitting records**.
-Both use the same 126 BP and 250 FMA inner records. The 998-row/997-container-unit
-confirmation panel and 159 calibration rows are excluded from pilot inputs.
-FMA grouping uses audited artist/album components. BP originated from a
-label-stratified, exact-audio-hash guarded split; it is **not artist-disjoint**.
-Official metadata resolves artist identities for only 618/1,230 original BP fitting
-records; the remaining 612 are unknown. Sharing BP exposure between arms supports
-this narrower internal comparison, not an artist-independent generalization claim.
+## Method
 
-## Method fixed before outcomes
+The [protocol](PROTOCOL.md) and [execution amendment](EXECUTION.md) fixed the method
+before the run.
 
-The [original protocol](PROTOCOL.md) and [execution amendment](EXECUTION.md) bind
-source, targets, roles and the resource guard. Seed 13 starts both fresh 109,128
-parameter K10 encoders from the same state. Hard cross-entropy, AdamW (learning
-rate 0.001, decay 0.0001), physical CQT, 320-frame crops and cached CQT-bin-reslice
-augmentation remain fixed. Evaluation uses all true-length features, without
-first-120-second truncation. Exact label bookkeeping for reslicing is not an exact
-waveform pitch transformation.
+Data: after the input-integrity fix described below, 976 versus 4,033 unique FMA
+fitting recordings, with the same 1,229 Beatport fitting recordings in both arms.
+Both arms are evaluated on the same 126 Beatport and 250 FMA validation recordings.
+A 998-recording confirmation panel (997 unique audio files) and 159 calibration
+recordings are held out. FMA is grouped by audited artist and album components.
+The Beatport split is stratified by label with exact-audio checks but is not
+artist-disjoint: official metadata gives the artist for only 618 of the 1,230
+original Beatport fitting recordings, and the other 612 are unknown.
 
-Each arm completes 120 virtual events of 69 updates × 32 draws: **8,280 updates**,
-no independent early stop, and the same cosine schedule/evaluation cadence.
-Nominal BP mass stays 1230/2206 after eligibility filtering. Fixed-size domain
-batches and independently keyed domain order/augmentation streams give identical
-BP samples and transformations **between v2 arms**; this is a new matched recipe,
-not reproduction of the old 2,206-draw full-pass recipe (69×32 = 2,208 draws).
-Selection maximizes equal-domain exact accuracy, then symmetric MIREX, then the
-earliest event. The frozen pilot requires +2 FMA exact points and no BP exact or
-symmetric/asymmetric MIREX decline; FMA weighted changes are reported, not gated.
+Training: both arms are fresh K10 models (109,128 parameters) with the same seed-13
+initial weights, hard cross-entropy, AdamW (learning rate 0.001, weight decay
+0.0001), CQT input, 320-frame crops and pitch-shift augmentation by shifting CQT
+bins. Evaluation uses full-length features without truncation. Each arm runs 120
+blocks of 69 updates with batch size 32, so 8,280 updates, the same cosine schedule
+and no early stopping. Beatport sampling weight is 1230/2206. Separate random
+streams per domain give both arms identical Beatport samples and augmentations.
+This is a new matched recipe, not a rerun of the old full-pass recipe (69 × 32 =
+2,208 draws per block).
+
+Selection: highest mean exact accuracy over the two domains, then symmetric MIREX,
+then the earliest evaluation.
+
+Pre-set success threshold: at least +2.00 FMA exact points (5 of 250 recordings),
+with no decline in Beatport exact or either Beatport MIREX score. FMA MIREX changes
+are reported but not part of the threshold.
 
 ![Training loss and exact-first inner selection](figures/learning-curves.png)
 
-*Both arms complete the same budget. Dashed lines mark selected updates 3,864
-(restricted) and 5,796 (expanded). The curves use the panels that select checkpoints;
-they are not independent learning-curve evaluations.*
+*Figure 1. Training loss and validation exact accuracy for both arms over the same
+8,280 updates. Dashed lines mark the selected updates, 3,864 (restricted) and 5,796
+(expanded). The validation curves use the same data that selects checkpoints.*
 
-## Preparation uncovered a real input-integrity failure
+## Input-integrity issue found during preparation
 
-First16 completed normally (12 new/4 reused caches). Full preparation processed
-all 5,641 proposed inputs, but **exited 1 with `complete=false`**, correctly stopping
-readiness on canonical model-input duplicates. That failed receipt is preserved.
-There were 25 canonical duplicate families. Their cache files were also bit-identical;
-there were no extra cache-only families. The 23 consistent families stay fitting-only,
-within the same saved FMA components, with no cross-domain/evaluation clustering union.
+A first preparation batch of 16 recordings completed normally (12 new, 4 reused
+caches). The full preparation run then processed all 5,641 proposed inputs and
+stopped, as designed, because some recordings decoded to identical model inputs.
+There were 25 such duplicate families, and their cached features were also
+identical. 23 families had consistent labels and stayed in the fitting pool, within
+the same FMA components.
 
-A separately reviewed eligibility overlay changed **three prepared inputs**, without
-resplitting, replacement or choosing labels:
+Three inputs were changed without resplitting, replacing recordings or choosing
+labels:
 
-| Input | Frozen proposed role | Eligibility action |
+| Input | Original role | Action |
 |---|---|---|
-| BP 2997186 | Fitting | Remove fitting alias from both arms; preserve selection BP 1926377 |
-| FMA 051779 | Expanded fitting; historical quarantine | Quarantine conflicting canonical-target family |
-| FMA 096100 | Expanded fitting; historical final | Quarantine the same family; neither FMA member was in restricted 976 |
+| BP 2997186 | Fitting | Removed from fitting in both arms as a duplicate of validation recording BP 1926377 |
+| FMA 051779 | Expanded fitting; previously quarantined | Quarantined: same audio as FMA 096100 with a conflicting label |
+| FMA 096100 | Expanded fitting; previously in the old final test | Quarantined with FMA 051779; neither was in the restricted 976 |
 
-The derived manifest contains **5,638 eligible prepared IDs**: BP1,229/FMA976 or
-4,033 fitting, plus unchanged selection126+250. All verified numerical cache receipts
-were reused; no re-extraction or automatic role repair occurred. The original
-before-label assignment and failed manifest remain immutable. Within-role consistent
-aliases are disclosed rather than silently interpreted as independent recordings.
+The final manifest has 5,638 eligible recordings: 1,229 Beatport and 976 or 4,033
+FMA for fitting, plus the unchanged 126 + 250 for validation. All existing feature
+caches were reused.
 
-The earlier cached PCM check covered FMA cross-role families and BP-fit→FMA-evaluation
-matches; it did **not** cover BP fitting→BP selection or conflicting targets within a
-fitting role. SAME-ID old mono11025 float32 hash witnesses already agree for the two
-problematic pairs. Thus the earlier miss was a scope/target-check gap, not established
-decoder-precision drift. Canonical22050 duration agrees with all 5,641 old fingerprint
-receipts within one 22050 sample; neither agreement nor a finite CQT proves the publisher
-intended decode was complete. Publisher duration discrepancies and decoder warnings
-are preserved in the diagnostic, without an outcome-chosen rejection threshold.
+An earlier audio-duplicate check had covered FMA families across roles and Beatport
+fitting against FMA evaluation, but not Beatport fitting against Beatport
+validation, or conflicting labels within the fitting pool. Older audio hashes
+already showed the two problematic pairs as identical, so the miss was a gap in the
+check's scope, not decoder drift. Decoded durations agree with all 5,641 earlier
+fingerprints to within one sample at 22,050 Hz. Publisher duration mismatches and
+decoder warnings are recorded in the diagnostic files.
 
-## Paired results and uncertainty
+## Results
 
-| Inner panel / metric | Restricted | Expanded | Change, points | Descriptive paired 95% interval, points |
+| Validation panel / metric | Restricted | Expanded | Change, points | Paired 95% interval, points |
 |---|---:|---:|---:|---:|
-| BP exact, N126 | 68.25% | 70.63% | +2.38 | −3.97 to +9.52 |
-| BP symmetric MIREX | 76.43% | 77.14% | +0.71 | −4.52 to +6.03 |
-| BP asymmetric MIREX | 72.86% | 75.16% | +2.30 | −3.02 to +7.94 |
-| FMA exact, N250 / 100 groups | 68.80% | 70.40% | +1.60 | −1.94 to +5.08 |
-| FMA symmetric MIREX | 74.00% | 75.84% | +1.84 | −0.94 to +4.57 |
-| FMA asymmetric MIREX | 73.60% | 75.04% | +1.44 | −1.44 to +4.23 |
+| BP exact, N=126 | 68.25% | 70.63% | +2.38 | -3.97 to +9.52 |
+| BP symmetric MIREX | 76.43% | 77.14% | +0.71 | -4.52 to +6.03 |
+| BP asymmetric MIREX | 72.86% | 75.16% | +2.30 | -3.02 to +7.94 |
+| FMA exact, N=250 in 100 groups | 68.80% | 70.40% | +1.60 | -1.94 to +5.08 |
+| FMA symmetric MIREX | 74.00% | 75.84% | +1.84 | -0.94 to +4.57 |
+| FMA asymmetric MIREX | 73.60% | 75.04% | +1.44 | -1.44 to +4.23 |
 
 ![Paired changes with descriptive uncertainty](figures/paired-scores.png)
 
-*Intervals use 10,000 paired group bootstrap draws, fixed seed20261112, with
-track-weighted scores: saved FMA components, BP record units only. They are
-post-selection descriptive intervals on reused/adaptively consulted development
-data, not fresh-test coverage, a seed-variance estimate or an alternative gate.*
+*Figure 2. Expanded minus restricted change for each metric with its 95% interval.
+Every interval includes zero, and the FMA exact interval also includes the +2.00
+threshold.*
 
-Exact gains/losses are **11/8 BP** and **12/8 FMA**. Full per-ID predictions, labels,
-error changes and both relation-transition matrices are retained in compressed
-supplementary evidence. The net four FMA gains do not meet the required five.
-The expanded arm sees each FMA identity only29–30 times, versus120–121 restricted;
-all identities are visited, but expanded fitting receives fewer views per record.
-This does not establish underfitting or show that longer training would help.
-Both arms see the same147,733 BP draws; each sees117,227 FMA draws. This estimates
-expanded-data value at this matched update budget, not the best achievable larger-data
-accuracy after additional optimization. No extra seed, epoch or gate rescue was run.
+Intervals use 10,000 paired group bootstrap draws (seed 20261112), resampling FMA
+metadata components and individual Beatport recordings. They are computed after
+checkpoint selection on validation data that has been used during development, so
+they do not represent fresh-test coverage or seed variation. The FMA exact interval
+(-1.94 to +5.08) spans the +2.00 threshold, so this sample size cannot distinguish a
+gain of that size from no gain.
 
-## Primary-use gap: full-length house
+Exact-accuracy movement: on Beatport 11 recordings became correct and 8 became
+wrong; on FMA 12 and 8. The net gain of four FMA recordings is one short of the five
+required. Full per-recording predictions and error-transition matrices are in the
+compressed result files.
+
+In the expanded arm each FMA recording is seen only 29 to 30 times, versus 120 to 121
+times in the restricted arm. Every recording is visited, but each gets fewer views.
+This does not show underfitting or that longer training would help. Both arms see
+the same 147,733 Beatport draws and 117,227 FMA draws. The pilot measures the value
+of more data at this fixed update count, not the best accuracy a larger dataset
+could reach with more training.
+
+### Accuracy by track duration
 
 ![Actual-duration coverage and FMA exact scores](figures/duration-coverage.png)
 
-| FMA actual duration | Records / saved groups | Restricted correct | Expanded correct | Genre-top coverage |
+*Figure 3. FMA validation recordings by actual duration, with exact accuracy per
+bin for both arms. Very few recordings are longer than 5 minutes.*
+
+| FMA duration | Recordings / groups | Restricted correct | Expanded correct | Top-level genre |
 |---|---:|---:|---:|---|
-| <2 minutes | 32 /18 | 19 | 21 | 15 missing; 1 Electronic |
-| 2–<5 minutes | 179 /80 | 124 | 126 | 104 missing; 14 Electronic |
-| 5–10 minutes | 37 /27 | 27 | 27 | 23 missing, 13 Electronic, 1 Rock |
-| >10 minutes | 2 /2 | 2 | 2 | 1 missing, 1 Folk |
+| Under 2 minutes | 32 / 18 | 19 | 21 | 15 missing; 1 Electronic |
+| 2 to under 5 minutes | 179 / 80 | 124 | 126 | 104 missing; 14 Electronic |
+| 5 to 10 minutes | 37 / 27 | 27 | 27 | 23 missing, 13 Electronic, 1 Rock |
+| Over 10 minutes | 2 / 2 | 2 | 2 | 1 missing, 1 Folk |
 
-Counts use actual canonical sample lengths, not publisher duration. Groups may
-span duration bins and must not be summed as disjoint units. FMA5–10minute exact
-change is zero, with a descriptive interval **−12.50 to +13.51 points**. The N2
->10minute bootstrap collapses to zero change mechanically; it establishes no
-certainty. BP has5 short and121 approximately120-second previews, **no5–10minute
-tracks**; its panel does not test full DJ-track accuracy.
+Durations come from actual sample counts, not publisher metadata. Groups can span
+bins and should not be summed. The 5-to-10-minute bin shows no change, with a 95%
+interval of -12.50 to +13.51 points. Beatport has 5 short recordings and 121 previews
+of about 120 seconds, and no recordings of 5 to 10 minutes.
 
-Only **five** actual5–10minute FMA inner tracks carry taxonomy **House182**, across
-**three** components: restricted3/5 versus expanded5/5, two gains/no losses. The
-selection-used subset is far too small for acceptance; its bootstrap spans0 to
-+100 points. Broad Electronic is not verified house, and no deep-house/melodic-house
-labels or adequate8–10minute house panel were established. Full FMA inner genre-top
-is missing for143/250 records. The study cannot establish primary-use accuracy.
+Only five FMA validation recordings of 5 to 10 minutes are tagged House (genre 182),
+in three components: 3 of 5 correct for restricted and 5 of 5 for expanded. This is
+far too few to judge (the bootstrap interval spans 0 to +100 points). Broad
+Electronic is not verified house, and there are no deep or melodic house labels or
+8-to-10-minute house tracks. Top-level genre is missing for 143 of the 250 FMA
+validation recordings. The study cannot measure accuracy on long house tracks, the
+main intended use.
 
-## Runtime, provenance and decision
+### Resources
 
-The sequential pair ran on the same physical GPU 0, identified in the
-[terminal record](data/results/terminal.json),
-CPUs4,5,10,11, Torch4 threads, numeric-library threads1, TF32off and4% allocator.
-Both protected vLLM parents and both EngineCore start identities survived. Python3.12.3,
-Torch2.15.0+cu132 and NumPy2.5.4 are recorded. Controllers exited0; restricted/expanded
-outer times378.93/374.40s and CPU390.01/386.40s stayed below fixed caps. Recorded
-RSS≈2.18GB; expanded RSS combines sampled process-group peak with a reaped-child
-lifetime upper bound inherited from the first child, not an independent peak.
-This is training resource evidence, not measured product inference acceleration.
+Both arms ran one after the other on the same GPU with four PyTorch threads, TF32 off
+and the same software (Python 3.12.3, PyTorch 2.15.0+cu132, NumPy 2.5.4). Wall time
+was 378.93 seconds (restricted) and 374.40 seconds (expanded), and CPU time 390.01 and
+386.40 seconds. Peak memory was about 2.18 GB; the expanded arm's figure is an upper
+bound that includes a child process. These are training costs, not inference speed.
 
-The [execution provenance](data/results/archive-index.json) identifies the numerical
-implementation, eligibility checks and launch guard as they actually ran. Later
-publication changes do not replace those execution records. Both arms match initial state, BP
-trace, source, plan, features, configuration, runtime and device. Server root,
-PIDs, ordered targets, checkpoint hashes, permit/readback/terminal receipts and
-compressed/decoded evidence hashes are retained under `data/`; no weights or audio
-are published. [FMAKv2 source](https://zenodo.org/records/12759100) distinguishes expert
-original FMAK labels from around200 v2 modifications unverified by original authors;
-the pinned v2 target export is not adjudicated ground truth or a known noise ceiling.
+## Decision
 
-**Decision: no confirmation earned, no promotion.** Preserve the negative and the
-new input-integrity checks. Further long-house evidence or a different experiment
-needs a prospective decision; this study supplies neither a new activation permit
-nor an independent accuracy claim.
+The pilot did not pass, so no confirmation, calibration, GiantSteps or private DJ
+evaluation was run, and the release weights are unchanged. No extra seed, longer
+training or threshold change was tried. The new input-integrity checks are kept.
+Any further long-house evaluation or follow-up experiment needs its own protocol.
 
-Reproduce report arithmetic (no model/audio), then regenerate all inline figures:
+## Limitations
+
+- One seed, on validation panels that are used for checkpoint selection and have
+  been consulted during development. This is not an independent test.
+- The FMA gain is near the threshold and its interval spans both zero and +2.00, so
+  the pilot is inconclusive about a gain of that size.
+- Expanded fitting gives each FMA recording about four times fewer views at the fixed
+  update count.
+- Beatport is not artist-disjoint, and there is no adequate long house-music panel.
+- FMAK v2 labels ([source](https://zenodo.org/records/12759100)) include about 200
+  modifications to the original expert FMAK labels that the original authors have not
+  verified, so they are not adjudicated ground truth.
+
+## Reproduce
+
+The [archive index](data/results/archive-index.json) records the code, eligibility
+checks and launch configuration as they ran, and the
+[run record](data/results/terminal.json) records the runtime. No weights or audio are
+published. Checksums for all evidence files are in [SHA256SUMS](SHA256SUMS).
+
+Check the report arithmetic (no model or audio needed) and regenerate the figures:
 
 ```bash
 python -m tools.check_k10_v2_report

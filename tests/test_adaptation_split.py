@@ -10,8 +10,11 @@ from experiments.small import signature
 
 
 def fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    groups = [f"artist:{i // 2}" for i in range(202)]
-    meta = {"tracks": [{"sha256": f"audio:{i // 2}"} for i in range(202)], "refs": [0] * 202}
+    groups = [f"artist:{index // 2}" for index in range(202)]
+    meta = {
+        "tracks": [{"sha256": f"audio:{index // 2}"} for index in range(202)],
+        "refs": [0] * 202,
+    }
     partition = {
         "metadata_sha256": signature(meta),
         "development_indices": list(range(200)),
@@ -26,14 +29,16 @@ def test_adaptation_keeps_artists_audio_and_final_holdout_separate() -> None:
     result = development_split(meta, partition, audit)
     assert result == development_split(meta, partition, audit)
     assert all(result.values())
-    assert len({meta["tracks"][i]["sha256"] for i in result["train"]}) == len(result["train"])
+    assert len({meta["tracks"][index]["sha256"] for index in result["train"]}) == len(
+        result["train"]
+    )
     for first, second in (
         ("train", "validation"),
         ("train", "calibration"),
         ("validation", "calibration"),
     ):
-        assert not {audit["groups"][i] for i in result[first]} & {
-            audit["groups"][i] for i in result[second]
+        assert not {audit["groups"][index] for index in result[first]} & {
+            audit["groups"][index] for index in result[second]
         }
     assert not set(sum(result.values(), [])) & {200, 201}
 

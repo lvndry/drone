@@ -24,13 +24,13 @@ def plot(root: Path) -> None:
         raise ValueError("Arithmetic aggregate identity changed")
     stages = json.loads(raw)["stages"]
     plt.rcParams["svg.hashsalt"] = "cqt-fused-product-v1"
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 5.5), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(11.4, 5.5), layout="constrained")
     for index, stage in enumerate(stages):
         count = stage["opposite_unequal"]
         axes[0].barh(index, count, height=0.6, color="#a4582c")
         axes[0].plot(stage["fused_python_unequal"], index, "o", color="#277f67", clip_on=False)
         axes[0].text(count + 100, index, f"{count:,}", va="center", fontsize=9)
-    axes[0].set_yticks(range(9), [f"Stage {i}" for i in range(9)])
+    axes[0].set_yticks(range(9), [f"Stage {index}" for index in range(9)])
     axes[0].set_ylim(10, -0.7)
     axes[0].set_xlim(0, 8000)
     axes[0].set_xlabel("Responses differing from archived Python")
@@ -41,33 +41,35 @@ def plot(root: Path) -> None:
     labels = ["Original native\ncontrol", "Fused-product\ncandidate"]
     values = [candidate["original_differences"], candidate["candidate_differences"]]
     axes[1].bar(labels, values, color=["#a4582c", "#277f67"], width=0.55)
-    for i, count in enumerate(values):
-        axes[1].text(i, count + 0.3, str(count), ha="center", fontsize=14, weight="bold")
+    for index, count in enumerate(values):
+        axes[1].text(index, count + 0.3, str(count), ha="center", fontsize=14, weight="bold")
     axes[1].set_ylim(0, 11)
     axes[1].set_ylabel("Different final-core values / 76,608")
     axes[1].set_title("Compiled frontend: all nine differences removed", fontsize=11, pad=12)
     for axis in axes:
         axis.spines[["top", "right"]].set_visible(False)
         axis.set_axisbelow(True)
-    fig.suptitle("Fused complex products explain and remove one retained CQT failure", fontsize=14)
-    fig.supxlabel(
+    figure.suptitle(
+        "Fused complex products explain and remove one retained CQT failure", fontsize=14
+    )
+    figure.supxlabel(
         "One 74.1-second FMAK case on Apple M5; no classifier execution or accuracy result.\n"
         "Left: exact binary32 models on retained operands. Right: separately built native frontend.\n"
         "Default and historical results preserved; wider-recording and platform validation remain open.",
         fontsize=9,
     )
-    fig.savefig(root / "fused-product.png", dpi=180)
-    fig.savefig(root / "fused-product.svg", metadata={"Date": None})
+    figure.savefig(root / "fused-product.png", dpi=180)
+    figure.savefig(root / "fused-product.svg", metadata={"Date": None})
     svg = root / "fused-product.svg"
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
-    plt.close(fig)
+    plt.close(figure)
 
 
 def plot_goldens(root: Path) -> None:
     result = summarize_goldens(root)
     rows = result["cases"]
     plt.rcParams["svg.hashsalt"] = "cqt-fused-goldens-v1"
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 6.3), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(11.4, 6.3), layout="constrained")
     for index, row in enumerate(rows):
         count = row["original_differences"]
         axes[0].barh(index, count, color="#a4582c", height=0.6)
@@ -96,25 +98,25 @@ def plot_goldens(root: Path) -> None:
     for axis in axes:
         axis.set_ylim(10.2, -0.7)
         axis.spines[["top", "right"]].set_visible(False)
-    fig.suptitle("The same product rule passes all nine retained golden cases", fontsize=14)
-    fig.supxlabel(
+    figure.suptitle("The same product rule passes all nine retained golden cases", fontsize=14)
+    figure.supxlabel(
         "303 original differences → 0 candidate differences across 2,048,256 final-core values.\n"
         "The longest recording is 28 min 2 s; genre and BPM coverage are not established here.\n"
         "Frontend-only numerical validation on one Mac runtime, not key accuracy or a latency benchmark.",
         fontsize=9,
     )
-    fig.savefig(root / "fused-goldens.png", dpi=180)
+    figure.savefig(root / "fused-goldens.png", dpi=180)
     svg = root / "fused-goldens.svg"
-    fig.savefig(svg, metadata={"Date": None})
+    figure.savefig(svg, metadata={"Date": None})
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
-    plt.close(fig)
+    plt.close(figure)
 
 
 def plot_public(root: Path) -> None:
     result = summarize_public(root)
     totals = result["totals"]
     plt.rcParams["svg.hashsalt"] = "cqt-fused-public376-v1"
-    fig, axes = plt.subplots(1, 2, figsize=(12, 6), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(12, 6), layout="constrained")
     values = [totals["original_mac_exact"], totals["candidate_mac_exact"]]
     axes[0].bar(
         ["Original native", "Fused candidate"], values, color=["#a4582c", "#277f67"], width=0.55
@@ -128,13 +130,17 @@ def plot_public(root: Path) -> None:
     # Duration bins were fixed before candidate execution; no genre inference.
     rows = result["cases"]
     counts = [
-        [sum(r["source"] == source and r["duration_band"] == band for r in rows) for band in bands]
+        [
+            sum(row["source"] == source and row["duration_band"] == band for row in rows)
+            for band in bands
+        ]
         for source in ["beatport", "fmak"]
     ]
     axes[1].bar(range(4), counts[0], label="Beatport (126)", color="#336b8e")
     axes[1].bar(range(4), counts[1], bottom=counts[0], label="FMAK (250)", color="#a58b47")
-    for index, (a, b) in enumerate(zip(*counts, strict=True)):
-        axes[1].text(index, a + b + 5, str(a + b), ha="center", fontsize=11)
+    for index, (beatport_count, fmak_count) in enumerate(zip(*counts, strict=True)):
+        total = beatport_count + fmak_count
+        axes[1].text(index, total + 5, str(total), ha="center", fontsize=11)
     axes[1].set_xticks(range(4), ["<2 min", "2–<5 min", "5–<10 min", "≥10 min"])
     axes[1].set_ylim(0, 350)
     axes[1].set_ylabel("Recordings (all pass the fixed Mac reference)")
@@ -142,18 +148,18 @@ def plot_public(root: Path) -> None:
     axes[1].legend(frameon=False)
     for axis in axes:
         axis.spines[["top", "right"]].set_visible(False)
-    fig.suptitle("Fused products reproduce all 376 archived Mac feature cores", fontsize=15)
-    fig.supxlabel(
+    figure.suptitle("Fused products reproduce all 376 archived Mac feature cores", fontsize=15)
+    figure.supxlabel(
         "82,562,688 values checked; primary Mac identity 376/376, separate Linux identity 0/376.\n"
         "Feature identity is not classifier accuracy: the original already predicted the same key on 376/376.\n"
         "Genre, BPM and full-song provenance unknown here; no new model inference or latency benchmark.",
         fontsize=9,
     )
-    fig.savefig(root / "fused-376.png", dpi=180)
+    figure.savefig(root / "fused-376.png", dpi=180)
     svg = root / "fused-376.svg"
-    fig.savefig(svg, metadata={"Date": None})
+    figure.savefig(svg, metadata={"Date": None})
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
-    plt.close(fig)
+    plt.close(figure)
 
 
 def plot_model(root: Path) -> None:
@@ -161,7 +167,7 @@ def plot_model(root: Path) -> None:
     families = list(result["families"].values())
     labels = ["Full / Mac reference", "Chunked / Mac reference", "Chunked / full"]
     plt.rcParams["svg.hashsalt"] = "cqt-retained-model376-v1"
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5.7), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(12, 5.7), layout="constrained")
     for index, row in enumerate(families):
         axes[0].barh(index, row["strict_passes"], color="#277f67", height=0.55)
         axes[0].text(383, index, f"{row['strict_passes']} / 376", va="center", fontsize=10)
@@ -186,18 +192,18 @@ def plot_model(root: Path) -> None:
     for axis in axes:
         axis.set_ylim(2.7, -0.7)
         axis.spines[["top", "right"]].set_visible(False)
-    fig.suptitle("The repaired cores close the historical native/Mac logit failure", fontsize=14)
-    fig.supxlabel(
+    figure.suptitle("The repaired cores close the historical native/Mac logit failure", fontsize=14)
+    figure.supxlabel(
         "Same 376 public recordings: 126 Beatport + 250 FMAK; 40 seconds to 28 minutes.\n"
         "Key agreement is 376/376 in every family, as it was before the fix: this is not an accuracy gain.\n"
         "Unchanged model, native adapters and tolerances; no decode, CQT, or performance benchmark.",
         fontsize=9,
     )
-    fig.savefig(root / "retained-model376.png", dpi=180)
+    figure.savefig(root / "retained-model376.png", dpi=180)
     svg = root / "retained-model376.svg"
-    fig.savefig(svg, metadata={"Date": None})
+    figure.savefig(svg, metadata={"Date": None})
     svg.write_text("\n".join(line.rstrip() for line in svg.read_text().splitlines()) + "\n")
-    plt.close(fig)
+    plt.close(figure)
 
 
 if __name__ == "__main__":

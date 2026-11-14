@@ -41,17 +41,18 @@ def load_raw(study: Path) -> tuple[dict[str, str], dict[str, Any]]:
 
 def paired_vectors(result: dict[str, Any]) -> dict[str, Any]:
     proof = result["composed_batch_proof"]
-    reference, candidate = proof["reference_logits"], proof["candidate_logits"]
+    reference = proof["reference_logits"]
+    candidate = proof["candidate_logits"]
     metadata = proof["per_song"]
     require(
         len(reference) == len(candidate) == len(metadata) == proof["tracks"] == 376,
         "complete 376 vectors required",
     )
-    schedules = [result[k]["domain_schedule"] for k in ("validation", "batched_validation")]
+    schedules = [result[panel]["domain_schedule"] for panel in ("validation", "batched_validation")]
     require(schedules[0] == schedules[1] == proof["domain_schedule"], "domain schedule differs")
     schedule = proof["domain_schedule"]
     require(
-        [(r["domain"], r["tracks"]) for r in schedule] == [("beatport", 126), ("fmak", 250)],
+        [(row["domain"], row["tracks"]) for row in schedule] == [("beatport", 126), ("fmak", 250)],
         "domain membership counts",
     )
     ids = [identity for row in schedule for identity in row["ids"]]
@@ -59,31 +60,31 @@ def paired_vectors(result: dict[str, Any]) -> dict[str, Any]:
     require(ids == [row["id"] for row in metadata], "vector context order")
     for panel in ("validation", "batched_validation"):
         require(
-            [(r["id"], r["samples"], r["windows"]) for r in result[panel]["per_song"]]
-            == [(r["id"], r["samples"], r["windows"]) for r in metadata],
+            [(row["id"], row["samples"], row["windows"]) for row in result[panel]["per_song"]]
+            == [(row["id"], row["samples"], row["windows"]) for row in metadata],
             "actual B1/B16 window contexts differ",
         )
     rows = []
     disagreements = 0
-    for meta, left, right in zip(metadata, reference, candidate, strict=True):
+    for song, left, right in zip(metadata, reference, candidate, strict=True):
         require(
-            len(left) == len(right) == 24 and all(math.isfinite(v) for v in left + right),
+            len(left) == len(right) == 24 and all(math.isfinite(logit) for logit in left + right),
             "24 finite logits required",
         )
-        samples = meta["samples"]
+        samples = song["samples"]
         require(type(samples) is int and samples > 1024, "actual sample count")
         windows, tail = divmod(samples, 288000)
-        require(meta["windows"] == windows + bool(tail), "complete-song coverage")
-        errors = [abs(a - b) for a, b in zip(left, right, strict=True)]
+        require(song["windows"] == windows + bool(tail), "complete-song coverage")
+        errors = [abs(first - second) for first, second in zip(left, right, strict=True)]
         worst = max(range(24), key=errors.__getitem__)
         disagreements += max(range(24), key=left.__getitem__) != max(
             range(24), key=right.__getitem__
         )
         rows.append(
             {
-                "id": meta["id"],
+                "id": song["id"],
                 "samples": samples,
-                "windows": meta["windows"],
+                "windows": song["windows"],
                 "tail_samples": tail,
                 "max_absolute_error": max(errors),
                 "failed": max(errors) > LIMIT,
@@ -92,9 +93,9 @@ def paired_vectors(result: dict[str, Any]) -> dict[str, Any]:
                 "candidate_logit": right[worst],
             }
         )
-    maximum = max(r["max_absolute_error"] for r in rows)
+    maximum = max(row["max_absolute_error"] for row in rows)
     passed = maximum <= LIMIT and disagreements == 0
-    require(sum(r["windows"] for r in rows) == proof["windows"] == 5893, "window total")
+    require(sum(row["windows"] for row in rows) == proof["windows"] == 5893, "window total")
     require(
         maximum == proof["max_absolute_logit_error"]
         and disagreements == proof["argmax_disagreements"]
@@ -106,32 +107,34 @@ def paired_vectors(result: dict[str, Any]) -> dict[str, Any]:
         "passed": passed,
         "max_absolute_error": maximum,
         "argmax_disagreements": disagreements,
-        "failed_tracks": sum(r["failed"] for r in rows),
+        "failed_tracks": sum(row["failed"] for row in rows),
         "per_song": rows,
     }
 
 
 def summarize(study: Path = STUDY) -> dict[str, Any]:
-    raw, index = load_raw(study)
+    raw_files, index = load_raw(study)
     measured: dict[str, dict[str, Any]] = {}
     configs: dict[str, dict[str, Any]] = {}
     for label in LABELS:
-        result = json.loads(raw[label + "/result.json"])
-        config = json.loads(raw[label + "/sealed-config.json"])
-        controller = json.loads(raw[label + "/controller.json"])
-        terminal = json.loads(raw[label + "/cost-terminal-receipt.json"])
-        config_sha = digest(raw[label + "/sealed-config.json"].encode())
-        result_sha = digest(raw[label + "/result.json"].encode())
+        result = json.loads(raw_files[label + "/result.json"])
+        config = json.loads(raw_files[label + "/sealed-config.json"])
+        controller = json.loads(raw_files[label + "/controller.json"])
+        terminal = json.loads(raw_files[label + "/cost-terminal-receipt.json"])
+        config_sha256 = digest(raw_files[label + "/sealed-config.json"].encode())
+        result_sha256 = digest(raw_files[label + "/result.json"].encode())
         require(
-            result_sha == index["authoritative_result_sha256"][label] == terminal["result_sha256"],
+            result_sha256
+            == index["authoritative_result_sha256"][label]
+            == terminal["result_sha256"],
             "authoritative result binding",
         )
         require(
-            config_sha == result["provenance"]["config_sha256"] == terminal["config_sha256"],
+            config_sha256 == result["provenance"]["config_sha256"] == terminal["config_sha256"],
             "config binding",
         )
         require(
-            digest(raw[label + "/controller.json"].encode()) == terminal["controller_sha256"],
+            digest(raw_files[label + "/controller.json"].encode()) == terminal["controller_sha256"],
             "controller binding",
         )
         require(
@@ -169,7 +172,10 @@ def summarize(study: Path = STUDY) -> dict[str, Any]:
             "independent terminal proof",
         )
         steady = statistics.mean(result["update_seconds"][1:])
-        require(all(math.isfinite(v) and v > 0 for v in result["update_seconds"]), "update times")
+        require(
+            all(math.isfinite(seconds) and seconds > 0 for seconds in result["update_seconds"]),
+            "update times",
+        )
         projection = (
             result["update_seconds"][0]
             + 8279 * steady
@@ -182,8 +188,8 @@ def summarize(study: Path = STUDY) -> dict[str, Any]:
         )
         measured[label] = {
             "source_commit": index["executed_sources"][label],
-            "result_sha256": result_sha,
-            "config_sha256": config_sha,
+            "result_sha256": result_sha256,
+            "config_sha256": config_sha256,
             "initial_state_sha256": INITIAL,
             "update_seconds": result["update_seconds"],
             "steady_two_mean_seconds": steady,
@@ -229,10 +235,11 @@ def summarize(study: Path = STUDY) -> dict[str, Any]:
         and measured[LABELS[1]]["composed_gate"]["passed"] is True,
         "preserved failed gate/corrected pass",
     )
-    stopped = json.loads(raw["controlled-stop/controlled-stop-terminal-receipt.json"])
-    stop = json.loads(raw["controlled-stop/root-controlled-stop.json"])
+    stopped = json.loads(raw_files["controlled-stop/controlled-stop-terminal-receipt.json"])
+    stop = json.loads(raw_files["controlled-stop/root-controlled-stop.json"])
     require(
-        digest(raw["controlled-stop/controller.json"].encode()) == stopped["controller_sha256"],
+        digest(raw_files["controlled-stop/controller.json"].encode())
+        == stopped["controller_sha256"],
         "controlled-stop controller binding",
     )
     require(
@@ -244,7 +251,7 @@ def summarize(study: Path = STUDY) -> dict[str, Any]:
         "controlled stop must remain incomplete",
     )
     require(
-        digest(raw["controlled-stop/root-controlled-stop.json"].encode())
+        digest(raw_files["controlled-stop/root-controlled-stop.json"].encode())
         == stopped["root_stop_sha256"]
         and stop["no_fit_or_retry_authorized"],
         "controlled stop binding",
@@ -273,12 +280,12 @@ def plot(summary: dict[str, Any], study: Path = STUDY) -> None:
     )
     old, fixed = (summary["executions"][label] for label in LABELS)
     colors = ("#a66346", "#2d7169")
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.65), layout="constrained")
+    figure, axes = plt.subplots(1, 3, figsize=(12, 3.65), layout="constrained")
     for offset, result, color, label in zip(
         (-0.17, 0.17), (old, fixed), colors, ("Original cache", "Corrected cache"), strict=True
     ):
         axes[0].bar(
-            [v + offset for v in range(3)],
+            [update + offset for update in range(3)],
             result["update_seconds"],
             width=0.32,
             color=color,
@@ -296,8 +303,10 @@ def plot(summary: dict[str, Any], study: Path = STUDY) -> None:
         [fixed["validation_b1_seconds"], fixed["validation_b16_seconds"]],
         color=["#637a99", colors[1]],
     )
-    for i, value in enumerate((fixed["validation_b1_seconds"], fixed["validation_b16_seconds"])):
-        axes[1].text(i, value + 4, f"{value:.2f}s", ha="center")
+    for index, value in enumerate(
+        (fixed["validation_b1_seconds"], fixed["validation_b16_seconds"])
+    ):
+        axes[1].text(index, value + 4, f"{value:.2f}s", ha="center")
     axes[1].set(
         xticks=[0, 1],
         xticklabels=["B1", "B1 frontend / B16 encoder"],
@@ -306,16 +315,16 @@ def plot(summary: dict[str, Any], study: Path = STUDY) -> None:
         ylim=(0, 1.2 * max(fixed["validation_b1_seconds"], fixed["validation_b16_seconds"])),
     )
     ordered = sorted(
-        old["composed_gate"]["per_song"], key=lambda r: r["max_absolute_error"], reverse=True
+        old["composed_gate"]["per_song"], key=lambda row: row["max_absolute_error"], reverse=True
     )
-    other = {r["id"]: r for r in fixed["composed_gate"]["per_song"]}
+    other = {row["id"]: row for row in fixed["composed_gate"]["per_song"]}
     for rows, color, label in (
         (ordered, colors[0], "Original: failed"),
-        ([other[r["id"]] for r in ordered], colors[1], "Corrected: passed"),
+        ([other[row["id"]] for row in ordered], colors[1], "Corrected: passed"),
     ):
         axes[2].scatter(
             range(1, 377),
-            [max(r["max_absolute_error"], 1e-10) for r in rows],
+            [max(row["max_absolute_error"], 1e-10) for row in rows],
             s=8,
             alpha=0.7,
             color=color,
@@ -329,15 +338,17 @@ def plot(summary: dict[str, Any], study: Path = STUDY) -> None:
         title="B1 vs B16: zero changed keys in both",
     )
     axes[2].legend(fontsize=8)
-    for ax in axes:
-        ax.spines[["top", "right"]].set_visible(False)
-        ax.grid(axis="y", alpha=0.15)
-        ax.set_axisbelow(True)
-    fig.savefig(study / "cost-results.png", dpi=180, metadata={"Software": "MusicFM cost report"})
-    fig.savefig(
+    for axis in axes:
+        axis.spines[["top", "right"]].set_visible(False)
+        axis.grid(axis="y", alpha=0.15)
+        axis.set_axisbelow(True)
+    figure.savefig(
+        study / "cost-results.png", dpi=180, metadata={"Software": "MusicFM cost report"}
+    )
+    figure.savefig(
         study / "cost-results.svg", metadata={"Date": None, "Creator": "MusicFM cost report"}
     )
-    plt.close(fig)
+    plt.close(figure)
 
 
 def main() -> None:

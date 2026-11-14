@@ -86,8 +86,8 @@ def score_admission(
     """No remaining calibration: reserve the full fresh comparison plus safety."""
     if (
         any(
-            isinstance(x, bool) or not math.isfinite(x) or x < 0
-            for x in (remaining, historical, overhead)
+            isinstance(seconds, bool) or not math.isfinite(seconds) or seconds < 0
+            for seconds in (remaining, historical, overhead)
         )
         or historical == 0
     ):
@@ -119,13 +119,12 @@ def selected_state(
 
 
 def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: int) -> None:
-    config_path, approval_path, output = (
-        config_path.resolve(),
-        approval_path.resolve(),
-        output.absolute(),
-    )
+    config_path = config_path.resolve()
+    approval_path = approval_path.resolve()
+    output = output.absolute()
     raw = config_path.read_bytes()
-    config, approval = json.loads(raw), json.loads(approval_path.read_bytes())
+    config = json.loads(raw)
+    approval = json.loads(approval_path.read_bytes())
     config_sha = hashlib.sha256(raw).hexdigest()
     validate_launch(config, approval, config_sha)
     verify_import_paths(config["source_sha256"])
@@ -383,7 +382,8 @@ def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: i
         )
 
         def scores(panel: dict[str, Any]) -> dict[str, Any]:
-            offset, measured = 0, {}
+            offset = 0
+            measured = {}
             for domain, ids in panels.items():
                 logits = torch.tensor(
                     panel["logits"][offset : offset + len(ids)], dtype=torch.float64
@@ -392,7 +392,8 @@ def worker(config_path: Path, approval_path: Path, output: Path, guardian_pid: i
                 offset += len(ids)
             return measured
 
-        candidate_metrics, baseline_metrics = scores(candidate), scores(baseline)
+        candidate_metrics = scores(candidate)
+        baseline_metrics = scores(baseline)
         if baseline_metrics != original_result["best_metrics"]:
             raise ValueError(
                 "Fresh original baseline does not reproduce the terminal selected predictions"

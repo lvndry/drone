@@ -16,19 +16,20 @@ from tools.run_musicfm_ram_cache import descendants, stop_and_wait
 
 
 def supervise(config_path: Path, approval_path: Path, output: Path) -> None:
-    value, approval = load(config_path), load(approval_path)
+    config = load(config_path)
+    approval = load(approval_path)
     if (
         approval.get("authorized") is not True
         or approval.get("allow_training") is not False
         or approval.get("config_sha256") != sha(config_path)
-        or value["source_sha256"]["tools/run_musicfm_disk_cache.py"] != sha(Path(__file__))
+        or config["source_sha256"]["tools/run_musicfm_disk_cache.py"] != sha(Path(__file__))
     ):
         raise ValueError("Exact source/config preprocessing-only approval required")
-    if not value["not_before_epoch"] <= time.time() < value["deadline_epoch"]:
+    if not config["not_before_epoch"] <= time.time() < config["deadline_epoch"]:
         raise ValueError("Outside finite approved window")
     output.mkdir(exist_ok=False)
     began = time.monotonic()
-    capacity_guard(value, output)
+    capacity_guard(config, output)
     command = [
         sys.executable,
         "-m",
@@ -64,7 +65,7 @@ def supervise(config_path: Path, approval_path: Path, output: Path) -> None:
         try:
             while worker.poll() is None:
                 tracked.update(descendants(worker.pid))
-                capacity_guard(value, output)
+                capacity_guard(config, output)
                 rss, cpu = process_tree(worker.pid)
                 peak_rss = max(peak_rss, rss)
                 peak_cpu = max(peak_cpu, cpu)
@@ -77,18 +78,18 @@ def supervise(config_path: Path, approval_path: Path, output: Path) -> None:
                                 owned += path.stat().st_size
                         except FileNotFoundError:
                             pass
-                caps = value["caps"]
+                resource_caps = config["caps"]
                 if (
-                    time.time() >= value["deadline_epoch"]
-                    or time.monotonic() - began > caps["wall_seconds"]
-                    or rss > caps["rss_bytes"]
-                    or cpu > caps["cpu_seconds"]
-                    or owned > caps["owned_bytes"]
+                    time.time() >= config["deadline_epoch"]
+                    or time.monotonic() - began > resource_caps["wall_seconds"]
+                    or rss > resource_caps["rss_bytes"]
+                    or cpu > resource_caps["cpu_seconds"]
+                    or owned > resource_caps["owned_bytes"]
                 ):
                     raise RuntimeError("Outer finite resource/UTC cap")
                 time.sleep(0.05)
             worker.wait()
-            capacity_guard(value, output)
+            capacity_guard(config, output)
             if worker.returncode != 0:
                 raise RuntimeError(f"Preparation exit={worker.returncode}")
             manifest = load(output / "prepared/manifest.json")
@@ -103,8 +104,8 @@ def supervise(config_path: Path, approval_path: Path, output: Path) -> None:
                     "epoch": time.time(),
                 },
             )
-        except BaseException as exc:
-            error = repr(exc)
+        except BaseException as failure:
+            error = repr(failure)
             stop_and_wait(worker, tracked)
             raise
         finally:

@@ -35,24 +35,27 @@ def development_split(
     assert set(eligible) <= set(partition["development_indices"])
     assert not set(eligible) & set(partition["final_holdout_indices"])
     groups = audit["groups"]
-    assert not {groups[i] for i in eligible} & {
-        groups[i] for i in partition["final_holdout_indices"]
+    assert not {groups[index] for index in eligible} & {
+        groups[index] for index in partition["final_holdout_indices"]
     }
     parts = {"train": [], "validation": [], "calibration": []}
     labels = {}
     seen_training = set()
-    for i in eligible:
-        digest, ref = meta["tracks"][i]["sha256"], meta["refs"][i]
-        if digest in labels and labels[digest] != ref:
+    for index in eligible:
+        digest = meta["tracks"][index]["sha256"]
+        reference = meta["refs"][index]
+        if digest in labels and labels[digest] != reference:
             raise ValueError("Conflicting labels on identical eligible audio")
-        labels[digest] = ref
-        value = int(hashlib.sha256((POLICY + ":" + groups[i]).encode()).hexdigest(), 16) / 2**256
+        labels[digest] = reference
+        value = (
+            int(hashlib.sha256((POLICY + ":" + groups[index]).encode()).hexdigest(), 16) / 2**256
+        )
         role = "train" if value < 0.7 else "validation" if value < 0.9 else "calibration"
         if role == "train":
             if digest in seen_training:
                 continue
             seen_training.add(digest)
-        parts[role].append(i)
+        parts[role].append(index)
     if not all(parts.values()):
         raise ValueError("Need nonempty fit, validation and calibration groups")
     for first, second in (
@@ -60,9 +63,11 @@ def development_split(
         ("train", "calibration"),
         ("validation", "calibration"),
     ):
-        assert not {groups[i] for i in parts[first]} & {groups[i] for i in parts[second]}
-        assert not {meta["tracks"][i]["sha256"] for i in parts[first]} & {
-            meta["tracks"][i]["sha256"] for i in parts[second]
+        assert not {groups[index] for index in parts[first]} & {
+            groups[index] for index in parts[second]
+        }
+        assert not {meta["tracks"][index]["sha256"] for index in parts[first]} & {
+            meta["tracks"][index]["sha256"] for index in parts[second]
         }
     return parts
 
@@ -80,20 +85,26 @@ def main() -> None:
     torch.set_num_threads(16)
     args.output.mkdir(parents=True, exist_ok=True)
     snapshot_sources(args.output)
-    bp, bm, btr, bval = load_development(args.beatport)
-    fm, mm = load_prepared(args.fmak, "fmak")
-    partition_bytes, group_bytes = args.partition.read_bytes(), args.groups.read_bytes()
-    partition, audit = json.loads(partition_bytes), json.loads(group_bytes)
+    beatport_features, beatport_metadata, beatport_train, beatport_validation = load_development(
+        args.beatport
+    )
+    fmak_features, fmak_metadata = load_prepared(args.fmak, "fmak")
+    partition_bytes = args.partition.read_bytes()
+    group_bytes = args.groups.read_bytes()
+    partition = json.loads(partition_bytes)
+    audit = json.loads(group_bytes)
     assert audit["partition_sha256"] == hashlib.sha256(partition_bytes).hexdigest()
-    assert not {t["sha256"] for t in bm["tracks"]} & {t["sha256"] for t in mm["tracks"]}
-    parts = development_split(mm, partition, audit)
+    assert not {track["sha256"] for track in beatport_metadata["tracks"]} & {
+        track["sha256"] for track in fmak_metadata["tracks"]
+    }
+    parts = development_split(fmak_metadata, partition, audit)
     split_record = {
         "policy": POLICY,
         "partition_sha256": hashlib.sha256(partition_bytes).hexdigest(),
         "group_audit_sha256": hashlib.sha256(group_bytes).hexdigest(),
         "fmak": parts,
-        "beatport_train": btr,
-        "beatport_validation": bval,
+        "beatport_train": beatport_train,
+        "beatport_validation": beatport_validation,
         "selection": "Combined validation per-track symmetric MIREX; exact epoch ties keep earlier epoch",
         "gate": "FMAK validation gain >=0.02 and Beatport validation loss <=0.02 versus frozen seed13 candidate",
         "final_holdout_used": False,
@@ -105,40 +116,52 @@ def main() -> None:
     atomic_json(path, split_record)
     print(
         {
-            "beatport_train": len(btr),
-            "beatport_validation": len(bval),
-            "fmak": {k: len(v) for k, v in parts.items()},
+            "beatport_train": len(beatport_train),
+            "beatport_validation": len(beatport_validation),
+            "fmak": {role: len(indices) for role, indices in parts.items()},
         },
         flush=True,
     )
     # Only fitting/validation rows enter the merged training bundle. Calibration
     # and final-holdout arrays are never passed to training or metrics.
-    entries = [("beatport", bp, bm, i) for i in btr]
-    entries += [("fmak", fm, mm, i) for i in parts["train"]]
-    ntrain = len(entries)
-    entries += [("beatport", bp, bm, i) for i in bval]
-    nbval = len(bval)
-    entries += [("fmak", fm, mm, i) for i in parts["validation"]]
-    features = np.stack([array[i] for _, array, _, i in entries])
+    entries = [
+        ("beatport", beatport_features, beatport_metadata, index) for index in beatport_train
+    ]
+    entries += [("fmak", fmak_features, fmak_metadata, index) for index in parts["train"]]
+    training_count = len(entries)
+    entries += [
+        ("beatport", beatport_features, beatport_metadata, index) for index in beatport_validation
+    ]
+    beatport_validation_count = len(beatport_validation)
+    entries += [("fmak", fmak_features, fmak_metadata, index) for index in parts["validation"]]
+    features = np.stack([array[index] for _, array, _, index in entries])
     metadata = {
-        "feature_spec": bm["feature_spec"],
-        "label_schema": bm["label_schema"],
-        "frames": bm["frames"],
-        "ids": [tag + ":" + meta["ids"][i] for tag, _, meta, i in entries],
-        "refs": [meta["refs"][i] for _, _, meta, i in entries],
+        "feature_spec": beatport_metadata["feature_spec"],
+        "label_schema": beatport_metadata["label_schema"],
+        "frames": beatport_metadata["frames"],
+        "ids": [tag + ":" + meta["ids"][index] for tag, _, meta, index in entries],
+        "refs": [meta["refs"][index] for _, _, meta, index in entries],
         "tracks": [
-            dict(meta["tracks"][i], id=tag + ":" + meta["ids"][i]) for tag, _, meta, i in entries
+            dict(meta["tracks"][index], id=tag + ":" + meta["ids"][index])
+            for tag, _, meta, index in entries
         ],
         "split_record": split_record,
     }
-    tr, val = list(range(ntrain)), list(range(ntrain, len(entries)))
-    assert bm["feature_spec"] == mm["feature_spec"] and bm["frames"] == mm["frames"]
+    training_indices = list(range(training_count))
+    validation_indices = list(range(training_count, len(entries)))
+    assert (
+        beatport_metadata["feature_spec"] == fmak_metadata["feature_spec"]
+        and beatport_metadata["frames"] == fmak_metadata["frames"]
+    )
     recipe = Recipe("frequency-lr-3e4-joint-data", pooling="frequency", lr=3e-4)
-    domains = {"beatport": val[:nbval], "fmak": val[nbval:]}
+    domains = {
+        "beatport": validation_indices[:beatport_validation_count],
+        "fmak": validation_indices[beatport_validation_count:],
+    }
     baseline, _ = load_checkpoint(args.baseline)
     baseline_metrics = {
         name: development_metrics(
-            baseline, features[indices], [metadata["refs"][i] for i in indices]
+            baseline, features[indices], [metadata["refs"][index] for index in indices]
         )
         for name, indices in domains.items()
     }
@@ -146,8 +169,8 @@ def main() -> None:
     run_recipe(
         features,
         metadata,
-        tr,
-        val,
+        training_indices,
+        validation_indices,
         recipe,
         seed=args.seed,
         output=args.output / f"seed{args.seed}",
@@ -156,7 +179,9 @@ def main() -> None:
     )
     model, _ = load_checkpoint(args.output / f"seed{args.seed}/best.pt")
     metrics = {
-        name: development_metrics(model, features[indices], [metadata["refs"][i] for i in indices])
+        name: development_metrics(
+            model, features[indices], [metadata["refs"][index] for index in indices]
+        )
         for name, indices in domains.items()
     }
     delta = {name: metrics[name]["mirex"] - baseline_metrics[name]["mirex"] for name in domains}

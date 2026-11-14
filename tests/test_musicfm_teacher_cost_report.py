@@ -31,14 +31,14 @@ def test_original_failure_controlled_stop_and_corrected_pass_are_all_retained() 
 
 def test_failure_is_not_attributed_to_tiny_tails() -> None:
     old = summarize()["executions"][LABELS[0]]["composed_gate"]["per_song"]
-    assert [r["id"] for r in old if r["failed"]] == [
+    assert [row["id"] for row in old if row["failed"]] == [
         "beatport:1059355",
         "beatport:1077935",
         "beatport:11077",
         "beatport:1147737",
         "beatport:1274431",
     ]
-    assert all(not r["failed"] for r in old if 0 < r["tail_samples"] <= 24000)
+    assert all(not row["failed"] for row in old if 0 < row["tail_samples"] <= 24000)
 
 
 @pytest.mark.parametrize("damage", ["nan", "changed-value", "context", "domain-schedule"])

@@ -117,9 +117,9 @@ def test_a_track_keeps_its_side_of_the_split_as_corrections_grow() -> None:
     grown_fit, grown_held_out = split_corrections(
         tracks + [track(index) for index in range(40, 80)]
     )
-    assert {t.id for t in held_out} <= {t.id for t in grown_held_out}
-    assert {t.id for t in fit} <= {t.id for t in grown_fit}
-    assert all(is_held_out(t.id) for t in held_out)
+    assert {track.id for track in held_out} <= {track.id for track in grown_held_out}
+    assert {track.id for track in fit} <= {track.id for track in grown_fit}
+    assert all(is_held_out(track.id) for track in held_out)
     with pytest.raises(ValueError, match="Correct more keys"):
         split_corrections([track for track in tracks if not is_held_out(track.id)])
 
@@ -168,7 +168,7 @@ def test_prepare_and_finetune_report_giantsteps_and_held_out_corrections(tmp_pat
 
     torch.manual_seed(13)
     start = tmp_path / "start.pt"
-    save_checkpoint(start, KeyCNN(), train_ids=[t.id for t in base])
+    save_checkpoint(start, KeyCNN(), train_ids=[track.id for track in base])
     tuned = finetune_on_corrections(data, start, "cpu", epochs=1, batch=4)
     report = json.loads((tuned.parent / "finetune.json").read_text())
     for name, tracks in (("giantsteps", 2), ("corrections_held_out", summary["held_out"])):
@@ -301,7 +301,7 @@ def test_filtered_held_audio_is_not_added_to_training_provenance(
     seen: list[str] = []
 
     def sample(
-        track: Track, data: Path, rng: np.random.Generator, T: int
+        track: Track, data: Path, random_generator: np.random.Generator, T: int
     ) -> tuple[np.ndarray, int]:
         seen.append(track.id)
         return np.zeros((192, 8), dtype=np.float32), 0

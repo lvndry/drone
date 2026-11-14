@@ -50,7 +50,7 @@ def config() -> dict[str, Any]:
         allow_task_fit=False,
         plan_sha256=PLAN,
         feature_manifest_sha256=FEATURES,
-        selection=[dict(id=f"synthetic:{i}", frames=8 + i) for i in range(376)],
+        selection=[dict(id=f"synthetic:{index}", frames=8 + index) for index in range(376)],
     )
 
 

@@ -201,7 +201,9 @@ class WeightedPopulation:
                     raise ValueError("Nonfinite merged moments")
         except FloatingPointError as error:
             raise ValueError("FP64 merge overflowed") from error
-        self._mean, self._central, self._mass = mean, central, total
+        self._mean = mean
+        self._central = central
+        self._mass = total
         self._exact_mass += weight
 
     def finish(self) -> PopulationMoments:

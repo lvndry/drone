@@ -24,8 +24,8 @@ class Tiny(torch.nn.Module):
             self.linear.bias.zero_()
             self.linear.bias[0] = 10
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.linear(x.mean((1, 2)).unsqueeze(1))
+    def forward(self, features: torch.Tensor) -> torch.Tensor:
+        return self.linear(features.mean((1, 2)).unsqueeze(1))
 
 
 @pytest.fixture
@@ -42,47 +42,52 @@ def tiny_loop(monkeypatch: pytest.MonkeyPatch) -> tuple[dict[str, Any], dict[str
     monkeypatch.setattr(pair, "UPDATES", 2)
     monkeypatch.setattr(pair, "EVERY", 1)
     monkeypatch.setattr(pair, "EVENTS", 2)
-    p = {
+    partitions = {
         "bp_fit": ["b"],
         "expanded_fma_fit": ["f"],
-        "bp_selection_guard": [f"b{i}" for i in range(126)],
-        "fma_inner_selection": [f"f{i}" for i in range(250)],
+        "bp_selection_guard": [f"b{index}" for index in range(126)],
+        "fma_inner_selection": [f"f{index}" for index in range(250)],
     }
     rows = {
-        i: {"ref": 0, "frames": 104, "canonical_samples": 120 * 22050}
-        for i in ["b", "f", *p["bp_selection_guard"], *p["fma_inner_selection"]]
+        identity: {"ref": 0, "frames": 104, "canonical_samples": 120 * 22050}
+        for identity in [
+            "b",
+            "f",
+            *partitions["bp_selection_guard"],
+            *partitions["fma_inner_selection"],
+        ]
     }
-    return p, rows
+    return partitions, rows
 
 
 def test_fresh_arms_complete_same_stream_earliest_tie_and_selected_reload(
     tmp_path: Path,
     tiny_loop: tuple[dict[str, Any], dict[str, dict[str, Any]]],
 ) -> None:
-    p, rows = tiny_loop
+    partitions, rows = tiny_loop
     results = [
         pair.train_arm(
-            n,
-            p,
+            crop_frames,
+            partitions,
             rows,
             lambda _: np.full((208, 104), 0.125, np.float16),
-            tmp_path / str(n),
+            tmp_path / str(crop_frames),
             {"config": "same"},
             lambda: None,
         )
-        for n in (320, 65)
+        for crop_frames in (320, 65)
     ]
-    for r in results:
-        assert r["updates"] == 2 and r["events"] == 2 and r["best_update"] == 1
-        assert r["selected_reload_proof"]["strict_state_load"]
+    for result in results:
+        assert result["updates"] == 2 and result["events"] == 2 and result["best_update"] == 1
+        assert result["selected_reload_proof"]["strict_state_load"]
         assert (
-            r["selected_reload_proof"]["scores_identical"]
-            and r["selected_reload_proof"]["tracks"] == 376
+            result["selected_reload_proof"]["scores_identical"]
+            and result["selected_reload_proof"]["tracks"] == 376
         )
-        assert not r["confirmation_used"] and not r["calibration_used"]
-        assert (tmp_path / str(r["crop_frames"]) / "result.json").is_file()
-        assert (tmp_path / str(r["crop_frames"]) / "best.pt").is_file()
-        assert (tmp_path / str(r["crop_frames"]) / "final.pt").is_file()
+        assert not result["confirmation_used"] and not result["calibration_used"]
+        assert (tmp_path / str(result["crop_frames"]) / "result.json").is_file()
+        assert (tmp_path / str(result["crop_frames"]) / "best.pt").is_file()
+        assert (tmp_path / str(result["crop_frames"]) / "final.pt").is_file()
     assert results[0]["common_draw_pitch_sha256"] == results[1]["common_draw_pitch_sha256"]
     assert results[0]["temporal_sha256"] != results[1]["temporal_sha256"]
     assert results[0]["coverage"] == results[1]["coverage"]
@@ -104,11 +109,11 @@ def test_corrupt_selected_state_blocks_completed_arm_record(
         return sha(path)
 
     monkeypatch.setattr(pair, "checkpoint", corrupt)
-    p, rows = tiny_loop
+    partitions, rows = tiny_loop
     with pytest.raises(RuntimeError, match="Missing key"):
         pair.train_arm(
             65,
-            p,
+            partitions,
             rows,
             lambda _: np.zeros((208, 104), np.float16),
             tmp_path / "arm",
@@ -118,12 +123,12 @@ def test_corrupt_selected_state_blocks_completed_arm_record(
     assert not (tmp_path / "arm/result.json").exists()
 
 
-def arm(length: int, bp: int = 89, fm: int = 176) -> dict[str, Any]:
-    def m(n: int, correct: int, prefix: str) -> dict[str, Any]:
+def arm(length: int, beatport_correct: int = 89, fmak_correct: int = 176) -> dict[str, Any]:
+    def domain_metrics(tracks: int, correct: int, prefix: str) -> dict[str, Any]:
         return {
-            "ids": [f"{prefix}{i}" for i in range(n)],
-            "predictions": [0] * n,
-            "tracks": n,
+            "ids": [f"{prefix}{index}" for index in range(tracks)],
+            "predictions": [0] * tracks,
+            "tracks": tracks,
             "exact_correct": correct,
             "symmetric_units10": 700 if prefix == "b" else 2000,
             "asymmetric_units10": 650 if prefix == "b" else 1900,
@@ -146,26 +151,29 @@ def arm(length: int, bp: int = 89, fm: int = 176) -> dict[str, Any]:
             "tracks": 376,
             "argmax_disagreements": 0,
         },
-        "best_metrics": {"beatport": m(126, bp, "b"), "fmak": m(250, fm, "f")},
+        "best_metrics": {
+            "beatport": domain_metrics(126, beatport_correct, "b"),
+            "fmak": domain_metrics(250, fmak_correct, "f"),
+        },
     }
 
 
 def test_gate_canonical65_five_cases_BP_both_metrics_and_historical_guard() -> None:
-    a = arm(320)
+    baseline = arm(320)
     old = arm(320)
-    assert not pair.compare(a, arm(65, fm=180), old)["continuation_earned"]
-    assert pair.compare(a, arm(65, fm=181), old)["continuation_earned"]
-    b = arm(65, fm=181)
-    b["best_metrics"]["beatport"]["asymmetric_units10"] -= 1
-    assert not pair.compare(a, b, old)["context_exposure_gate"]
-    weaker = arm(320, bp=88)
-    gate = pair.compare(weaker, arm(65, fm=181), old)
+    assert not pair.compare(baseline, arm(65, fmak_correct=180), old)["continuation_earned"]
+    assert pair.compare(baseline, arm(65, fmak_correct=181), old)["continuation_earned"]
+    candidate = arm(65, fmak_correct=181)
+    candidate["best_metrics"]["beatport"]["asymmetric_units10"] -= 1
+    assert not pair.compare(baseline, candidate, old)["context_exposure_gate"]
+    weaker = arm(320, beatport_correct=88)
+    gate = pair.compare(weaker, arm(65, fmak_correct=181), old)
     assert gate["context_exposure_gate"] and not gate["historical_CPU320_noninferiority_guard"]
     assert not gate["continuation_earned"] and not gate["promotion_authorized"]
-    broken = arm(65, fm=181)
+    broken = arm(65, fmak_correct=181)
     broken["common_draw_pitch_sha256"] = "wrong"
     with pytest.raises(ValueError, match="paired source/runtime"):
-        pair.compare(a, broken, old)
+        pair.compare(baseline, broken, old)
 
 
 def terminal_fixture(root: Path, updates: int = 8280) -> dict[str, Any]:
@@ -179,14 +187,14 @@ def terminal_fixture(root: Path, updates: int = 8280) -> dict[str, Any]:
         "basis_initial_state_sha256": "initial",
     }
     save(root / "sealed-config.json", config)
-    h = sha(root / "sealed-config.json")
+    config_hash = sha(root / "sealed-config.json")
     result = {
         "status": "COMPLETE_FIXED_PILOT_NOT_RELEASE_EVIDENCE",
         "updates": updates,
         "events": 120,
         "confirmation_used": False,
         "calibration_used": False,
-        "provenance": {"config_sha256": h, **config, "initial_state_sha256": "initial"},
+        "provenance": {"config_sha256": config_hash, **config, "initial_state_sha256": "initial"},
         "continuation_gate": {"continuation_earned": False},
     }
     save(root / "run-v1/worker/result.json", result)
@@ -195,7 +203,11 @@ def terminal_fixture(root: Path, updates: int = 8280) -> dict[str, Any]:
         {"mode": "fit", "result_sha256": sha(root / "run-v1/worker/result.json")},
     )
     save(root / "run-v1/controller.json", {"state": "COMPLETE_NO_RAM_OWNERSHIP", "worker_exit": 0})
-    return {"root": str(root), "config_sha256": h, "starts": [{"pid": 1, "start_ticks": 2}]}
+    return {
+        "root": str(root),
+        "config_sha256": config_hash,
+        "starts": [{"pid": 1, "start_ticks": 2}],
+    }
 
 
 def test_teacher_verified_completion_accepts_negative_accuracy_gate_only_after_full_horizon(
@@ -203,8 +215,8 @@ def test_teacher_verified_completion_accepts_negative_accuracy_gate_only_after_f
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(guard, "alive", lambda *_: False)
-    v = guard.TeacherVerifier(terminal_fixture(tmp_path / "good"))
-    assert v()["state"] == "VERIFIED_LEGITIMATE_TERMINAL"
+    verifier = guard.TeacherVerifier(terminal_fixture(tmp_path / "good"))
+    assert verifier()["state"] == "VERIFIED_LEGITIMATE_TERMINAL"
     bad = guard.TeacherVerifier(terminal_fixture(tmp_path / "bad", 8279))
     with pytest.raises(ValueError, match="horizon/provenance"):
         bad()
@@ -216,13 +228,13 @@ def test_teacher_missing_receipt_has_finite_grace_not_acceptance(
     monkeypatch.setattr(guard, "alive", lambda *_: False)
     clock = [1.0]
     monkeypatch.setattr(guard.time, "monotonic", lambda: clock[0])
-    v = guard.TeacherVerifier(
+    verifier = guard.TeacherVerifier(
         {"root": str(tmp_path), "config_sha256": "absent", "starts": [{"pid": 1, "start_ticks": 2}]}
     )
-    assert v()["state"] == "PENDING_TERMINAL_RECEIPT"
+    assert verifier()["state"] == "PENDING_TERMINAL_RECEIPT"
     clock[0] = 12
     with pytest.raises(RuntimeError, match="without verified"):
-        v()
+        verifier()
 
 
 def test_initial_teacher_guard_failure_keeps_unverified_receipt_without_launch(
@@ -272,22 +284,23 @@ def test_initial_teacher_guard_failure_keeps_unverified_receipt_without_launch(
 
 
 def test_clustered_uncertainty_and_paired_movements_are_descriptive() -> None:
-    a, b = arm(320), arm(65)
+    baseline = arm(320)
+    candidate = arm(65)
     rows = {}
     groups = {}
     for domain in ("beatport", "fmak"):
-        ids = a["best_metrics"][domain]["ids"]
-        a["best_metrics"][domain]["predictions"] = [1] * len(ids)
-        b["best_metrics"][domain]["predictions"] = [0] * len(ids)
-        for i in ids:
-            rows[i] = {"ref": 0, "canonical_samples": 300 * 22050}
-            groups[i] = domain + "-single-cluster"
-    ci = pair.uncertainty(a, b, {i: 0 for i in rows}, groups)
-    assert "adaptive development" in ci["scope"]
+        ids = baseline["best_metrics"][domain]["ids"]
+        baseline["best_metrics"][domain]["predictions"] = [1] * len(ids)
+        candidate["best_metrics"][domain]["predictions"] = [0] * len(ids)
+        for identity in ids:
+            rows[identity] = {"ref": 0, "canonical_samples": 300 * 22050}
+            groups[identity] = domain + "-single-cluster"
+    interval = pair.uncertainty(baseline, candidate, {identity: 0 for identity in rows}, groups)
+    assert "adaptive development" in interval["scope"]
     for domain in ("beatport", "fmak"):
-        assert ci["domains"][domain]["clusters"] == 1
-        assert ci["domains"][domain]["metrics"]["exact"] == {"delta": 1.0, "ci95": [1.0, 1.0]}
-    moves = pair.movements(a, b, rows, groups)
+        assert interval["domains"][domain]["clusters"] == 1
+        assert interval["domains"][domain]["metrics"]["exact"] == {"delta": 1.0, "ci95": [1.0, 1.0]}
+    moves = pair.movements(baseline, candidate, rows, groups)
     assert len(moves["selected_per_ID"]) == 376
     assert moves["domains"]["fmak"]["paired_counts"] == {"repaired": 250}
     assert moves["domains"]["beatport"]["duration_strata"]["5-10min"]["tracks"] == 126

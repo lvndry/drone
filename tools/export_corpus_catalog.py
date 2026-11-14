@@ -59,7 +59,8 @@ def export_reference_panel(
     for index, row in enumerate(records):
         pointer = f"/tracks/{index}"
         origin = (Evidence("reference_manifest", pointer),)
-        corpus, identity = row["source"], row["track_id"]
+        corpus = row["source"]
+        identity = row["track_id"]
         prefix = "swd-" if corpus == "swd-v2.1" else "gs-" if corpus == "giantsteps" else None
         if prefix is None or not identity.startswith(prefix):
             raise ValueError("Unknown corpus/track-ID convention")

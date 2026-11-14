@@ -1,110 +1,72 @@
 # Standalone native CQT research harness
 
-Read [REPORT.md](REPORT.md) for the frozen method/results and
-[EXPANSION.md](EXPANSION.md) for the proposed next stage. Production workspace,
-MSRV, default dependencies and the detector are untouched.
+This crate is the native (Rust) CQT frontend used in the [native CQT study](REPORT.md) and the [composed frontend and inference study](composed/REPORT.md). It is research code: the production workspace, minimum Rust version, default dependencies and key detector are unchanged.
 
-From this Drone checkout, the Python source exports reference files with:
+Read [REPORT.md](REPORT.md) for the method and results. The fixed protocols are [PROTOCOL.md](PROTOCOL.md) (nine cases), [EXPANSION.md](EXPANSION.md) (376 tracks) and [CANDIDATE2.md](CANDIDATE2.md) (the two arithmetic arms). On the tested Linux machine only the FMA magnitude plus SVML logarithm arm passes both its nine-case and 376-track checks.
+
+## Export reference files
+
+From a Drone checkout, the Python pipeline exports the reference files (PCM, kernels, features and logits). Set the paths for your machine first; `FULL_MODEL_SHA256` is the released full model's digest, listed in the [reproducibility record](../report-provenance.json).
 
 ```sh
 python -m tools.export_cqt_goldens \
-  --data-manifest /home/lysk-admin/drone-experiments/k10-multidomain-20261111-v1/data/manifest.json \
-  --selection /home/lysk-admin/drone-experiments/k10-cpu-20261111-v1/selection.json \
+  --data-manifest "$DATA_ROOT/data/manifest.json" \
+  --selection "$CPU_STUDY_ROOT/selection.json" \
   --feature-source drone/features.py \
-  --full-model /home/lysk-admin/drone-experiments/k10-native-fixtures-20261111-v1/source/weights/drone-v1.onnx \
-  --full-model-sha256 35fc1bfe5d67f7aed2c46221c15519d0f3d5822351932b5bd9899d47d48cb613 \
+  --full-model "$FULL_MODEL" \
+  --full-model-sha256 "$FULL_MODEL_SHA256" \
   --protocol experiments/studies/native-cqt/PROTOCOL.md \
-  --output /home/lysk-admin/drone-experiments/native-cqt-20261111-v1/goldens-b1c90d3
+  --output "$EXPERIMENT_ROOT/goldens"
 ```
 
-Use the server's installed Drone Python with numeric thread variables one and
-`taskset -c 2,3`. Output must be a new directory. The exported files stay on the
-server and never enter Git. `tools.record_cqt_environment` records actual build
-and binary identities; its corrected source is Drone `b9c22f2`.
+Run it with numeric thread variables set to 1 and the process restricted to two logical CPUs (for example `taskset -c 2,3`). The output must be a new directory. Exported files contain audio-derived data and are never committed. `tools.record_cqt_environment` records the actual build and binary identities.
 
-Build the exact verified source already extracted under the dedicated root:
+## Build
 
 ```sh
-bash research/drone-native-cqt/build_soxr.sh /home/lysk-admin/drone-experiments/native-cqt-20261111-v1
+bash research/drone-native-cqt/build_soxr.sh "$EXPERIMENT_ROOT"
 cargo build --release --locked --jobs 2 --manifest-path research/drone-native-cqt/Cargo.toml
 ```
 
-The soxr build checks both the archive checksum and the actual extracted source
-against the 167-file inventory in `evidence/build-evidence-v2.json` before CMake
-runs. Missing, extra or changed files and symlinks escaping that source tree are
-rejected. The original pinned internal file symlink remains supported.
+The soxr build checks both the archive checksum and the extracted source against the 167-file inventory in [evidence/build-evidence-v2.json](evidence/build-evidence-v2.json) before CMake runs. Missing, extra or changed files and symlinks leaving the source tree are rejected; the one original internal symlink is allowed.
 
-The first nine-case measurements use pinned Rust1.99.1, source `d8424bf`, binary
-SHA `9ee59e01709bf6f9def5fbeaade529944e5835731910ca166ac5d22554616f4b`.
-The optional owner snapshot is external and must never be committed or published.
-Building with `CQT_OWNER_SNAPSHOT=/absolute/frozen/snapshot` enables that candidate;
-without it, the default unit tests and exported-kernel candidate remain usable.
-The snapshot contains `cqt.rs` and `halving.rs`; exact source hashes are recorded
-in the first comparison reports.
+The first nine-case measurements used Rust 1.99.1; the executable identity is in [evidence/index.json](evidence/index.json).
 
-Actual first passing command, under server task root:
+An optional external snapshot of another contributor's experimental frontend (`cqt.rs` and `halving.rs`) can be enabled with `CQT_OWNER_SNAPSHOT=/absolute/frozen/snapshot`. It is never committed or published. Without it, the default unit tests and the exported-kernel frontend work normally. Its source hashes are recorded in the first comparison reports.
+
+## Run the nine-case comparison
 
 ```sh
 ulimit -t 600
 taskset -c 2,3 env OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
   timeout 610 \
-  /home/lysk-admin/drone-experiments/native-cqt-20261111-v1/euphoria-source-d8424bf/research/drone-native-cqt/target/release/drone-native-cqt \
+  research/drone-native-cqt/target/release/drone-native-cqt \
   --candidate exported \
-  --soxr-wrapper /home/lysk-admin/drone-experiments/native-cqt-20261111-v1/libcqt_soxr_split.so \
-  --manifest /home/lysk-admin/drone-experiments/native-cqt-20261111-v1/goldens-b1c90d3/manifest.json \
-  --full-model /home/lysk-admin/drone-experiments/k10-native-fixtures-20261111-v1/source/weights/drone-v1.onnx \
-  --ort-library /home/lysk-admin/drone/.venv/lib/python3.12/site-packages/onnxruntime/capi/libonnxruntime.so.1.31.1 \
-  --output /home/lysk-admin/drone-experiments/native-cqt-20261111-v1/exported-d8424bf.json
+  --soxr-wrapper "$EXPERIMENT_ROOT/libcqt_soxr_split.so" \
+  --manifest "$EXPERIMENT_ROOT/goldens/manifest.json" \
+  --full-model "$FULL_MODEL" \
+  --ort-library "$ORT_LIBRARY" \
+  --output "$EXPERIMENT_ROOT/exported-new.json"
 ```
 
-Do not overwrite the existing evidence. Reproduction requires a new output name.
-Use `--candidate owner` without `--soxr-wrapper` for the externally snapshotted
-experimental frontend. The failed WIP command exits nonzero **after** preserving
-all per-case diagnostics. The exported candidate's zero exit reflects only the
-nine frozen identical-PCM cases.
+`ORT_LIBRARY` is the ONNX Runtime 1.31.1 CPU shared library from the Python environment that produced the reference. Use a new output name; existing evidence is never overwritten. Use `--candidate owner` without `--soxr-wrapper` for the external experimental frontend. A failing candidate exits nonzero after saving all per-case diagnostics; a zero exit for the exported candidate covers only the nine fixed cases.
+
+The 376-track two-arm run is recorded in [evidence/candidate2-launch.sh](evidence/candidate2-launch.sh), with all arguments, thread and CPU settings. It passes `--numpy-magnitude` to both arms and the checksum-verified `--math-library` only to the SVML arm. Reproducing it needs a new output directory; keep the old evidence.
+
+## Tests and figures
 
 ```sh
 cargo fmt --manifest-path research/drone-native-cqt/Cargo.toml --check
 cargo test --manifest-path research/drone-native-cqt/Cargo.toml
 cargo clippy --manifest-path research/drone-native-cqt/Cargo.toml --all-targets -- -D warnings
+python3 -m unittest discover -s research/drone-native-cqt -p 'test_*.py'
 uv run --script research/drone-native-cqt/plot_results.py
 ```
 
-`libsoxr` and the Python-SoXR-derived wrapper are LGPL-2.1-or-later; preserve
-[the upstream Python wrapper notice](LICENSE-python-soxr). The task-local source
-archive also contains libsoxr and its component notices. No dynamic product bundle
-or legal distribution conclusion is established here.
+The two 376-track summaries are stored as deterministic `.json.gz`. `evidence_io.py` verifies both the compressed and the original decoded-byte checksums against [evidence/index.json](evidence/index.json), and `plot_expansion.py` reads through it; compression preserves the original JSON bytes exactly. The unit tests check roundtrips, repeatability and rejection of altered evidence. Both plot scripts verify their inputs against the index, and the feasibility plot also requires unique case IDs in the reference order, so valid file hashes cannot hide mispaired rows.
 
-The complete fixed376 result and arithmetic ablation are now in `REPORT.md`.
-Only FMA+SVML passes both its nine-case and full376 gates on the tested Linux
-host. The source freezes are Drone `2ac6364` and Euphoria `2f87e2c`; current report
-and CI commits do not relabel those measured sources.
+Later runner checks validate captured plan dimensions and accept a manifest file name relative to the working directory. They do not change the recorded numerical evidence; any new numerical result is tied to its own source and binary.
 
-[The exact historical two-arm launcher](evidence/candidate2-launch.sh) records
-all supervisor arguments, paths, thread/affinity settings, the separately
-recorded process exit and the authorized06:00UTC deadline. Its original output
-paths are immutable. Reproduction needs a new output directory and a declared
-execution window; retain the old evidence. The supervisor supplies
-`--numpy-magnitude` to both arms and the hash-checked `--math-library` only to the
-SVML arm. FMA-only's failed status remains part of the experiment.
+## Licensing
 
-
-The two complete376 evidence summaries are stored as deterministic `.json.gz`.
-`evidence_io.py` verifies encoded and original decoded-byte SHA256 values against
-`evidence/index.json`; `plot_expansion.py` uses that verified reader. The
-compression preserves the original JSON bytes (including whitespace/newline).
-Run `python3 -m unittest discover -s research/drone-native-cqt -p 'test_*.py'` to
-check roundtrips, repeatability and rejection of altered evidence. Server
-artifacts and measured source refs remain unchanged by publication packaging.
-Both plotters verify their JSON inputs against that index, including the plain
-nine-case reports. The feasibility plot also requires unique case IDs in the
-same order as its reference, so valid file hashes cannot conceal mispaired rows.
-
-Subsequent runner validation checks captured plan dimensions and accepts a
-manifest basename relative to the working directory. These checks do not
-regenerate or relabel the frozen numerical evidence above; any new numerical
-qualification remains tied to its own executed source and binary identities.
-
-The follow-up [composed frontend/inference and Mac portability study](composed/REPORT.md)
-qualifies the prepared API on376 public tracks and measures20 FMAK tracks.
-Its audited RSS erratum preserves the original execution evidence.
+`libsoxr` and the Python-SoXR-derived wrapper are LGPL-2.1-or-later; keep [the upstream Python wrapper notice](LICENSE-python-soxr). The local source archive also contains libsoxr and its component notices. No conclusion about distributing a dynamic product bundle is drawn here.

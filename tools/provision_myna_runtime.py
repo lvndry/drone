@@ -49,7 +49,7 @@ def tree_usage(pgid: int) -> tuple[int, float]:
         try:
             fields = (entry / "stat").read_text().rsplit(")", 1)[1].split()
             if int(fields[2]) == pgid:
-                cpu += sum(int(fields[i]) for i in (11, 12, 13, 14)) / ticks
+                cpu += sum(int(fields[index]) for index in (11, 12, 13, 14)) / ticks
                 rss += int(fields[21]) * os.sysconf("SC_PAGE_SIZE")
         except (FileNotFoundError, ProcessLookupError):
             continue
@@ -128,18 +128,20 @@ def worker(plan: dict[str, Any], manifest: dict[str, Any]) -> None:
             for item in manifest["wheels"]
         )
     )
-    env = root / ".venv"
-    if env.exists():
+    virtual_environment = root / ".venv"
+    if virtual_environment.exists():
         raise FileExistsError("Refuse to change an existing environment")
-    uv = plan["uv"]
-    subprocess.run([uv, "venv", "--python", plan["python"], str(env)], check=True)
+    uv_executable = plan["uv"]
+    subprocess.run(
+        [uv_executable, "venv", "--python", plan["python"], str(virtual_environment)], check=True
+    )
     subprocess.run(
         [
-            uv,
+            uv_executable,
             "pip",
             "install",
             "--python",
-            str(env / "bin/python"),
+            str(virtual_environment / "bin/python"),
             "--no-index",
             "--find-links",
             str(wheels),
@@ -162,7 +164,9 @@ print(json.dumps({'prefix':sys.prefix,'path':sys.path,
  'model_modules_loaded':[n for n in sys.modules if n.split('.')[0] in {'torch','torchaudio','transformers','nnAudio'}]}))
 """
     inventory = json.loads(
-        subprocess.check_output([str(env / "bin/python"), "-I", "-c", inventory_program], text=True)
+        subprocess.check_output(
+            [str(virtual_environment / "bin/python"), "-I", "-c", inventory_program], text=True
+        )
     )
 
     def normalize(name: str) -> str:
@@ -170,16 +174,22 @@ print(json.dumps({'prefix':sys.prefix,'path':sys.path,
 
     expected = {normalize(item["name"]): item["version"] for item in manifest["wheels"]}
     actual = {normalize(item["name"]): item["version"] for item in inventory["distributions"]}
-    if actual != expected or inventory["prefix"] != str(env) or inventory["model_modules_loaded"]:
+    if (
+        actual != expected
+        or inventory["prefix"] != str(virtual_environment)
+        or inventory["model_modules_loaded"]
+    ):
         raise ValueError("Installed distribution inventory differs")
     for entry in inventory["path"]:
-        if "site-packages" in entry and not Path(entry).is_relative_to(env):
+        if "site-packages" in entry and not Path(entry).is_relative_to(virtual_environment):
             raise ValueError("External package directory in isolated runtime")
-    site = env / "lib/python3.12/site-packages"
-    pth = {str(path.relative_to(env)): path.read_text() for path in site.glob("*.pth")}
-    if any("/home/" in body or "sys.path" in body for body in pth.values()):
+    site = virtual_environment / "lib/python3.12/site-packages"
+    path_files = {
+        str(path.relative_to(virtual_environment)): path.read_text() for path in site.glob("*.pth")
+    }
+    if any("/home/" in body or "sys.path" in body for body in path_files.values()):
         raise ValueError("Mutable external path injection")
-    inventory["pth_files"] = pth
+    inventory["pth_files"] = path_files
     inventory["files"] = []
     for path in sorted(site.rglob("*")):
         if path.is_symlink():
@@ -187,7 +197,7 @@ print(json.dumps({'prefix':sys.prefix,'path':sys.path,
         if path.is_file():
             inventory["files"].append(
                 {
-                    "path": str(path.relative_to(env)),
+                    "path": str(path.relative_to(virtual_environment)),
                     "bytes": path.stat().st_size,
                     "sha256": digest(path),
                 }
@@ -281,11 +291,9 @@ def supervise(plan: dict[str, Any], plan_path: Path, manifest_path: Path) -> Non
                 protected(plan)
                 rss, cpu = tree_usage(child.pid)
                 size = owned_bytes(root)
-                peak_rss, peak_cpu, peak_bytes = (
-                    max(peak_rss, rss),
-                    max(peak_cpu, cpu),
-                    max(peak_bytes, size),
-                )
+                peak_rss = max(peak_rss, rss)
+                peak_cpu = max(peak_cpu, cpu)
+                peak_bytes = max(peak_bytes, size)
                 if (
                     time.monotonic() - started > plan["wall_seconds"]
                     or cpu > plan["cpu_seconds"]

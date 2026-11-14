@@ -49,7 +49,7 @@ def test_every_sample_supported_once_with_valid_actual_context(samples: int) -> 
         assert window.support_start == cursor
         cursor = window.support_stop
     assert cursor == samples
-    assert sum(w.weight for w in windows) == samples
+    assert sum(window.weight for window in windows) == samples
 
 
 def test_tiny_tail_has_context_but_only_its_own_weight() -> None:

@@ -48,7 +48,7 @@ def test_batch16_uses_individual_frontends_and_retains_all_tail_weight(
 
     backbone = ToyBackbone()
     teacher = KeyTeacher(backbone)
-    ids = [str(i) for i in range(20)]
+    ids = [str(index) for index in range(20)]
     rows = {
         identity: {"samples": 288000 + (1 if int(identity) % 2 else 1025), "value": int(identity)}
         for identity in ids
@@ -79,22 +79,22 @@ def test_batch16_uses_individual_frontends_and_retains_all_tail_weight(
 
 
 def test_composed_proof_rejects_panel_order_and_numerical_changes() -> None:
-    metadata = [{"id": str(i), "samples": 1200, "windows": 1} for i in range(376)]
-    ref = {
+    metadata = [{"id": str(index), "samples": 1200, "windows": 1} for index in range(376)]
+    reference = {
         "tracks": 376,
         "windows": 376,
         "logits": np.zeros((376, 24)).tolist(),
         "per_song": metadata,
     }
-    retained = compare_panels(ref, ref)
+    retained = compare_panels(reference, reference)
     assert retained["passed"]
     assert retained["per_song"] == metadata
-    assert retained["reference_logits"] == retained["candidate_logits"] == ref["logits"]
+    assert retained["reference_logits"] == retained["candidate_logits"] == reference["logits"]
     assert "domain_schedule" in retained
-    changed = {**ref, "logits": np.ones((376, 24)).tolist()}
-    assert not compare_panels(ref, changed)["passed"]
+    changed = {**reference, "logits": np.ones((376, 24)).tolist()}
+    assert not compare_panels(reference, changed)["passed"]
     with pytest.raises(ValueError, match="order"):
-        compare_panels(ref, {**ref, "per_song": list(reversed(metadata))})
+        compare_panels(reference, {**reference, "per_song": list(reversed(metadata))})
 
 
 def test_heartbeat_allows_slow_query_but_not_dead_or_stale_guardian(
@@ -144,11 +144,14 @@ def test_audit_replays_fit_domain_flushes_with_batch_sensitive_encoder(
 
     teacher = KeyTeacher(BatchSensitive())
     panels = {
-        "beatport": [f"b{i}" for i in range(126)],
-        "fmak": [f"f{i}" for i in range(250)],
+        "beatport": [f"b{index}" for index in range(126)],
+        "fmak": [f"f{index}" for index in range(250)],
     }
     ids = panels["beatport"] + panels["fmak"]
-    rows = {identity: {"samples": 1200, "value": float(i % 17)} for i, identity in enumerate(ids)}
+    rows = {
+        identity: {"samples": 1200, "value": float(index % 17)}
+        for index, identity in enumerate(ids)
+    }
 
     def wave(
         row: dict[str, Any], start: int, length: int, watch: Callable[[], None]
@@ -178,7 +181,7 @@ def test_audit_replays_fit_domain_flushes_with_batch_sensitive_encoder(
         batch_size=16,
     )
     np.testing.assert_array_equal(audit["logits"], expected)
-    assert [p["tracks"] for p in audit["domain_schedule"]] == [126, 250]
+    assert [panel["tracks"] for panel in audit["domain_schedule"]] == [126, 250]
     assert audit["tracks"] == audit["windows"] == 376
     joined = evaluate_panel(
         teacher,

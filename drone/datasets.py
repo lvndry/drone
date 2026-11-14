@@ -62,10 +62,10 @@ def _load_dir(
     tracks: list[Track] = []
     for path in sorted(paths):
         name = os.path.basename(path)
-        m = re.match(r"(\d+)", name)
-        if not m:
+        match = re.match(r"(\d+)", name)
+        if not match:
             continue
-        track_id = m.group(1)
+        track_id = match.group(1)
         key = label_fn(track_id, name)
         if key is None:
             continue
@@ -79,15 +79,17 @@ def load_beatport(data_dir: str | Path, label_dir: str | Path) -> list[Track]:
     for path in os.listdir(label_dir):
         if not path.endswith(".txt"):
             continue
-        m = re.match(r"(\d+)", path)
-        if not m:
+        match = re.match(r"(\d+)", path)
+        if not match:
             continue
-        with open(os.path.join(label_dir, path)) as f:
-            key = parse_key(f.read())
+        with open(os.path.join(label_dir, path)) as label_file:
+            key = parse_key(label_file.read())
         if key is not None:
-            labels[m.group(1)] = key
+            labels[match.group(1)] = key
     audio = os.path.join(str(data_dir), "audio")
-    tracks = _load_dir(audio, "**/*.mp3", lambda tid, name: labels.get(tid), recursive=True)
+    tracks = _load_dir(
+        audio, "**/*.mp3", lambda track_id, name: labels.get(track_id), recursive=True
+    )
     if not tracks:
         raise ValueError(f"No tracks found under {audio}")
     return tracks
@@ -101,8 +103,8 @@ def load_giantsteps(data_dir: str | Path) -> list[Track]:
         path = os.path.join(str(data_dir), "annotations", "key", name[: -len(".mp3")] + ".key")
         if not os.path.exists(path):
             return None
-        with open(path) as f:
-            return parse_key(f.read())
+        with open(path) as label_file:
+            return parse_key(label_file.read())
 
     tracks = _load_dir(data_dir, "audio/*.mp3", label_fn)
     if not tracks:

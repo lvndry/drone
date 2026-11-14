@@ -60,7 +60,8 @@ def test_rejects_inconsistent_recorded_claims(
     damage: str,
 ) -> None:
     docs, index = copy.deepcopy(evidence)
-    result, audit = docs["result.json"], docs["audit.json"]
+    result = docs["result.json"]
+    audit = docs["audit.json"]
     proof = result["selected_teacher_composed_batch_proof"]
     if damage == "horizon":
         result["history"].pop()

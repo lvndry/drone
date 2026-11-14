@@ -26,21 +26,24 @@ from experiments.small import atomic_json, signature
 
 def calibrated(probability: np.ndarray, temperature: float) -> np.ndarray:
     logits = np.log(np.maximum(probability, 1e-12)) / temperature
-    p = np.exp(logits - logits.max(1, keepdims=True))
-    return p / p.sum(1, keepdims=True)
+    exponentials = np.exp(logits - logits.max(1, keepdims=True))
+    return exponentials / exponentials.sum(1, keepdims=True)
 
 
-def uncertainty(probability: np.ndarray, refs: np.ndarray) -> dict[str, float]:
-    confidence, prediction = probability.max(1), probability.argmax(1)
-    correct = prediction == refs
+def uncertainty(probability: np.ndarray, references: np.ndarray) -> dict[str, float]:
+    confidence = probability.max(1)
+    prediction = probability.argmax(1)
+    correct = prediction == references
     ece = 0.0
     for left, right in zip(np.linspace(0, 1, 16)[:-1], np.linspace(0, 1, 16)[1:], strict=True):
         chosen = (confidence > left) & (confidence <= right)
         if chosen.any():
             ece += chosen.mean() * abs(correct[chosen].mean() - confidence[chosen].mean())
-    one_hot = np.eye(24)[refs]
+    one_hot = np.eye(24)[references]
     return {
-        "nll": float(-np.log(np.maximum(probability[np.arange(len(refs)), refs], 1e-12)).mean()),
+        "nll": float(
+            -np.log(np.maximum(probability[np.arange(len(references)), references], 1e-12)).mean()
+        ),
         "brier": float(np.square(probability - one_hot).sum(1).mean()),
         "ece_15_equal_width": float(ece),
     }
@@ -95,8 +98,10 @@ def rows_for(
     args: argparse.Namespace, selection: dict[str, Any]
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     _, meta = load_prepared(args.fmak, "fmak")
-    partition_bytes, group_bytes = args.partition.read_bytes(), args.groups.read_bytes()
-    partition, audit = json.loads(partition_bytes), json.loads(group_bytes)
+    partition_bytes = args.partition.read_bytes()
+    group_bytes = args.groups.read_bytes()
+    partition = json.loads(partition_bytes)
+    audit = json.loads(group_bytes)
     assert partition["metadata_sha256"] == signature(meta)
     assert audit["partition_sha256"] == hashlib.sha256(partition_bytes).hexdigest()
     if args.mode == "calibrate":
@@ -105,33 +110,33 @@ def rows_for(
         indices = partition["final_holdout_indices"]
         assert len(indices) == 1000
     else:
-        _, gs = load_prepared(args.beatport, "test")
+        _, giantsteps = load_prepared(args.beatport, "test")
         tracks = load_giantsteps(args.beatport / "giantsteps")
-        lookup = {t.id: t for t in tracks}
+        lookup = {track.id: track for track in tracks}
         rows = [
             {
                 "id": "giantsteps:" + identity,
                 "path": str(lookup[identity].mp3),
-                "ref": gs["refs"][i],
-                "sha256": gs["tracks"][i]["sha256"],
-                "group": gs["tracks"][i]["sha256"],
+                "ref": giantsteps["refs"][index],
+                "sha256": giantsteps["tracks"][index]["sha256"],
+                "group": giantsteps["tracks"][index]["sha256"],
             }
-            for i, identity in enumerate(gs["ids"])
+            for index, identity in enumerate(giantsteps["ids"])
         ]
         assert len(rows) == 604
         return rows, {
-            "test_metadata_sha256": signature(gs),
+            "test_metadata_sha256": signature(giantsteps),
             "giantsteps_program_exposure_disclosed": True,
         }
     rows = [
         {
-            "id": "fmak:" + meta["ids"][i],
-            "path": str(args.fmak / "audio" / f"{meta['ids'][i]}.mp3"),
-            "ref": meta["refs"][i],
-            "sha256": meta["tracks"][i]["sha256"],
-            "group": audit["groups"][i],
+            "id": "fmak:" + meta["ids"][index],
+            "path": str(args.fmak / "audio" / f"{meta['ids'][index]}.mp3"),
+            "ref": meta["refs"][index],
+            "sha256": meta["tracks"][index]["sha256"],
+            "group": audit["groups"][index],
         }
-        for i in indices
+        for index in indices
     ]
     return rows, {
         "partition_sha256": hashlib.sha256(partition_bytes).hexdigest(),
@@ -214,7 +219,10 @@ def main() -> None:
         assert freeze["selection_sha256"] == hashlib.sha256(selection_bytes).hexdigest()
         assert freeze["feature_spec"] == FEATURE_SPEC
     device_setup(args.device)
-    models, used_audio, used_ids, validation_ids = [], set(), set(), set()
+    models = []
+    used_audio = set()
+    used_ids = set()
+    validation_ids = set()
     for record in selection["selected_checkpoints"]:
         path = Path(record["path"])
         assert hashlib.sha256(path.read_bytes()).hexdigest() == record["sha256"]
@@ -249,7 +257,7 @@ def main() -> None:
         probabilities(model, array, list(range(len(rows))), args.device) for model in models
     ]
     raw = np.mean(predictions, axis=0)
-    refs = np.array([row["ref"] for row in rows])
+    references = np.array([row["ref"] for row in rows])
     result = {
         "selection_sha256": hashlib.sha256(selection_bytes).hexdigest(),
         "identities_sha256": signature(identities),
@@ -264,15 +272,16 @@ def main() -> None:
     if args.mode == "calibrate":
         temperatures = np.exp(np.linspace(np.log(0.25), np.log(4), 401))
         losses = [
-            uncertainty(calibrated(raw, temperature), refs)["nll"] for temperature in temperatures
+            uncertainty(calibrated(raw, temperature), references)["nll"]
+            for temperature in temperatures
         ]
         temperature = float(temperatures[int(np.argmin(losses))])
         calibrated_prob = calibrated(raw, temperature)
         assert np.array_equal(raw.argmax(1), calibrated_prob.argmax(1))
         result.update(
             temperature=temperature,
-            raw_uncertainty=uncertainty(raw, refs),
-            fitted_uncertainty=uncertainty(calibrated_prob, refs),
+            raw_uncertainty=uncertainty(raw, references),
+            fitted_uncertainty=uncertainty(calibrated_prob, references),
             accuracy_used_for_selection=False,
         )
         freeze = {
@@ -295,26 +304,26 @@ def main() -> None:
     else:
         assert freeze is not None
         probability = calibrated(raw, freeze["temperature"])
-        pred = probability.argmax(1)
-        assert np.array_equal(pred, raw.argmax(1))
-        exact, mirex = score_mirex(pred, refs)
+        predicted_keys = probability.argmax(1)
+        assert np.array_equal(predicted_keys, raw.argmax(1))
+        exact, mirex = score_mirex(predicted_keys, references)
         matrix = np.zeros((24, 24), dtype=int)
-        np.add.at(matrix, (refs, pred), 1)
+        np.add.at(matrix, (references, predicted_keys), 1)
         result.update(
             freeze_sha256=hashlib.sha256(freeze_path.read_bytes()).hexdigest(),
             exact=exact,
             mirex=mirex,
-            mirex_asymmetric=score_mirex(pred, refs, symmetric=False)[1],
-            mode_accuracy=float(np.mean(pred % 2 == refs % 2)),
-            uncertainty=uncertainty(probability, refs),
-            counts=dict(score_breakdown(pred, refs)),
+            mirex_asymmetric=score_mirex(predicted_keys, references, symmetric=False)[1],
+            mode_accuracy=float(np.mean(predicted_keys % 2 == references % 2)),
+            uncertainty=uncertainty(probability, references),
+            counts=dict(score_breakdown(predicted_keys, references)),
             confusion_matrix=matrix.tolist(),
-            predictions=pred.tolist(),
+            predictions=predicted_keys.tolist(),
             ids=[row["id"] for row in rows],
             groups=[row["group"] for row in rows],
-            references=refs.tolist(),
+            references=references.tolist(),
         )
-    np.savez(args.output / (args.mode + "-probabilities.npz"), raw=raw, refs=refs)
+    np.savez(args.output / (args.mode + "-probabilities.npz"), raw=raw, refs=references)
     atomic_json(target, result)
     print(
         json.dumps(

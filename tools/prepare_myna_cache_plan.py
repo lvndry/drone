@@ -41,9 +41,9 @@ def project(
         identity = source["id"]
         family = families[identity]
         role = family["logical_role"]
-        n24 = source["samples"]
-        n16 = base_sample_count(n24)
-        frames = n16 // 512 + 1
+        samples_24k = source["samples"]
+        samples_16k = base_sample_count(samples_24k)
+        frames = samples_16k // 512 + 1
         windows, tail = divmod(frames, 196)
         tracks.append(
             {
@@ -56,20 +56,20 @@ def project(
                 "pcm_sha256": source["waveform_sha256"],
                 "physical_pcm_path": source["cache"],
                 "physical_pcm_identity": source["cache_identity"],
-                "samples_24k": n24,
-                "samples_16k": n16,
+                "samples_24k": samples_24k,
+                "samples_16k": samples_16k,
                 "mel_frames": frames,
                 "complete_windows": windows,
                 "discarded_frames": tail,
                 "views": [
                     {
                         "shift": shift,
-                        **rate_geometry(n16, shift),
+                        **rate_geometry(samples_16k, shift),
                         "raw_samples": None,
                         "trimmed_samples": None,
                         "padded_samples": None,
                         "dtype": "float32",
-                        "shape": [rate_geometry(n16, shift)["windows"], 384],
+                        "shape": [rate_geometry(samples_16k, shift)["windows"], 384],
                         "window_order": "all-complete-196-frame-windows-in-order",
                         "path": "embeddings/"
                         + identity.replace(":", "-")
@@ -141,22 +141,24 @@ def prepare(canonical_path: Path, prepared_path: Path, output: Path) -> dict[str
         "plan_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
         "plan_bytes": path.stat().st_size,
         "source_sha256": {
-            str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in (Path(__file__).resolve(), ROOT / "experiments/myna_cache.py")
+            str(source_path.relative_to(ROOT)): hashlib.sha256(source_path.read_bytes()).hexdigest()
+            for source_path in (Path(__file__).resolve(), ROOT / "experiments/myna_cache.py")
         },
         "lineage": projection["lineage"],
         "tracks": len(projection["tracks"]),
         "views": len(contract.views),
-        "fitting_views": sum(v.role == "fit" for v in contract.views),
-        "selection_views": sum(v.role == "selection" for v in contract.views),
+        "fitting_views": sum(view.role == "fit" for view in contract.views),
+        "selection_views": sum(view.role == "selection" for view in contract.views),
         "fitting_vectors": contract.fit_windows,
         "selection_vectors": contract.selection_windows,
         "embedding_payload_bytes": contract.embedding_bytes,
-        "canonical_roles": dict(Counter(r["role"] for r in canonical["rows"])),
-        "physical_roles": dict(Counter(r["role"] for r in physical["rows"])),
+        "canonical_roles": dict(Counter(row["role"] for row in canonical["rows"])),
+        "physical_roles": dict(Counter(row["role"] for row in physical["rows"])),
         "role_aliases": {"fit": "fit", "validation": "selection"},
         "group_counts": {
-            role: len({r["derived_uncertainty_group"] for r in groups if r["logical_role"] == role})
+            role: len(
+                {row["derived_uncertainty_group"] for row in groups if row["logical_role"] == role}
+            )
             for role in ("fit", "selection")
         },
         "projection_loading_refused": True,

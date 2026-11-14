@@ -42,9 +42,9 @@ def checked_inputs(data: Path = DATA) -> dict[str, Any]:
         def function(raw: bytes) -> str:
             return ast.dump(
                 next(
-                    n
-                    for n in ast.parse(raw).body
-                    if isinstance(n, ast.FunctionDef) and n.name == name
+                    node
+                    for node in ast.parse(raw).body
+                    if isinstance(node, ast.FunctionDef) and node.name == name
                 ),
                 include_attributes=False,
             )
@@ -55,77 +55,90 @@ def checked_inputs(data: Path = DATA) -> dict[str, Any]:
     return result
 
 
-def verify(v: dict[str, Any]) -> dict[str, Any]:
-    a, b, pair, config, post = (
-        v[k] for k in ["arm-320", "arm-65", "pair-result", "pair-config", "postflight"]
-    )
+def verify(evidence: dict[str, Any]) -> dict[str, Any]:
+    long_arm = evidence["arm-320"]
+    short_arm = evidence["arm-65"]
+    pair = evidence["pair-result"]
+    config = evidence["pair-config"]
+    post = evidence["postflight"]
     assert post["config_sha256"] == CONFIG
     assert post["source_hashes"] == config["source_sha256"]
-    assert all(x is None for x in post["processes"].values())
+    assert all(process is None for process in post["processes"].values())
     assert post["failures"] == []
     assert all(
-        x["actual"]["start_ticks"] == x["expected"]["start_ticks"] for x in post["protected"]
+        process["actual"]["start_ticks"] == process["expected"]["start_ticks"]
+        for process in post["protected"]
     )
     historical_path = ROOT / "experiments/studies/k10-v2-pilot/data/results/expanded.json.gz"
     assert sha(historical_path.read_bytes()) == config["historical_gpu_control_sha256"]
     assert post["historical_sha256"] == config["historical_gpu_control_sha256"]
     old = json.loads(gzip.decompress(historical_path.read_bytes()))
-    rows = {r["id"]: r for r in config["rows"]}
+    rows = {row["id"]: row for row in config["rows"]}
     group_path = (
         ROOT
         / "experiments/studies/k10-v2-pilot/data/canonical-eligibility-v2/uncertainty-groups-v2.csv.gz"
     )
     assert sha(group_path.read_bytes()) == config["groups_sha256"]
     groups = {
-        r["id"]: r["derived_uncertainty_group"]
-        for r in csv.DictReader(io.StringIO(gzip.decompress(group_path.read_bytes()).decode()))
+        row["id"]: row["derived_uncertainty_group"]
+        for row in csv.DictReader(io.StringIO(gzip.decompress(group_path.read_bytes()).decode()))
     }
-    refs = {i: r["ref"] for i, r in rows.items()}
-    for n, arm in [(320, a), (65, b)]:
+    references = {track_id: row["ref"] for track_id, row in rows.items()}
+    for crop_frames, arm in [(320, long_arm), (65, short_arm)]:
         assert arm["provenance"]["config_sha256"] == CONFIG
         assert len(arm["coverage"]) == 5262 and sum(arm["coverage"].values()) == 8280 * 32
         assert arm["provenance"]["source_sha256"] == config["source_sha256"]
         for kind in ["best", "final"]:
-            assert post["checkpoints"][f"{n}/{kind}"]["sha256"] == arm[f"{kind}_checkpoint_sha256"]
+            assert (
+                post["checkpoints"][f"{crop_frames}/{kind}"]["sha256"]
+                == arm[f"{kind}_checkpoint_sha256"]
+            )
         proof = arm["selected_reload_proof"]
         assert proof["checkpoint_sha256"] == arm["best_checkpoint_sha256"]
         assert proof["frames"] == 372532
         assert len(arm["history"]) == 120
-        assert [e["update"] for e in arm["history"]] == list(range(69, 8281, 69))
-        selected = max(arm["history"], key=lambda e: selection_key(e["metrics"]))
+        assert [entry["update"] for entry in arm["history"]] == list(range(69, 8281, 69))
+        selected = max(arm["history"], key=lambda entry: selection_key(entry["metrics"]))
         assert selected["update"] == arm["best_update"]
         assert selected["metrics"] == arm["best_metrics"]
-        for d, m in arm["best_metrics"].items():
-            assert metrics(m["ids"], m["predictions"], refs) == m, d
-    assert a["bp_augmented_sha256"] == old["bp_trace_sha256"]
-    assert a["temporal_sha256"] != b["temporal_sha256"]
-    assert compare(a, b, old) == pair["gate"]
-    assert uncertainty(a, b, refs, groups) == pair["uncertainty"]
-    assert movements(a, b, rows, groups) == pair["paired_errors_and_duration"]
-    controller = v["controller"]
+        for domain, domain_metrics in arm["best_metrics"].items():
+            assert (
+                metrics(domain_metrics["ids"], domain_metrics["predictions"], references)
+                == domain_metrics
+            ), domain
+    assert long_arm["bp_augmented_sha256"] == old["bp_trace_sha256"]
+    assert long_arm["temporal_sha256"] != short_arm["temporal_sha256"]
+    assert compare(long_arm, short_arm, old) == pair["gate"]
+    assert uncertainty(long_arm, short_arm, references, groups) == pair["uncertainty"]
+    assert movements(long_arm, short_arm, rows, groups) == pair["paired_errors_and_duration"]
+    controller = evidence["controller"]
     assert controller["complete"] is True and controller["error"] is None
     assert controller["worker_exit"] == 0
     assert controller["wall_seconds"] <= 21600 and controller["peaks"]["cpu"] <= 40000
     assert controller["peaks"]["rss"] <= 8 * 1024**3
     assert controller["teacher_state"]["state"] == "VERIFIED_LEGITIMATE_TERMINAL"
     assert controller["teacher_state"]["events"] == 120
-    for n in [320, 65]:
-        raw_index = v["_index"]
+    for crop_frames in [320, 65]:
+        raw_index = evidence["_index"]
         assert (
-            controller["completed_arm_records"][str(n)]
-            == raw_index["files"][f"arm-{n}.json.gz"]["decoded_sha256"]
+            controller["completed_arm_records"][str(crop_frames)]
+            == raw_index["files"][f"arm-{crop_frames}.json.gz"]["decoded_sha256"]
         )
-    cost = v["cost-result"]
-    assert v["_index"]["files"]["cost-result.json.gz"]["decoded_sha256"] == config["cost_sha256"]
+    cost = evidence["cost-result"]
     assert (
-        v["_index"]["files"]["cost-controller.json.gz"]["decoded_sha256"]
+        evidence["_index"]["files"]["cost-result.json.gz"]["decoded_sha256"]
+        == config["cost_sha256"]
+    )
+    assert (
+        evidence["_index"]["files"]["cost-controller.json.gz"]["decoded_sha256"]
         == config["cost_controller_sha256"]
     )
-    assert v["cost-controller"]["complete"] is True and v["cost-controller"]["worker_exit"] == 0
-    assert v["cost-controller"]["error"] is None
+    cost_controller = evidence["cost-controller"]
+    assert cost_controller["complete"] is True and cost_controller["worker_exit"] == 0
+    assert cost_controller["error"] is None
     assert cost["status"] and cost["task_scores_computed"] is False
     assert cost["weights_retained"] is False
-    assert [x["crop_frames"] for x in cost["arms"]] == [320, 65]
+    assert [arm["crop_frames"] for arm in cost["arms"]] == [320, 65]
     for arm in cost["arms"]:
         assert arm["optimizer_commits"] == 3 and arm["batch"] == 32
         assert arm["validation"]["tracks"] == 376 and arm["validation"]["frames"] == 372532

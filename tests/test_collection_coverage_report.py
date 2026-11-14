@@ -35,11 +35,11 @@ def test_shared_duration_boundaries_and_complete_denominators() -> None:
     rows = tuple(
         replace(
             row,
-            track_id=f"beatport:{i + 1}",
-            source_track_id=str(i + 1),
+            track_id=f"beatport:{index + 1}",
+            source_track_id=str(index + 1),
             analyzed_audio=replace(row.analyzed_audio, samples=duration * 24000),
         )
-        for i, duration in enumerate(seconds)
+        for index, duration in enumerate(seconds)
     )
     result = summarize(replace(catalog, tracks=rows))
     assert list(result["recorded_cache_duration_bands"].values()) == [1, 2, 2, 2, 1, 0]

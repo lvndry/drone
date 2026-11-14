@@ -35,7 +35,7 @@ def main() -> None:
     if payload["frames"] != meta["frames"]:
         raise ValueError("Feature frame count differs from the frozen checkpoint")
     used_audio = set(payload["metadata"].get("training_audio_sha256", []))
-    if used_audio & {meta["tracks"][i]["sha256"] for i in indices}:
+    if used_audio & {meta["tracks"][index]["sha256"] for index in indices}:
         raise ValueError("Exact training audio overlaps external development corpus")
     result = {
         "corpus": "FMAKv2 development; final 1000 holdout not scored",
@@ -45,7 +45,7 @@ def main() -> None:
         "partition_sha256": hashlib.sha256(partition_bytes).hexdigest(),
         "data_metadata_sha256": expected,
         "metrics": development_metrics(
-            model, features[indices], [meta["refs"][i] for i in indices]
+            model, features[indices], [meta["refs"][index] for index in indices]
         ),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -32,10 +32,10 @@ def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path: Path, width: flo
     session = cpu_session(output)
     restored, _ = load_checkpoint(checkpoint)
     for frames in (8, 56, 319, 645):
-        x = torch.randn(1, 192, frames)
+        features = torch.randn(1, 192, frames)
         with torch.inference_mode():
-            expected = restored(x)
-        actual = session.run(["logits"], {"features": x.numpy()})[0]
+            expected = restored(features)
+        actual = session.run(["logits"], {"features": features.numpy()})[0]
         torch.testing.assert_close(torch.from_numpy(actual), expected, rtol=1e-4, atol=1e-5)
     options = cpu_session(output).get_session_options()
     assert options.intra_op_num_threads == 1
@@ -51,8 +51,8 @@ def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths() -> None:
     shape = session.get_inputs()[0].shape
     assert isinstance(shape[0], str) and isinstance(shape[2], str)
     for frames in (8, 319, 645):
-        x = torch.randn(1, 192, frames)
+        features = torch.randn(1, 192, frames)
         with torch.inference_mode():
-            expected = model(x)
-        actual = session.run(["logits"], {"features": x.numpy()})[0]
+            expected = model(features)
+        actual = session.run(["logits"], {"features": features.numpy()})[0]
         torch.testing.assert_close(torch.from_numpy(actual), expected, rtol=1e-4, atol=1e-5)

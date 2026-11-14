@@ -76,14 +76,15 @@ def bn_schedule(
         raise ValueError("BN fitting indices must be nonempty and unique")
     result = []
     for position, index in enumerate(np.random.default_rng(SCHEDULE_SEED).permutation(fitting)):
-        i = int(index)
-        row, array = rows[i], arrays[i]
+        row_index = int(index)
+        row = rows[row_index]
+        array = arrays[row_index]
         if row["role"] != "train" or row["domain"] not in ("beatport", "fmak"):
             raise ValueError("BN can use fitting rows only")
         frames = array.shape[1]
         result.append(
             dict(
-                index=i,
+                index=row_index,
                 id=row["id"],
                 audio_sha256=row["sha256"],
                 start=max(0, (frames - CROP_FRAMES) // 2),
@@ -219,7 +220,8 @@ def assert_reproduced(
 
 
 def method_gate(outputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    baseline, candidate = outputs["raw_bn"]["metrics"], outputs["ema_bn"]["metrics"]
+    baseline = outputs["raw_bn"]["metrics"]
+    candidate = outputs["ema_bn"]["metrics"]
     deltas = {
         domain: {
             metric: candidate[domain][metric] - baseline[domain][metric]
@@ -230,14 +232,15 @@ def method_gate(outputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     qualifies = (
         deltas["fmak"]["mirex"] >= 0.01
         and deltas["beatport"]["mirex"] >= 0
-        and all(deltas[d]["exact"] >= 0 for d in deltas)
+        and all(deltas[domain]["exact"] >= 0 for domain in deltas)
     )
     return dict(delta=deltas, qualifies_for_confirmation=qualifies)
 
 
 def raw_accuracy_safeguard(outputs: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Separate safeguard: BN effects cannot conceal a RAW accuracy regression."""
-    raw, candidate = outputs["raw"]["metrics"], outputs["ema_bn"]["metrics"]
+    raw = outputs["raw"]["metrics"]
+    candidate = outputs["ema_bn"]["metrics"]
     deltas = {
         domain: {
             metric: candidate[domain][metric] - raw[domain][metric] for metric in ("mirex", "exact")
@@ -262,7 +265,9 @@ class EmaProbe:
         arrays: list[np.ndarray],
         fitting: list[int],
     ) -> None:
-        self.args, self.rows, self.arrays = args, rows, arrays
+        self.args = args
+        self.rows = rows
+        self.arrays = arrays
         self.reference = read_reference(args.reference_run, "joint", args.seed)
         self.bp = read_reference(args.reference_bp, "control", args.seed)
         self.startup_checks(record, fitting)
@@ -327,8 +332,10 @@ class EmaProbe:
         for key in ("config", "feature_manifest_sha256", "validation_ids", "source_sha256"):
             if self.reference[key] != self.bp[key]:
                 raise ValueError(f"Archived BP and joint reference differ: {key}")
-        bp_ids = [self.rows[i]["id"] for i in fitting if self.rows[i]["domain"] == "beatport"]
-        if bp_ids != self.bp["fit_ids"]:
+        beatport_ids = [
+            self.rows[index]["id"] for index in fitting if self.rows[index]["domain"] == "beatport"
+        ]
+        if beatport_ids != self.bp["fit_ids"]:
             raise ValueError("Archived BP fitting identities differ")
         reviewed = json.loads(REVIEWED.read_bytes())
         if self.reference["source_sha256"] != reviewed["archived"]:
@@ -385,8 +392,8 @@ class EmaProbe:
         self,
         record: dict[str, Any],
         features: list[np.ndarray],
-        refs: np.ndarray,
-        val_rows: list[dict[str, Any]],
+        references: np.ndarray,
+        validation_rows: list[dict[str, Any]],
         start: float,
     ) -> dict[str, Any]:
         from drone.checkpoints import load_checkpoint
@@ -435,7 +442,10 @@ class EmaProbe:
                     else None,
                 )
                 raw_logits = evaluate_logits(raw, features, self.args.device, start)
-                if domain_metrics(raw_logits.argmax(1), refs, val_rows) != record["domain_metrics"]:
+                if (
+                    domain_metrics(raw_logits.argmax(1), references, validation_rows)
+                    != record["domain_metrics"]
+                ):
                     raise ValueError("RAW reproduction failed: final scoring predictions")
                 ema = copy.deepcopy(raw)
                 ema.load_state_dict(
@@ -460,10 +470,10 @@ class EmaProbe:
                         if name == "raw"
                         else evaluate_logits(model, features, self.args.device, start)
                     )
-                    metrics = domain_metrics(logits.argmax(1), refs, val_rows)
+                    metrics = domain_metrics(logits.argmax(1), references, validation_rows)
                     artifact = dict(
-                        ids=[r["id"] for r in val_rows],
-                        refs=refs.tolist(),
+                        ids=[row["id"] for row in validation_rows],
+                        refs=references.tolist(),
                         logits=logits.tolist(),
                         predictions=logits.argmax(1).tolist(),
                         metrics=metrics,
@@ -490,12 +500,12 @@ class EmaProbe:
                     selected_ema_sha256=audio_digest(self.args.output / "ema-selected.pt"),
                 )
                 check_budget(start)
-        except (ValueError, TimeoutError, RuntimeError, OSError) as exc:
+        except (ValueError, TimeoutError, RuntimeError, OSError) as error:
             result.update(
                 status="budget_exhausted"
-                if isinstance(exc, TimeoutError)
+                if isinstance(error, TimeoutError)
                 else "reproduction_or_protocol_failed",
-                error=str(exc),
+                error=str(error),
                 method_gate={"qualifies_for_confirmation": False},
             )
         result["elapsed_seconds"] = time.monotonic() - start
@@ -504,7 +514,7 @@ class EmaProbe:
 
 
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
-    by_seed = {r["seed"]: r for r in results}
+    by_seed = {result["seed"]: result for result in results}
     if len(results) != 3 or sorted(by_seed) != [13, 37, 73]:
         raise ValueError("Need exactly declared seeds 13,37,73")
     pilot = by_seed[13]
@@ -531,16 +541,16 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
             means[name][domain] = {}
             for metric in ("mirex", "exact"):
                 values = [
-                    r["bp_metrics"][domain][metric]
+                    result["bp_metrics"][domain][metric]
                     if name == "bp_control"
-                    else r["outputs"][name]["metrics"][domain][metric]
-                    for r in results
+                    else result["outputs"][name]["metrics"][domain][metric]
+                    for result in results
                 ]
                 means[name][domain][metric] = statistics.mean(values)
     gate = method_gate({name: {"metrics": means[name]} for name in ("raw_bn", "ema_bn")})
     original_delta = {
-        d: means["ema_bn"][d]["mirex"] - means["bp_control"][d]["mirex"]
-        for d in ("beatport", "fmak")
+        domain: means["ema_bn"][domain]["mirex"] - means["bp_control"][domain]["mirex"]
+        for domain in ("beatport", "fmak")
     }
     original_pass = original_delta["fmak"] >= 0.02 and original_delta["beatport"] >= 0
     raw_guard = raw_accuracy_safeguard(
@@ -568,7 +578,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     result = summarize([json.loads(path.read_bytes()) for path in args.results])
-    result["result_sha256"] = {str(p): audio_digest(p) for p in args.results}
+    result["result_sha256"] = {str(path): audio_digest(path) for path in args.results}
     result["source_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     atomic_json(args.output, result)
     print(json.dumps(result, indent=2))

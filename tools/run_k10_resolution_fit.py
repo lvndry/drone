@@ -33,36 +33,40 @@ ADMISSION_SECONDS = 30
 
 def supervise(config: Path, approval: Path, output: Path) -> None:
     invocation_began = time.monotonic()
-    value, permit = load(config), load(approval)
-    contract(value)
-    bindings(value)
+    configuration = load(config)
+    permit = load(approval)
+    contract(configuration)
+    bindings(configuration)
     digest = sha256(config)
     if (
         permit.get("authorized") is not True
         or permit.get("allow_sequential_pair") is not True
         or permit.get("allow_training") is not True
         or permit.get("config_sha256") != digest
-        or permit.get("deadline_epoch") != value["deadline_epoch"]
+        or permit.get("deadline_epoch") != configuration["deadline_epoch"]
     ):
         raise ValueError("Exact root accuracy-pair approval required")
     if (
-        not value["not_before_epoch"] <= time.time() < value["deadline_epoch"]
-        or value["deadline_epoch"] - value["not_before_epoch"] > CAPS["wall_seconds"]
+        not configuration["not_before_epoch"] <= time.time() < configuration["deadline_epoch"]
+        or configuration["deadline_epoch"] - configuration["not_before_epoch"]
+        > CAPS["wall_seconds"]
     ):
         raise ValueError("Root-sealed thirty-minute UTC window required")
-    environment(value)
-    starts = list(value["protected"]["protected_starts"])
-    if not {1478814, 3448680, 1481756, 3451013} <= {r["pid"] for r in starts}:
+    environment(configuration)
+    starts = list(configuration["protected"]["protected_starts"])
+    if not {1478814, 3448680, 1481756, 3451013} <= {start["pid"] for start in starts}:
         raise ValueError("Missing four protected vLLM identities")
-    if not value["protected"]["active_job_starts"]:
+    if not configuration["protected"]["active_job_starts"]:
         raise ValueError("Bind current teacher/context identities")
-    starts += value["protected"]["active_job_starts"]
+    starts += configuration["protected"]["active_job_starts"]
     output.mkdir(exist_ok=False)
     write_json(output / "approval.json", permit)
-    write_json(output / "config.json", value)
+    write_json(output / "config.json", configuration)
     guardian_start = start_identity(os.getpid())
     began = invocation_began
-    last = next_sample = last_completion = time.monotonic()
+    last = time.monotonic()
+    next_sample = last
+    last_completion = last
     peaks = dict(
         rss_bytes=0,
         cpu_seconds=0.0,
@@ -86,15 +90,13 @@ def supervise(config: Path, approval: Path, output: Path) -> None:
         peaks["max_poll_gap_seconds"] = max(peaks["max_poll_gap_seconds"], gap)
         if child is not None and child.poll() is None and gap > POLICY["poll_seconds"]:
             raise TimeoutError("Active-worker guard cadence exceeded0.2s")
-        if now - began > CAPS["wall_seconds"] or time.time() >= value["deadline_epoch"]:
+        if now - began > CAPS["wall_seconds"] or time.time() >= configuration["deadline_epoch"]:
             raise TimeoutError("Frozen total wall/UTC cutoff")
-        if any(start_identity(r["pid"]) != r["start_ticks"] for r in starts):
+        if any(start_identity(start["pid"]) != start["start_ticks"] for start in starts):
             raise RuntimeError("Protected service/job start changed")
         rss, cpu = process_tree(os.getpid())
-        peaks["rss_bytes"], peaks["cpu_seconds"] = (
-            max(peaks["rss_bytes"], rss),
-            max(peaks["cpu_seconds"], cpu),
-        )
+        peaks["rss_bytes"] = max(peaks["rss_bytes"], rss)
+        peaks["cpu_seconds"] = max(peaks["cpu_seconds"], cpu)
         if rss > CAPS["rss_bytes"] or cpu > CAPS["cpu_seconds"]:
             raise RuntimeError("Whole owned-tree CPU/RSS cap")
         memory = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())
@@ -104,7 +106,7 @@ def supervise(config: Path, approval: Path, output: Path) -> None:
             or disk_bytes(output) > CAPS["output_bytes"]
         ):
             raise RuntimeError("Host/disk/output reserve")
-        sample = sensor(value, {child.pid} if child else set())
+        sample = sensor(configuration, {child.pid} if child else set())
         completion = time.monotonic()
         sensor_gap = completion - last_completion
         last_completion = completion
@@ -195,16 +197,21 @@ def supervise(config: Path, approval: Path, output: Path) -> None:
             )
             child = None
         results = [load(output / model / "result.json") for model in ("baseline", "candidate")]
-        historical = load(Path(value["historical_gpu_control"]))
-        if sha256(Path(value["historical_gpu_control"])) != value["historical_gpu_control_sha256"]:
+        historical = load(Path(configuration["historical_gpu_control"]))
+        if (
+            sha256(Path(configuration["historical_gpu_control"]))
+            != configuration["historical_gpu_control_sha256"]
+        ):
             raise ValueError("Historical control changed")
         gate = compare(*results, historical)
         group_rows = csv.DictReader(
-            io.StringIO(gzip.decompress(Path(value["groups"]).read_bytes()).decode())
+            io.StringIO(gzip.decompress(Path(configuration["groups"]).read_bytes()).decode())
         )
-        groups = {r["id"]: r["derived_uncertainty_group"] for r in group_rows}
-        rows = {r["id"]: r for r in value["rows"]}
-        intervals = uncertainty(*results, {i: r["ref"] for i, r in rows.items()}, groups)
+        groups = {row["id"]: row["derived_uncertainty_group"] for row in group_rows}
+        rows = {row["id"]: row for row in configuration["rows"]}
+        intervals = uncertainty(
+            *results, {identity: row["ref"] for identity, row in rows.items()}, groups
+        )
         errors = movements(*results, rows, groups)
         check()
         write_json(
@@ -224,16 +231,16 @@ def supervise(config: Path, approval: Path, output: Path) -> None:
             },
         )
         complete = True
-    except BaseException as exc:
-        error = repr(exc)
+    except BaseException as failure:
+        error = repr(failure)
         raise
     finally:
         cleanup_error = None
         try:
             if child is not None and child_start is not None:
                 terminate_own(child, child_start)
-        except BaseException as exc:
-            cleanup_error = repr(exc)
+        except BaseException as cleanup_failure:
+            cleanup_error = repr(cleanup_failure)
         finally:
             terminal_rss, terminal_cpu = process_tree(os.getpid())
             peaks["rss_bytes"] = max(peaks["rss_bytes"], terminal_rss)

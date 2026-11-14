@@ -33,39 +33,39 @@ def load_raw(root: Path) -> dict[str, str]:
 
 
 def summarize(root: Path = STUDY) -> dict[str, Any]:
-    raw = load_raw(root)
-    failed = json.loads(raw["v1/provision-report.json"])
-    provision = json.loads(raw["v2/provision-report.json"])
-    imports = json.loads(raw["v2/imports.json"])
-    layout = json.loads(raw["v2/checkpoint-layout.json"])
-    config_raw = raw["v2/resource-review-config-84685ce.json"]
+    raw_files = load_raw(root)
+    failed = json.loads(raw_files["v1/provision-report.json"])
+    provision = json.loads(raw_files["v2/provision-report.json"])
+    imports = json.loads(raw_files["v2/imports.json"])
+    layout = json.loads(raw_files["v2/checkpoint-layout.json"])
+    config_raw = raw_files["v2/resource-review-config-84685ce.json"]
     config = json.loads(config_raw)
-    approval = json.loads(raw["v2/resource-root-approval-7520c831.json"])
-    effective_raw = raw["v2/resource-84685ce-v1/effective-config.json"]
-    supervisor = json.loads(raw["v2/resource-84685ce-v1/supervisor.json"])
-    worker = json.loads(raw["v2/resource-84685ce-v1/worker-report.json"])
+    approval = json.loads(raw_files["v2/resource-root-approval-7520c831.json"])
+    effective_raw = raw_files["v2/resource-84685ce-v1/effective-config.json"]
+    supervisor = json.loads(raw_files["v2/resource-84685ce-v1/supervisor.json"])
+    worker = json.loads(raw_files["v2/resource-84685ce-v1/worker-report.json"])
     index = json.loads((root / "data/runtime-index.json").read_bytes())
     if failed["complete"] or "pinned-checkpoint-download" in {
         row["label"] for row in failed["commands"]
     }:
         raise ValueError("preserved failed import gate")
     if (
-        "CUDA version 13.2" not in raw["v1/provision/logs/cpu-imports.log"]
-        or "CUDA version 13.0" not in raw["v1/provision/logs/cpu-imports.log"]
+        "CUDA version 13.2" not in raw_files["v1/provision/logs/cpu-imports.log"]
+        or "CUDA version 13.0" not in raw_files["v1/provision/logs/cpu-imports.log"]
     ):
         raise ValueError("missing original CUDA-build failure")
     if not provision["complete"] or not imports["passed"] or not layout["passed"]:
         raise ValueError("CPU provisioning/layout gate")
-    if raw["v2/baseline.json"] != raw["v2/baseline-after.json"]:
+    if raw_files["v2/baseline.json"] != raw_files["v2/baseline-after.json"]:
         raise ValueError("base environment changed")
-    baseline = json.loads(raw["v2/baseline.json"])["protected"]
+    baseline = json.loads(raw_files["v2/baseline.json"])["protected"]
     if (
         imports["protected"] != baseline
         or imports["protected_after"] != baseline
         or baseline["cuda_initialized"]
     ):
         raise ValueError("Torch/NumPy/CUDA import protection")
-    wheels = json.loads(raw["v2/selected-wheels.json"])["wheels"]
+    wheels = json.loads(raw_files["v2/selected-wheels.json"])["wheels"]
     audio = [row for row in wheels if row["name"] == "torchaudio"]
     if (
         len(audio) != 1
@@ -73,11 +73,11 @@ def summarize(root: Path = STUDY) -> dict[str, Any]:
         or any(row["name"] in {"torch", "numpy"} for row in wheels)
     ):
         raise ValueError("exact CPU build/no-shadow policy")
-    config_sha = hashlib.sha256(config_raw.encode()).hexdigest()
+    config_sha256 = hashlib.sha256(config_raw.encode()).hexdigest()
     if (
-        config_sha != index["approved_config_sha256"]
-        or config_sha != supervisor["config_sha256"]
-        or config_sha != approval["approved_config_sha256"]
+        config_sha256 != index["approved_config_sha256"]
+        or config_sha256 != supervisor["config_sha256"]
+        or config_sha256 != approval["approved_config_sha256"]
     ):
         raise ValueError("approval/config binding")
     if hashlib.sha256(effective_raw.encode()).hexdigest() != worker["effective_config_sha256"]:
@@ -116,13 +116,13 @@ def summarize(root: Path = STUDY) -> dict[str, Any]:
     if not all(math.isfinite(step["seconds"]) and step["seconds"] > 0 for step in steps):
         raise ValueError("invalid durations")
     observed = supervisor["observations"]
-    free = min(row["gpu"]["free_mib"] for row in observed)
-    nvml = max(row["worker_nvml_mib"] for row in observed)
-    rss = max(row["tree_rss_bytes"] for row in observed)
+    minimum_free_mib = min(row["gpu"]["free_mib"] for row in observed)
+    maximum_nvml_mib = max(row["worker_nvml_mib"] for row in observed)
+    maximum_rss_bytes = max(row["tree_rss_bytes"] for row in observed)
     if (
-        free < config["reserve_mib"]
-        or nvml > config["requested_cap_mib"] + 1024
-        or rss > 8 * 1024**3
+        minimum_free_mib < config["reserve_mib"]
+        or maximum_nvml_mib > config["requested_cap_mib"] + 1024
+        or maximum_rss_bytes > 8 * 1024**3
         or supervisor["wall_seconds"] > 600
         or supervisor["aggregate_child_cpu_seconds"] > 600
     ):
@@ -138,7 +138,7 @@ def summarize(root: Path = STUDY) -> dict[str, Any]:
     return {
         "format": "musicfm-resource-summary-v1",
         "source_commit": index["measured_source"]["v2_and_resource"],
-        "config_sha256": config_sha,
+        "config_sha256": config_sha256,
         "model_parameters_including_new_head": worker["parameter_count"],
         "checkpoint_state_elements": sum(
             row["elements"] for row in layout["totals_by_dtype"].values()
@@ -150,9 +150,9 @@ def summarize(root: Path = STUDY) -> dict[str, Any]:
         "steady_step_median_seconds": statistics.median(step["seconds"] for step in steps[1:]),
         "peak_allocated_bytes": max(step["peak_allocated_bytes"] for step in steps),
         "peak_reserved_bytes": max(step["peak_reserved_bytes"] for step in steps),
-        "maximum_sampled_worker_nvml_mib": nvml,
-        "minimum_sampled_global_free_mib": free,
-        "maximum_sampled_tree_rss_bytes": rss,
+        "maximum_sampled_worker_nvml_mib": maximum_nvml_mib,
+        "minimum_sampled_global_free_mib": minimum_free_mib,
+        "maximum_sampled_tree_rss_bytes": maximum_rss_bytes,
         "resource_wall_seconds": supervisor["wall_seconds"],
         "resource_child_cpu_seconds": supervisor["aggregate_child_cpu_seconds"],
         "steps": steps,
@@ -165,7 +165,7 @@ def summarize(root: Path = STUDY) -> dict[str, Any]:
             for key in ("child_cpu_seconds", "wall_seconds", "peak_tree_rss_bytes", "storage_bytes")
         },
         "wheel_count": len(wheels),
-        "kernel_cache_warning": raw["v2/resource-84685ce-v1/worker.log"],
+        "kernel_cache_warning": raw_files["v2/resource-84685ce-v1/worker.log"],
         "accuracy_scored": False,
     }
 

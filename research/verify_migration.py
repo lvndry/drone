@@ -68,7 +68,8 @@ def verify(root: Path = ROOT) -> dict[str, int]:
         or evolution["migration_sha256"] != MIGRATION_SHA256
     ):
         raise ValueError("Evolution loses frozen migration identity")
-    changes, additions = entries(evolution["changes"]), entries(evolution["additions"])
+    changes = entries(evolution["changes"])
+    additions = entries(evolution["additions"])
     if not set(changes) <= set(recorded) or set(additions) & set(recorded):
         raise ValueError("Evolution changes/additions disagree with imported inventory")
     byte_identical = 0

@@ -48,12 +48,12 @@ def song_windows(samples: int) -> tuple[SongWindow, ...]:
     count, tail = divmod(samples, WINDOW_SAMPLES)
     windows = [
         SongWindow(
-            i * WINDOW_SAMPLES,
-            (i + 1) * WINDOW_SAMPLES,
-            i * WINDOW_SAMPLES,
-            (i + 1) * WINDOW_SAMPLES,
+            index * WINDOW_SAMPLES,
+            (index + 1) * WINDOW_SAMPLES,
+            index * WINDOW_SAMPLES,
+            (index + 1) * WINDOW_SAMPLES,
         )
-        for i in range(count)
+        for index in range(count)
     ]
     if tail:
         support_start = count * WINDOW_SAMPLES

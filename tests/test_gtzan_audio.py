@@ -32,7 +32,8 @@ def archive(tmp_path: Path, members: list[tuple[str, bytes]]) -> Path:
 
 
 def test_identity_and_header_do_not_admit_for_scoring(tmp_path: Path) -> None:
-    name, raw = "genres/blues/blues.00000.wav", wav()
+    name = "genres/blues/blues.00000.wav"
+    raw = wav()
     rows = check.inspect_members(
         archive(tmp_path, [(name, raw)]), {name: hashlib.md5(raw).hexdigest()}
     )
@@ -53,7 +54,8 @@ def test_unsafe_archive_path_rejected(tmp_path: Path, name: str) -> None:
 
 
 def test_duplicate_member_rejected(tmp_path: Path) -> None:
-    name, raw = "genres/blues/blues.00000.wav", wav()
+    name = "genres/blues/blues.00000.wav"
+    raw = wav()
     with pytest.raises(ValueError, match="duplicate"):
         check.inspect_members(
             archive(tmp_path, [(name, raw), (name, raw)]), {name: hashlib.md5(raw).hexdigest()}
@@ -73,7 +75,8 @@ def test_archive_link_rejected_without_following_target(tmp_path: Path) -> None:
 
 
 def test_wrong_recording_identity_rejected(tmp_path: Path) -> None:
-    name, raw = "genres/blues/blues.00000.wav", wav()
+    name = "genres/blues/blues.00000.wav"
+    raw = wav()
     with pytest.raises(ValueError, match="MD5 mismatch"):
         check.inspect_members(archive(tmp_path, [(name, raw)]), {name: "0" * 32})
 
@@ -105,7 +108,8 @@ def test_truncated_pcm_is_not_silently_accepted() -> None:
 def test_declared_oversized_member_rejected(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    name, raw = "genres/blues/blues.00000.wav", wav()
+    name = "genres/blues/blues.00000.wav"
+    raw = wav()
     monkeypatch.setattr(check, "MEMBER_LIMIT", len(raw) - 1)
     with pytest.raises(ValueError, match="budget"):
         check.inspect_members(
@@ -120,7 +124,8 @@ def test_pinned_index_contains_complete_universe() -> None:
 
 
 def test_packaging_metadata_does_not_skip_audio_identity(tmp_path: Path) -> None:
-    name, raw = "genres/blues/blues.00000.wav", wav()
+    name = "genres/blues/blues.00000.wav"
+    raw = wav()
     members = [
         ("._genres", b"metadata"),
         ("genres/.DS_Store", b"finder"),
@@ -145,12 +150,13 @@ def test_oversized_packaging_metadata_rejected(tmp_path: Path) -> None:
 
 def test_diagnostic_inventory_preserves_mismatch_and_checks_remaining_files(tmp_path: Path) -> None:
     raw = wav()
-    a, b = "genres/blues/blues.00000.wav", "genres/blues/blues.00001.wav"
-    path = archive(tmp_path, [(a, raw), (b, raw)])
-    expected = {a: "0" * 32, b: hashlib.md5(raw).hexdigest()}
+    mismatched = "genres/blues/blues.00000.wav"
+    matching = "genres/blues/blues.00001.wav"
+    path = archive(tmp_path, [(mismatched, raw), (matching, raw)])
+    expected = {mismatched: "0" * 32, matching: hashlib.md5(raw).hexdigest()}
     with pytest.raises(ValueError, match="MD5 mismatch"):
         check.inspect_members(path, expected)
     rows = check.inspect_members(path, expected, inventory_only=True)
-    assert [r["member_identity_verified"] for r in rows] == [False, True]
+    assert [row["member_identity_verified"] for row in rows] == [False, True]
     assert rows[0]["expected_md5"] == "0" * 32
-    assert all(not r["admitted_for_scoring"] for r in rows)
+    assert all(not row["admitted_for_scoring"] for row in rows)

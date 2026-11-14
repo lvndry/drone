@@ -30,7 +30,7 @@ def plot(root: Path) -> None:
         "full": "Native full",
         "chunked": "Native chunked",
     }
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 4.5), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(11.4, 4.5), layout="constrained")
     for mode, color in colors.items():
         axes[0].plot(
             [row["frames"] for row in ordered],
@@ -53,12 +53,12 @@ def plot(root: Path) -> None:
         axis.grid(alpha=0.2)
         axis.spines[["top", "right"]].set_visible(False)
     axes[0].legend(frameon=False)
-    fig.suptitle(
+    figure.suptitle(
         "Identical PCM → features → logits: one Linux logical CPU\n376 composition checks passed; 20 fresh workers per mode, 20 timed reps each",
         fontsize=12,
     )
-    save_figure(fig, root, "linux-composed")
-    plt.close(fig)
+    save_figure(figure, root, "linux-composed")
+    plt.close(figure)
     mac = data["mac"]["cases"]
     names = {
         "native_vs_mac": "Native / Mac reference",
@@ -66,12 +66,12 @@ def plot(root: Path) -> None:
         "native_vs_linux": "Native / Linux reference",
         "canonical_core_mac_vs_linux": "Mac ORT / Linux ORT, same core",
     }
-    fig, axes = plt.subplots(1, 2, figsize=(11.4, 4.7), layout="constrained")
+    figure, axes = plt.subplots(1, 2, figsize=(11.4, 4.7), layout="constrained")
     for name, label in names.items():
         ratios = [
             max(
-                abs(a - b) / (1e-5 + 1e-5 * abs(b))
-                for a, b in zip(
+                abs(actual - reference) / (1e-5 + 1e-5 * abs(reference))
+                for actual, reference in zip(
                     row["gates"][name]["logits"],
                     row["gates"][name]["reference"],
                     strict=True,
@@ -102,12 +102,12 @@ def plot(root: Path) -> None:
         )
         axis.grid(axis="y", alpha=0.2)
         axis.spines[["top", "right"]].set_visible(False)
-    fig.suptitle(
+    figure.suptitle(
         "Apple M5 / arm64, identical PCM: all four nine-case logit/key gates passed\nFeature bytes differ; no Mac376 or production claim",
         fontsize=12,
     )
-    save_figure(fig, root, "mac-nine")
-    plt.close(fig)
+    save_figure(figure, root, "mac-nine")
+    plt.close(figure)
 
 
 if __name__ == "__main__":

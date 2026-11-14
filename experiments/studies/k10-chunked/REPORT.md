@@ -1,36 +1,22 @@
-# K10 chunked CPU inference: development gates passed
+# K10 chunked CPU inference
 
-## Problem
+Running K10 in aligned, overlapping chunks keeps every key decision on all 376 public validation inputs (maximum logit difference 1.90735e-6) while cutting peak process memory 6.69x, from 865.34 MiB to 129.32 MiB; median paired latency rises 1.91%, within the pre-set 10% limit. The saving grows with track length: at about 28 minutes, peak RSS is 739.6 MiB for full-track inference and 120.7 MiB chunked, while a 40-second track sees no saving. Measured on November 11, 2026, from cached features with Python and ONNX Runtime.
 
-The [CPU baseline](../k10-cpu/REPORT.md) showed that small weights can still need
-substantial memory for long-track activations. Can we bound those activations
-while preserving all evidence and key decisions, with no more than a 10% median
-paired latency regression?
+## Question
+
+The [CPU baseline](../k10-cpu/REPORT.md) showed that small weights can still need substantial memory for long-track activations. Can we bound those activations while keeping all of the track's evidence and every key decision, with at most a 10% median paired latency increase?
 
 ## Method
 
-The [frozen protocol](PROTOCOL.md) uses aligned overlapping chunks: 64 output
-positions per core, 16-frame halos and at most 544 input frames per prefix call.
-Every global output is counted once. Hidden values accumulate in FP64, are
-averaged/cast to FP32, then pass through the unchanged ONNX head once. Weights,
-track evidence and the full ONNX reference stay unchanged.
+The [protocol](PROTOCOL.md), fixed before the run, uses aligned overlapping chunks: 64 output positions per core, 16-frame halos and at most 544 input frames per prefix call. Every global output is counted once. Hidden values are accumulated in FP64, averaged and cast to FP32, then pass once through the unchanged ONNX head. Weights, track evidence and the full ONNX reference stay unchanged.
 
-The numerical gate requires finite logits, absolute/relative tolerance 1e-5 and
-zero key disagreements on all 376 public validation inputs. Reference keys are
-not used for scoring/selection. Only a passing gate permits resource measurement.
-Boundary, remainder, impulse and extreme synthetic tests supplement this check;
-no universal bitwise floating-point equivalence is claimed.
+The numerical threshold, fixed before the run, requires finite logits, absolute and relative tolerance 1e-5, and zero key disagreements on all 376 public validation inputs. Reference keys are not used for scoring or selection. Resource measurement runs only if this passes. Boundary, remainder, impulse and extreme synthetic tests supplement the check; no general bitwise floating-point equivalence is claimed.
 
-Resource probes use the same 20 selected FMAK validation recordings, one CPU
-core on the AMD 9955WX, all library/model threads one, sequential ORT and spinning
-disabled. Fresh full/chunked processes each run one warmup and 20 repetitions per
-track. The target is at least a two-times RSS reduction against both paired full
-and historical 535 MiB single-pass probes. No training job ran during these
-probes; both vLLM instances stayed running.
+Resource measurements use the same 20 selected FMAK validation recordings as the baseline, one CPU core of an AMD Ryzen Threadripper PRO 9955WX, all library and model threads set to 1, sequential ONNX Runtime and spinning disabled. Fresh full and chunked processes each run one warmup and 20 repetitions per track. The memory target is at least 2x lower peak RSS than both the paired full run and the earlier 535 MiB single-pass measurement. No training ran on the machine during measurement.
 
 ## Results
 
-All 376 key decisions matched. Maximum logit difference was **1.90735e-6**.
+All 376 key decisions matched. Maximum logit difference was 1.90735e-6.
 
 | Cached-feature inference | Full ONNX | Chunked ONNX |
 |---|---:|---:|
@@ -40,27 +26,17 @@ All 376 key decisions matched. Maximum logit difference was **1.90735e-6**.
 
 ![Paired latency and repeated-run peak memory](figures/k10-chunked-summary.png)
 
-*Figure 1. Separate fresh processes each handle all 20 tracks. Median paired
-latency rises 1.91%; peak RSS falls 6.69 times. Both gates pass. The bar medians
-and median of paired ratios are distinct summaries.*
+Figure 1: each mode runs all 20 tracks in one fresh process. Median paired latency rises 1.91% and peak RSS falls 6.69x, so both thresholds pass. The bar medians and the median of paired ratios are different summaries.
 
-RSS is also 4.14 times below the historical single-pass probe; different allocator
-history prevents a direct cross-protocol speed claim. Both processes stayed
-Torch-free and used 20.02/19.55 CPU seconds. Separate Torch diagnostics found zero
-key differences, maximum logit error 5.72205e-6, and identical stitched/full ORT
-hidden tensors here. Extreme synthetic rounding discrepancies remain documented.
+Peak RSS is also 4.14x below the earlier single-pass measurement; different allocator history rules out a direct speed comparison across the two protocols. Both processes were Torch-free and used 20.02 and 19.55 CPU seconds. Separate Torch checks found zero key differences, maximum logit error 5.72205e-6, and identical stitched and full ORT hidden tensors. Rounding discrepancies on extreme synthetic inputs are documented in the data.
 
 ### Memory versus track length
 
-A follow-up starts a fresh process for **each track and runtime**, avoiding
-retained allocator history across tracks: 40 processes, the same 20 inputs and
-repetition count. It took 44.53 seconds and passed paired numerical/key parity.
+A follow-up started a fresh process for each track and mode (40 processes, the same 20 inputs and repetition count), so allocator history does not carry across tracks. It took 44.53 seconds and passed the same numerical and key check.
 
 ![Per-track memory and latency versus track duration](figures/k10-memory-length.png)
 
-*Figure 2. Full-track RSS grows strongly with duration; chunking bounds CNN
-activations. RSS still includes Python, ORT and the full input feature array.
-Connecting lines guide the eye rather than fit a scaling law.*
+Figure 2: per-track peak RSS and latency against duration. Full-track RSS grows strongly with duration while chunked RSS levels off. RSS still includes Python, ORT and the full input feature array. Lines connect points and are not a fitted scaling law.
 
 | Approximate duration | Full peak RSS | Chunked peak RSS |
 |---|---:|---:|
@@ -68,54 +44,31 @@ Connecting lines guide the eye rather than fit a scaling law.*
 | 4 minutes | 158.3 MiB | 110.7 MiB |
 | 28 minutes | 739.6 MiB | 120.7 MiB |
 
-Ordinary song lengths save less than the longest case. Durations are CQT frame
-proxies; no cases were measured between roughly 7 and 28 minutes. These per-track
-peaks and Figure 1's all-tracks high-water use different protocols.
+Typical song lengths save less than the longest case. Durations are estimated from CQT frame counts, and no tracks between roughly 7 and 28 minutes were measured. These per-track peaks and the all-tracks peaks in Figure 1 come from different protocols.
 
-## Discussion and decision
+## Decision
 
-Chunking passes the development gates and earns native integration testing.
-Observed parity is not a universal accuracy guarantee. This bounds CNN activation
-memory, not decoding, CQT or input storage. Neither probe measures Rust/Euphoria,
-target laptops or idle application memory. Next: native parity and end-to-end
-profiling, persisted result caching and bounded concurrency. No release artifact
-was promoted.
+Chunking passes both pre-set thresholds and moves on to native integration testing (see the [native cached-feature study](../../../research/drone-native-cached/REPORT.md)). Next steps are native parity and end-to-end profiling, stored result caching and bounded concurrency. No release artifact was promoted.
 
-## Reproduction and evidence
+## Limitations
 
-The first resource attempt failed before measurement: its reader expected `sha`
-instead of canonical `sha256`. A regression fixture fixed that bug. Validation
-was rerun before successful paired probes; original diagnostics and the failed
-report remain preserved.
+- Observed parity on 376 inputs is not a general accuracy guarantee.
+- This bounds CNN activation memory only, not decoding, CQT or input storage.
+- Neither measurement covers the Rust application, target laptops or idle application memory.
+- The first resource attempt failed before measuring because its reader expected the key `sha` instead of `sha256`. A regression test covers that bug, validation was rerun before the successful measurements, and the failed report is kept.
 
-[Paired reports/provenance](data/provenance.json) bind source archives, contracts
-and environment for both measured versions. The unchanged bundle remains on the
-server. [Per-track data](data/memory-curve.json) and
-[provenance](data/memory-curve-provenance.json) identify the follow-up implementation
-and its archived validation gate.
-Replay with `python -m tools.benchmark_k10_memory_curve --help`, Linux affinity
-[0], thread budgets one and a fresh output. The tool requires exact passing
-artifacts/source evidence and enforces a 600-second wall budget.
+## Reproduce
 
-Regenerate figures without audio/server access:
+[Paired reports and provenance](data/provenance.json) record source archives, contracts and environment for both measured versions; the unchanged model bundle is kept with the server artifacts. [Per-track data](data/memory-curve.json) and its [provenance](data/memory-curve-provenance.json) identify the follow-up implementation and its validation report.
+
+Replay the follow-up with `python -m tools.benchmark_k10_memory_curve --help`, using Linux CPU affinity 0, thread counts of 1 and a new output path. The tool requires the exact passing artifacts and source evidence and enforces a 600-second wall limit.
+
+Regenerate the figures without audio or server access:
 
 ```bash
 uv run --extra plots python -m tools.plot_research
 ```
 
-Checked-in JSON supplies all figures. [Figure inputs](../figure-inputs.json)
-record data/generator/lockfile hashes and the plotting-library version.
+Checked-in JSON supplies all figures. [Figure inputs](../figure-inputs.json) record data, generator and lockfile hashes and the plotting-library version.
 
-### Tool refactor regression check
-
-The typed input/evidence helpers were validated again on all 376 inputs before
-native fixture export. [The new report](data/v3/validation.json) records zero
-numerical/key failures and the same maximum logit error, 1.90735e-6. It binds every
-support module and the execution environment, so an unchanged CLI entry point
-cannot reuse parity evidence after its implementation changes.
-
-[Fixture-export provenance](data/v3/native-fixture-export.json) records 376
-completed FP32 inputs, exactly 20 performance selections and a 13.16-second
-export. Its executed source is frozen on the server;
-raw inputs stay there. This checks implementation integrity, not accuracy gains
-or native performance. Historical v1/v2 reports remain unchanged.
+After a refactor of the typed input and evidence helpers, all 376 inputs were validated again before native input export. [The new report](data/v3/validation.json) records zero numerical or key failures and the same maximum logit error, 1.90735e-6, and records every support module and the environment, so an unchanged command-line entry point cannot reuse old parity evidence after its implementation changes. [Export provenance](data/v3/native-fixture-export.json) records 376 completed FP32 inputs, exactly 20 performance selections and a 13.16-second export. This checks implementation integrity, not accuracy or native performance. The earlier v1 and v2 reports are unchanged.

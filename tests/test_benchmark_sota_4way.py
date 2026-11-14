@@ -15,7 +15,7 @@ import pytest
 from tools import benchmark_sota_4way as bench
 
 
-def kf_row(raw: int) -> dict[str, Any]:
+def keyfinder_row(raw: int) -> dict[str, Any]:
     if raw == 24:
         return dict(
             schema=bench.KF_SCHEMA,
@@ -42,15 +42,20 @@ def test_failures_and_silence_keep_fixed_panel_denominator() -> None:
         dict(ref=0, x_pred=None, x_status="error", x_rel="error", bucket="test", duration=120),
         dict(ref=0, x_pred=None, x_status="abstain", x_rel="abstain", bucket="test", duration=120),
     ]
-    out = bench.summarize(rows, "x", [1, 1, 1])
-    assert (out["n_total"], out["n_valid"], out["n_error"], out["n_abstain"]) == (3, 1, 1, 1)
-    assert out["exact"] == out["mirex"] == 0.3333
-    for group in (out["by_genre"]["test"], out["by_duration"]["<3m"]):
+    summary = bench.summarize(rows, "x", [1, 1, 1])
+    assert (
+        summary["n_total"],
+        summary["n_valid"],
+        summary["n_error"],
+        summary["n_abstain"],
+    ) == (3, 1, 1, 1)
+    assert summary["exact"] == summary["mirex"] == 0.3333
+    for group in (summary["by_genre"]["test"], summary["by_duration"]["<3m"]):
         assert group["n"] == group["n_total"] == 3
         assert group["mirex"] == 0.3333
 
 
-def wav(path: Path) -> None:
+def write_silent_wav(path: Path) -> None:
     with wave.open(str(path), "wb") as stream:
         stream.setparams((1, 2, 44100, 0, "NONE", "not compressed"))
         stream.writeframes(b"\0\0" * 128)
@@ -59,13 +64,14 @@ def wav(path: Path) -> None:
 def test_decode_cache_binds_source_and_policy(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    source, cache = tmp_path / "source.mp3", tmp_path / "cache"
+    source = tmp_path / "source.mp3"
+    cache = tmp_path / "cache"
     source.write_bytes(b"version one")
     calls = []
 
-    def decode(src: Path, out: Path) -> None:
-        calls.append(src.read_bytes())
-        wav(out)
+    def decode(source_path: Path, output_path: Path) -> None:
+        calls.append(source_path.read_bytes())
+        write_silent_wav(output_path)
 
     monkeypatch.setattr(bench, "ff_decode", decode)
     first, receipt = bench.cached_decode(source, cache, dict(version=1))
@@ -85,18 +91,21 @@ def test_decode_cache_binds_source_and_policy(
 def test_ffmpeg_partial_failure_never_publishes_cache(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    source, cache = tmp_path / "source", tmp_path / "cache"
+    source = tmp_path / "source"
+    cache = tmp_path / "cache"
     source.write_bytes(b"source")
 
-    def failure(src: Path, out: Path) -> None:
-        out.write_bytes(b"partial")
+    def failure(source_path: Path, output_path: Path) -> None:
+        output_path.write_bytes(b"partial")
         raise subprocess.CalledProcessError(1, "mock ffmpeg")
 
     monkeypatch.setattr(bench, "ff_decode", failure)
     with pytest.raises(subprocess.CalledProcessError):
         bench.cached_decode(source, cache, {})
     assert not list(cache.iterdir())
-    monkeypatch.setattr(bench, "ff_decode", lambda src, out: wav(out))
+    monkeypatch.setattr(
+        bench, "ff_decode", lambda source_path, output_path: write_silent_wav(output_path)
+    )
     path, receipt = bench.cached_decode(source, cache, {})
     assert path.is_file() and not receipt["cache_hit"]
 
@@ -106,7 +115,7 @@ def test_kf_selftest_requires_complete_enum_mapping(
 ) -> None:
     cli = tmp_path / "mock_cli"
     cli.write_bytes(b"binary")
-    raw = "\n".join(json.dumps(kf_row(i)) for i in range(25))
+    raw = "\n".join(json.dumps(keyfinder_row(raw_enum)) for raw_enum in range(25))
     calls = []
 
     def output(command: list[str], **kwargs: object) -> str:
@@ -117,7 +126,11 @@ def test_kf_selftest_requires_complete_enum_mapping(
     proof = bench.qualify_keyfinder(cli)
     assert calls == [[str(cli), "--self-test"]]
     assert proof["binary"]["sha256"] == bench.file_sha(cli)
-    monkeypatch.setattr(bench.subprocess, "check_output", lambda *a, **k: raw.splitlines()[0])
+    monkeypatch.setattr(
+        bench.subprocess,
+        "check_output",
+        lambda *arguments, **keyword_arguments: raw.splitlines()[0],
+    )
     with pytest.raises(ValueError, match="all25"):
         bench.qualify_keyfinder(cli)
 
@@ -126,9 +139,9 @@ def test_kf_selftest_requires_complete_enum_mapping(
     "raw",
     [
         "A major 18",
-        json.dumps(kf_row(0) | {"drone_class": 0}),
-        json.dumps(kf_row(0) | {"raw_enum": 25}),
-        json.dumps(kf_row(24) | {"drone_class": 0}),
+        json.dumps(keyfinder_row(0) | {"drone_class": 0}),
+        json.dumps(keyfinder_row(0) | {"raw_enum": 25}),
+        json.dumps(keyfinder_row(24) | {"drone_class": 0}),
     ],
 )
 def test_kf_rejects_legacy_unknown_or_inconsistent_output(raw: str) -> None:
@@ -139,10 +152,16 @@ def test_kf_rejects_legacy_unknown_or_inconsistent_output(raw: str) -> None:
 def test_kf_silence_is_abstention_and_unknown_is_error(monkeypatch: pytest.MonkeyPatch) -> None:
     detector = bench.Detectors.__new__(bench.Detectors)
     detector.kf_cli = Path("/mock/cli")
-    monkeypatch.setattr(bench.subprocess, "check_output", lambda *a, **k: json.dumps(kf_row(24)))
+    monkeypatch.setattr(
+        bench.subprocess,
+        "check_output",
+        lambda *arguments, **keyword_arguments: json.dumps(keyfinder_row(24)),
+    )
     assert detector.kf(Path("/mock/audio.wav")) is None
     monkeypatch.setattr(
-        bench.subprocess, "check_output", lambda *a, **k: json.dumps(kf_row(0) | {"raw_enum": -1})
+        bench.subprocess,
+        "check_output",
+        lambda *arguments, **keyword_arguments: json.dumps(keyfinder_row(0) | {"raw_enum": -1}),
     )
     with pytest.raises(ValueError):
         detector.kf(Path("/mock/audio.wav"))
@@ -184,7 +203,7 @@ def test_main_records_silence_and_errors_as_distinct_zero_scores(
 ) -> None:
     tracks = [
         dict(
-            track_id=f"t{i}",
+            track_id=f"t{index}",
             source="swd-v2.1",
             audio="/mock/source",
             genre="mock",
@@ -194,14 +213,16 @@ def test_main_records_silence_and_errors_as_distinct_zero_scores(
             duration=120,
             dev_contaminated=False,
         )
-        for i in range(3)
+        for index in range(3)
     ]
-    monkeypatch.setattr(bench, "build_panel", lambda *a: tracks)
+    monkeypatch.setattr(bench, "build_panel", lambda *arguments: tracks)
     monkeypatch.setattr(bench, "decode_contract", lambda: {"version": "synthetic"})
-    monkeypatch.setattr(bench, "cached_decode", lambda *a: (Path("/mock/wav"), {"synthetic": True}))
+    monkeypatch.setattr(
+        bench, "cached_decode", lambda *arguments: (Path("/mock/wav"), {"synthetic": True})
+    )
     calls = 0
 
-    def detector(wav: Path) -> int | None:
+    def detector(audio_path: Path) -> int | None:
         nonlocal calls
         calls += 1
         if calls == 1:
@@ -228,8 +249,8 @@ def test_main_records_silence_and_errors_as_distinct_zero_scores(
 
     with (tmp_path / "results/bench.csv").open() as stream:
         rows = list(csv.DictReader(stream))
-    assert [r["drone_status"] for r in rows] == ["abstain", "error", "key"]
-    assert [r["drone_score"] for r in rows] == ["0.0", "0.0", "1.0"]
+    assert [row["drone_status"] for row in rows] == ["abstain", "error", "key"]
+    assert [row["drone_score"] for row in rows] == ["0.0", "0.0", "1.0"]
     manifest = json.loads((tmp_path / "results/manifest.json").read_text())
     assert len(manifest["track_artifacts"]) == 3
     assert "provenance" in manifest

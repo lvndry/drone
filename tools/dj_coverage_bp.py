@@ -63,7 +63,7 @@ def selected_cell(cell: ET.Element | None, column: str) -> tuple[str, str] | Non
 
 def resolve_shared(raw: bytes, wanted: set[int]) -> dict[int, str]:
     tree = ET.fromstring(raw)
-    return {i: "".join(item.itertext()) for i, item in enumerate(tree) if i in wanted}
+    return {index: "".join(item.itertext()) for index, item in enumerate(tree) if index in wanted}
 
 
 def resolved(cell: tuple[str, str] | None, shared: dict[int, str]) -> str:
@@ -94,7 +94,7 @@ def selected_store_fields(raw: bytes) -> tuple[dict[str, Any], bool]:
         payload = json.loads(text)
     except json.JSONDecodeError:
         token = re.compile(r'"(?:[^"\\]|\\.)*"|(?<![\w])nan(?![\w])')
-        changed = token.sub(lambda m: "null" if m[0] == "nan" else m[0], text)
+        changed = token.sub(lambda found: "null" if found[0] == "nan" else found[0], text)
         if changed == text:
             raise
         payload = json.loads(changed)
@@ -122,9 +122,9 @@ def main() -> None:
     text = gzip.decompress(raws["plan"]).decode()
     roles = {}
     for field, role in [("bp_fit", "fit"), ("bp_selection_guard", "inner_selection")]:
-        m = re.search(r'"' + field + r'"\s*:\s*(\[[^\]]*\])', text)
-        assert m is not None
-        roles[role] = set(json.loads(m[1]))
+        match = re.search(r'"' + field + r'"\s*:\s*(\[[^\]]*\])', text)
+        assert match is not None
+        roles[role] = set(json.loads(match[1]))
     assert len(roles["fit"]) == 1229 and len(roles["inner_selection"]) == 126
     wanted = roles["fit"] | roles["inner_selection"]
     assert len(wanted) == 1355
@@ -141,25 +141,42 @@ def main() -> None:
     with zipfile.ZipFile(io.BytesIO(raws["workbook"])) as book:
         sheet = ET.fromstring(book.read("xl/worksheets/sheet1.xml"))
         shared_raw = book.read("xl/sharedStrings.xml")
-        only_a = []
+        id_cells = []
         for row in sheet.findall("m:sheetData/m:row", NS):
-            cell = next((c for c in row if re.fullmatch(r"A\d+", c.get("r", ""))), None)
-            only_a.append((row, selected_cell(cell, "A")))
-        shared_a = resolve_shared(
-            shared_raw, {int(c[1]) for _, c in only_a if c is not None and c[0] == "s"}
+            cell = next(
+                (candidate for candidate in row if re.fullmatch(r"A\d+", candidate.get("r", ""))),
+                None,
+            )
+            id_cells.append((row, selected_cell(cell, "A")))
+        shared_ids = resolve_shared(
+            shared_raw,
+            {
+                int(selected_id[1])
+                for _, selected_id in id_cells
+                if selected_id is not None and selected_id[0] == "s"
+            },
         )
         selected = []
-        for row, cell in only_a:
-            identity = resolved(cell, shared_a)
+        for row, cell in id_cells:
+            identity = resolved(cell, shared_ids)
             if not identity.isdigit() or "beatport:" + str(int(identity)) not in wanted:
                 continue
-            native = next((c for c in row if re.fullmatch(r"F\d+", c.get("r", ""))), None)
+            native = next(
+                (candidate for candidate in row if re.fullmatch(r"F\d+", candidate.get("r", ""))),
+                None,
+            )
             selected.append(("beatport:" + str(int(identity)), selected_cell(native, "F")))
-        shared_f = resolve_shared(
+        shared_genres = resolve_shared(
             shared_raw,
-            {int(c[1]) for _, c in selected if c is not None and c[0] == "s"},
+            {
+                int(genre_cell[1])
+                for _, genre_cell in selected
+                if genre_cell is not None and genre_cell[0] == "s"
+            },
         )
-        sheet_genres = {identity: resolved(cell, shared_f).strip() for identity, cell in selected}
+        sheet_genres = {
+            identity: resolved(cell, shared_genres).strip() for identity, cell in selected
+        }
         assert len(sheet_genres) == len(selected)
     api: dict[str, dict[str, Any]] = {}
     normalized = []
@@ -175,17 +192,17 @@ def main() -> None:
             identity = "beatport:" + str(chosen["id"])
             assert identity == "beatport:" + match[1] and identity not in api
             duration = chosen["duration"]
-            ms = None
+            milliseconds = None
             minute_text = None
             if duration is not None:
                 assert isinstance(duration, dict)
-                ms = duration.get("milliseconds")
+                milliseconds = duration.get("milliseconds")
                 minute_text = duration.get("minutes")
-                assert ms is None or (type(ms) is int and ms >= 0)
+                assert milliseconds is None or (type(milliseconds) is int and milliseconds >= 0)
             api[identity] = {
                 "genres": parse_tags(chosen["genres"]),
                 "sub_genres": parse_tags(chosen["sub_genres"]),
-                "duration_milliseconds": ms,
+                "duration_milliseconds": milliseconds,
                 "duration_minutes_text": minute_text,
                 "json_member_sha256": sha(raw),
             }
@@ -193,12 +210,14 @@ def main() -> None:
     def stats(ids: set[str]) -> dict[str, Any]:
         return {
             "tracks": len(ids),
-            "declared_uncertainty_groups": len({groups[i] for i in ids}),
+            "declared_uncertainty_groups": len({groups[identity] for identity in ids}),
             "record_unknown_artist_proxy_tracks": sum(
-                groups[i].startswith("bp-record-unknown-artist:") for i in ids
+                groups[identity].startswith("bp-record-unknown-artist:") for identity in ids
             ),
             "artist_album_components_verified": False,
-            "preview_bands": dict(sorted(Counter(band(samples[i] / 24000) for i in ids).items())),
+            "preview_bands": dict(
+                sorted(Counter(band(samples[identity] / 24000) for identity in ids).items())
+            ),
         }
 
     summaries = {}
@@ -207,56 +226,66 @@ def main() -> None:
     sub_inventory = {}
     for role, ids in roles.items():
         present = ids & api.keys()
-        tagged = {i for i in ids if sheet_genres.get(i)}
+        tagged = {identity for identity in ids if sheet_genres.get(identity)}
         summaries[role] = {
             **stats(ids),
             "workbook_rows": len(ids & sheet_genres.keys()),
             "workbook_genres_nonempty": len(tagged),
             "api_json_present": len(present),
             "api_json_missing": len(ids - present),
-            "api_genres_nonempty": sum(bool(api[i]["genres"]) for i in present),
-            "api_subgenres_nonempty": sum(bool(api[i]["sub_genres"]) for i in present),
-            "workbook_not_equal_to_any_api_genre": sum(
-                bool(sheet_genres.get(i))
-                and sheet_genres[i] not in {g["name"] for g in api[i]["genres"]}
-                for i in present
+            "api_genres_nonempty": sum(bool(api[identity]["genres"]) for identity in present),
+            "api_subgenres_nonempty": sum(
+                bool(api[identity]["sub_genres"]) for identity in present
             ),
-            "actual_preview_seconds_min": min(samples[i] / 24000 for i in ids),
-            "actual_preview_seconds_max": max(samples[i] / 24000 for i in ids),
+            "workbook_not_equal_to_any_api_genre": sum(
+                bool(sheet_genres.get(identity))
+                and sheet_genres[identity]
+                not in {genre["name"] for genre in api[identity]["genres"]}
+                for identity in present
+            ),
+            "actual_preview_seconds_min": min(samples[identity] / 24000 for identity in ids),
+            "actual_preview_seconds_max": max(samples[identity] / 24000 for identity in ids),
             "store_duration_known": sum(
-                api[i]["duration_milliseconds"] is not None for i in present
+                api[identity]["duration_milliseconds"] is not None for identity in present
             ),
             "store_duration_bands": dict(
                 sorted(
                     Counter(
-                        band(api[i]["duration_milliseconds"] / 1000)
-                        for i in present
-                        if api[i]["duration_milliseconds"] is not None
+                        band(api[identity]["duration_milliseconds"] / 1000)
+                        for identity in present
+                        if api[identity]["duration_milliseconds"] is not None
                     ).items()
                 )
             ),
         }
-    for name in sorted({g for g in sheet_genres.values() if g}):
-        members = {i for i, g in sheet_genres.items() if g == name}
+    for name in sorted({genre for genre in sheet_genres.values() if genre}):
+        members = {identity for identity, genre in sheet_genres.items() if genre == name}
         workbook_inventory[name] = {role: stats(ids & members) for role, ids in roles.items()}
     for field, output in [("genres", api_inventory), ("sub_genres", sub_inventory)]:
-        for name in sorted({g["name"] for row in api.values() for g in row[field]}):
-            members = {i for i, row in api.items() if name in {g["name"] for g in row[field]}}
+        for name in sorted({tag["name"] for row in api.values() for tag in row[field]}):
+            members = {
+                identity
+                for identity, row in api.items()
+                if name in {tag["name"] for tag in row[field]}
+            }
             output[name] = {role: stats(ids & members) for role, ids in roles.items()}
     duration_mismatch = [
-        i
-        for i, row in api.items()
+        identity
+        for identity, row in api.items()
         if row["duration_milliseconds"] is not None
-        and abs(row["duration_milliseconds"] / 1000 - samples[i] / 24000) > 1
+        and abs(row["duration_milliseconds"] / 1000 - samples[identity] / 24000) > 1
     ]
     minute_inconsistent = []
-    for i, row in api.items():
+    for identity, row in api.items():
         text = row["duration_minutes_text"]
-        ms = row["duration_milliseconds"]
-        if text and ms is not None:
-            m = re.fullmatch(r"(\d+):(\d{2})", text)
-            if m is None or abs((int(m[1]) * 60 + int(m[2])) - ms / 1000) >= 1:
-                minute_inconsistent.append(i)
+        milliseconds = row["duration_milliseconds"]
+        if text and milliseconds is not None:
+            clock = re.fullmatch(r"(\d+):(\d{2})", text)
+            if (
+                clock is None
+                or abs((int(clock[1]) * 60 + int(clock[2])) - milliseconds / 1000) >= 1
+            ):
+                minute_inconsistent.append(identity)
     result = {
         "kind": "BP-native-genre-existing-metadata-audit-v1",
         "sources": sources,
