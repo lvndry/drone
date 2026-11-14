@@ -2,6 +2,8 @@
 
 On Linux x86, a native (Rust) CQT frontend composed with the unchanged K10 model reproduces the Python reference on all 376 public validation tracks: every feature core matches, full-model logits are bitwise equal, chunked logits differ by at most 1.90735e-6, and no predicted key changes. On 20 tracks it lowers median paired latency by about 27% and median paired peak memory by 53% (full) or 65% (chunked) versus the Python pipeline. On an Apple M5 CPU the original native frontend failed the strict logit threshold on 1 of 376 tracks (with zero key changes); we traced this to how complex products are rounded in the sparse CQT step, and a fused-multiply-add product rule then reproduced all 376 Mac feature cores exactly and passed every strict model comparison. The Mac and Linux Python references still differ from each other on every track, so the two platforms agree on keys but not bit for bit.
 
+A final measurement started from five original MP3 files (2 to 28 minutes) and timed the complete path: decoding, CQT and the unchanged chunked model. On both the M5 and a single Linux core, all 20 passes per host kept the reference key, decoding was the largest cost, and a 10-minute recording took about 1.3 to 1.8 seconds with 230 to 245 MiB worker peak memory. On the Mac, two of the five recordings missed the strict logit threshold because its newer FFmpeg decodes about 0.16% of samples one quantization step differently.
+
 The study ran on November 11 to 13, 2026. Agreement here is with archived model outputs, not with human key labels, so none of these numbers is a key-accuracy result.
 
 ## Question
@@ -261,13 +263,52 @@ The 60 Beatport BPM values are unverified publisher metadata; no tempo was infer
 
 Figure: heatmaps of top genre against duration band, one per source with separate color scales; the missing category is shown explicitly.
 
+### Original files: decoding and complete CPU cost
+
+Cached features hide decoding, frontend allocation and setup costs, and they bypass differences between decoder builds. This measurement started from five original MP3 files chosen before the run to span roughly 2, 5, 7.4, 10.2 and 28 minutes, and ran the unchanged chunked model through the [end-to-end protocol](END_TO_END_PROTOCOL.md). Each file got one first pass in a fresh worker and three warm passes that reuse the model session and CQT plans but decode the audio again. Decoding used FFmpeg at 22,050 Hz mono S16 with one input and one filter thread; ONNX Runtime used one intra-op and one inter-op thread, sequential execution and no spinning. It is a resource and prediction-fidelity measurement, not an accuracy evaluation.
+
+**Decoder difference.** The first strict Mac attempt stopped on its first file before any CQT or inference, because the decoded PCM did not match the historical Linux PCM. On that 120-second preview, the Mac's FFmpeg 9.0.2 differed from Linux's FFmpeg 6.1.1 in 4,223 of 2,646,000 samples (0.1596%), each by exactly one S16 step (RMS 0.03995 steps), with equal length, no clipping and zero best alignment offset. Default and single-thread Mac decoding were bitwise identical, so thread policy is not the cause; decoder version, libraries and architecture remain confounded. Running both waveforms through the native frontend and model gave the same key (C# major) with maximum logit difference 0.00002503, inside the strict threshold. A [decoder-fidelity amendment](END_TO_END_DECODER_PROTOCOL.md), fixed before the five-file run, then allowed a different PCM hash while still requiring the original sample and frame counts exactly and identical PCM on repeat passes, with no change to the logit threshold.
+
+**Apple M5 (24 GiB, macOS 27.2, generic ARM64 build).** All 20 passes completed and all 20 keys matched both historical references. Three of five files passed both strict logit comparisons; two did not, so the Mac run is not numerically qualified. Decoder CPU time exceeded wall time despite the requested single thread, so this is not a single-core measurement.
+
+| Recording | Minutes | Setup (s) | First pass decode / CQT / ONNX (s) | Setup + first pass (s) | Three warm passes (s) | Worker peak (MiB) | Strict logits |
+|---|---:|---:|---|---:|---|---:|---|
+| Beatport 1059355 | 2.00 | 0.047 | 0.239 / 0.032 / 0.039 | 0.356 | 0.235 / 0.232 / 0.243 | 97.39 | Pass |
+| FMA 083351 | 4.99 | 0.033 | 0.499 / 0.077 / 0.096 | 0.705 | 0.605 / 0.606 / 0.633 | 161.33 | Fail |
+| FMA 101615 | 7.41 | 0.032 | 0.581 / 0.115 / 0.141 | 0.869 | 0.838 / 0.846 / 0.900 | 190.67 | Fail |
+| FMA 088812 | 10.20 | 0.032 | 0.863 / 0.180 / 0.206 | 1.280 | 1.247 / 1.226 / 1.190 | 245.27 | Pass |
+| FMA 087373 | 28.04 | 0.037 | 3.066 / 0.440 / 0.551 | 4.094 | 3.448 / 3.489 / 3.382 | 519.92 | Pass |
+
+"First pass" starts in a fresh worker after the model and plans are admitted; it is not a cold application start, and the OS file cache was not flushed. Worker peak is the operating-system high-water mark over all four passes, excluding the decoder child process. The separately sampled process-tree peaks were 112.20, 160.86, 205.23, 260.52 and 532.48 MiB; one-second sampling can miss short peaks, so the two memory measures are not interchangeable. The whole Mac run took 33.85 seconds wall and 52.66 CPU seconds.
+
+![Original-file stage cost and observed memory on the fixed Mac panel](original-file-timing.png)
+
+*Stacked decode, CQT and model time per recording and pass, with memory alongside. Decoding is the largest stage for every file, and memory grows with track length.*
+
+**Linux, one core.** The same five files ran on one logical CPU of an AMD Ryzen Threadripper PRO 9955WX (niceness 19, shared server) with the historical FFmpeg 6.1.1 and the strict canonical input. All 20 passes reproduced the canonical PCM, passed both archived logit comparisons and kept their keys. The feature bytes differed from both historical references on this x86 build, so logit agreement does not imply bitwise identical features across platforms. The Rust build targeted generic x86-64.
+
+| Recording | Setup (s) | First pass decode / CQT / ONNX (s) | Setup + first pass (s) | Three warm passes (s) | Worker peak (MiB) |
+|---|---:|---|---:|---|---:|
+| Beatport 1059355 | 0.054 | 0.435 / 0.059 / 0.056 | 0.605 | 0.274 / 0.389 / 0.351 | 107.11 |
+| FMA 083351 | 0.053 | 0.893 / 0.077 / 0.059 | 1.083 | 0.838 / 0.994 / 0.695 | 154.40 |
+| FMA 101615 | 0.049 | 1.012 / 0.162 / 0.084 | 1.307 | 1.289 / 1.172 / 1.160 | 191.94 |
+| FMA 088812 | 0.063 | 1.370 / 0.210 / 0.187 | 1.831 | 1.713 / 1.793 / 1.635 | 232.06 |
+| FMA 087373 | 0.043 | 3.455 / 0.893 / 0.363 | 4.754 | 4.908 / 4.889 / 4.596 | 477.88 |
+
+The whole Linux run took 45.39 seconds wall and 34.45 CPU seconds. Different decoders, platforms and builds prevent attributing the timing difference between the two hosts to any one cause.
+
+**Coverage.** Beatport 1059355 is an Electronica/Downtempo preview. The four FMA recordings are tagged Trip-Hop/Electronic, Ambient Electronic, Industrial/IDM/Glitch and Ambient Electronic; their BPM and whether each is a complete song are unknown. Five recordings say nothing about accuracy on house, techno or hip-hop.
+
+[Per-pass results](original-file-results.json.gz) keep every logit, hash, stage measurement and comparison for both hosts, including the failed strict input check and the paired decoder test; [provenance](original-file-provenance.json) links the executed source.
+
 ## Decision: what this means for shipping a native CPU pipeline
 
 - On the tested Linux x86 CPU, the native frontend plus full or chunked inference is a faithful replacement for the Python pipeline on this panel, and it is faster and smaller. Keep both adapters and prefer chunked inference for long inputs: it costs under 1% median latency versus native full and cuts the worst-case peak from 1076 MiB to 478 MiB.
 - Memory is not yet bounded. The frontend still holds whole-track PCM and CQT arrays, so the longest track needs 478 MiB even with chunking. A streaming frontend is the next memory step.
 - The default native arithmetic is still the separate-product rule; the fused-product rule exists only as an explicitly named research method. Making it the default requires requalifying Linux, where the original rule already matches.
 - Exact cross-platform identity is not achievable against the current references, because the Linux and Mac Python references disagree on every track. Each native build matches its own platform's Python reference, and all platforms agree on predicted keys on this panel.
-- Not yet measured: Mac latency and memory, other ordinary PCs, the application's own decoder and resampler on original files, and long-lived warm sessions.
+- Decoding, not the network, dominates the complete cost from original files, so speeding up only the model would miss most of the time. Different FFmpeg builds change a small fraction of samples by one quantization step; on the five files tested this never changed a key, but two Mac files missed the strict logit threshold.
+- Not yet measured: ordinary consumer PCs, the application's own decoder and resampler, decoder agreement across the complete 376-track panel and on independent full-length material, and long-lived warm sessions.
 
 No production default, model weights, training, dependency or minimum Rust version changed.
 
@@ -314,6 +355,16 @@ These are costs of instrumented diagnostic runs (including file reads, hashing, 
 The second tracer build produced a 1,799,584-byte binary and 224.15 MiB of output, including a 67.49 MiB private crate cache; the first attempt had written 76,464,031 bytes with a 70,764,137-byte cache. The trace wrote 34,165,163 bytes and the nine-golden run about 15.75 MiB. The Mac and Linux times for the 376-track frontend overlap and must not be added.
 
 ## Reproduce
+
+Recreate the original-file figure from its portable summary, without audio or model execution (`--validate-only` checks the input without Matplotlib):
+
+```sh
+python3 research/drone-native-cqt/composed/plot_original_file.py \
+  --summary research/drone-native-cqt/composed/original-file-timing-summary.json \
+  --summary-sha256 455b1fe99e1b2bc79159ff9c124e2019669d945f057e12b6c83eda2eaa9bdf8a \
+  --output /tmp/drone-original-file-figure
+```
+
 
 Source, binary, library and hardware identities for every run are in the [Linux and Mac evidence index](evidence/index.json), the [Mac376 index](evidence/mac376-index.json), the provenance file next to each result and the [reproducibility record](../../report-provenance.json). Each index lists checksums for all of its evidence files. Historical sources are preserved at the [native compute snapshot](https://github.com/lvndry/euphoria/tree/research/cqt-composed-compute-20261112), [Linux run snapshot](https://github.com/lvndry/drone/tree/research/cqt-composed-linux-20261112) and [Mac run snapshot](https://github.com/lvndry/drone/tree/research/cqt-mac-nine-20261112); later edits in this repository are not the measured executables. No audio or raw feature arrays are published.
 

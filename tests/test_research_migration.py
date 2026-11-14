@@ -41,10 +41,10 @@ def write_evolution(root: Path, value: dict[str, Any]) -> None:
 def test_imported_research_provenance_and_local_dependency() -> None:
     assert verify(ROOT) == dict(
         imported_files=90,
-        byte_identical=70,
+        byte_identical=68,
         declared_adjustments=13,
-        declared_evolutions=15,
-        declared_additions=53,
+        declared_evolutions=17,
+        declared_additions=67,
     )
 
 

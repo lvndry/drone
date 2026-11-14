@@ -189,9 +189,11 @@ dependencies = [
  "clap",
  "drone-native-cached",
  "half",
+ "libc",
  "libloading",
  "rustfft",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]
