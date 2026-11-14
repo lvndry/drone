@@ -1,0 +1,68 @@
+{
+ "13": {
+  "valid": {
+   "single_exact": 71.6,
+   "shift_average_exact": 72.0
+  },
+  "holdout": {
+   "single_exact": 70.4,
+   "shift_average_exact": 74.0
+  },
+  "gs_original": {
+   "single_exact": 69.37,
+   "shift_average_exact": 69.7
+  },
+  "gsplus_primary": {
+   "single_exact": 78.63,
+   "shift_average_exact": 79.16
+  },
+  "gsplus_clean": {
+   "single_exact": 84.46,
+   "shift_average_exact": 85.34
+  }
+ },
+ "15": {
+  "valid": {
+   "single_exact": 71.2,
+   "shift_average_exact": 71.6
+  },
+  "holdout": {
+   "single_exact": 71.2,
+   "shift_average_exact": 74.4
+  },
+  "gs_original": {
+   "single_exact": 70.86,
+   "shift_average_exact": 71.19
+  },
+  "gsplus_primary": {
+   "single_exact": 80.21,
+   "shift_average_exact": 79.51
+  },
+  "gsplus_clean": {
+   "single_exact": 85.78,
+   "shift_average_exact": 86.0
+  }
+ },
+ "42": {
+  "valid": {
+   "single_exact": 70.4,
+   "shift_average_exact": 71.6
+  },
+  "holdout": {
+   "single_exact": 73.2,
+   "shift_average_exact": 75.2
+  },
+  "gs_original": {
+   "single_exact": 70.7,
+   "shift_average_exact": 70.36
+  },
+  "gsplus_primary": {
+   "single_exact": 79.86,
+   "shift_average_exact": 78.98
+  },
+  "gsplus_clean": {
+   "single_exact": 86.0,
+   "shift_average_exact": 85.56
+  }
+ }
+}

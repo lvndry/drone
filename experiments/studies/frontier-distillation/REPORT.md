@@ -37,10 +37,16 @@ reggae and related genres).
   harmonic-only feature view, and ensembles of up to 18 models all landed within
   about one point of the best recipe. Out-of-fold predictions flag 12.6% of
   the training labels as suspect, but training without them, or on the
-  teacher's labels for them, did not help either.
-- **For the product**, one shift12 model scored at nine pitch shifts reaches
-  88.0%, nearly the three-model ensemble's 88.2%, with drone-v1's architecture
-  and size.
+  teacher's labels for them, did not help either. A second model family, a key
+  head on the pretrained Myna encoder, did not raise it when mixed in.
+- **Much of what remains is ambiguous.** On single-key GiantSteps+ tracks, the
+  K10 ensemble and the Myna head pick the same wrong key on 32 tracks, and 17
+  of those have independent signs that the key is debatable: the original
+  GiantSteps label agrees with the models, the experts name a church mode, or
+  their notes flag the track as hard.
+- **For the product**, drone-v2 is one shift12 model (seed 42) with one forward
+  pass: 88.0% exact on single-key GiantSteps+ tracks, with drone-v1's
+  architecture and size ([release evaluation](../drone-v2-release/REPORT.md)).
 - **Failed approaches, kept on record:** label-free equivariance pretraining,
   shift-consistency on unlabeled clips, a twice-wider network, two-minute
   crops, a second-stage decision model, and DJ-genre weighting of the
@@ -347,6 +353,42 @@ Neither helps. The test has a blind spot: the flags come from models that
 already sit at the ceiling, so they catch labels those models disagree with,
 not labels whose errors they share.
 
+## Experiment 14: a second model family as teacher (no gain)
+
+KeyMyna reports 72.0% exact on the original GiantSteps labels with a key head on
+the frozen, pretrained Myna encoder, more than any K10 here. A teacher from a
+different family could make different mistakes, which is what an ensemble needs.
+A KeyMyna-style head (384 to 4,096 to 4,096 to 24, ReLU, dropout 0.5) was trained
+on Myna window embeddings of 5,104 fitting tracks, every one of 13 playback-rate
+pitch shifts (up to 6 semitones each way) used as augmentation with the key moved
+to match. Embeddings for GiantSteps and the missing FMA views were extracted with
+the qualified Myna frontend; on two cached tracks the new extraction matches the
+cache to 2.4e-7. A track's prediction averages its windows, and scoring averages
+the 13 shifts after rotating each back. Seeds 13, 15 and 42; the epoch is chosen on
+a held-back tenth of the fitting tracks
+([data/analysis/analysis-myna.json](data/analysis/analysis-myna.json)).
+
+| Model, 3-seed mean | `valid`, shift-averaged | `holdout`, shift-averaged | `gs_original`, unshifted | `gsplus_clean`, shift-averaged |
+|---|---:|---:|---:|---:|
+| Myna head | 71.73 | 74.53 | 70.31 | 85.63 |
+| shift12 | 71.07 | 76.13 | 69.70 | 88.04 |
+
+The Myna head is level with shift12 on the original labels and below it on the
+expert ones. Mixing the two families' probabilities
+([data/teacher-mix-myna.json](data/teacher-mix-myna.json)):
+
+| Myna weight | `valid` | `holdout` | `gsplus_clean` | Development vs shift12 (95% interval) | `gsplus_clean` test half vs shift12 |
+|---:|---:|---:|---:|---:|---:|
+| 0 (shift12) | 72.0 | 76.0 | 88.18 | | |
+| 0.25 | 71.6 | 77.2 | 88.18 | +0.38 (−0.38 to +1.26) | +0.00 |
+| 0.5 | 72.4 | 77.2 | 87.75 | +0.88 (−0.25 to +2.02) | −0.88 |
+| 0.75 | 74.4 | 76.4 | 87.09 | +1.13 (−0.38 to +2.64) | −1.33 |
+| 1 (Myna) | 72.4 | 74.0 | 85.78 | −1.01 (−3.27 to +1.26) | −2.21 |
+
+Myna helps on FMA and hurts on single-key GiantSteps+; no weight is clearly
+positive on development data, and the test half leans negative. Inconclusive at
+every weight, so Myna was not used as a teacher.
+
 ## What the ceiling means
 
 Every route tried after experiment 7 landed within about one point of shift12:
@@ -356,16 +398,28 @@ reach its teacher, and pitch-shift augmentation makes it robust to
 transposition; beyond that, this training set and this representation give
 about 88% exact on single-key GiantSteps+ tracks and 72 to 77% on the FMA panels.
 
-For the product, a single shift12 model scored at nine shifts reaches 88.04% on
-`gsplus_clean` (3-seed mean), against 88.18% for the three-model ensemble, at
-the same 109,128 parameters as drone-v1 and nine forward passes per track.
+Two different model families fail on largely the same tracks
+([data/ceiling-shared-errors.json](data/ceiling-shared-errors.json)). Of the 457
+single-key GiantSteps+ tracks, the shift12 ensemble misses 54 and the Myna head
+65; 45 are missed by both and 32 get the same wrong key from both. A referee that
+always picked the right family would reach only 90.2%. Of those 32 shared errors,
+17 have at least one independent sign that the key itself is debatable: on 8 the
+models agree with the original GiantSteps label (two human sources disagree), on
+6 the experts describe the track in a church mode (phrygian, mixolydian, lydian
+or dorian), and on 8 the experts' notes flag the track as hard, for example
+"many microtonal and ambiguously-pitched material" or "not standard tuning".
+GiantSteps+ itself describes its 600 excerpts as focused on problematic tracks.
+So beyond about 88%, this benchmark mostly measures how annotators break ties.
 
 Routes not tried here, roughly in order of expected value:
 
-- **A teacher that is not a K10.** KeyMyna's 72.0% on the original labels
-  exceeds every model here (70.0%), so a large pretrained encoder fine-tuned on
-  this training set may be the first teacher above the ceiling. The existing
-  Myna head was weaker on FMA `valid`, but it was never scored on GiantSteps+.
+- **Labels from producers.** Every benchmark key here is a listener's judgement.
+  Keys that producers state (sample packs, stem releases, label metadata) would
+  give a cleaner test set for DJ genres than any published one.
+- **A much larger teacher.** SheetSage2-Prober (a 632M-parameter MERT2 encoder
+  with LoRA) reports the best published GiantSteps score (78.3, on a
+  non-standard measure). Its weights are CC BY-NC 4.0, which may rule out
+  distilling it into a shipped model.
 - **More expert labels.** The FMA panels share the training set's annotation
   process, so FMA progress is hard to measure. Expert-labelled DJ tracks would
   sharpen both training and evaluation.
@@ -404,8 +458,9 @@ follows.
 
 The scripts are in [scripts/](scripts/). They need the v2a corpus, GiantSteps
 and the FMA archives, located through environment variables (`DRONE_SOURCE`,
-`DRONE_PREP`, `DRONE_GIANTSTEPS`, `DRONE_WORK`, and `DRONE_PYTHON` for the shell
-scripts). The order in which they ran is `round1.sh` to `round12.sh`.
+`DRONE_PREP`, `DRONE_GIANTSTEPS`, `DRONE_WORK`, `DRONE_PYTHON` for the shell
+scripts, and `DRONE_MYNA`, `DRONE_MYNA_FRONTEND` and `DRONE_MYNA_CACHE` for
+experiment 14). The order in which they ran is `round1.sh` to `round12.sh`.
 
 | Script | Role |
 |---|---|
@@ -417,6 +472,8 @@ scripts). The order in which they ran is `round1.sh` to `round12.sh`.
 | `extract_views.py`, `make_jobs.py`, `prepare_large.sh` | Plain and harmonic features |
 | `reranker_features.py`, `reranker.py` | Experiment 8 |
 | `confident_learning.py` | Experiment 13 |
+| `myna_items.py`, `myna_embed.py`, `myna_head.py`, `teacher_mix.py` | Experiment 14 |
+| `ceiling_errors.py`, `shared_error_sources.py` | Where the ceiling comes from |
 | `madmom_predict.py`, `score_madmom.py` | madmom comparison |
 | `keyfinder_predict.py`, `score_baselines.py`, `figure_detectors.py` | All-detector table and figure |
 | `rescore_gsplus.py`, `ensemble_ceiling.py`, `table.py` | GiantSteps+ loading and summaries |
