@@ -67,7 +67,8 @@ def test_disk_scan_is_cached_for_progress_and_forced_at_boundaries(
 ) -> None:
     from tools import prepare_musicfm_waveforms as module
 
-    now, calls = [100.0], []
+    now = [100.0]
+    calls = []
 
     def scan(path: Path) -> int:
         calls.append(path)

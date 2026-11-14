@@ -28,41 +28,41 @@ def shift_r3(
             "output_samples": samples,
         }
 
-    lib = ctypes.CDLL(library)
+    rubberband_api = ctypes.CDLL(library)
     pointer = ctypes.POINTER(ctypes.c_float)
     channels = ctypes.POINTER(pointer)
     state_type = ctypes.c_void_p
-    lib.rubberband_new.argtypes = [
+    rubberband_api.rubberband_new.argtypes = [
         ctypes.c_uint,
         ctypes.c_uint,
         ctypes.c_int,
         ctypes.c_double,
         ctypes.c_double,
     ]
-    lib.rubberband_new.restype = state_type
-    lib.rubberband_delete.argtypes = [state_type]
-    lib.rubberband_delete.restype = None
-    lib.rubberband_get_engine_version.argtypes = [state_type]
-    lib.rubberband_get_engine_version.restype = ctypes.c_int
-    lib.rubberband_get_process_size_limit.argtypes = [state_type]
-    lib.rubberband_get_process_size_limit.restype = ctypes.c_uint
+    rubberband_api.rubberband_new.restype = state_type
+    rubberband_api.rubberband_delete.argtypes = [state_type]
+    rubberband_api.rubberband_delete.restype = None
+    rubberband_api.rubberband_get_engine_version.argtypes = [state_type]
+    rubberband_api.rubberband_get_engine_version.restype = ctypes.c_int
+    rubberband_api.rubberband_get_process_size_limit.argtypes = [state_type]
+    rubberband_api.rubberband_get_process_size_limit.restype = ctypes.c_uint
     for name in ("rubberband_set_expected_input_duration", "rubberband_set_max_process_size"):
-        function = getattr(lib, name)
+        function = getattr(rubberband_api, name)
         function.argtypes = [state_type, ctypes.c_uint]
         function.restype = None
     for name in ("rubberband_study", "rubberband_process"):
-        function = getattr(lib, name)
+        function = getattr(rubberband_api, name)
         function.argtypes = [state_type, channels, ctypes.c_uint, ctypes.c_int]
         function.restype = None
-    lib.rubberband_available.argtypes = [state_type]
-    lib.rubberband_available.restype = ctypes.c_int
-    lib.rubberband_retrieve.argtypes = [state_type, channels, ctypes.c_uint]
-    lib.rubberband_retrieve.restype = ctypes.c_uint
+    rubberband_api.rubberband_available.argtypes = [state_type]
+    rubberband_api.rubberband_available.restype = ctypes.c_int
+    rubberband_api.rubberband_retrieve.argtypes = [state_type, channels, ctypes.c_uint]
+    rubberband_api.rubberband_retrieve.restype = ctypes.c_uint
 
     # Offline is zero. EngineFiner selects R3; ThreadingNever bounds worker CPUs.
     # PitchHighQuality is deliberately omitted: upstream documents it as ignored offline.
     options = 0x20000000 | 0x00010000
-    state = lib.rubberband_new(16000, 1, options, 1.0, 2 ** (shift / 12))
+    state = rubberband_api.rubberband_new(16000, 1, options, 1.0, 2 ** (shift / 12))
     if not state:
         raise RuntimeError("RubberBand allocation failed")
     array = np.ascontiguousarray(signal.numpy())
@@ -71,24 +71,26 @@ def shift_r3(
     finished = False
     block_size = 4096
     try:
-        engine = lib.rubberband_get_engine_version(state)
-        if engine != 3 or block_size > lib.rubberband_get_process_size_limit(state):
+        engine = rubberband_api.rubberband_get_engine_version(state)
+        if engine != 3 or block_size > rubberband_api.rubberband_get_process_size_limit(state):
             raise ValueError("Unexpected engine or process-size limit")
-        lib.rubberband_set_expected_input_duration(state, samples)
-        lib.rubberband_set_max_process_size(state, block_size)
+        rubberband_api.rubberband_set_expected_input_duration(state, samples)
+        rubberband_api.rubberband_set_max_process_size(state, block_size)
         for start in range(0, samples, block_size):
             block = array[start : start + block_size]
             pointers = (pointer * 1)(block.ctypes.data_as(pointer))
-            lib.rubberband_study(state, pointers, block.size, int(start + block.size == samples))
+            rubberband_api.rubberband_study(
+                state, pointers, block.size, int(start + block.size == samples)
+            )
         for start in range(0, samples, block_size):
             if finished:
                 raise RuntimeError("R3 declared completion before final input")
             block = array[start : start + block_size]
             pointers = (pointer * 1)(block.ctypes.data_as(pointer))
             final = start + block.size == samples
-            lib.rubberband_process(state, pointers, block.size, int(final))
+            rubberband_api.rubberband_process(state, pointers, block.size, int(final))
             while True:
-                available = lib.rubberband_available(state)
+                available = rubberband_api.rubberband_available(state)
                 if available == -1:
                     finished = True
                     break
@@ -101,7 +103,7 @@ def shift_r3(
                 count = min(available, block_size)
                 output = np.empty(count, dtype=np.float32)
                 pointers = (pointer * 1)(output.ctypes.data_as(pointer))
-                received = lib.rubberband_retrieve(state, pointers, count)
+                received = rubberband_api.rubberband_retrieve(state, pointers, count)
                 if received != count:
                     raise RuntimeError("R3 retrieve count differs from availability")
                 output_samples += received
@@ -125,4 +127,4 @@ def shift_r3(
             "normalized": False,
         }
     finally:
-        lib.rubberband_delete(state)
+        rubberband_api.rubberband_delete(state)

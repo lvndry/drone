@@ -105,7 +105,10 @@ def main() -> None:
         "preparation_seconds": preparation_seconds,
     }
     (args.output / "pilot.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: v for k, v in result.items() if k != "records"}, indent=2), flush=True)
+    print(
+        json.dumps({key: value for key, value in result.items() if key != "records"}, indent=2),
+        flush=True,
+    )
 
 
 if __name__ == "__main__":

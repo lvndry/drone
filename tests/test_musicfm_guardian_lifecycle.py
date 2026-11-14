@@ -45,9 +45,9 @@ class Harness:
 
 @pytest.fixture
 def harness(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Harness:
-    config_path, approval_path, root = (
-        tmp_path / p for p in ("config.json", "approval.json", "run")
-    )
+    config_path = tmp_path / "config.json"
+    approval_path = tmp_path / "approval.json"
+    root = tmp_path / "run"
     source_file = "tools/run_musicfm_teacher.py"
     config = {
         "mode": "fit",
@@ -163,7 +163,8 @@ def test_late_failure_never_reports_complete_and_preserves_error_during_cleanup(
     cleanup_fails: bool,
 ) -> None:
     error = RuntimeError("synthetic late " + failure_site)
-    original_progress, original_save = teacher.save_or_replace, teacher.save
+    original_progress = teacher.save_or_replace
+    original_save = teacher.save
 
     def progress(path: Path, value: dict[str, Any]) -> None:
         if failure_site == "progress" and path.name == "progress.json":
@@ -196,9 +197,8 @@ def test_late_failure_never_reports_complete_and_preserves_error_during_cleanup(
         "validation": "Incomplete worker result",
     }.get(failure_site, str(error))
     assert str(raised.value) == expected
-    failure, controller = (
-        teacher.load(harness.root / p) for p in ("failure.json", "controller.json")
-    )
+    failure = teacher.load(harness.root / "failure.json")
+    controller = teacher.load(harness.root / "controller.json")
     assert failure["state"] == controller["state"] == "FAILED"
     assert failure["error"] == controller["error"] == repr(raised.value)
     assert not (harness.root / "held-success.json").exists()

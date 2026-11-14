@@ -23,36 +23,36 @@ LABELS = [
 COLORS = ["#315e8e", "#5d86ac", "#bc6d35", "#975b32", "#d39864", "#23856d"]
 
 
-def save(fig: Figure, root: Path, name: str) -> None:
-    fig.savefig(root / (name + ".png"), dpi=180)
-    fig.savefig(root / (name + ".svg"), metadata={"Date": None})
-    plt.close(fig)
+def save(figure: Figure, root: Path, name: str) -> None:
+    figure.savefig(root / (name + ".png"), dpi=180)
+    figure.savefig(root / (name + ".svg"), metadata={"Date": None})
+    plt.close(figure)
 
 
 def plot(root: Path) -> None:
     data = summarize(root)
     plt.rcParams["svg.hashsalt"] = "mac376-disjoint-v4"
-    fig, axes = plt.subplots(
+    figure, axes = plt.subplots(
         1,
         2,
         figsize=(12, 5.1),
         layout="constrained",
         gridspec_kw={"width_ratios": [1, 1.12]},
     )
-    for i, (name, color) in enumerate(zip(FAMILIES, COLORS, strict=True)):
+    for index, (name, color) in enumerate(zip(FAMILIES, COLORS, strict=True)):
         failed = 376 - data["families"][name]["passed"]
-        axes[0].barh(i, failed, color=color)
+        axes[0].barh(index, failed, color=color)
         axes[0].text(
             failed + 0.45,
-            i,
+            index,
             f"{failed} fail; {376 - failed}/376 pass",
             va="center",
             fontsize=9,
         )
         ratios = sorted(
             max(
-                abs(a - r) / (1e-5 + 1e-5 * abs(r))
-                for a, r in zip(
+                abs(actual - reference) / (1e-5 + 1e-5 * abs(reference))
+                for actual, reference in zip(
                     row["gates"][name]["logits"],
                     row["gates"][name]["reference"],
                     strict=True,
@@ -60,7 +60,7 @@ def plot(root: Path) -> None:
             )
             for row in data["cases"]
         )
-        axes[1].plot(range(1, 377), ratios, color=color, label=LABELS[i], linewidth=1.4)
+        axes[1].plot(range(1, 377), ratios, color=color, label=LABELS[index], linewidth=1.4)
     axes[0].set_yticks(range(6), LABELS)
     axes[0].invert_yaxis()
     axes[0].set_xlim(0, 40)
@@ -72,36 +72,36 @@ def plot(root: Path) -> None:
     axes[1].set_ylabel("Maximum error / allowed error per track")
     axes[1].set_title("Failures retained; tolerances unchanged")
     axes[1].legend(frameon=False, fontsize=7.5, loc="upper left")
-    for ax in axes:
-        ax.grid(axis="x", alpha=0.15)
-        ax.spines[["top", "right"]].set_visible(False)
-    fig.suptitle(
+    for panel in axes:
+        panel.grid(axis="x", alpha=0.15)
+        panel.spines[["top", "right"]].set_visible(False)
+    figure.suptitle(
         "376 public tracks, composed from disjoint 305 + 71 phases\nAll six comparisons have zero argmax disagreements; no Mac timing or promotion",
         fontsize=12,
     )
-    save(fig, root, "mac376-diagnostic")
-    fig, ax = plt.subplots(figsize=(9.2, 4.2), layout="constrained")
-    for i, (name, color) in enumerate(zip(FAMILIES, COLORS, strict=True)):
+    save(figure, root, "mac376-diagnostic")
+    figure, axis = plt.subplots(figsize=(9.2, 4.2), layout="constrained")
+    for index, (name, color) in enumerate(zip(FAMILIES, COLORS, strict=True)):
         item = data["families"][name]
-        ax.scatter(item["maximum_absolute"], i, color=color, marker="x", s=50)
-        ax.scatter(item["minimum_observed_slack"], i, color=color, marker="o", s=40)
-        ax.plot(
+        axis.scatter(item["maximum_absolute"], index, color=color, marker="x", s=50)
+        axis.scatter(item["minimum_observed_slack"], index, color=color, marker="o", s=40)
+        axis.plot(
             [item["maximum_absolute"], item["minimum_observed_slack"]],
-            [i, i],
+            [index, index],
             color=color,
             alpha=0.4,
         )
-    ax.set_xscale("log")
-    ax.set_yticks(range(6), LABELS)
-    ax.invert_yaxis()
-    ax.set_xlabel("Logit units (log scale)")
-    ax.grid(axis="x", alpha=0.2)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title(
+    axis.set_xscale("log")
+    axis.set_yticks(range(6), LABELS)
+    axis.invert_yaxis()
+    axis.set_xlabel("Logit units (log scale)")
+    axis.grid(axis="x", alpha=0.2)
+    axis.spines[["top", "right"]].set_visible(False)
+    axis.set_title(
         "Observed pairs only: × largest absolute error; ● smallest certificate slack\nEvery pairwise slack positive; not an unseen-input bound or a new acceptance gate",
         fontsize=11,
     )
-    save(fig, root, "mac376-observed-margins")
+    save(figure, root, "mac376-observed-margins")
 
 
 if __name__ == "__main__":

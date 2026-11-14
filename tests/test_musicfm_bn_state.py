@@ -137,7 +137,8 @@ def test_waveform_geometry_rejects_in_bounds_wrong_pooling() -> None:
 
 
 def test_exact_inventory_trace_prefix_and_cpu_ownership_preserve_state() -> None:
-    model, value = Toy(), input_tensor()
+    model = Toy()
+    value = input_tensor()
     before = state.snapshot_state(model, watch)
     rotary = model.rotary_cache
     trace = state.capture_bn_trace(model, value, watch)
@@ -156,15 +157,16 @@ def test_exact_inventory_trace_prefix_and_cpu_ownership_preserve_state() -> None
 
 
 def test_sequential_upstream_replacement_changes_downstream_input() -> None:
-    model, value = Toy(), input_tensor()
+    model = Toy()
+    value = input_tensor()
     first, second = state.BN_SITES[:2]
     before = state.capture_bn_prefix(model, value, second.name, watch)
     baseline = state.snapshot_state(model, watch)
-    bn = model.get_submodule(first.name)
-    assert isinstance(bn, nn.BatchNorm2d) and bn.running_mean is not None
-    bn.running_mean.fill_(4.0)
+    batch_norm = model.get_submodule(first.name)
+    assert isinstance(batch_norm, nn.BatchNorm2d) and batch_norm.running_mean is not None
+    batch_norm.running_mean.fill_(4.0)
     after = state.capture_bn_prefix(model, value, second.name, watch)
-    expected = before - 4.0 / (1.0 + bn.eps) ** 0.5
+    expected = before - 4.0 / (1.0 + batch_norm.eps) ** 0.5
     torch.testing.assert_close(after, expected, atol=1e-6, rtol=1e-6)
     assert state.verify_state_change(
         baseline, state.snapshot_state(model, watch), allow_bn_statistics=True
@@ -276,7 +278,8 @@ def test_inventory_mismatches_are_rejected(mutation: str) -> None:
 
 
 def test_nonfinite_model_input_is_rejected_before_forward() -> None:
-    model, value = Toy(), input_tensor()
+    model = Toy()
+    value = input_tensor()
     value[0, 0, 0, 0] = float("nan")
     with pytest.raises(ValueError, match="Nonfinite model input"):
         state.capture_bn_trace(model, value, watch)

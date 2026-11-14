@@ -27,15 +27,15 @@ def inspect(arguments: tuple[Path, Path]) -> dict[str, Any]:
     if result.returncode:
         return dict(row, error=result.stderr[:500])
     info = json.loads(result.stdout)
-    fmt = info.get("format", {})
-    row["duration_seconds"] = float(fmt["duration"]) if fmt.get("duration") else None
-    row["format"] = fmt.get("format_name")
+    container = info.get("format", {})
+    row["duration_seconds"] = float(container["duration"]) if container.get("duration") else None
+    row["format"] = container.get("format_name")
     row["audio_codecs"] = [
         stream.get("codec_name")
         for stream in info.get("streams", [])
         if stream.get("codec_type") == "audio"
     ]
-    tags = {key.lower(): value for key, value in fmt.get("tags", {}).items()}
+    tags = {key.lower(): value for key, value in container.get("tags", {}).items()}
     row["key_tags"] = {key: value for key, value in tags.items() if key in KEY_TAGS}
     row["software_tags"] = {
         key: value for key, value in tags.items() if key in {"encoder", "software"}
@@ -51,14 +51,14 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     paths = sorted(
-        p
-        for p in args.root.rglob("*")
-        if p.is_file()
-        and p.suffix.lower() in AUDIO
-        and not any(part.startswith(".") for part in p.relative_to(args.root).parts)
+        path
+        for path in args.root.rglob("*")
+        if path.is_file()
+        and path.suffix.lower() in AUDIO
+        and not any(part.startswith(".") for part in path.relative_to(args.root).parts)
     )
     with ThreadPoolExecutor(max_workers=4) as pool:
-        tracks = list(pool.map(inspect, [(args.root, p) for p in paths]))
+        tracks = list(pool.map(inspect, [(args.root, path) for path in paths]))
     result = {
         "purpose": "local evaluation only; not training data",
         "root": str(args.root),
@@ -69,10 +69,10 @@ def main() -> None:
     print(
         {
             "tracks": len(tracks),
-            "formats": dict(Counter(p.suffix.lower() for p in paths)),
-            "key_tagged": sum(bool(t.get("key_tags")) for t in tracks),
-            "errors": sum("error" in t for t in tracks),
-            "unique_audio": len({t["sha256"] for t in tracks if "sha256" in t}),
+            "formats": dict(Counter(path.suffix.lower() for path in paths)),
+            "key_tagged": sum(bool(track.get("key_tags")) for track in tracks),
+            "errors": sum("error" in track for track in tracks),
+            "unique_audio": len({track["sha256"] for track in tracks if "sha256" in track}),
         }
     )
 

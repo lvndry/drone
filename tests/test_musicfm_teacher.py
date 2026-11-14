@@ -39,7 +39,7 @@ class ToyBackbone(nn.Module):
 
 
 def examples() -> list[tuple[Tensor, int]]:
-    return [(torch.full((1, 1200), (i + 1) / 32), i % 24) for i in range(32)]
+    return [(torch.full((1, 1200), (index + 1) / 32), index % 24) for index in range(32)]
 
 
 def test_training_seed_is_reset_after_an_upstream_constructor_changes_it() -> None:
@@ -70,7 +70,8 @@ def test_single_microbatch_rejects_one_encoded_position_before_update() -> None:
 def test_head_is_reproducible_and_does_not_consume_global_rng() -> None:
     backbone = ToyBackbone()
     state = torch.get_rng_state().clone()
-    first, second = KeyTeacher(backbone), KeyTeacher(backbone)
+    first = KeyTeacher(backbone)
+    second = KeyTeacher(backbone)
     assert torch.equal(torch.get_rng_state(), state)
     assert torch.equal(first.head.weight, second.head.weight)
 
@@ -78,11 +79,13 @@ def test_head_is_reproducible_and_does_not_consume_global_rng() -> None:
 def test_accumulation_matches_mean_batch_objective_without_batch_dependent_layers() -> None:
     teacher = KeyTeacher(ToyBackbone())
     reference = copy.deepcopy(teacher)
-    optimizer, other = make_optimizer(teacher), make_optimizer(reference)
+    optimizer = make_optimizer(teacher)
+    other = make_optimizer(reference)
     batch = examples()
     loss = accumulated_update(teacher, optimizer, batch, amp=False)
     expected = F.cross_entropy(
-        reference(torch.cat([x for x, _ in batch])), torch.tensor([y for _, y in batch])
+        reference(torch.cat([audio for audio, _ in batch])),
+        torch.tensor([target for _, target in batch]),
     )
     expected.backward()
     other.step()
@@ -93,7 +96,7 @@ def test_accumulation_matches_mean_batch_objective_without_batch_dependent_layer
     for state in optimizer.state.values():
         assert state["exp_avg"].dtype == state["exp_avg_sq"].dtype == torch.float32
         assert state["step"] == 1
-    assert [g["lr"] for g in optimizer.param_groups] == [1e-5, 1e-4]
+    assert [group["lr"] for group in optimizer.param_groups] == [1e-5, 1e-4]
 
 
 @pytest.mark.parametrize("length", [0, 31, 33])
@@ -139,19 +142,22 @@ def test_streamed_song_evaluation_matches_explicit_weighted_reference() -> None:
     teacher = KeyTeacher(ToyBackbone())
     samples = 2 * 288000 + 1199
     windows = song_windows(samples)
-    inputs = [torch.full((1, w.stop - w.start), float(i + 1)) for i, w in enumerate(windows)]
+    inputs = [
+        torch.full((1, window.stop - window.start), float(index + 1))
+        for index, window in enumerate(windows)
+    ]
     with torch.inference_mode():
         explicit = (
             sum(
-                teacher(x)[0].numpy().astype(np.float64) * w.weight
-                for x, w in zip(inputs, windows, strict=True)
+                teacher(audio)[0].numpy().astype(np.float64) * window.weight
+                for audio, window in zip(inputs, windows, strict=True)
             )
             / samples
         )
     actual = evaluate_song(teacher, samples, zip(windows, inputs, strict=True))
     np.testing.assert_array_equal(actual, explicit)
     assert not teacher.training
-    assert all(p.grad is None for p in teacher.parameters())
+    assert all(parameter.grad is None for parameter in teacher.parameters())
     with pytest.raises(ValueError, match="complete song"):
         evaluate_song(teacher, samples, zip(windows[:-1], inputs[:-1], strict=True))
     with pytest.raises(ValueError, match="window context"):

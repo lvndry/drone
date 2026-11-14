@@ -27,16 +27,16 @@ def prepared_inputs(tmp_path: Path) -> tuple[Path, Path]:
     np.save(cache, np.arange(208 * 8, dtype=np.float16).reshape(208, 8))
     rows = [
         dict(
-            id=f"fmak:{i:06}",
+            id=f"fmak:{index:06}",
             domain="fmak",
             frames=8,
-            sha256=f"{i:064x}",
+            sha256=f"{index:064x}",
             role="validation",
             cache=cache.name,
             cache_sha256=sha256(cache),
             ref=23,
         )
-        for i in range(376)
+        for index in range(376)
     ]
     manifest = tmp_path / "manifest.json"
     manifest.write_text(
@@ -44,7 +44,9 @@ def prepared_inputs(tmp_path: Path) -> tuple[Path, Path]:
     )
     selection = tmp_path / "selection.json"
     selection.write_text(
-        json.dumps(dict(rows=[dict(id=r["id"], sha256=r["sha256"], frames=8) for r in rows[:20]]))
+        json.dumps(
+            dict(rows=[dict(id=row["id"], sha256=row["sha256"], frames=8) for row in rows[:20]])
+        )
     )
     return manifest, selection
 
@@ -104,7 +106,8 @@ def test_support_source_change_invalidates_validation_without_entrypoint_change(
     bundle.mkdir()
     for name in ("contract.json", "prefix.onnx", "head.onnx"):
         (bundle / name).write_text(name)
-    manifest, model = tmp_path / "manifest.json", tmp_path / "full.onnx"
+    manifest = tmp_path / "manifest.json"
+    model = tmp_path / "full.onnx"
     manifest.write_text("manifest")
     model.write_text("model")
     artifacts = ArtifactSet(manifest, bundle, model)
@@ -181,13 +184,13 @@ def test_failed_paired_evidence_is_rejected_before_model_loading(
     baseline = tmp_path / "baseline.json"
     records = [
         dict(
-            id=t.id,
-            sha256=t.sha256,
-            cache_sha256=t.cache_sha256,
-            frames=t.frames,
+            id=track.id,
+            sha256=track.sha256,
+            cache_sha256=track.cache_sha256,
+            frames=track.frames,
             median_seconds=0.1,
         )
-        for t in chosen
+        for track in chosen
     ]
     report = dict(
         mode="benchmark",

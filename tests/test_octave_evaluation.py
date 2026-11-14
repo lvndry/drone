@@ -14,12 +14,12 @@ from tools.evaluate_octave import calibrated, evaluation_decode, main, uncertain
 
 
 def test_temperature_preserves_class_decisions_and_probability_mass() -> None:
-    p = np.random.default_rng(13).random((20, 24))
-    p /= p.sum(1, keepdims=True)
+    probabilities = np.random.default_rng(13).random((20, 24))
+    probabilities /= probabilities.sum(1, keepdims=True)
     for temperature in (0.25, 1, 4):
-        result = calibrated(p, temperature)
+        result = calibrated(probabilities, temperature)
         np.testing.assert_allclose(result.sum(1), 1)
-        np.testing.assert_array_equal(result.argmax(1), p.argmax(1))
+        np.testing.assert_array_equal(result.argmax(1), probabilities.argmax(1))
     perfect = np.eye(24)[[0, 19]]
     result = uncertainty(perfect, np.array([0, 19]))
     assert result == {"nll": 0.0, "brier": 0.0, "ece_15_equal_width": 0.0}

@@ -61,7 +61,9 @@ def main() -> None:
     records = []
     extensions = {".mp3", ".m4a", ".flac", ".wav", ".aiff", ".aif", ".ogg", ".opus"}
     audio_files = sorted(
-        p for p in args.audio.iterdir() if p.is_file() and p.suffix.lower() in extensions
+        path
+        for path in args.audio.iterdir()
+        if path.is_file() and path.suffix.lower() in extensions
     )
     for audio in audio_files[: args.limit]:
         duration = float(
@@ -80,17 +82,18 @@ def main() -> None:
             ).strip()
         )
         with tempfile.TemporaryDirectory() as scratch:
-            start, cpu = time.monotonic(), cpu_seconds()
+            start = time.monotonic()
+            cpu_start = cpu_seconds()
             raw = features.extract(audio.stem, str(audio), scratch)
-            x = features.normalize(features.resample_time(raw, metadata["frames"]))
-            session.run(None, {"features": np.ascontiguousarray(x.T[None])})
+            normalized = features.normalize(features.resample_time(raw, metadata["frames"]))
+            session.run(None, {"features": np.ascontiguousarray(normalized.T[None])})
             records.append(
                 {
                     "id": audio.stem,
                     "extension": audio.suffix.lower(),
                     "duration_seconds": duration,
                     "wall_seconds": time.monotonic() - start,
-                    "cpu_seconds_including_decoder": cpu_seconds() - cpu,
+                    "cpu_seconds_including_decoder": cpu_seconds() - cpu_start,
                 }
             )
         if len(records) % 20 == 0:
@@ -110,13 +113,17 @@ def main() -> None:
         "worker_concurrency": 1,
         "files": records,
         "runtime_rss_kib_before_audio": runtime_rss,
-        "wall_p50_seconds": float(np.percentile([r["wall_seconds"] for r in records], 50)),
-        "wall_p95_seconds": float(np.percentile([r["wall_seconds"] for r in records], 95)),
+        "wall_p50_seconds": float(
+            np.percentile([record["wall_seconds"] for record in records], 50)
+        ),
+        "wall_p95_seconds": float(
+            np.percentile([record["wall_seconds"] for record in records], 95)
+        ),
         "peak_parent_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * rss_scale,
         "note": "Process RSS in KiB (Darwin bytes converted); includes Python/NumPy/ORT. Fresh feature cache; filesystem cache uncontrolled. Native Rust integration remains unmeasured.",
     }
     args.output.write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: v for k, v in result.items() if k != "files"}, indent=2))
+    print(json.dumps({key: value for key, value in result.items() if key != "files"}, indent=2))
 
 
 if __name__ == "__main__":

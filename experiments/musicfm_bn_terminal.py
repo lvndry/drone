@@ -136,8 +136,8 @@ def verify_terminal_teacher(
         or [row["id"] for row in proof["per_song"]] != ids
     ):
         raise ValueError("Original selected-checkpoint B1/B16 audit did not pass")
-    b1 = sum(_seconds(row["seconds"]) for row in proof["per_song"])
-    b16 = max(
+    historical_b1_seconds = sum(_seconds(row["seconds"]) for row in proof["per_song"])
+    historical_b16_seconds = max(
         sum(
             _seconds(row["validation"][domain]["elapsed_seconds"])
             for domain in ("beatport", "fmak")
@@ -149,6 +149,6 @@ def verify_terminal_teacher(
         result_sha,
         result["best_update"],
         gate["continuation_earned"],
-        b1,
-        b16,
+        historical_b1_seconds,
+        historical_b16_seconds,
     )

@@ -45,7 +45,7 @@ def panel_rows(plan: dict[str, Any], rows: dict[str, dict[str, Any]]) -> list[di
     Crop-byte hashes cannot be provided until bounded, verified waveform reading;
     this prospective metadata is not an executable sealed manifest.
     """
-    bp, fma, bp_selection, fma_selection = (
+    beatport, fma, beatport_selection, fma_selection = (
         _ids(plan, key, count)
         for key, count in (
             ("bp_fit", 1229),
@@ -54,19 +54,22 @@ def panel_rows(plan: dict[str, Any], rows: dict[str, dict[str, Any]]) -> list[di
             ("fma_inner_selection", 250),
         )
     )
-    expected = bp + fma + bp_selection + fma_selection
+    expected = beatport + fma + beatport_selection + fma_selection
     if len(set(expected)) != 5638 or set(rows) != set(expected):
         raise ValueError("Overlapping pools, missing input or extra/reserved cache row")
-    fitting = set(bp + fma)
+    fitting = set(beatport + fma)
     for identity, row in rows.items():
         if row.get("id") != identity or row.get("role") != (
             "fit" if identity in fitting else "validation"
         ):
             raise ValueError("Cache ID/role disagrees with the original plan")
-    clips = schedule({i: rows[i]["samples"] for i in bp}, {i: rows[i]["samples"] for i in fma})
+    clips = schedule(
+        {identity: rows[identity]["samples"] for identity in beatport},
+        {identity: rows[identity]["samples"] for identity in fma},
+    )
     if len(clips) != 512 or len({clip.identity for clip in clips}) != 512:
         raise ValueError("Schedule must return exactly 512 unique fitting recordings")
-    for domain, eligible in (("beatport", set(bp)), ("fmak", set(fma))):
+    for domain, eligible in (("beatport", set(beatport)), ("fmak", set(fma))):
         selected = [clip for clip in clips if clip.domain == domain]
         if (
             len(selected) != PER_DOMAIN

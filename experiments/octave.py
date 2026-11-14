@@ -40,24 +40,30 @@ def device_setup(device: str) -> None:
 
 
 def selected_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
-    _, bm, btr, bval = load_development(args.beatport)
-    _, fm = load_prepared(args.fmak, "fmak")
-    partition, audit = json.loads(args.partition.read_bytes()), json.loads(args.groups.read_bytes())
+    _, beatport_metadata, beatport_train, beatport_validation = load_development(args.beatport)
+    _, fmak_metadata = load_prepared(args.fmak, "fmak")
+    partition = json.loads(args.partition.read_bytes())
+    audit = json.loads(args.groups.read_bytes())
     assert audit["partition_sha256"] == hashlib.sha256(args.partition.read_bytes()).hexdigest()
-    parts = development_split(fm, partition, audit)
-    assert not {t["sha256"] for t in bm["tracks"]} & {t["sha256"] for t in fm["tracks"]}
-    bp_audio = {p.stem.split(" ")[0]: p for p in (args.beatport / "audio/audio").glob("*.mp3")}
+    parts = development_split(fmak_metadata, partition, audit)
+    assert not {track["sha256"] for track in beatport_metadata["tracks"]} & {
+        track["sha256"] for track in fmak_metadata["tracks"]
+    }
+    beatport_audio = {
+        audio_path.stem.split(" ")[0]: audio_path
+        for audio_path in (args.beatport / "audio/audio").glob("*.mp3")
+    }
     rows = []
     for domain, meta, indices, role in (
-        ("beatport", bm, btr, "train"),
-        ("fmak", fm, parts["train"], "train"),
-        ("beatport", bm, bval, "validation"),
-        ("fmak", fm, parts["validation"], "validation"),
+        ("beatport", beatport_metadata, beatport_train, "train"),
+        ("fmak", fmak_metadata, parts["train"], "train"),
+        ("beatport", beatport_metadata, beatport_validation, "validation"),
+        ("fmak", fmak_metadata, parts["validation"], "validation"),
     ):
-        for i in indices:
-            identity = meta["ids"][i]
+        for index in indices:
+            identity = meta["ids"][index]
             path = (
-                bp_audio[identity]
+                beatport_audio[identity]
                 if domain == "beatport"
                 else args.fmak / "audio" / f"{identity}.mp3"
             )
@@ -65,14 +71,14 @@ def selected_rows(args: argparse.Namespace) -> list[dict[str, Any]]:
                 {
                     "id": domain + ":" + identity,
                     "path": str(path),
-                    "sha256": meta["tracks"][i]["sha256"],
-                    "ref": meta["refs"][i],
+                    "sha256": meta["tracks"][index]["sha256"],
+                    "ref": meta["refs"][index],
                     "domain": domain,
                     "role": role,
                 }
             )
-    assert not {r["sha256"] for r in rows if r["role"] == "train"} & {
-        r["sha256"] for r in rows if r["role"] == "validation"
+    assert not {row["sha256"] for row in rows if row["role"] == "train"} & {
+        row["sha256"] for row in rows if row["role"] == "validation"
     }
     return rows
 
@@ -123,10 +129,10 @@ def decode(row: dict[str, Any]) -> np.ndarray:
             check=True,
             timeout=60,
         )
-        x = np.frombuffer(output.stdout, dtype="<f4")
-        if not len(x) or not np.isfinite(x).all():
+        samples = np.frombuffer(output.stdout, dtype="<f4")
+        if not len(samples) or not np.isfinite(samples).all():
             raise ValueError(f"Invalid decoded segment: {row['id']}")
-        segments.append(np.pad(x[: 704000 + 1600], (0, max(0, 705600 - len(x)))))
+        segments.append(np.pad(samples[: 704000 + 1600], (0, max(0, 705600 - len(samples)))))
     return np.stack(segments)
 
 
@@ -160,7 +166,8 @@ def prepare(args: argparse.Namespace) -> None:
         raise ValueError("Existing feature run differs")
     atomic_json(manifest, identity)
     shape = (len(rows), 2, 99, 1379)
-    path, status = args.output / "features.npy", args.output / "preparation.json"
+    path = args.output / "features.npy"
+    status = args.output / "preparation.json"
     completed = json.loads(status.read_bytes())["completed"] if status.exists() else 0
     if completed and not path.exists():
         raise ValueError("Missing partial feature array")
@@ -220,21 +227,23 @@ def probabilities(
             selected = indices[start : start + batch]
             total = None
             for segment in (0, 1):
-                x = np.stack([array[i, segment, 12:96] for i in selected])
-                p = torch.softmax(model(torch.from_numpy(x).to(device)), 1).cpu().numpy()
-                total = p if total is None else total + p
+                inputs = np.stack([array[index, segment, 12:96] for index in selected])
+                probability = (
+                    torch.softmax(model(torch.from_numpy(inputs).to(device)), 1).cpu().numpy()
+                )
+                total = probability if total is None else total + probability
             output.append(total / 2)
     return np.concatenate(output)
 
 
-def metrics(prob: np.ndarray, refs: np.ndarray) -> dict[str, Any]:
-    pred = prob.argmax(1)
-    classes = [int(c) for c in pred]
-    exact, mirex = score_mirex(classes, [int(r) for r in refs])
+def metrics(probability: np.ndarray, references: np.ndarray) -> dict[str, Any]:
+    prediction = probability.argmax(1)
+    classes = [int(predicted) for predicted in prediction]
+    exact, mirex = score_mirex(classes, [int(reference) for reference in references])
     return {
         "exact": exact,
         "mirex": mirex,
-        "mode_accuracy": float(np.mean(pred % 2 == refs % 2)),
+        "mode_accuracy": float(np.mean(prediction % 2 == references % 2)),
         "predictions": classes,
     }
 
@@ -250,9 +259,9 @@ def train(args: argparse.Namespace) -> None:
     assert json.loads((args.data / "preparation.json").read_bytes())["complete"]
     rows = manifest["rows"]
     array = np.load(args.data / "features.npy", mmap_mode="r", allow_pickle=False)
-    tr = [i for i, row in enumerate(rows) if row["role"] == "train"]
-    val = [i for i, row in enumerate(rows) if row["role"] == "validation"]
-    refs = np.array([row["ref"] for row in rows])
+    training = [index for index, row in enumerate(rows) if row["role"] == "train"]
+    validation = [index for index, row in enumerate(rows) if row["role"] == "validation"]
+    references = np.array([row["ref"] for row in rows])
     reference = json.loads(args.reference.read_bytes())
     identity = {
         "feature_manifest_sha256": signature(manifest),
@@ -276,10 +285,12 @@ def train(args: argparse.Namespace) -> None:
         "identity": identity,
         "status": "running",
         "history": [],
-        "parameters": sum(p.numel() for p in model.parameters()),
+        "parameters": sum(parameter.numel() for parameter in model.parameters()),
         "torch": str(torch.__version__),
     }
-    best, first_epoch, prior = -1.0, 1, 0.0
+    best = -1.0
+    first_epoch = 1
+    prior = 0.0
     last = args.output / "last.pt"
     if last.exists():
         state = torch.load(last, weights_only=True, map_location="cpu")
@@ -291,16 +302,14 @@ def train(args: argparse.Namespace) -> None:
         if args.device.startswith("cuda"):
             torch.cuda.set_rng_state_all(state["cuda_rng"])
         rng.bit_generator.state = state["numpy_rng"]
-        record, best, first_epoch, prior = (
-            state["record"],
-            state["best"],
-            state["epoch"] + 1,
-            state["record"]["elapsed_seconds"],
-        )
+        record = state["record"]
+        best = state["best"]
+        first_epoch = state["epoch"] + 1
+        prior = state["record"]["elapsed_seconds"]
     start = time.monotonic()
     for epoch in range(first_epoch, 121):
         model.train()
-        order = rng.permutation(tr)
+        order = rng.permutation(training)
         loss_sum = 0.0
         for offset in range(0, len(order), 16):
             if prior + time.monotonic() - start > 900:
@@ -312,17 +321,19 @@ def train(args: argparse.Namespace) -> None:
                     "Fifteen-minute fitting cap reached; last epoch remains resumable"
                 )
             selected = order[offset : offset + 16]
-            segments, crops = rng.integers(0, 2, len(selected)), rng.integers(0, 16, len(selected))
-            x = np.stack(
+            segments = rng.integers(0, 2, len(selected))
+            crops = rng.integers(0, 16, len(selected))
+            inputs = np.stack(
                 [
-                    array[i, segment, crop : crop + 84]
-                    for i, segment, crop in zip(selected, segments, crops, strict=True)
+                    array[index, segment, crop : crop + 84]
+                    for index, segment, crop in zip(selected, segments, crops, strict=True)
                 ]
             )
-            labels = ((refs[selected] // 2 - crops) % 12) * 2 + refs[selected] % 2
+            labels = ((references[selected] // 2 - crops) % 12) * 2 + references[selected] % 2
             optimizer.zero_grad(set_to_none=True)
             loss = criterion(
-                model(torch.from_numpy(x).to(args.device)), torch.from_numpy(labels).to(args.device)
+                model(torch.from_numpy(inputs).to(args.device)),
+                torch.from_numpy(labels).to(args.device),
             )
             if not torch.isfinite(loss):
                 raise RuntimeError("Nonfinite loss")
@@ -330,12 +341,12 @@ def train(args: argparse.Namespace) -> None:
             optimizer.step()
             loss_sum += loss.item() * len(selected)
         scheduler.step()
-        prob = probabilities(model, array, val, args.device)
-        result = metrics(prob, refs[val])
+        probability = probabilities(model, array, validation, args.device)
+        result = metrics(probability, references[validation])
         record["history"].append(
             {
                 "epoch": epoch,
-                "loss": loss_sum / len(tr),
+                "loss": loss_sum / len(training),
                 "validation_mirex": result["mirex"],
                 "validation_exact": result["exact"],
             }
@@ -350,16 +361,22 @@ def train(args: argparse.Namespace) -> None:
                     "label_schema": LABEL_SCHEMA,
                     "state_dict": model.state_dict(),
                     "identity": identity,
-                    "train_ids": [rows[i]["id"] for i in tr],
-                    "validation_ids": [rows[i]["id"] for i in val],
-                    "training_audio_sha256": [rows[i]["sha256"] for i in tr],
+                    "train_ids": [rows[index]["id"] for index in training],
+                    "validation_ids": [rows[index]["id"] for index in validation],
+                    "training_audio_sha256": [rows[index]["sha256"] for index in training],
                 },
                 args.output / "best.pt",
             )
             domain_metrics: dict[str, dict[str, Any]] = {}
             for domain in ("beatport", "fmak"):
-                positions = [j for j, i in enumerate(val) if rows[i]["domain"] == domain]
-                domain_metrics[domain] = metrics(prob[positions], refs[np.array(val)[positions]])
+                positions = [
+                    position
+                    for position, index in enumerate(validation)
+                    if rows[index]["domain"] == domain
+                ]
+                domain_metrics[domain] = metrics(
+                    probability[positions], references[np.array(validation)[positions]]
+                )
             atomic_json(args.output / "best-validation.json", domain_metrics)
         record["elapsed_seconds"] = float(prior + time.monotonic() - start)
         atomic_json(args.output / "run.json", record)

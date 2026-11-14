@@ -11,21 +11,22 @@ from experiments.musicfm_sampling import batches, crop
 
 
 def test_interleaving_preserves_both_control_subsequences_and_counts() -> None:
-    bp, fma = ["b1", "b2", "b3"], ["f1", "f2", "f3", "f4"]
-    original = list(paired_batches(bp, fma, updates=100))
-    interleaved = list(batches(bp, fma, updates=100))
-    assert list(batches(bp, fma, updates=100)) == interleaved
+    beatport = ["b1", "b2", "b3"]
+    fma = ["f1", "f2", "f3", "f4"]
+    original = list(paired_batches(beatport, fma, updates=100))
+    interleaved = list(batches(beatport, fma, updates=100))
+    assert list(batches(beatport, fma, updates=100)) == interleaved
     for left, right in zip(original, interleaved, strict=True):
         assert Counter(left) == Counter(right)
         for domain in ("beatport", "fmak"):
-            assert [d for d in left if d.domain == domain] == [
-                d for d in right if d.domain == domain
+            assert [draw for draw in left if draw.domain == domain] == [
+                draw for draw in right if draw.domain == domain
             ]
     assert {batch[-1].domain for batch in interleaved} == {"beatport", "fmak"}
 
 
 def test_crop_uses_ten_minutes_and_is_independent_of_request_order() -> None:
-    draws = [Draw("song", "fmak", i) for i in range(100)]
+    draws = [Draw("song", "fmak", index) for index in range(100)]
     result = {draw: crop(600 * 24000, draw) for draw in draws}
     assert {draw: crop(600 * 24000, draw) for draw in reversed(draws)} == result
     assert all(

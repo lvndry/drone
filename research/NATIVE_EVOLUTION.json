@@ -51,6 +51,62 @@
       "current_sha256": "1dbddcebd0b47a4af2b6b98055d3275c2d3f831429f4fa6630afd459de9dd133",
       "git_mode": "100644",
       "reason": "Rewritten in plain research language with all measurements unchanged."
+    },
+    {
+      "path": "research/drone-native-cached/plot_results.py",
+      "migrated_sha256": "33a47f0fbbd5ce7aad413f7f656dfd5228eb69e86a581d71e7c7c391159199c0",
+      "current_sha256": "ecac38ede9893ab26275b2f3970d29baf33a69e6a39cf303642c89e08a82b4a4",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_mac376.py",
+      "migrated_sha256": "75038b84ff53332aabfcd8cb5730cff6197a0aa275f83c6a640503e35aa8f42b",
+      "current_sha256": "a359800fccecb593d61121c390e0c629e477d2ea1684c4a26e5b289cd2f2253d",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/plot_results.py",
+      "migrated_sha256": "973cf700a4b465f7106616ae98ede028b78d5bd48858f25ed010c9306d641947",
+      "current_sha256": "7499540bd7bc0968bb061c9133f402d8aa7c214ad80323d45267f75d8704bfcf",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize.py",
+      "migrated_sha256": "732bee0e1f7ea1d65af46bc6aa037f32fb5d6037c863863de3f4867a6bb58a30",
+      "current_sha256": "f79d0b16a5835c61d957732b7fafed2c771ba876d95e51646d2a4525dff14710",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/summarize_mac376.py",
+      "migrated_sha256": "bf20a591cbac53f9920552656d37152dcfad513866da3e90050830cdfec52187",
+      "current_sha256": "8470720eb7823eccd4295ed77e9c9cba39b52bf381a4226d0b73f782da68e486",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/composed/test_mac376.py",
+      "migrated_sha256": "90ad22cb626fecc416b4a50caf6072f695e148b75eee9e75cd2c79f947537ce7",
+      "current_sha256": "d6f6ba9384512214c0d1dcbee7e9735b8d8b5059c7fa6c22b1ed126f4d1ff33d",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/plot_results.py",
+      "migrated_sha256": "9e7d0c5758410477d8a0abb3c9e855d86c3f462c6999d3b6f2a4ecc182fece03",
+      "current_sha256": "900ca4c5a8885066f36647a58ad74c03ebee82333e62325033c001bab598239c",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
+    },
+    {
+      "path": "research/drone-native-cqt/test_plot_evidence.py",
+      "migrated_sha256": "8f1e71d8109967a86d3d78f457db1a43276f9263996a48151fb44a4d65ad8d0e",
+      "current_sha256": "3170292164eceee088b940d8da1c3baf3a11d9f39c5c864c63df5549df166d16",
+      "git_mode": "100644",
+      "reason": "Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     }
   ],
   "additions": [
@@ -116,15 +172,15 @@
     },
     {
       "path": "research/drone-native-cqt/composed/plot_boundary_trace.py",
-      "sha256": "3db87e11daa921488187d3625048f3320449c6bef1cfb4deb8d313c12a133b61",
+      "sha256": "84011315354fa472b0db54c3fb2df94e29617636cea6f8e4cf4cacb3cfb5c323",
       "git_mode": "100644",
-      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion. Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_boundary_trace.py",
-      "sha256": "2e65ea5da4c75e098ae2010b884e38b08c75ff813ad15cf1064ad68c7787d4ba",
+      "sha256": "1fdee5d557ebf45458626cf7ac2322ec0f5bb7e4426e201f618f307456483290",
       "git_mode": "100644",
-      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion."
+      "reason": "Publish the completed fixed-case trace as aggregate evidence, inline figure and checked read-only analysis; no raw audio/features, numerical candidate or inference promotion. Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     },
     {
       "path": "research/drone-native-cqt/composed/test_boundary_trace.py",
@@ -176,15 +232,15 @@
     },
     {
       "path": "research/drone-native-cqt/composed/plot_fused_product.py",
-      "sha256": "53022e1e21e1b3514303697972203b0f2fb06f50b542657c8b1502675477b21f",
+      "sha256": "b3bf983898ed1deafe3ecc94fef9e896198ad2acc2965fc0d5411aa5eaaeebd0",
       "git_mode": "100644",
-      "reason": "Render existing frontend evidence and the subsequent fixed376 native model gate outcomes from verified retained records; no numerical inference."
+      "reason": "Render existing frontend evidence and the subsequent fixed376 native model gate outcomes from verified retained records; no numerical inference. Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_fused_product.py",
-      "sha256": "2406d0c7a4c14bfb9c2da53d5f21c5c1bc65d415094bc2f3ab1f75bfebe353d0",
+      "sha256": "41d785a35f9e55eb2cda8200177bbdfed7c05cda230ad3b9e7dc99eee4c6e7a6",
       "git_mode": "100644",
-      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification."
+      "reason": "Extend existing checked publication tools to nine retained golden cases; preserve original single-case evidence and avoid new inference in metadata verification. Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     },
     {
       "path": "research/drone-native-cqt/src/bin/fused_product_case.rs",
@@ -338,9 +394,9 @@
     },
     {
       "path": "research/drone-native-cqt/composed/summarize_retained_model.py",
-      "sha256": "9c6a9ff6cace13f36c1073806fe5114e2be58658b1e4470f3287a61a962e45cc",
+      "sha256": "77baab96621eab034ee8bb91dad51b954fcefba2c06c9c606b9f21d99319c097",
       "git_mode": "100644",
-      "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change."
+      "reason": "Preserve the fixed376 retained-core native model regression, unchanged strict gates, exact evidence and reproducible human report; no model or production-default change. Readability refactor: one assignment per line and descriptive local names; no behaviour, numerical result or output format change."
     },
     {
       "path": "research/drone-native-cqt/composed/test_retained_model.py",

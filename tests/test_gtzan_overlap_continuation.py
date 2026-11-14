@@ -21,7 +21,8 @@ def save(path: Path, value: object) -> str:
 
 
 def fixture(tmp_path: Path) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
-    prior, qualified = tmp_path / "prior", tmp_path / "qualified"
+    prior = tmp_path / "prior"
+    qualified = tmp_path / "qualified"
     prior.mkdir()
     qualified.mkdir()
     closure = {
@@ -32,8 +33,8 @@ def fixture(tmp_path: Path) -> tuple[dict[str, Any], dict[str, Any], list[dict[s
     }
     plan = dict(
         cohort=[
-            dict(id=f"id{i}", member=f"genres/{i}.wav", container_sha256=f"source{i}")
-            for i in range(3)
+            dict(id=f"id{index}", member=f"genres/{index}.wav", container_sha256=f"source{index}")
+            for index in range(3)
         ],
         primary_ids=["id0", "id2"],
         index_sha256="index",
@@ -152,7 +153,7 @@ def test_import_preserves_complete_and_incomplete_rows_without_retry(tmp_path: P
             "no_detected_overlap": 1,
         },
     )
-    assert [r["status"] for r in continuation.cohort_ledger(plan, imported)] == [
+    assert [entry["status"] for entry in continuation.cohort_ledger(plan, imported)] == [
         "complete",
         "query_incomplete",
         "unvisited",
@@ -194,15 +195,15 @@ def test_global_identity_failure_still_aborts_and_retains_unvisited_ledger(
     value = dict(
         mode="audit", output_root=str(output), deadline_epoch=10**12, caps=dict(guardian.MAXIMUMS)
     )
-    plan = dict(cohort=[dict(id=f"id{i}") for i in range(3)], primary_ids=["id0"])
-    monkeypatch.setattr(guardian, "load", lambda p: {} if p.name == "permit" else value)
-    monkeypatch.setattr(guardian, "sha256", lambda p: "bound")
-    monkeypatch.setattr(guardian, "check_contract", lambda *a: None)
-    monkeypatch.setattr(guardian, "environment", lambda *a: None)
-    monkeypatch.setattr(guardian, "verify_bindings", lambda *a: None)
-    monkeypatch.setattr(guardian, "execution_plan", lambda *a: plan)
-    monkeypatch.setattr(guardian, "start_identity", lambda p: 11)
-    monkeypatch.setattr(guardian, "process_tree", lambda p: (100, 0))
+    plan = dict(cohort=[dict(id=f"id{index}") for index in range(3)], primary_ids=["id0"])
+    monkeypatch.setattr(guardian, "load", lambda path: {} if path.name == "permit" else value)
+    monkeypatch.setattr(guardian, "sha256", lambda path: "bound")
+    monkeypatch.setattr(guardian, "check_contract", lambda *args: None)
+    monkeypatch.setattr(guardian, "environment", lambda *args: None)
+    monkeypatch.setattr(guardian, "verify_bindings", lambda *args: None)
+    monkeypatch.setattr(guardian, "execution_plan", lambda *args: plan)
+    monkeypatch.setattr(guardian, "start_identity", lambda pid: 11)
+    monkeypatch.setattr(guardian, "process_tree", lambda pid: (100, 0))
     calls = 0
 
     def reserve(*args: object) -> None:
@@ -214,7 +215,7 @@ def test_global_identity_failure_still_aborts_and_retains_unvisited_ledger(
     monkeypatch.setattr(guardian, "reserve_check", reserve)
     child = MagicMock(pid=12345)
     child.poll.return_value = None
-    monkeypatch.setattr(guardian.subprocess, "Popen", lambda *a, **k: child)
+    monkeypatch.setattr(guardian.subprocess, "Popen", lambda *args, **kwargs: child)
     stopped = MagicMock()
     monkeypatch.setattr(guardian, "terminate_own", stopped)
     with pytest.raises(RuntimeError, match="Protected identity"):

@@ -25,12 +25,18 @@ def comparison(
     if (
         len(actual) != 24
         or len(expected) != 24
-        or not all(math.isfinite(x) for x in actual + expected)
+        or not all(math.isfinite(value) for value in actual + expected)
     ):
         raise ValueError("Expected finite 24-class vectors")
-    errors = [abs(a - e) for a, e in zip(actual, expected, strict=True)]
-    ratios = [error / (atol + rtol * abs(e)) for error, e in zip(errors, expected, strict=True)]
-    failed = [i for i, ratio in enumerate(ratios) if ratio > 1]
+    errors = [
+        abs(actual_value - expected_value)
+        for actual_value, expected_value in zip(actual, expected, strict=True)
+    ]
+    ratios = [
+        error / (atol + rtol * abs(expected_value))
+        for error, expected_value in zip(errors, expected, strict=True)
+    ]
+    failed = [index for index, ratio in enumerate(ratios) if ratio > 1]
     return {
         "allclose": not failed,
         "bitwise_equal": struct.pack("<24f", *actual) == struct.pack("<24f", *expected),

@@ -42,7 +42,7 @@ def test_streaming_exact_sample_slices_without_full_output_file(
     )
     assert actual.tobytes() == values[start : start + length].tobytes()
     assert len(calls) >= 2
-    assert {p.name for p in tmp_path.iterdir()} == {"input.f32", "stderr"}
+    assert {path.name for path in tmp_path.iterdir()} == {"input.f32", "stderr"}
 
 
 def test_corruption_after_requested_crop_is_never_accepted(tmp_path: Path) -> None:

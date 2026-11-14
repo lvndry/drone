@@ -14,49 +14,61 @@ from drone.keys import LABEL_SCHEMA
 from experiments import k10_v2_pilot as pilot
 
 
-def metrics(bp: int, fma: int, sym_bp: int = 800, sym_fma: int = 1600) -> dict[str, dict[str, Any]]:
+def metrics(
+    beatport_correct: int,
+    fmak_correct: int,
+    beatport_symmetric: int = 800,
+    fmak_symmetric: int = 1600,
+) -> dict[str, dict[str, Any]]:
     return {
         "beatport": {
             "tracks": 126,
-            "exact_correct": bp,
-            "symmetric_units10": sym_bp,
-            "asymmetric_units10": sym_bp,
-            "ids": [f"beatport:{i}" for i in range(126)],
+            "exact_correct": beatport_correct,
+            "symmetric_units10": beatport_symmetric,
+            "asymmetric_units10": beatport_symmetric,
+            "ids": [f"beatport:{index}" for index in range(126)],
         },
         "fmak": {
             "tracks": 250,
-            "exact_correct": fma,
-            "symmetric_units10": sym_fma,
-            "asymmetric_units10": sym_fma,
-            "ids": [f"fmak:{i}" for i in range(250)],
+            "exact_correct": fmak_correct,
+            "symmetric_units10": fmak_symmetric,
+            "asymmetric_units10": fmak_symmetric,
+            "ids": [f"fmak:{index}" for index in range(250)],
         },
     }
 
 
 def test_fixed_stream_pairing_and_exact_reference_mass() -> None:
-    bp = [f"beatport:{i}" for i in range(1230)]
-    restricted = [f"fmak:{i}" for i in range(976)]
-    expanded = [f"fmak:{i}" for i in range(4035)]
+    beatport_ids = [f"beatport:{index}" for index in range(1230)]
+    restricted = [f"fmak:{index}" for index in range(976)]
+    expanded = [f"fmak:{index}" for index in range(4035)]
     counts = {"beatport": 0, "fmak": 0}
     seen_small = set()
     seen_large = set()
-    for step, (a, b) in enumerate(
-        zip(pilot.paired_batches(bp, restricted), pilot.paired_batches(bp, expanded), strict=True),
+    for step, (restricted_batch, expanded_batch) in enumerate(
+        zip(
+            pilot.paired_batches(beatport_ids, restricted),
+            pilot.paired_batches(beatport_ids, expanded),
+            strict=True,
+        ),
         1,
     ):
-        assert len(a) == len(b) == 32
-        assert [d for d in a if d.domain == "beatport"] == [d for d in b if d.domain == "beatport"]
-        for draw in a:
+        assert len(restricted_batch) == len(expanded_batch) == 32
+        assert [draw for draw in restricted_batch if draw.domain == "beatport"] == [
+            draw for draw in expanded_batch if draw.domain == "beatport"
+        ]
+        for draw in restricted_batch:
             counts[draw.domain] += 1
-        seen_small.update(d.identity for d in a if d.domain == "fmak")
-        seen_large.update(d.identity for d in b if d.domain == "fmak")
+        seen_small.update(draw.identity for draw in restricted_batch if draw.domain == "fmak")
+        seen_large.update(draw.identity for draw in expanded_batch if draw.domain == "fmak")
         assert counts["beatport"] == (step * 32 * 1230) // 2206
     assert counts == {"beatport": 147733, "fmak": 117227}
     assert len(seen_small) == 976 and len(seen_large) == 4035
 
 
 def test_exact_first_equal_domain_selector_is_not_pooled() -> None:
-    first, second = metrics(100, 100), metrics(70, 140)
+    first = metrics(100, 100)
+    second = metrics(70, 140)
     assert (100 + 100) < (70 + 140)  # pooled accuracy would choose second
     assert pilot.selection_key(first) > pilot.selection_key(second)
     assert pilot.selection_key(metrics(101, 100, 0, 0)) > pilot.selection_key(first)
@@ -82,14 +94,14 @@ def feature_fixture() -> tuple[dict[str, Any], dict[str, Any]]:
         "canonical_identity_contract": "drone.features.decode_mp3/read_wav_mono/resample_linear:22050:float32le-v1",
         "rows": [
             {
-                "id": i,
-                "sha256": sha,
+                "id": identity,
+                "sha256": audio_hash,
                 "ref": 0,
                 "frames": 320,
                 "cache_sha256": "cache",
-                "canonical_model_input_sha256": i,
+                "canonical_model_input_sha256": identity,
             }
-            for i, sha in plan["train_feature_bindings"].items()
+            for identity, audio_hash in plan["train_feature_bindings"].items()
         ],
     }
     return plan, manifest
@@ -149,39 +161,44 @@ def run(arm: str) -> dict[str, Any]:
 
 
 def test_gate_requires_full_pairing_and_does_not_score_confirmation() -> None:
-    a, b = run("restricted"), run("expanded")
-    b["best_metrics"] = metrics(100, 155)
-    result = pilot.pilot_gate(a, b)
+    restricted_run = run("restricted")
+    expanded_run = run("expanded")
+    expanded_run["best_metrics"] = metrics(100, 155)
+    result = pilot.pilot_gate(restricted_run, expanded_run)
     assert result["confirmation_earned"] and not result["confirmation_scored"]
     assert Fraction(str(result["fma_exact_gain"])) == Fraction(2, 100)
-    b["best_metrics"] = metrics(99, 155)
-    assert not pilot.pilot_gate(a, b)["confirmation_earned"]
-    b["bp_trace_sha256"] = "different"
+    expanded_run["best_metrics"] = metrics(99, 155)
+    assert not pilot.pilot_gate(restricted_run, expanded_run)["confirmation_earned"]
+    expanded_run["bp_trace_sha256"] = "different"
     with pytest.raises(ValueError, match="Pairing/provenance mismatch"):
-        pilot.pilot_gate(a, b)
-    b = run("expanded")
-    b["updates"] = 69
+        pilot.pilot_gate(restricted_run, expanded_run)
+    expanded_run = run("expanded")
+    expanded_run["updates"] = 69
     with pytest.raises(ValueError, match="complete fixed updates"):
-        pilot.pilot_gate(a, b)
+        pilot.pilot_gate(restricted_run, expanded_run)
 
 
 def test_gate_rejects_source_config_calibration_and_selection_order() -> None:
     for field, changed in (("source_sha256", {"driver": "changed"}), ("config", {"updates": 100})):
-        a, b = run("restricted"), run("expanded")
-        b[field] = changed
+        restricted_run = run("restricted")
+        expanded_run = run("expanded")
+        expanded_run[field] = changed
         with pytest.raises(ValueError, match="Pairing/provenance mismatch"):
-            pilot.pilot_gate(a, b)
-    a, b = run("restricted"), run("expanded")
-    b["calibration_used"] = True
+            pilot.pilot_gate(restricted_run, expanded_run)
+    restricted_run = run("restricted")
+    expanded_run = run("expanded")
+    expanded_run["calibration_used"] = True
     with pytest.raises(ValueError, match="complete fixed updates"):
-        pilot.pilot_gate(a, b)
-    b = run("expanded")
-    b["best_metrics"]["fmak"]["ids"].reverse()
+        pilot.pilot_gate(restricted_run, expanded_run)
+    expanded_run = run("expanded")
+    expanded_run["best_metrics"]["fmak"]["ids"].reverse()
     with pytest.raises(ValueError, match="ID ordering/counts differ"):
-        pilot.pilot_gate(a, b)
-    b = run("expanded")
-    b["best_metrics"] = metrics(100, 155, sym_fma=1590)
-    assert pilot.pilot_gate(a, b)["confirmation_earned"]  # FMA weighted change reported,not gated
+        pilot.pilot_gate(restricted_run, expanded_run)
+    expanded_run = run("expanded")
+    expanded_run["best_metrics"] = metrics(100, 155, fmak_symmetric=1590)
+    assert pilot.pilot_gate(restricted_run, expanded_run)[
+        "confirmation_earned"
+    ]  # FMA weighted change reported,not gated
 
 
 def test_stale_numeric_key_encoding_is_rejected() -> None:

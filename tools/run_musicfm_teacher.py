@@ -71,14 +71,15 @@ def owned_resources(
 
 
 def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
-    config, approval = load(config_path), load(approval_path)
+    config = load(config_path)
+    approval = load(approval_path)
     mode = config["mode"]
     if mode not in {"probe", "fit"}:
         raise ValueError("Unknown execution mode")
-    cfgsha = sha(config_path)
+    config_sha256 = sha(config_path)
     if (
         approval.get("authorized") is not True
-        or approval.get("config_sha256") != cfgsha
+        or approval.get("config_sha256") != config_sha256
         or (mode == "fit" and approval.get("allow_training") is not True)
         or (
             mode == "probe"
@@ -97,14 +98,14 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     ):
         raise ValueError("Invalid finite root-approved UTC lease")
     source = Path(__file__).resolve().parents[1]
-    if any(sha(source / name) != value for name, value in config["source_sha256"].items()):
+    if any(sha(source / name) != expected for name, expected in config["source_sha256"].items()):
         raise ValueError("Reviewed source changed")
     affinity = getattr(os, "sched_getaffinity", None)
     if affinity is None or affinity(0) != set(config["cpus"]):
         raise ValueError("Different CPU affinity")
     if any(
-        os.environ.get(k) != "1"
-        for k in (
+        os.environ.get(variable) != "1"
+        for variable in (
             "OMP_NUM_THREADS",
             "MKL_NUM_THREADS",
             "OPENBLAS_NUM_THREADS",
@@ -124,16 +125,17 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
     transferred = False
     state = "GUARDING_BEFORE_WORKER"
     failure: dict[str, Any] = {}
-    lastdisk = lastgpu = 0.0
+    last_disk = 0.0
+    last_gpu = 0.0
     peaks: dict[str, float] = {"rss": 0, "cpu": 0.0}
-    config["_config_sha256"] = cfgsha
+    config["_config_sha256"] = config_sha256
     try:
         while True:
             owned_resources(config, peaks)
             capacity_guard(config, root)
-            if time.monotonic() - lastgpu >= 0.5:
+            if time.monotonic() - last_gpu >= 0.5:
                 resources(config, root)
-                lastgpu = time.monotonic()
+                last_gpu = time.monotonic()
                 owned_resources(config, peaks)
             if time.time() >= config["deadline_epoch"]:
                 raise TimeoutError("Guardian cutoff")
@@ -145,8 +147,8 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                     "ready": True,
                     "pid": os.getpid(),
                     "start_ticks": identity[0],
-                    "config_sha256": cfgsha,
-                    "teacher_config_sha256": cfgsha,
+                    "config_sha256": config_sha256,
+                    "teacher_config_sha256": config_sha256,
                     "last_guard_epoch": time.time(),
                     "state": state,
                 },
@@ -156,7 +158,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                 state = "MODEL_WORKER_ACTIVE"
                 save(
                     root / "ownership-accepted.json",
-                    {"config_sha256": cfgsha, "epoch": time.time()},
+                    {"config_sha256": config_sha256, "epoch": time.time()},
                 )
                 command = [
                     sys.executable,
@@ -173,7 +175,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                     str(os.getpid()),
                 ]
                 log = (root / "worker.log").open("xb")
-                env = dict(
+                environment = dict(
                     os.environ,
                     HF_HUB_OFFLINE="1",
                     TRANSFORMERS_OFFLINE="1",
@@ -187,7 +189,11 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                 for directory in ("cuda-cache", "inductor-cache", "triton-cache", "tmp"):
                     (root / directory).mkdir()
                 worker = subprocess.Popen(
-                    command, stdout=log, stderr=subprocess.STDOUT, start_new_session=True, env=env
+                    command,
+                    stdout=log,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                    env=environment,
                 )
                 log.close()
                 tracked = descendants(worker.pid)
@@ -197,7 +203,7 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                         "pid": worker.pid,
                         "command": command,
                         "epoch": time.time(),
-                        "config_sha256": cfgsha,
+                        "config_sha256": config_sha256,
                         "guardian_start_ticks": identity[0],
                     },
                 )
@@ -219,8 +225,8 @@ def supervise(config_path: Path, approval_path: Path, root: Path) -> None:
                     if result["status"] != expected:
                         raise ValueError("Incomplete worker result")
                     state = "WORKER_COMPLETE_PENDING_CHECKS"
-            if state == "WORKER_COMPLETE_PENDING_CHECKS" or time.monotonic() - lastdisk >= 1:
-                lastdisk = time.monotonic()
+            if state == "WORKER_COMPLETE_PENDING_CHECKS" or time.monotonic() - last_disk >= 1:
+                last_disk = time.monotonic()
                 if disk_bytes(root) > config["caps"]["output_bytes"]:
                     raise RuntimeError("Output disk cap")
                 save_or_replace(

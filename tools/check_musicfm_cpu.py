@@ -158,7 +158,8 @@ def checkpoint_layout(path: Path) -> dict[str, Any]:
         ):
             raise ValueError("non-CPU or non-tensor state entry")
         dtype = str(tensor.dtype)
-        count, size = tensor.numel(), tensor.numel() * tensor.element_size()
+        count = tensor.numel()
+        size = tensor.numel() * tensor.element_size()
         totals[dtype]["elements"] += count
         totals[dtype]["bytes"] += size
         totals[dtype]["tensors"] += 1
@@ -211,8 +212,12 @@ def main() -> None:
             "protected": protected_receipt(),
             "python": sys.version,
             "distributions": sorted(
-                (d.metadata["Name"], d.version, str(Path(str(d.locate_file(""))).resolve()))
-                for d in importlib.metadata.distributions()
+                (
+                    distribution.metadata["Name"],
+                    distribution.version,
+                    str(Path(str(distribution.locate_file(""))).resolve()),
+                )
+                for distribution in importlib.metadata.distributions()
             ),
         }
     elif args.phase == "imports":

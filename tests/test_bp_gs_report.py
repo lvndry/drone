@@ -86,7 +86,8 @@ def test_report_loader_reads_identical_plain_and_gzip_bytes(tmp_path: Path) -> N
     from tools.report_bp_gs import payload_bytes, read_payload
 
     raw = b'{"recording":"synthetic", "decisions":["review"]}\n'
-    plain, packed = tmp_path / "result.json", tmp_path / "result.json.gz"
+    plain = tmp_path / "result.json"
+    packed = tmp_path / "result.json.gz"
     plain.write_bytes(raw)
     packed.write_bytes(gzip.compress(raw, mtime=0))
     assert read_payload(plain) == read_payload(packed) == json.loads(raw)

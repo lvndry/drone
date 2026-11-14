@@ -61,32 +61,35 @@ def validate_rows(
     runs: dict[str, Any],
     plan: dict[str, Any],
 ) -> None:
-    require(len(rows) == len({r["id"] for r in rows}) == 376, "Wrong paired panel")
+    require(len(rows) == len({track["id"] for track in rows}) == 376, "Wrong paired panel")
     for domain, count in (("beatport", 126), ("fmak", 250)):
-        selected = [r for r in rows if r["domain"] == domain]
+        selected = [track for track in rows if track["domain"] == domain]
         require(len(selected) == count, "Wrong domain denominator")
         for arm, run in runs.items():
             metrics = run["best_metrics"][domain]
-            require([r["id"] for r in selected] == metrics["ids"], "ID order differs")
+            require([track["id"] for track in selected] == metrics["ids"], "ID order differs")
             require(
-                [r[arm + "_pred"] for r in selected] == metrics["predictions"],
+                [track[arm + "_pred"] for track in selected] == metrics["predictions"],
                 "Recorded predictions differ",
             )
             for row in selected:
-                y, pred = plan["expected_refs"][row["id"]], row[arm + "_pred"]
-                require(row["ref"] == y, "Pinned target differs")
-                require(row[arm + "_correct"] == (pred == y), "Exact flag differs")
+                reference = plan["expected_refs"][row["id"]]
+                prediction = row[arm + "_pred"]
+                require(row["ref"] == reference, "Pinned target differs")
+                require(row[arm + "_correct"] == (prediction == reference), "Exact flag differs")
                 for scheme in ("sym", "asym"):
                     require(
                         row[arm + "_relation_" + scheme]
-                        == key_relation(pred, y, symmetric=scheme == "sym"),
+                        == key_relation(prediction, reference, symmetric=scheme == "sym"),
                         "Relation differs",
                     )
             for scheme, metric in (("sym", "mirex"), ("asym", "mirex_asymmetric")):
-                score = sum(WEIGHTS[r[arm + "_relation_" + scheme]] for r in selected) / count
+                score = (
+                    sum(WEIGHTS[track[arm + "_relation_" + scheme]] for track in selected) / count
+                )
                 require(abs(score - metrics[metric]) < 1e-12, "Weighted score differs")
             require(
-                sum(r[arm + "_correct"] for r in selected) == metrics["exact_correct"],
+                sum(track[arm + "_correct"] for track in selected) == metrics["exact_correct"],
                 "Exact count differs",
             )
     for row in rows:
@@ -97,7 +100,8 @@ def validate_rows(
 
 
 def check(study: Path = STUDY) -> dict[str, Any]:
-    data, results = study / "data", study / "data/results"
+    data = study / "data"
+    results = study / "data/results"
     for name, record in read(results / "archive-index.json").items():
         raw = (data / name).read_bytes()
         decoded = gzip.decompress(raw) if name.endswith(".gz") else raw
@@ -121,7 +125,9 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         require(old[key] == new[key], "Pair binding differs: " + key)
     for run in runs.values():
         require(run["updates"] == 8280 and len(run["history"]) == 120, "Incomplete horizon")
-        best = max(run["history"], key=lambda r: (r["selection_exact"], r["selection_mirex"]))
+        best = max(
+            run["history"], key=lambda entry: (entry["selection_exact"], entry["selection_mirex"])
+        )
         require(best["update"] == run["best_update"], "Selector differs")
         require(not run["calibration_used"] and not run["confirmation_used"], "Reserved exposure")
     require(pilot_gate(old, new) == read(results / "gate.json"), "Gate differs")
@@ -144,13 +150,13 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         "Executed feature manifest differs",
     )
     validate_rows(rows, runs, plan)
-    metadata = {r["id"]: r for r in manifest["rows"]}
+    metadata = {track["id"]: track for track in manifest["rows"]}
     original = read(ROOT / "experiments/studies/v2-data-contract/data/input.json.gz")
-    groups = {r["identity"]: r for r in original["tracks"]}
+    groups = {track["identity"]: track for track in original["tracks"]}
     house = {
-        r["id"]
-        for r in read(results / "house-metadata-witness.json.gz")["house_metadata_rows"]
-        if r["house"]
+        track["id"]
+        for track in read(results / "house-metadata-witness.json.gz")["house_metadata_rows"]
+        if track["house"]
     }
     summary = read(results / "summary.json.gz")
     for row in rows:
@@ -177,7 +183,7 @@ def check(study: Path = STUDY) -> dict[str, Any]:
             )
     uncertainty: dict[str, Any] = {}
     for domain in ("beatport", "fmak"):
-        panel = [r for r in rows if r["domain"] == domain]
+        panel = [track for track in rows if track["domain"] == domain]
         require(
             np.allclose(
                 bootstrap(panel, "exact"),
@@ -189,11 +195,11 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         uncertainty[domain] = {
             scheme: {
                 "delta": sum(
-                    r["exact_change"]
+                    track["exact_change"]
                     if scheme == "exact"
-                    else WEIGHTS[r["expanded_relation_" + scheme]]
-                    - WEIGHTS[r["restricted_relation_" + scheme]]
-                    for r in panel
+                    else WEIGHTS[track["expanded_relation_" + scheme]]
+                    - WEIGHTS[track["restricted_relation_" + scheme]]
+                    for track in panel
                 )
                 / len(panel),
                 "ci95": bootstrap(panel, scheme),
@@ -202,19 +208,19 @@ def check(study: Path = STUDY) -> dict[str, Any]:
         }
         for scheme in ("sym", "asym"):
             actual = Counter(
-                (r["restricted_relation_" + scheme], r["expanded_relation_" + scheme])
-                for r in panel
+                (track["restricted_relation_" + scheme], track["expanded_relation_" + scheme])
+                for track in panel
             )
             saved = {
-                (r["restricted_relation"], r["expanded_relation"]): r["tracks"]
-                for r in summary["relation_movements"][domain][scheme]
+                (movement["restricted_relation"], movement["expanded_relation"]): movement["tracks"]
+                for movement in summary["relation_movements"][domain][scheme]
             }
             require(actual == saved, "Movement matrix differs")
         for band, saved in summary["duration_domains"][domain].items():
-            subset = [r for r in panel if r["duration_bin"] == band]
+            subset = [track for track in panel if track["duration_bin"] == band]
             require(
                 len(subset) == saved["tracks"]
-                and len({r["group"] for r in subset}) == saved["groups"],
+                and len({track["group"] for track in subset}) == saved["groups"],
                 "Stratum count differs",
             )
     return {

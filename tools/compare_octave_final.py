@@ -14,30 +14,33 @@ import numpy as np
 from drone.keys import WEIGHTS, KeyIndices, key_relation
 
 
-def scores(pred: KeyIndices, ref: KeyIndices, symmetric: bool = True) -> np.ndarray:
+def scores(predictions: KeyIndices, references: KeyIndices, symmetric: bool = True) -> np.ndarray:
     return np.array(
         [
-            WEIGHTS[key_relation(int(p), int(r), symmetric=symmetric)] if p >= 0 else 0
-            for p, r in zip(pred, ref, strict=True)
+            WEIGHTS[key_relation(int(prediction), int(reference), symmetric=symmetric)]
+            if prediction >= 0
+            else 0
+            for prediction, reference in zip(predictions, references, strict=True)
         ]
     )
 
 
-def compare(neural: dict[str, Any], native_pred: KeyIndices) -> dict[str, Any]:
-    refs = np.array(neural["references"])
-    pred = np.array(neural["predictions"])
-    native = np.array(native_pred)
-    assert len(native) == len(refs) and ((native >= -1) & (native < 24)).all()
-    cnn_weights, native_weights = scores(pred, refs), scores(native, refs)
+def compare(neural: dict[str, Any], native_predictions: KeyIndices) -> dict[str, Any]:
+    references = np.array(neural["references"])
+    predictions = np.array(neural["predictions"])
+    native = np.array(native_predictions)
+    assert len(native) == len(references) and ((native >= -1) & (native < 24)).all()
+    cnn_weights = scores(predictions, references)
+    native_weights = scores(native, references)
     valid = native >= 0
     groups, inverse = np.unique(neural["groups"], return_inverse=True)
     sizes = np.bincount(inverse)
-    rng = np.random.default_rng(13)
-    draws = rng.integers(len(groups), size=(5000, len(groups)))
+    generator = np.random.default_rng(13)
+    draws = generator.integers(len(groups), size=(5000, len(groups)))
     intervals = {}
     for name, difference in (
         ("mirex", cnn_weights - native_weights),
-        ("exact", (pred == refs).astype(float) - (native == refs)),
+        ("exact", (predictions == references).astype(float) - (native == references)),
     ):
         totals = np.bincount(inverse, weights=difference)
         values = totals[draws].sum(1) / sizes[draws].sum(1)
@@ -46,12 +49,12 @@ def compare(neural: dict[str, Any], native_pred: KeyIndices) -> dict[str, Any]:
             "paired_cluster_bootstrap_95ci": np.quantile(values, [0.025, 0.975]).tolist(),
         }
     return {
-        "tracks": len(refs),
+        "tracks": len(references),
         "native": {
-            "exact": float(np.mean(native == refs)),
+            "exact": float(np.mean(native == references)),
             "mirex": float(native_weights.mean()),
-            "mirex_asymmetric": float(scores(native, refs, symmetric=False).mean()),
-            "mode_accuracy": float(np.mean(valid & (native % 2 == refs % 2))),
+            "mirex_asymmetric": float(scores(native, references, symmetric=False).mean()),
+            "mode_accuracy": float(np.mean(valid & (native % 2 == references % 2))),
             "missing_predictions": int((~valid).sum()),
         },
         "neural": {
@@ -80,13 +83,13 @@ def main() -> None:
         parser.add_argument("--" + name, type=Path, required=True)
     args = parser.parse_args()
     fmak = json.loads(args.fmak.read_bytes())
-    gs = json.loads(args.giantsteps.read_bytes())
-    native_gs = json.loads(args.native_giantsteps.read_bytes())
+    giantsteps = json.loads(args.giantsteps.read_bytes())
+    native_giantsteps = json.loads(args.native_giantsteps.read_bytes())
     provenance = json.loads(args.native_provenance.read_bytes())
-    assert fmak["freeze_sha256"] == gs["freeze_sha256"] == provenance["freeze_sha256"]
-    assert gs["test_metadata_sha256"] == native_gs["test_metadata_sha256"]
-    assert fmak["mode"] == "fmak-final" and gs["mode"] == "giantsteps"
-    assert fmak["tracks"] == 1000 and gs["tracks"] == 604
+    assert fmak["freeze_sha256"] == giantsteps["freeze_sha256"] == provenance["freeze_sha256"]
+    assert giantsteps["test_metadata_sha256"] == native_giantsteps["test_metadata_sha256"]
+    assert fmak["mode"] == "fmak-final" and giantsteps["mode"] == "giantsteps"
+    assert fmak["tracks"] == 1000 and giantsteps["tracks"] == 604
     with args.native_csv.open() as stream:
         rows = list(csv.DictReader(stream))
     lookup = {row["id"]: int(row["prediction"]) for row in rows}
@@ -96,7 +99,7 @@ def main() -> None:
         "freeze_sha256": fmak["freeze_sha256"],
         "native_provenance": provenance,
         "fmak_final": compare(fmak, [lookup[identity] for identity in fmak["ids"]]),
-        "giantsteps": compare(gs, native_gs["predictions"]),
+        "giantsteps": compare(giantsteps, native_giantsteps["predictions"]),
         "comparison_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "limitations": "Our artist-purged FMAK partition is not directly comparable to published all-FMAK/different-holdout results. GiantSteps was exposed earlier in this research program; its intervals use track hashes, not artist groups. Confidence intervals do not remove annotation ambiguity or unrecognized remix overlap.",
     }

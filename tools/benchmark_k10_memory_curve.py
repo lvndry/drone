@@ -44,16 +44,16 @@ def measure(args: argparse.Namespace) -> dict[str, Any]:
     if args.mode == "full":
         session = cpu_session(args.full_model)
 
-        def predict(x: np.ndarray) -> np.ndarray:
-            return np.asarray(session.run(["logits"], {"features": x})[0])
+        def predict(features: np.ndarray) -> np.ndarray:
+            return np.asarray(session.run(["logits"], {"features": features})[0])
 
     else:
         runtime = ChunkedK10(args.bundle, 64)
         predict = runtime.predict
     loaded = rss_mib()
-    x = load_cached_features(args.manifest, row)
+    features = load_cached_features(args.manifest, row)
     features_loaded = rss_mib()
-    timing = time_prediction(predict, x)
+    timing = time_prediction(predict, features)
     if "torch" in sys.modules:
         raise RuntimeError("Torch entered the isolated process")
     return dict(
@@ -118,11 +118,11 @@ def main() -> None:
             )
             records.append(json.loads(child.stdout))
         print(f"Measured {index + 1}/20 track pairs", flush=True)
-    pairs = [records[i : i + 2] for i in range(0, 40, 2)]
+    pairs = [records[offset : offset + 2] for offset in range(0, 40, 2)]
     parity = all(
-        np.allclose(a["logits"], b["logits"], atol=ATOL, rtol=RTOL)
-        and np.argmax(a["logits"]) == np.argmax(b["logits"])
-        for a, b in pairs
+        np.allclose(full["logits"], chunked["logits"], atol=ATOL, rtol=RTOL)
+        and np.argmax(full["logits"]) == np.argmax(chunked["logits"])
+        for full, chunked in pairs
     )
     report = dict(
         status="complete",

@@ -23,7 +23,7 @@ def inputs() -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
         ("bp_selection_guard", 126, "validation"),
         ("fma_inner_selection", 250, "validation"),
     ):
-        plan[key] = [f"{key}:{i}" for i in range(count)]
+        plan[key] = [f"{key}:{index}" for index in range(count)]
         for identity in plan[key]:
             rows[identity] = dict(
                 id=identity,
@@ -49,8 +49,8 @@ def test_metadata_is_deterministic_fitting_only_and_not_executable(
     result = json.loads(raw)
     assert "NO_CROP_HASHES_OR_EXECUTION_PERMISSION" in result["status"]
     assert len(result["rows"]) == 512
-    assert all(r["id"] in plan["bp_fit"] + plan["expanded_fma_fit"] for r in result["rows"])
-    assert not any("target" in r or "ref" in r for r in result["rows"])
+    assert all(row["id"] in plan["bp_fit"] + plan["expanded_fma_fit"] for row in result["rows"])
+    assert not any("target" in row or "ref" in row for row in result["rows"])
     assert len(panel.metadata_sha256(plan, rows)) == 64
     changed = copy.deepcopy(rows)
     for row in changed.values():
@@ -110,8 +110,8 @@ def test_schedule_regressions_cannot_bypass_fitting_boundary(
     plan, rows = inputs
     clips = list(
         panel.schedule(
-            {i: rows[i]["samples"] for i in plan["bp_fit"]},
-            {i: rows[i]["samples"] for i in plan["expanded_fma_fit"]},
+            {identity: rows[identity]["samples"] for identity in plan["bp_fit"]},
+            {identity: rows[identity]["samples"] for identity in plan["expanded_fma_fit"]},
         )
     )
     if defect == "selection":

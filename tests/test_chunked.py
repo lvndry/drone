@@ -52,14 +52,14 @@ def bundle(tmp_path_factory: pytest.TempPathFactory) -> tuple[Path, KeyCNN]:
 def test_aligned_coverage_and_receptive_field(core: int, remainder: int) -> None:
     frames = 8 * (core + 3) + remainder
     coverage = []
-    for q0, q1, a, b in core_windows(frames, core):
-        assert a % 8 == 0
-        assert b - a <= 8 * core + 32
-        assert q1 - a // 8 <= (b - a) // 8
-        for q in range(q0, q1):
-            assert a == 0 or a <= 8 * q - 14
-            assert b == frames or b > 8 * q + 21
-            coverage.append(q)
+    for first_output, end_output, window_start, window_end in core_windows(frames, core):
+        assert window_start % 8 == 0
+        assert window_end - window_start <= 8 * core + 32
+        assert end_output - window_start // 8 <= (window_end - window_start) // 8
+        for output_index in range(first_output, end_output):
+            assert window_start == 0 or window_start <= 8 * output_index - 14
+            assert window_end == frames or window_end > 8 * output_index + 21
+            coverage.append(output_index)
     assert coverage == list(range(frames // 8))
 
 
@@ -73,42 +73,44 @@ def test_prefix_chunks_preserve_edges_and_all_remainders(
     generator = np.random.default_rng(300)
     for remainder in range(8):
         frames = 8 * (core + 1) + remainder
-        x = generator.normal(size=(1, 192, frames)).astype(np.float32)
+        features = generator.normal(size=(1, 192, frames)).astype(np.float32)
         if kind == "constant":
-            x.fill(0.7)
+            features.fill(0.7)
         elif kind == "negative":
-            x = -np.abs(x)
+            features = -np.abs(features)
         elif kind == "dynamic":
-            x *= np.geomspace(1e-3, 1e3, frames).astype(np.float32)
+            features *= np.geomspace(1e-3, 1e3, frames).astype(np.float32)
         elif kind == "impulses":
-            x.fill(0)
+            features.fill(0)
             for index in (0, frames - 1, 8 * core - 1, 8 * core, 8 * core + 1):
-                x[0, :, index] = generator.normal(size=192).astype(np.float32)
-        full_hidden = runtime.hidden(x)
+                features[0, :, index] = generator.normal(size=192).astype(np.float32)
+        full_hidden = runtime.hidden(features)
         with torch.inference_mode():
-            torch_hidden = HiddenPrefix(model.net)(torch.from_numpy(x)).numpy()
-            expected_logits = model(torch.from_numpy(x)).numpy()
+            torch_hidden = HiddenPrefix(model.net)(torch.from_numpy(features)).numpy()
+            expected_logits = model(torch.from_numpy(features)).numpy()
         # Hidden cross-runtime differences are diagnostic, not the public logit
         # promotion gate. Extreme cancellation can exceed its logit tolerance
         # at individual hidden elements even without any chunking.
         assert np.isfinite(torch_hidden).all()
         if kind != "dynamic":
             np.testing.assert_allclose(full_hidden, torch_hidden, atol=ATOL, rtol=RTOL)
-        for q0, q1, a, b in core_windows(frames, core):
-            hidden = runtime.hidden(np.ascontiguousarray(x[:, :, a:b]))
+        for first_output, end_output, window_start, window_end in core_windows(frames, core):
+            hidden = runtime.hidden(np.ascontiguousarray(features[:, :, window_start:window_end]))
             if kind != "dynamic":
                 np.testing.assert_allclose(
-                    hidden[:, :, :, q0 - a // 8 : q1 - a // 8],
-                    full_hidden[:, :, :, q0:q1],
+                    hidden[
+                        :, :, :, first_output - window_start // 8 : end_output - window_start // 8
+                    ],
+                    full_hidden[:, :, :, first_output:end_output],
                     atol=ATOL,
                     rtol=RTOL,
                 )
         # Extreme magnitudes can increase cross-runtime absolute error; compare
         # chunked to the same ORT prefix here, retaining the strict public gate.
         np.testing.assert_allclose(
-            runtime.predict(x), runtime.full_prefix_logits(x), atol=ATOL, rtol=RTOL
+            runtime.predict(features), runtime.full_prefix_logits(features), atol=ATOL, rtol=RTOL
         )
-        check = compare_logits(runtime.predict(x), expected_logits)
+        check = compare_logits(runtime.predict(features), expected_logits)
         assert check["allclose"] and check["argmax_agrees"]
 
 
@@ -123,15 +125,17 @@ def test_float64_halo_alignment_under_extreme_cancellation(
     generator = torch.Generator().manual_seed(300)
     for remainder in range(8):
         frames = 8 * (core + 1) + remainder
-        x = torch.randn(1, 192, frames, dtype=torch.float64, generator=generator)
-        x *= torch.logspace(-3, 3, frames, dtype=torch.float64)
+        features = torch.randn(1, 192, frames, dtype=torch.float64, generator=generator)
+        features *= torch.logspace(-3, 3, frames, dtype=torch.float64)
         with torch.inference_mode():
-            full = prefix(x)
-            for q0, q1, a, b in core_windows(frames, core):
-                hidden = prefix(x[:, :, a:b].contiguous())
+            full = prefix(features)
+            for first_output, end_output, window_start, window_end in core_windows(frames, core):
+                hidden = prefix(features[:, :, window_start:window_end].contiguous())
                 torch.testing.assert_close(
-                    hidden[:, :, :, q0 - a // 8 : q1 - a // 8],
-                    full[:, :, :, q0:q1],
+                    hidden[
+                        :, :, :, first_output - window_start // 8 : end_output - window_start // 8
+                    ],
+                    full[:, :, :, first_output:end_output],
                     atol=1e-10,
                     rtol=1e-10,
                 )
@@ -140,11 +144,16 @@ def test_float64_halo_alignment_under_extreme_cancellation(
 def test_minimum_input_and_invalid_contracts(bundle: tuple[Path, KeyCNN]) -> None:
     path, _ = bundle
     runtime = ChunkedK10(path)
-    x = np.zeros((1, 192, 8), dtype=np.float32)
+    features = np.zeros((1, 192, 8), dtype=np.float32)
     np.testing.assert_allclose(
-        runtime.predict(x), runtime.full_prefix_logits(x), atol=ATOL, rtol=RTOL
+        runtime.predict(features), runtime.full_prefix_logits(features), atol=ATOL, rtol=RTOL
     )
-    for bad in (x[:, :, :7], x.astype(np.float64), np.full_like(x, np.nan), x[0]):
+    for bad in (
+        features[:, :, :7],
+        features.astype(np.float64),
+        np.full_like(features, np.nan),
+        features[0],
+    ):
         with pytest.raises(ValueError):
             runtime.predict(bad)
     with pytest.raises(ValueError):
@@ -228,8 +237,8 @@ def test_benchmark_rejects_code_changed_after_validation(
 
 def test_existing_public_selection_uses_canonical_sha256(tmp_path: Path) -> None:
     rows = [
-        {"id": str(i), "domain": "fmak", "frames": 320 + i, "sha256": f"{i:064x}"}
-        for i in range(20)
+        {"id": str(index), "domain": "fmak", "frames": 320 + index, "sha256": f"{index:064x}"}
+        for index in range(20)
     ]
     selection = tmp_path / "selection.json"
     selection.write_text(
@@ -237,12 +246,12 @@ def test_existing_public_selection_uses_canonical_sha256(tmp_path: Path) -> None
             {
                 "rows": [
                     {
-                        "id": r["id"],
-                        "frames": r["frames"],
-                        "sha256": r["sha256"],
-                        "path": f"/public/fmak/{r['id']}.mp3",
+                        "id": row["id"],
+                        "frames": row["frames"],
+                        "sha256": row["sha256"],
+                        "path": f"/public/fmak/{row['id']}.mp3",
                     }
-                    for r in rows
+                    for row in rows
                 ]
             }
         )
@@ -258,7 +267,11 @@ def test_existing_public_selection_uses_canonical_sha256(tmp_path: Path) -> None
     # Do not silently accept a different identity schema.
     selection.write_text(
         json.dumps(
-            {"rows": [{"id": r["id"], "frames": r["frames"], "sha": r["sha256"]} for r in rows]}
+            {
+                "rows": [
+                    {"id": row["id"], "frames": row["frames"], "sha": row["sha256"]} for row in rows
+                ]
+            }
         )
     )
     with pytest.raises(KeyError, match="sha256"):

@@ -26,7 +26,8 @@ def main() -> None:
     with zipfile.ZipFile(archive) as bundle:
         tracks_bytes = bundle.read("fma_metadata/tracks.csv")
     rows = csv.reader(io.StringIO(tracks_bytes.decode()))
-    category, names = next(rows), next(rows)
+    category = next(rows)
+    names = next(rows)
     columns = list(zip(category, names))
     next(rows)  # index name row
     fields = [("artist", "id"), ("artist", "name"), ("album", "id"), ("track", "title")]

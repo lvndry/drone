@@ -58,9 +58,9 @@ def main() -> None:
     if selection["private_audio_used"] or selection["accuracy_scored"]:
         raise ValueError("Use the fixed public performance-only selection")
     rows = selection["rows"]
-    if not 1 <= len(rows) <= 20 or len({r["id"] for r in rows}) != len(rows):
+    if not 1 <= len(rows) <= 20 or len({row["id"] for row in rows}) != len(rows):
         raise ValueError("Need at most 20 unique public validation tracks")
-    if not all(r["id"].startswith("fmak:") for r in rows):
+    if not all(row["id"].startswith("fmak:") for row in rows):
         raise ValueError("Only public FMAK rows are allowed")
     torch.set_num_threads(1)
     torch.set_num_interop_threads(1)
@@ -103,19 +103,20 @@ def main() -> None:
         if audio_digest(track.audio) != row["sha256"]:
             raise ValueError(f"Selected audio changed: {track.id}")
         with tempfile.TemporaryDirectory(dir=args.output.parent) as cache:
-            cpu_start, wall_start = cpu_seconds(), time.perf_counter()
+            cpu_start = cpu_seconds()
+            wall_start = time.perf_counter()
             features, _ = prepare(track, cache)
             frontend_wall = time.perf_counter() - wall_start
             frontend_cpu = cpu_seconds() - cpu_start
-            x = torch.from_numpy(features[None])
+            batch = torch.from_numpy(features[None])
             inputs = {"features": features[None]}
             with torch.inference_mode():
-                expected = model(x).numpy()
+                expected = model(batch).numpy()
                 actual = np.asarray(session.run(["logits"], inputs)[0], dtype=np.float32)
                 np.testing.assert_allclose(actual, expected, rtol=1e-4, atol=1e-5)
                 if actual.argmax(axis=1).tolist() != expected.argmax(axis=1).tolist():
                     raise ValueError(f"Backend key decision differs: {track.id}")
-                torch_time = measure(lambda: model(x), args.iterations)
+                torch_time = measure(lambda: model(batch), args.iterations)
                 onnx_time = measure(lambda: session.run(["logits"], inputs), args.iterations)
 
                 def warm_cache_onnx() -> object:

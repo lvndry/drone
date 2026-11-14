@@ -33,7 +33,8 @@ def prior_ledger(
         if path.is_symlink() or sha256(path) != bound[role + "_sha256"]:
             raise ValueError("Prior ledger receipt differs: " + role)
         documents[role] = json.loads(path.read_bytes())
-    old, previous = documents["config"], documents["execution-plan"]
+    old = documents["config"]
+    previous = documents["execution-plan"]
     if old["mode"] != "audit" or old["output_root"] != str(root) or previous != plan:
         raise ValueError("Prior config/cohort/execution plan mismatch")
     for key in (
@@ -80,10 +81,11 @@ def prior_ledger(
         if row["evidence"] != f"{number:06}.json.gz":
             raise ValueError("Inherited qualification evidence numbering differs")
         path = receipt_path.parent / "evidence" / row["evidence"]
-        raw = path.read_bytes()
+        compressed_evidence = path.read_bytes()
         if (
-            hashlib.sha256(raw).hexdigest() != row["evidence_sha256"]
-            or hashlib.sha256(gzip.decompress(raw)).hexdigest() != row["decoded_sha256"]
+            hashlib.sha256(compressed_evidence).hexdigest() != row["evidence_sha256"]
+            or hashlib.sha256(gzip.decompress(compressed_evidence)).hexdigest()
+            != row["decoded_sha256"]
         ):
             raise ValueError("Inherited qualification raw evidence differs")
     for name in (
@@ -130,14 +132,15 @@ def prior_ledger(
         expected = f"{number:06}.json.gz"
         if row["evidence"] != expected:
             raise ValueError("Prior evidence numbering/path differs")
-        evidence, query = root / "evidence" / expected, root / "queries" / f"{number:06}.npz"
+        evidence = root / "evidence" / expected
+        query = root / "queries" / f"{number:06}.npz"
         for path, digest in ((evidence, row["evidence_sha256"]), (query, row["query_sha256"])):
             if path.is_symlink() or sha256(path) != digest:
                 raise ValueError("Prior query/evidence bytes differ")
-        raw = gzip.decompress(evidence.read_bytes())
-        if hashlib.sha256(raw).hexdigest() != row["decoded_sha256"]:
+        decoded_bytes = gzip.decompress(evidence.read_bytes())
+        if hashlib.sha256(decoded_bytes).hexdigest() != row["decoded_sha256"]:
             raise ValueError("Prior decoded evidence hash differs")
-        decoded = json.loads(raw)
+        decoded = json.loads(decoded_bytes)
         matched = decoded["match"]
         decisions = []
         for match in matched["matches"]:

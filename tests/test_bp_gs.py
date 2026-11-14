@@ -63,28 +63,29 @@ def test_target_scope_preserves_all_positive_and_weak_offsets(tmp_path: Path) ->
     long = 1000 + np.arange(22, dtype=np.int64) * 20
     weak = 3000 + np.arange(5, dtype=np.int64) * 30
     query = np.column_stack((np.r_[short, long, weak], np.arange(52, dtype=np.int64)))
-    for ref in (0, 1, 2):
+    for reference_id in (0, 1, 2):
         reference = query.copy()
         reference[:25, 0] += 100
         reference[25:47, 0] += 1000
         reference[47:, 0] += 5000
-        writer.add(ref, f"synthetic:{ref}", reference)
+        writer.add(reference_id, f"synthetic:{reference_id}", reference)
     writer.finish()
     writer.db.close()
     before = hashlib.sha256(path.read_bytes()).hexdigest()
     index = AllOffsetIndex(path)
-    expected = [m for m in index.match(query)["matches"] if m["ref_id"] in (1, 2)]
+    expected = [match for match in index.match(query)["matches"] if match["ref_id"] in (1, 2)]
     scope(index, path, [1, 2])
     actual = index.match(query)
     assert actual["complete"]
     assert actual["matches"] == expected
-    assert {m["ref_id"] for m in actual["matches"]} == {1, 2}
+    assert {match["ref_id"] for match in actual["matches"]} == {1, 2}
     assert any(
-        m["count"] == 5 and classify(m, None) == "below_screening_support"
-        for m in actual["matches"]
+        match["count"] == 5 and classify(match, None) == "below_screening_support"
+        for match in actual["matches"]
     )
     assert any(
-        m["count"] == 22 and classify(m, 0.0) == "identity_evidence" for m in actual["matches"]
+        match["count"] == 22 and classify(match, 0.0) == "identity_evidence"
+        for match in actual["matches"]
     )
     assert not index.match(query, deadline=time.monotonic() - 1)["complete"]
     assert not index.match(query, maximum_vote_cells=1)["complete"]
@@ -185,7 +186,9 @@ def test_pcm_metadata_join_detects_cross_roles_without_mutation(
 
     from tools import audit_bp_gs_pcm as pcm
 
-    records = [dict(domain="fmak", id=f"fmak:{i}", pcm_sha256=f"pcm{i}") for i in range(5489)]
+    records = [
+        dict(domain="fmak", id=f"fmak:{index}", pcm_sha256=f"pcm{index}") for index in range(5489)
+    ]
     records[11]["pcm_sha256"] = records[10]["pcm_sha256"]
     records += [
         dict(domain="beatport", id="beatport:1", pcm_sha256="pcm10"),
@@ -204,9 +207,13 @@ def test_pcm_metadata_join_detects_cross_roles_without_mutation(
     stream = io.StringIO()
     writer = csv.DictWriter(stream, fieldnames=["id", "proposed_role", "component"])
     writer.writeheader()
-    for i in range(5489):
+    for index in range(5489):
         writer.writerow(
-            dict(id=f"fmak:{i:06d}", proposed_role=roles[(i - 10) % 4], component=f"synthetic:{i}")
+            dict(
+                id=f"fmak:{index:06d}",
+                proposed_role=roles[(index - 10) % 4],
+                component=f"synthetic:{index}",
+            )
         )
     ledger = tmp_path / "ledger.gz"
     ledger.write_bytes(gzip.compress(stream.getvalue().encode(), mtime=0))

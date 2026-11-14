@@ -45,13 +45,16 @@ def check_budget(start: float) -> None:
 def target_matrix() -> torch.Tensor:
     """Derive normalized neighbours from the shared scoring contract, not label arithmetic."""
     matrix = torch.zeros(24, 24, dtype=torch.float32)
-    for ref in range(24):
-        weights = [0.0 if pred == ref else WEIGHTS[key_relation(pred, ref)] for pred in range(24)]
+    for reference in range(24):
+        weights = [
+            0.0 if prediction == reference else WEIGHTS[key_relation(prediction, reference)]
+            for prediction in range(24)
+        ]
         total = sum(weights)
         if total <= 0:
             raise ValueError("Missing harmonic neighbours")
-        matrix[ref] = torch.tensor([0.2 * weight / total for weight in weights])
-        matrix[ref, ref] = 0.8
+        matrix[reference] = torch.tensor([0.2 * weight / total for weight in weights])
+        matrix[reference, reference] = 0.8
     return matrix
 
 
@@ -66,23 +69,23 @@ def compare_metrics(control: dict[str, Any], candidate: dict[str, Any]) -> dict[
     passes = (
         delta["fmak"]["mirex"] >= 0.01
         and delta["beatport"]["mirex"] >= 0
-        and all(delta[d]["exact"] >= 0 for d in delta)
+        and all(delta[domain]["exact"] >= 0 for domain in delta)
     )
     return dict(delta=delta, qualifies_for_confirmation=passes)
 
 
 def confusion_movements(
     control: dict[str, Any],
-    pred: np.ndarray,
-    refs: np.ndarray,
+    predictions: np.ndarray,
+    references: np.ndarray,
     rows: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Paired category transitions expose exact demotions behind weighted gains."""
     categories = ["exact", "fifth", "relative", "parallel", "other"]
     output = {}
     for domain in ("beatport", "fmak"):
-        indices = [i for i, row in enumerate(rows) if row["domain"] == domain]
-        if control[domain]["ids"] != [rows[i]["id"] for i in indices]:
+        indices = [index for index, row in enumerate(rows) if row["domain"] == domain]
+        if control[domain]["ids"] != [rows[index]["id"] for index in indices]:
             raise ValueError("Paired confusion identities differ")
         previous = control[domain]["predictions"]
         if len(previous) != len(indices):
@@ -93,10 +96,11 @@ def confusion_movements(
             ("existing_asymmetric_ascending_fifth", False),
         ):
             counts = np.zeros((5, 5), dtype=np.int64)
-            for old, i in zip(previous, indices, strict=True):
-                before = categories.index(key_relation(old, int(refs[i]), symmetric=symmetric))
+            for old, index in zip(previous, indices, strict=True):
+                reference = int(references[index])
+                before = categories.index(key_relation(old, reference, symmetric=symmetric))
                 after = categories.index(
-                    key_relation(int(pred[i]), int(refs[i]), symmetric=symmetric)
+                    key_relation(int(predictions[index]), reference, symmetric=symmetric)
                 )
                 counts[before, after] += 1
             output[domain][name] = dict(
@@ -180,7 +184,9 @@ class StructuredProbe:
             or len(record["validation_ids"]) != 376
         ):
             raise ValueError("Need frozen joint2206 fitting/376 validation identities")
-        if [i for i in record["fit_ids"] if i.startswith("beatport:")] != self.bp["fit_ids"]:
+        if [
+            identity for identity in record["fit_ids"] if identity.startswith("beatport:")
+        ] != self.bp["fit_ids"]:
             raise ValueError("Archived BP fitting identities differ")
         source_checks(record["source_sha256"], self.reference["source_sha256"])
         if args.seed != 13:
@@ -284,7 +290,7 @@ class StructuredProbe:
         self,
         record: dict[str, Any],
         features: list[np.ndarray],
-        refs: np.ndarray,
+        references: np.ndarray,
         rows: list[dict[str, Any]],
         start: float,
     ) -> dict[str, Any]:
@@ -324,7 +330,7 @@ class StructuredProbe:
                         raise ValueError("Missing reproduced paired control")
                     require_pair(self.control, record)
                 logits = evaluate_logits(model, features, self.args.device, start)
-                metrics = domain_metrics(logits.argmax(1), refs, rows)
+                metrics = domain_metrics(logits.argmax(1), references, rows)
                 if metrics != record["domain_metrics"]:
                     raise ValueError("Final logits differ from selected validation predictions")
                 artifact_path = self.args.output / "structured-validation.json"
@@ -332,9 +338,9 @@ class StructuredProbe:
                     artifact_path,
                     dict(
                         artifact_version=VERSION,
-                        ids=[r["id"] for r in rows],
-                        audio_sha256=[r["sha256"] for r in rows],
-                        refs=refs.tolist(),
+                        ids=[row["id"] for row in rows],
+                        audio_sha256=[row["sha256"] for row in rows],
+                        refs=references.tolist(),
                         logits=logits.tolist(),
                         predictions=logits.argmax(1).tolist(),
                         metrics=metrics,
@@ -355,18 +361,18 @@ class StructuredProbe:
                     assert self.control is not None
                     result.update(
                         confusion_movements=confusion_movements(
-                            self.control["domain_metrics"], logits.argmax(1), refs, rows
+                            self.control["domain_metrics"], logits.argmax(1), references, rows
                         ),
                         control_metrics=self.control["domain_metrics"],
                         method_gate=compare_metrics(self.control["domain_metrics"], metrics),
                     )
                 check_budget(start)
-        except (ValueError, TimeoutError, RuntimeError, OSError) as exc:
+        except (ValueError, TimeoutError, RuntimeError, OSError) as error:
             result.update(
                 status="budget_exhausted"
-                if isinstance(exc, TimeoutError)
+                if isinstance(error, TimeoutError)
                 else "reproduction_or_protocol_failed",
-                error=str(exc),
+                error=str(error),
                 control_reproduced=False,
                 method_gate={"qualifies_for_confirmation": False},
             )
@@ -376,7 +382,7 @@ class StructuredProbe:
 
 
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
-    seeds = {r["seed"]: r for r in results}
+    seeds = {result["seed"]: result for result in results}
     if len(results) != 3 or sorted(seeds) != [13, 37, 73]:
         raise ValueError("Need exactly candidate seeds13/37/73")
     pilot = seeds[13]
@@ -404,23 +410,24 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
     for name in ("metrics", "control_metrics", "bp_metrics", "archived_joint_metrics"):
         means[name] = {
             domain: {
-                metric: statistics.mean(r[name][domain][metric] for r in results)
+                metric: statistics.mean(result[name][domain][metric] for result in results)
                 for metric in ("mirex", "mirex_asymmetric", "exact")
             }
             for domain in ("beatport", "fmak")
         }
     method = compare_metrics(means["control_metrics"], means["metrics"])
     original_delta = {
-        d: means["metrics"][d]["mirex"] - means["bp_metrics"][d]["mirex"]
-        for d in ("beatport", "fmak")
+        domain: means["metrics"][domain]["mirex"] - means["bp_metrics"][domain]["mirex"]
+        for domain in ("beatport", "fmak")
     }
     original_pass = original_delta["fmak"] >= 0.02 and original_delta["beatport"] >= 0
     safeguard = {
-        d: {
-            m: means["metrics"][d][m] - means["archived_joint_metrics"][d][m]
-            for m in ("mirex", "exact")
+        domain: {
+            metric: means["metrics"][domain][metric]
+            - means["archived_joint_metrics"][domain][metric]
+            for metric in ("mirex", "exact")
         }
-        for d in ("beatport", "fmak")
+        for domain in ("beatport", "fmak")
     }
     safeguard_pass = all(value >= 0 for metrics in safeguard.values() for value in metrics.values())
     return dict(
@@ -433,7 +440,9 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
         qualifies_for_external_freeze=method["qualifies_for_confirmation"]
         and original_pass
         and safeguard_pass,
-        confusion_movements_by_seed={str(r["seed"]): r.get("confusion_movements") for r in results},
+        confusion_movements_by_seed={
+            str(result["seed"]): result.get("confusion_movements") for result in results
+        },
         canonical_seed=13,
         promoted=False,
         uncertainty="Training-seed means on reused development data; not independent generalization evidence",
@@ -445,8 +454,8 @@ def main() -> None:
     parser.add_argument("--results", nargs=3, type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = summarize([json.loads(p.read_bytes()) for p in args.results])
-    result["result_sha256"] = {str(p): audio_digest(p) for p in args.results}
+    result = summarize([json.loads(path.read_bytes()) for path in args.results])
+    result["result_sha256"] = {str(path): audio_digest(path) for path in args.results}
     result["summary_source_sha256"] = audio_digest(Path(__file__))
     atomic_json(args.output, result)
     print(json.dumps(result, indent=2))

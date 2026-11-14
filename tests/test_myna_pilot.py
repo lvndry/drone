@@ -52,11 +52,13 @@ def fixture(
         "bp_selection_guard": ["beatport:dev"],
         "fma_inner_selection": ["fmak:dev"],
     }
-    ids = [i for values in pools.values() for i in values]
-    labels = {i: 23 for i in ids}
+    ids = [identity for values in pools.values() for identity in values]
+    labels = {identity: 23 for identity in ids}
     plan = dict(pools, expected_refs=labels.copy())
     identities = {"encoder_sha256": ENCODER_SHA, "qualification_sha256": "f" * 64}
-    tracks, groups, waves = [], [], []
+    tracks = []
+    groups = []
+    waves = []
     for identity in ids:
         role = "selection" if identity.endswith("dev") else "fit"
         domain = identity.split(":")[0]
@@ -242,11 +244,16 @@ def test_complete_cache_passes_never_drop_tail_and_are_reproducible() -> None:
     assert [len(indices) for _, indices in first] == [64, 64, 3, 64, 64, 3]
     for epoch in (1, 2):
         np.testing.assert_array_equal(
-            np.sort(np.concatenate([v for e, v in first if e == epoch])), np.arange(131)
+            np.sort(
+                np.concatenate([indices for batch_epoch, indices in first if batch_epoch == epoch])
+            ),
+            np.arange(131),
         )
-    for (e, a), (f, b) in zip(first, batches(131, 2), strict=True):
-        assert e == f
-        np.testing.assert_array_equal(a, b)
+    for (first_epoch, first_indices), (second_epoch, second_indices) in zip(
+        first, batches(131, 2), strict=True
+    ):
+        assert first_epoch == second_epoch
+        np.testing.assert_array_equal(first_indices, second_indices)
 
 
 def test_logits_average_is_fp64_and_batch_partition_independent() -> None:
@@ -262,8 +269,8 @@ def test_logits_average_is_fp64_and_batch_partition_independent() -> None:
 
 def test_head_shape_and_single_dropout_without_allocating_weights() -> None:
     head = make_head("meta")
-    assert sum(p.numel() for p in head.parameters()) == 18_456_600
-    drops = [m for m in head if isinstance(m, torch.nn.Dropout)]
+    assert sum(parameter.numel() for parameter in head.parameters()) == 18_456_600
+    drops = [module for module in head if isinstance(module, torch.nn.Dropout)]
     assert len(drops) == 1 and drops[0].p == 0.99
     assert isinstance(head[2], torch.nn.Dropout)
 
@@ -279,9 +286,9 @@ def test_continuation_keeps_practical_gate_and_batch_proof() -> None:
     assert not continuation(candidate, control, False)
     candidate["beatport"]["asymmetric_units10"] -= 1
     assert not continuation(candidate, control, True)
-    a = {"track": [0.0] * 24}
-    b = {"track": [0.0, 1e-7] + [0.0] * 22}
-    assert not batch_proof(a, b)["passed"]  # tiny error still changes a tied decision
+    reference = {"track": [0.0] * 24}
+    changed = {"track": [0.0, 1e-7] + [0.0] * 22}
+    assert not batch_proof(reference, changed)["passed"]  # tiny error still changes a tied decision
 
 
 @pytest.mark.parametrize("mutation", ["float64", "nonfinite", "wrong_shape"])
@@ -300,7 +307,8 @@ def test_hash_correct_but_invalid_embedding_payload_is_rejected(
     path = tmp_path / view["path"]
     np.save(path, values, allow_pickle=False)
     raw = path.read_bytes()
-    view["sha256"], view["bytes"] = hashlib.sha256(raw).hexdigest(), len(raw)
+    view["sha256"] = hashlib.sha256(raw).hexdigest()
+    view["bytes"] = len(raw)
     contract = validate(tmp_path, data)
     with pytest.raises(ValueError, match="Invalid embedding"):
         load_cache(contract, contract.embedding_bytes, lambda: None)
@@ -413,7 +421,8 @@ def test_physical_waveform_relocation_preserves_roles_and_semantics(tmp_path: Pa
 def test_rate_geometry_changes_length_without_changing_declared_tonic_step() -> None:
     original = 120 * 16000
     same = rate_geometry(original, 0)
-    faster, slower = rate_geometry(original, 6), rate_geometry(original, -6)
+    faster = rate_geometry(original, 6)
+    slower = rate_geometry(original, -6)
     assert same["samples_16k"] == original and same["windows"] == 19
     assert faster["rate_down"] == 22627 and slower["rate_down"] == 11314
     assert faster["samples_16k"] == (original * 16000 + 22626) // 22627
@@ -426,9 +435,9 @@ def test_rate_geometry_changes_length_without_changing_declared_tonic_step() -> 
 
 def test_each_variable_length_pitch_view_has_equal_objective_mass(tmp_path: Path) -> None:
     contract = validate(tmp_path, fixture(tmp_path))
-    views = [v for v in contract.views if v.identity == "beatport:long"]
-    assert len({v.windows for v in views}) > 1
-    masses = [v.windows * loss_weight(v, contract) / contract.fit_windows for v in views]
+    views = [view for view in contract.views if view.identity == "beatport:long"]
+    assert len({view.windows for view in views}) > 1
+    masses = [view.windows * loss_weight(view, contract) / contract.fit_windows for view in views]
     assert max(masses) == pytest.approx(min(masses))
     assert sum(masses) == pytest.approx(DOMAIN_MASS["beatport"] / 2)
 
@@ -438,5 +447,5 @@ def test_base_length_matches_pinned_torchaudio_float32_rounding() -> None:
     assert (51_723_051 * 2 + 2) // 3 == 34_482_034
     assert base_sample_count(2_880_000) == 1_920_000
     # The target is also limited by available convolution output.
-    for n in (1, 2, 3, 1_000_001, 51_723_051):
-        assert base_sample_count(n) <= 2 * (n // 3 + 1)
+    for samples in (1, 2, 3, 1_000_001, 51_723_051):
+        assert base_sample_count(samples) <= 2 * (samples // 3 + 1)

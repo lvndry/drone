@@ -243,7 +243,7 @@ def test_clock_and_external_watch_failures_propagate(harness: Harness, defect: s
 
 def receipt() -> qualification.Qualification:
     return qualification.Qualification(
-        ("a", "b"), tuple(str(i) for i in range(16)), 2, 36, 288, 0, (0.01,) * 18, 12, ()
+        ("a", "b"), tuple(str(index) for index in range(16)), 2, 36, 288, 0, (0.01,) * 18, 12, ()
     )
 
 
@@ -277,7 +277,8 @@ def test_admission_applies_each_factor_once_and_accepts_exact_boundary() -> None
 )
 def test_admission_fails_closed_on_missing_invalid_evidence(defect: str) -> None:
     value = receipt()
-    history, overhead = 10.0, 5.0
+    history = 10.0
+    overhead = 5.0
     if defect == "maxima":
         value = replace(value, site_max_seconds=(0.01,) * 17)
     elif defect == "clock":

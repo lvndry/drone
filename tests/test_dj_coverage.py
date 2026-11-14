@@ -15,18 +15,19 @@ from tools.dj_coverage_report import load, verify
 
 def test_native_taxonomies_and_actual_preview_support_remain_separate() -> None:
     data = load()
-    fma, bp = data["fma"], data["bp"]
+    fma = data["fma"]
+    beatport = data["bp"]
     assert fma["coverage"]["Hip-Hop"]["inner_selection"]["all"]["tracks"] == 16
     assert (
         fma["coverage"]["House_minus_Chill-out_metadata_slice"]["inner_selection"]["all"]["tracks"]
         == 0
     )
-    assert bp["workbook_genres"]["Deep House"]["inner_selection"]["tracks"] == 12
-    assert bp["workbook_genres"]["Hip-Hop / R&B"]["inner_selection"]["tracks"] == 6
-    assert bp["roles"]["inner_selection"]["actual_preview_seconds_max"] < 121
-    assert bp["roles"]["inner_selection"]["store_duration_bands"]["5–10m"] == 46
-    assert not bp["roles"]["inner_selection"]["artist_album_components_verified"]
-    assert "per_track" not in bp and "wider_graph_bridge_witnesses" not in fma
+    assert beatport["workbook_genres"]["Deep House"]["inner_selection"]["tracks"] == 12
+    assert beatport["workbook_genres"]["Hip-Hop / R&B"]["inner_selection"]["tracks"] == 6
+    assert beatport["roles"]["inner_selection"]["actual_preview_seconds_max"] < 121
+    assert beatport["roles"]["inner_selection"]["store_duration_bands"]["5–10m"] == 46
+    assert not beatport["roles"]["inner_selection"]["artist_album_components_verified"]
+    assert "per_track" not in beatport and "wider_graph_bridge_witnesses" not in fma
 
 
 @pytest.mark.parametrize(

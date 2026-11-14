@@ -36,27 +36,27 @@ FROZEN_SHA256 = "5f995f516430332a37f591ec299a36f9a46c16b2cd01cd887700837fd600bac
 
 
 def validate_rows(rows: list[dict[str, Any]]) -> None:
-    ids = [r["id"] for r in rows]
+    ids = [row["id"] for row in rows]
     if len(ids) != len(set(ids)):
         raise ValueError("Duplicate development identities")
-    for r in rows:
-        if r["role"] not in ("train", "validation") or r["domain"] not in ("beatport", "fmak"):
+    for row in rows:
+        if row["role"] not in ("train", "validation") or row["domain"] not in ("beatport", "fmak"):
             raise ValueError("Only fitting and validation rows from the two domains are allowed")
-        if not r["id"].startswith(r["domain"] + ":"):
+        if not row["id"].startswith(row["domain"] + ":"):
             raise ValueError("Domain and identity disagree")
-        if not 0 <= r["ref"] < 24:
+        if not 0 <= row["ref"] < 24:
             raise ValueError("Invalid key label")
-    fit = {r["sha256"] for r in rows if r["role"] == "train"}
-    val = {r["sha256"] for r in rows if r["role"] == "validation"}
-    if fit & val:
+    fit = {row["sha256"] for row in rows if row["role"] == "train"}
+    validation = {row["sha256"] for row in rows if row["role"] == "validation"}
+    if fit & validation:
         raise ValueError("Identical audio crosses fitting and validation")
-    if len(fit) != sum(r["role"] == "train" for r in rows):
+    if len(fit) != sum(row["role"] == "train" for row in rows):
         raise ValueError("Fitting audio must be unique")
     labels: dict[str, int] = {}
-    for r in rows:
-        if r["sha256"] in labels and labels[r["sha256"]] != r["ref"]:
+    for row in rows:
+        if row["sha256"] in labels and labels[row["sha256"]] != row["ref"]:
             raise ValueError("Conflicting labels on identical audio")
-        labels[r["sha256"]] = r["ref"]
+        labels[row["sha256"]] = row["ref"]
 
 
 def prepare_one(task: tuple[dict[str, Any], Path, Path]) -> dict[str, Any]:
@@ -101,7 +101,7 @@ def prepare(args: argparse.Namespace) -> None:
     rows = json.loads(raw)["rows"]
     validate_rows(rows)
     counts: dict[str, int] = {
-        f"{domain}_{role}": sum(r["domain"] == domain and r["role"] == role for r in rows)
+        f"{domain}_{role}": sum(row["domain"] == domain and row["role"] == role for row in rows)
         for domain in ("beatport", "fmak")
         for role in ("train", "validation")
     }
@@ -115,7 +115,7 @@ def prepare(args: argparse.Namespace) -> None:
     completed: list[dict[str, Any]] = []
     with ProcessPoolExecutor(max_workers=8) as pool:
         tasks: list[tuple[dict[str, Any], Path, Path]] = [
-            (r, args.output, args.existing_cache) for r in rows
+            (row, args.output, args.existing_cache) for row in rows
         ]
         for row in pool.map(prepare_one, tasks):
             completed.append(row)
@@ -134,7 +134,9 @@ def prepare(args: argparse.Namespace) -> None:
             "frozen_manifest_sha256": FROZEN_SHA256,
             "rows": completed,
             "counts": counts,
-            "versions": {n: importlib.metadata.version(n) for n in ("numpy", "librosa", "torch")},
+            "versions": {
+                name: importlib.metadata.version(name) for name in ("numpy", "librosa", "torch")
+            },
             "source_sha256": sources,
             "elapsed_seconds": time.monotonic() - start,
             "complete": True,
@@ -153,35 +155,41 @@ def load_data(data: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[np
     rows = manifest["rows"]
     validate_rows(rows)
     arrays: list[np.ndarray] = []
-    for r in rows:
-        path = data / r["cache"]
-        if audio_digest(path) != r["cache_sha256"]:
-            raise ValueError(f"Changed CQT cache: {r['id']}")
+    for row in rows:
+        path = data / row["cache"]
+        if audio_digest(path) != row["cache_sha256"]:
+            raise ValueError(f"Changed CQT cache: {row['id']}")
         array = np.load(path, allow_pickle=False)
-        if array.shape != (N_TOTAL, r["frames"]) or not np.isfinite(array).all():
-            raise ValueError(f"Invalid cached feature: {r['id']}")
+        if array.shape != (N_TOTAL, row["frames"]) or not np.isfinite(array).all():
+            raise ValueError(f"Invalid cached feature: {row['id']}")
         arrays.append(array)
     return manifest, rows, arrays
 
 
 def domain_metrics(
-    pred: np.ndarray, refs: np.ndarray, rows: list[dict[str, Any]]
+    predictions: np.ndarray, references: np.ndarray, rows: list[dict[str, Any]]
 ) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for domain in ("beatport", "fmak"):
-        indices = [i for i, r in enumerate(rows) if r["domain"] == domain]
-        p, y = pred[indices], refs[indices]
-        exact, mirex = score_mirex([int(c) for c in p], [int(c) for c in y])
+        indices = [index for index, row in enumerate(rows) if row["domain"] == domain]
+        domain_predictions = predictions[indices]
+        domain_references = references[indices]
+        exact, mirex = score_mirex(
+            [int(value) for value in domain_predictions],
+            [int(value) for value in domain_references],
+        )
         result[domain] = {
             "tracks": len(indices),
             "exact": exact,
             "mirex": mirex,
             "mirex_asymmetric": score_mirex(
-                [int(c) for c in p], [int(c) for c in y], symmetric=False
+                [int(value) for value in domain_predictions],
+                [int(value) for value in domain_references],
+                symmetric=False,
             )[1],
-            "mode_accuracy": float(np.mean(p % 2 == y % 2)),
-            "predictions": p.tolist(),
-            "ids": [rows[i]["id"] for i in indices],
+            "mode_accuracy": float(np.mean(domain_predictions % 2 == domain_references % 2)),
+            "predictions": domain_predictions.tolist(),
+            "ids": [rows[index]["id"] for index in indices],
         }
     return result
 
@@ -356,28 +364,30 @@ def train(args: argparse.Namespace) -> None:
 def diagnose(args: argparse.Namespace) -> None:
     device_setup(args.device)
     _, rows, arrays = load_data(args.data)
-    indices = [i for i, r in enumerate(rows) if r["role"] == "validation"]
-    val_rows = [rows[i] for i in indices]
-    features = [window(arrays[i]).astype(np.float32) for i in indices]
-    refs = np.array([r["ref"] for r in val_rows])
+    indices = [index for index, row in enumerate(rows) if row["role"] == "validation"]
+    validation_rows = [rows[index] for index in indices]
+    features = [window(arrays[index]).astype(np.float32) for index in indices]
+    references = np.array([row["ref"] for row in validation_rows])
     model, _ = load_checkpoint(args.checkpoint, args.device)
     corrected = evaluate_features(model, features, args.device, batch=4)
     padded: list[int] = []
     for offset in range(0, len(features), 4):
         chunk = features[offset : offset + 4]
-        x = np.zeros((len(chunk), 192, max(f.shape[1] for f in chunk)), dtype=np.float32)
-        for j, f in enumerate(chunk):
-            x[j, :, : f.shape[1]] = f
+        batch = np.zeros(
+            (len(chunk), 192, max(feature.shape[1] for feature in chunk)), dtype=np.float32
+        )
+        for index, feature in enumerate(chunk):
+            batch[index, :, : feature.shape[1]] = feature
         with torch.inference_mode():
-            padded.extend(model(torch.from_numpy(x).to(args.device)).argmax(1).cpu().tolist())
+            padded.extend(model(torch.from_numpy(batch).to(args.device)).argmax(1).cpu().tolist())
     args.output.mkdir(parents=True, exist_ok=True)
     atomic_json(
         args.output / "diagnostic.json",
         {
             "checkpoint_sha256": audio_digest(args.checkpoint),
             "status": "diagnostic_shipped_weights_not_an_independent_control",
-            "corrected": domain_metrics(corrected, refs, val_rows),
-            "padded_batch4": domain_metrics(np.array(padded), refs, val_rows),
+            "corrected": domain_metrics(corrected, references, validation_rows),
+            "padded_batch4": domain_metrics(np.array(padded), references, validation_rows),
             "changed_predictions": int(np.sum(corrected != padded)),
             "calibration_used": False,
             "final_holdout_used": False,
@@ -386,28 +396,28 @@ def diagnose(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("command", choices=("prepare", "train", "diagnose"))
-    p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--manifest", type=Path)
-    p.add_argument("--existing-cache", type=Path)
-    p.add_argument("--data", type=Path)
-    p.add_argument("--checkpoint", type=Path)
-    p.add_argument("--device", default="cuda:0")
-    p.add_argument("--arm", choices=("control", "joint"))
-    p.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
-    probes = p.add_mutually_exclusive_group()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", choices=("prepare", "train", "diagnose"))
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--existing-cache", type=Path)
+    parser.add_argument("--data", type=Path)
+    parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--arm", choices=("control", "joint"))
+    parser.add_argument("--seed", type=int, choices=(13, 37, 73), default=13)
+    probes = parser.add_mutually_exclusive_group()
     probes.add_argument("--ema-probe", action="store_true")
     probes.add_argument("--structured-control", action="store_true")
     probes.add_argument("--structured-targets", action="store_true")
     probes.add_argument("--capacity-probe", action="store_true")
     probes.add_argument("--capacity-control", action="store_true")
-    p.add_argument("--paired-control", type=Path)
-    p.add_argument("--reference-run", type=Path)
-    p.add_argument("--reference-bp", type=Path)
-    p.add_argument("--reference-checkpoint", type=Path)
-    p.add_argument("--pilot-run", type=Path)
-    args = p.parse_args()
+    parser.add_argument("--paired-control", type=Path)
+    parser.add_argument("--reference-run", type=Path)
+    parser.add_argument("--reference-bp", type=Path)
+    parser.add_argument("--reference-checkpoint", type=Path)
+    parser.add_argument("--pilot-run", type=Path)
+    args = parser.parse_args()
     selected = (
         args.ema_probe
         or args.structured_control
@@ -416,26 +426,28 @@ def main() -> None:
         or args.capacity_control
     )
     if args.command in ("train", "diagnose") and args.data is None:
-        p.error("--data is required for train and diagnose")
+        parser.error("--data is required for train and diagnose")
     if selected and (
         args.command != "train"
         or args.arm != "joint"
         or args.reference_run is None
         or args.reference_bp is None
     ):
-        p.error("Research probes require train --arm joint, --reference-run and --reference-bp")
+        parser.error(
+            "Research probes require train --arm joint, --reference-run and --reference-bp"
+        )
     candidate = args.structured_targets or args.capacity_probe
     if candidate and args.paired_control is None:
-        p.error("Candidate probes require --paired-control")
+        parser.error("Candidate probes require --paired-control")
     if args.paired_control is not None and not candidate:
-        p.error("--paired-control requires a structured-target or capacity candidate")
+        parser.error("--paired-control requires a structured-target or capacity candidate")
     try:
         {"prepare": prepare, "train": train, "diagnose": diagnose}[args.command](args)
-    except torch.OutOfMemoryError as exc:
+    except torch.OutOfMemoryError as error:
         if args.capacity_probe or args.capacity_control:
             from experiments.capacity import record_oom
 
-            record_oom(args, exc)
+            record_oom(args, error)
         raise
 
 

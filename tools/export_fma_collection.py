@@ -174,7 +174,9 @@ def build(root: Path, resolver: dict[str, Path]) -> CollectionCatalog:
         raise ValueError("Saved analyzed-support coverage differs from fitting/inner panel")
     tracks = []
     for identity in sorted(groups):
-        group, history, metadata = groups[identity], ledger[identity], master[identity]
+        group = groups[identity]
+        history = ledger[identity]
+        metadata = master[identity]
         origin = (Evidence("fma_group_input", f"/tracks/{identity}"),)
         master_evidence = (Evidence("fma_master_metadata", f"/rows/{identity}"),)
         history_evidence = (Evidence("fma_exposure_ledger", f"/rows/{identity}"),)
@@ -193,7 +195,8 @@ def build(root: Path, resolver: dict[str, Path]) -> CollectionCatalog:
             type(tag) is not int or tag not in taxonomy for tag in tags
         ):
             raise ValueError("Invalid native genre hierarchy IDs")
-        relations, missing = [], []
+        relations = []
+        missing = []
         for kind, key, name in (
             ("artist", "artist_id", "artist_name"),
             ("album", "album_id", "album_title"),

@@ -19,14 +19,14 @@ def test_completed_context_evidence_reproduces_without_inference() -> None:
 
 
 def test_wrong_actual_checkpoint_receipt_rejected() -> None:
-    v = copy.deepcopy(checked_inputs())
-    v["postflight"]["checkpoints"]["65/best"]["sha256"] = "0" * 64
+    inputs = copy.deepcopy(checked_inputs())
+    inputs["postflight"]["checkpoints"]["65/best"]["sha256"] = "0" * 64
     with pytest.raises(AssertionError):
-        verify(v)
+        verify(inputs)
 
 
 def test_false_continuation_cannot_replace_failed_record() -> None:
-    v = copy.deepcopy(checked_inputs())
-    v["pair-result"]["gate"]["continuation_earned"] = True
+    inputs = copy.deepcopy(checked_inputs())
+    inputs["pair-result"]["gate"]["continuation_earned"] = True
     with pytest.raises(AssertionError):
-        verify(v)
+        verify(inputs)

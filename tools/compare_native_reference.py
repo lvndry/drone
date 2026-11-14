@@ -14,11 +14,13 @@ from drone.keys import WEIGHTS, KeyIndices, key_relation
 from experiments.reference.train import load_prepared
 
 
-def weights(predictions: KeyIndices, refs: KeyIndices, symmetric: bool = True) -> np.ndarray:
+def weights(predictions: KeyIndices, references: KeyIndices, symmetric: bool = True) -> np.ndarray:
     return np.array(
         [
-            WEIGHTS[key_relation(int(p), int(r), symmetric=symmetric)] if p >= 0 else 0
-            for p, r in zip(predictions, refs, strict=True)
+            WEIGHTS[key_relation(int(prediction), int(reference), symmetric=symmetric)]
+            if prediction >= 0
+            else 0
+            for prediction, reference in zip(predictions, references, strict=True)
         ]
     )
 
@@ -47,29 +49,30 @@ def main() -> None:
     for record in (provenance, candidate, groups):
         assert record["partition_sha256"] == partition_hash
     assert not provenance["final_holdout_scored"] and not candidate["final_holdout_scored"]
-    ids = [meta["ids"][i] for i in split["development_indices"]]
-    refs = np.array([meta["refs"][i] for i in split["development_indices"]])
+    ids = [meta["ids"][index] for index in split["development_indices"]]
+    references = np.array([meta["refs"][index] for index in split["development_indices"]])
     with args.native.open() as stream:
         rows = list(csv.DictReader(stream))
     assert len(rows) == len(ids) and len({row["id"] for row in rows}) == len(ids)
     native = {row["id"]: row for row in rows}
     assert set(native) == set(ids)
-    pred = np.array([int(native[identity]["prediction"]) for identity in ids])
-    assert ((pred >= -1) & (pred < 24)).all()
+    native_predictions = np.array([int(native[identity]["prediction"]) for identity in ids])
+    assert ((native_predictions >= -1) & (native_predictions < 24)).all()
     cnn = np.array(candidate["metrics"]["predictions"])
-    assert len(cnn) == len(refs) and ((cnn >= 0) & (cnn < 24)).all()
-    native_scores, cnn_scores = weights(pred, refs), weights(cnn, refs)
+    assert len(cnn) == len(references) and ((cnn >= 0) & (cnn < 24)).all()
+    native_scores = weights(native_predictions, references)
+    cnn_scores = weights(cnn, references)
     delta = cnn_scores - native_scores
-    labels = [groups["groups"][i] for i in split["development_indices"]]
+    labels = [groups["groups"][index] for index in split["development_indices"]]
     unique = sorted(set(labels))
-    index = {name: i for i, name in enumerate(unique)}
-    group_index = np.array([index[name] for name in labels])
+    position = {name: index for index, name in enumerate(unique)}
+    group_index = np.array([position[name] for name in labels])
     sizes = np.bincount(group_index)
     totals = np.bincount(group_index, weights=delta)
-    rng = np.random.default_rng(13)
-    draws = rng.integers(len(unique), size=(5000, len(unique)))
+    generator = np.random.default_rng(13)
+    draws = generator.integers(len(unique), size=(5000, len(unique)))
     bootstrap = totals[draws].sum(1) / sizes[draws].sum(1)
-    valid = pred >= 0
+    valid = native_predictions >= 0
     result = {
         "corpus": "FMAKv2 development only",
         "partition_sha256": partition_hash,
@@ -79,15 +82,17 @@ def main() -> None:
         "native_csv_sha256": hashlib.sha256(args.native.read_bytes()).hexdigest(),
         "candidate_checkpoint_sha256": candidate["checkpoint_sha256"],
         "native_metrics": {
-            "exact": float(np.mean(pred == refs)),
+            "exact": float(np.mean(native_predictions == references)),
             "mirex": float(native_scores.mean()),
-            "mirex_asymmetric": float(weights(pred, refs, symmetric=False).mean()),
-            "mode_accuracy": float(np.mean(valid & (pred % 2 == refs % 2))),
+            "mirex_asymmetric": float(
+                weights(native_predictions, references, symmetric=False).mean()
+            ),
+            "mode_accuracy": float(np.mean(valid & (native_predictions % 2 == references % 2))),
             "missing_predictions": int((~valid).sum()),
-            "predicted_counts": np.bincount(pred[valid], minlength=24).tolist(),
+            "predicted_counts": np.bincount(native_predictions[valid], minlength=24).tolist(),
         },
         "candidate_metrics": {
-            k: candidate["metrics"][k] for k in ("exact", "mirex", "mode_accuracy")
+            metric: candidate["metrics"][metric] for metric in ("exact", "mirex", "mode_accuracy")
         },
         "candidate_minus_native_mirex": float(delta.mean()),
         "paired_artist_album_cluster_bootstrap_95ci": np.quantile(
@@ -98,7 +103,7 @@ def main() -> None:
         if valid.any()
         else None,
         "native_cpu_seconds_p50_p95": np.quantile(
-            [float(native[i]["cpu_seconds"]) for i in ids], [0.5, 0.95]
+            [float(native[identity]["cpu_seconds"]) for identity in ids], [0.5, 0.95]
         ).tolist(),
         "limitations": "Development result; primary artist/album grouping only. Native timings use the concurrent worker count in provenance and include decode; no matched runtime speed claim.",
     }

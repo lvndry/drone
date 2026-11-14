@@ -14,20 +14,22 @@ from tools.prepare_k10_v2_pilot import CONTRACT
 
 def fixture() -> tuple[dict, dict, dict, dict]:
     identities = ["beatport:fit", "beatport:selection", "fmak:bad1", "fmak:bad2", "fmak:keep"]
-    refs = [23, 23, 1, 15, 3]
+    references = [23, 23, 1, 15, 3]
     canonical = ["bp", "bp", "bad", "bad", "keep"]
     rows = [
         {
-            "id": i,
-            "domain": i.split(":")[0],
-            "role": "validation" if i == "beatport:selection" else "train",
-            "sha256": i,
-            "ref": y,
-            "canonical_model_input_sha256": c,
+            "id": identity,
+            "domain": identity.split(":")[0],
+            "role": "validation" if identity == "beatport:selection" else "train",
+            "sha256": identity,
+            "ref": reference,
+            "canonical_model_input_sha256": canonical_hash,
             "frames": 320,
-            "cache_sha256": c,
+            "cache_sha256": canonical_hash,
         }
-        for i, y, c in zip(identities, refs, canonical, strict=True)
+        for identity, reference, canonical_hash in zip(
+            identities, references, canonical, strict=True
+        )
     ]
     plan = {
         "bp_fit": ["beatport:fit"],
@@ -35,8 +37,8 @@ def fixture() -> tuple[dict, dict, dict, dict]:
         "restricted_fma_fit": ["fmak:keep"],
         "expanded_fma_fit": ["fmak:bad1", "fmak:bad2", "fmak:keep"],
         "fma_inner_selection": [],
-        "train_feature_bindings": {r["id"]: r["sha256"] for r in rows},
-        "expected_refs": dict(zip(identities, refs, strict=True)),
+        "train_feature_bindings": {row["id"]: row["sha256"] for row in rows},
+        "expected_refs": dict(zip(identities, references, strict=True)),
         "label_export_sha256": "parent",
         "schedule": {"bp_mass": [1230, 2206]},
     }
@@ -72,19 +74,19 @@ def test_derivative_changes_only_eligibility_not_labels_roles_or_sampling() -> N
         "amender_source_sha256": "s",
     }
     outputs = derive(plan, labels, manifest, groups, provenance)
-    p = json.loads(gzip.decompress(outputs["plan-v2.json.gz"]))
+    amended_plan = json.loads(gzip.decompress(outputs["plan-v2.json.gz"]))
     targets = json.loads(gzip.decompress(outputs["numeric-labels-v2.json.gz"]))
     feature = json.loads(gzip.decompress(outputs["feature-manifest-v2.json.gz"]))
     assert (
-        p["bp_selection_guard"] == plan["bp_selection_guard"]
-        and p["restricted_fma_fit"] == plan["restricted_fma_fit"]
+        amended_plan["bp_selection_guard"] == plan["bp_selection_guard"]
+        and amended_plan["restricted_fma_fit"] == plan["restricted_fma_fit"]
     )
-    assert p["schedule"] == plan["schedule"] and p["expected_refs"] == {
+    assert amended_plan["schedule"] == plan["schedule"] and amended_plan["expected_refs"] == {
         "beatport:selection": 23,
         "fmak:keep": 3,
     }
-    assert targets["labels"] == p["expected_refs"] and feature["complete"]
-    assert {r["id"]: r["role"] for r in feature["rows"]} == {
+    assert targets["labels"] == amended_plan["expected_refs"] and feature["complete"]
+    assert {row["id"]: row["role"] for row in feature["rows"]} == {
         "beatport:selection": "validation",
         "fmak:keep": "train",
     }

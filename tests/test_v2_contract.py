@@ -18,16 +18,16 @@ from tools import propose_v2_contract as design
 def fixture_tracks() -> list[design.Track]:
     return [
         design.Track(
-            f"track:{i}",
-            f"group:{i // 2}" if i < 4 else f"group:{i}",
-            "fit" if i < 4 else "final",
-            f"sha:{i}",
+            f"track:{index}",
+            f"group:{index // 2}" if index < 4 else f"group:{index}",
+            "fit" if index < 4 else "final",
+            f"sha:{index}",
             "artist",
             "album",
-            "Rock" if i % 2 else "MISSING",
-            float(100 + i),
+            "Rock" if index % 2 else "MISSING",
+            float(100 + index),
         )
-        for i in range(30)
+        for index in range(30)
     ]
 
 
@@ -45,7 +45,7 @@ def test_whole_components_nesting_order_and_ledger(monkeypatch: pytest.MonkeyPat
     roles = design.assign(tracks)
     assert roles["group:0"] == roles["group:1"] == "expanded_fit"
     for role, _, minimum in design.PANELS:
-        assert sum(r == role for r in roles.values()) == minimum
+        assert sum(assigned == role for assigned in roles.values()) == minimum
     shuffled = tracks.copy()
     random.Random(73).shuffle(shuffled)
     assert design.assign(shuffled) == roles
@@ -53,7 +53,7 @@ def test_whole_components_nesting_order_and_ledger(monkeypatch: pytest.MonkeyPat
     assert summary["status"] == "PROPOSED_NOT_ACTIVATED"
     assert not summary["training_authorized"]
     assert summary["restricted_fma_fit"]["rows"] == 4
-    assert sum(r["rows"] for r in summary["old_role_to_proposed_role"]) == 30
+    assert sum(entry["rows"] for entry in summary["old_role_to_proposed_role"]) == 30
     assert gzip.decompress(ledger).count(b"PROPOSED_") == 30
 
 
@@ -194,8 +194,10 @@ def test_protocol_amendment_chain_checks_bytes_and_connections(tmp_path: Path) -
 
     data = tmp_path / "data"
     data.mkdir()
-    before, after = b"Original frozen rules.\n", b"Original frozen rules.\nAppendix.\n"
-    pinned, current = hashlib.sha256(before).hexdigest(), hashlib.sha256(after).hexdigest()
+    before = b"Original frozen rules.\n"
+    after = b"Original frozen rules.\nAppendix.\n"
+    pinned = hashlib.sha256(before).hexdigest()
+    current = hashlib.sha256(after).hexdigest()
     (data / "original.md").write_bytes(before)
     (tmp_path / "PROTOCOL.md").write_bytes(after)
     chain = {

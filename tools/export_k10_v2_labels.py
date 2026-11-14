@@ -37,19 +37,19 @@ def fma_labels(prepared: Path, annotation: Path, needed: list[str]) -> dict[str,
     identities = field("ids")
     wanted = set(needed)
     indices = {
-        "fmak:" + identity: i
-        for i, identity in enumerate(identities)
+        "fmak:" + identity: index
+        for index, identity in enumerate(identities)
         if "fmak:" + identity in wanted
     }
     if set(indices) != wanted:
         raise ValueError("Missing selected fitting/inner ID")
-    refs = field("refs")
-    selected = {identity: refs[i] for identity, i in indices.items()}
-    if any(type(v) is not int or not 0 <= v < 24 for v in selected.values()):
+    references = field("refs")
+    selected = {identity: references[index] for identity, index in indices.items()}
+    if any(type(label) is not int or not 0 <= label < 24 for label in selected.values()):
         raise ValueError("Noncanonical label encoding")
     annotation_raw = annotation.read_bytes()
-    md5 = hashlib.md5(annotation_raw).hexdigest()
-    if md5 != "3b2d16784ffbda850c8ddf0519478bfd":
+    annotation_md5 = hashlib.md5(annotation_raw).hexdigest()
+    if annotation_md5 != "3b2d16784ffbda850c8ddf0519478bfd":
         raise ValueError("Pinned officialFMAKv2 annotation MD5 differs")
     from drone.keys import encode_key
 
@@ -68,7 +68,7 @@ def fma_labels(prepared: Path, annotation: Path, needed: list[str]) -> dict[str,
         "source": {
             "prepared_metadata_npy_sha256": EXPECTED_METADATA,
             "annotation_path": str(annotation),
-            "annotation_md5": md5,
+            "annotation_md5": annotation_md5,
             "annotation_sha256": hashlib.sha256(annotation_raw).hexdigest(),
             "annotation_url": "https://zenodo.org/api/records/12759100/files/fmakv2.csv/content",
             "provenance_caveat": "FMAK expert labels;FMAKv2 changes around200 labels not verified by original FMAK authors;no relabeling here",

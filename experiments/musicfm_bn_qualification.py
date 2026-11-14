@@ -78,7 +78,8 @@ class _Budget:
     """One shared, non-resetting 300-second cooperative qualification budget."""
 
     def __init__(self, clock: Clock, watch: Watch) -> None:
-        self.clock, self.watch = clock, watch
+        self.clock = clock
+        self.watch = watch
         self.started = _seconds(clock())
         self.last = self.started
 

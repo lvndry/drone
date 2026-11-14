@@ -53,7 +53,8 @@ def main() -> None:
             ).strip()
         )
         with tempfile.TemporaryDirectory() as scratch:
-            start, cpu = time.monotonic(), cpu_seconds()
+            start = time.monotonic()
+            cpu_start = cpu_seconds()
             features, _ = prepare(
                 Track(audio.stem, str(audio), ("C", "major")), scratch, T=checkpoint["frames"]
             )
@@ -64,7 +65,7 @@ def main() -> None:
                     "id": audio.stem,
                     "duration_seconds": duration,
                     "wall_seconds": time.monotonic() - start,
-                    "cpu_seconds_including_decoder": cpu_seconds() - cpu,
+                    "cpu_seconds_including_decoder": cpu_seconds() - cpu_start,
                 }
             )
         if len(records) % 20 == 0:
@@ -76,13 +77,17 @@ def main() -> None:
         "threads": 1,
         "worker_concurrency": 1,
         "files": records,
-        "wall_p50_seconds": float(np.percentile([r["wall_seconds"] for r in records], 50)),
-        "wall_p95_seconds": float(np.percentile([r["wall_seconds"] for r in records], 95)),
+        "wall_p50_seconds": float(
+            np.percentile([record["wall_seconds"] for record in records], 50)
+        ),
+        "wall_p95_seconds": float(
+            np.percentile([record["wall_seconds"] for record in records], 95)
+        ),
         "peak_parent_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
         "note": "Linux ru_maxrss. Fresh feature cache per file; filesystem cache uncontrolled. Model loaded once. No accuracy measurement.",
     }
     args.output.write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: v for k, v in result.items() if k != "files"}, indent=2))
+    print(json.dumps({key: value for key, value in result.items() if key != "files"}, indent=2))
 
 
 if __name__ == "__main__":

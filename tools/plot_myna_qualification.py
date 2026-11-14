@@ -156,14 +156,14 @@ def main() -> None:
     ]
     figure, axes = plt.subplots(1, 2, figsize=(12, 4.3), constrained_layout=True)
     offset = [0.0] * len(groups)
-    for key, label, color in [
+    for stage, label, color in [
         ("pitch_seconds", "Playback rate", "#a54a28"),
         ("blocked_frontend_seconds", "CPU mel frontend", "#46749a"),
         ("encoder_batch16_seconds", "GPU encoder", "#30795c"),
     ]:
-        values = [sum(row[key] for row in rows) for rows in groups]
+        values = [sum(row[stage] for row in rows) for rows in groups]
         axes[0].barh(labels, values, left=offset, label=label, color=color)
-        offset = [a + b for a, b in zip(offset, values, strict=True)]
+        offset = [left + width for left, width in zip(offset, values, strict=True)]
     axes[0].set(xlabel="Seconds (selected stages only)", title="Feature extraction dominates")
     axes[0].legend(loc="lower right", fontsize=8)
     memory = [

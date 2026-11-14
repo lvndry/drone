@@ -22,14 +22,18 @@ from experiments.small import atomic_json, signature
 def training_math(source: str) -> dict[str, str]:
     """Audit explicit math/selection components, excluding metadata and optional probes."""
     train = next(
-        n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name == "train"
+        node
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name == "train"
     )
     epoch = next(
-        n
-        for n in train.body
-        if isinstance(n, ast.For) and isinstance(n.target, ast.Name) and n.target.id == "epoch"
+        node
+        for node in train.body
+        if isinstance(node, ast.For)
+        and isinstance(node.target, ast.Name)
+        and node.target.id == "epoch"
     )
-    batch = next(n for n in epoch.body if isinstance(n, ast.For))
+    batch = next(node for node in epoch.body if isinstance(node, ast.For))
     statements = []
     for statement in batch.body:
         if isinstance(statement, ast.If):
@@ -82,7 +86,7 @@ def training_math(source: str) -> dict[str, str]:
         if isinstance(value, ast.AST):
             return ast.dump(value, include_attributes=False)
         if isinstance(value, list):
-            return "|".join(ast.dump(n, include_attributes=False) for n in value)
+            return "|".join(ast.dump(node, include_attributes=False) for node in value)
         raise TypeError("Unexpected math audit component")
 
     return {name: signature(encode(value)) for name, value in components.items()}
@@ -94,7 +98,8 @@ def ema_evidence_math(source: str) -> dict[str, str]:
     hashes = {}
     for original in tree.body:
         if isinstance(original, ast.Assign) and any(
-            isinstance(t, ast.Name) and t.id == "BUDGET_SECONDS" for t in original.targets
+            isinstance(target, ast.Name) and target.id == "BUDGET_SECONDS"
+            for target in original.targets
         ):
             hashes["default_budget"] = signature(ast.dump(original.value))
         if not isinstance(original, ast.FunctionDef) or original.name not in {
@@ -160,7 +165,7 @@ def score_selected(
     output: Path,
     record: dict[str, Any],
     features: list[np.ndarray],
-    refs: np.ndarray,
+    references: np.ndarray,
     rows: list[dict[str, Any]],
     device: str,
     start: float,
@@ -174,16 +179,16 @@ def score_selected(
         if payload["model_config"]["width"] != width:
             raise ValueError("Selected checkpoint width metadata differs")
         logits = evaluate_logits(model, features, device, start, budget_seconds=budget_seconds)
-        metrics = domain_metrics(logits.argmax(1), refs, rows)
+        metrics = domain_metrics(logits.argmax(1), references, rows)
         if metrics != record["domain_metrics"]:
             raise ValueError("Selected logits differ from recorded validation predictions")
         path = output / "validation.json"
         atomic_json(
             path,
             dict(
-                ids=[r["id"] for r in rows],
-                audio_sha256=[r["sha256"] for r in rows],
-                refs=refs.tolist(),
+                ids=[row["id"] for row in rows],
+                audio_sha256=[row["sha256"] for row in rows],
+                refs=references.tolist(),
                 logits=logits.tolist(),
                 predictions=logits.argmax(1).tolist(),
                 metrics=metrics,
@@ -199,25 +204,31 @@ def score_selected(
 
 def compare(control: dict[str, Any], candidate: dict[str, Any]) -> dict[str, Any]:
     delta = {
-        d: {m: candidate[d][m] - control[d][m] for m in ("mirex", "exact")}
-        for d in ("beatport", "fmak")
+        domain: {
+            metric: candidate[domain][metric] - control[domain][metric]
+            for metric in ("mirex", "exact")
+        }
+        for domain in ("beatport", "fmak")
     }
     passes = (
         delta["fmak"]["mirex"] >= 0.01
         and delta["beatport"]["mirex"] >= 0
-        and all(delta[d]["exact"] >= 0 for d in delta)
+        and all(delta[domain]["exact"] >= 0 for domain in delta)
     )
     return dict(delta=delta, qualifies_for_confirmation=passes)
 
 
 def movements(
-    control: dict[str, Any], candidate: dict[str, Any], refs: np.ndarray, rows: list[dict[str, Any]]
+    control: dict[str, Any],
+    candidate: dict[str, Any],
+    references: np.ndarray,
+    rows: list[dict[str, Any]],
 ) -> dict[str, Any]:
     categories = ["exact", "fifth", "relative", "parallel", "other"]
     result = {}
     for domain in ("beatport", "fmak"):
-        indices = [i for i, r in enumerate(rows) if r["domain"] == domain]
-        ids = [rows[i]["id"] for i in indices]
+        indices = [index for index, row in enumerate(rows) if row["domain"] == domain]
+        ids = [rows[index]["id"] for index in indices]
         if control[domain]["ids"] != ids or candidate[domain]["ids"] != ids:
             raise ValueError("Paired confusion identities differ")
         result[domain] = {}
@@ -226,15 +237,20 @@ def movements(
             ("existing_asymmetric_ascending_fifth", False),
         ):
             counts = np.zeros((5, 5), dtype=np.int64)
-            for old, new, i in zip(
+            for old, new, index in zip(
                 control[domain]["predictions"],
                 candidate[domain]["predictions"],
                 indices,
                 strict=True,
             ):
-                a = categories.index(key_relation(old, int(refs[i]), symmetric=symmetric))
-                b = categories.index(key_relation(new, int(refs[i]), symmetric=symmetric))
-                counts[a, b] += 1
+                reference = int(references[index])
+                control_category = categories.index(
+                    key_relation(old, reference, symmetric=symmetric)
+                )
+                candidate_category = categories.index(
+                    key_relation(new, reference, symmetric=symmetric)
+                )
+                counts[control_category, candidate_category] += 1
             result[domain][name] = dict(
                 categories=categories,
                 row_control_column_candidate=counts.tolist(),
@@ -245,19 +261,19 @@ def movements(
 
 
 def summarize(results: list[dict[str, Any]], version: str) -> dict[str, Any]:
-    seeds = {r["seed"]: r for r in results}
+    seeds = {result["seed"]: result for result in results}
     if (
         len(results) != 3
         or sorted(seeds) != [13, 37, 73]
         or not seeds[13]["method_gate"]["qualifies_for_confirmation"]
     ):
         raise ValueError("Need passing pilot and exactly declared candidate seeds13/37/73")
-    for r in results:
+    for result in results:
         if (
-            r["status"] != "complete"
-            or r["artifact_version"] != version
-            or r["kind"] != "candidate"
-            or not r["control_reproduced"]
+            result["status"] != "complete"
+            or result["artifact_version"] != version
+            or result["kind"] != "candidate"
+            or not result["control_reproduced"]
         ):
             raise ValueError("Need completed candidates with verified controls")
         for key in (
@@ -268,28 +284,28 @@ def summarize(results: list[dict[str, Any]], version: str) -> dict[str, Any]:
             "width",
             "budget_seconds",
         ):
-            if r["identity"][key] != seeds[13]["identity"][key]:
+            if result["identity"][key] != seeds[13]["identity"][key]:
                 raise ValueError(f"Confirmation changed {key}")
     means = {
         name: {
-            d: {
-                m: statistics.mean(r[name][d][m] for r in results)
-                for m in ("mirex", "mirex_asymmetric", "exact")
+            domain: {
+                metric: statistics.mean(result[name][domain][metric] for result in results)
+                for metric in ("mirex", "mirex_asymmetric", "exact")
             }
-            for d in ("beatport", "fmak")
+            for domain in ("beatport", "fmak")
         }
         for name in ("metrics", "control_metrics", "bp_metrics")
     }
     gate = compare(means["control_metrics"], means["metrics"])
     delta = {
-        d: means["metrics"][d]["mirex"] - means["bp_metrics"][d]["mirex"]
-        for d in ("beatport", "fmak")
+        domain: means["metrics"][domain]["mirex"] - means["bp_metrics"][domain]["mirex"]
+        for domain in ("beatport", "fmak")
     }
     original = delta["fmak"] >= 0.02 and delta["beatport"] >= 0
     safeguard = all(
-        means["metrics"][d][m] >= means["control_metrics"][d][m]
-        for d in ("beatport", "fmak")
-        for m in ("mirex", "exact")
+        means["metrics"][domain][metric] >= means["control_metrics"][domain][metric]
+        for domain in ("beatport", "fmak")
+        for metric in ("mirex", "exact")
     )
     return dict(
         artifact_version=version,

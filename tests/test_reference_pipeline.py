@@ -30,10 +30,10 @@ from experiments.reference.train import (
 
 @pytest.fixture(autouse=True)
 def one_cpu_thread() -> Iterator[None]:
-    old = torch.get_num_threads()
+    previous_threads = torch.get_num_threads()
     torch.set_num_threads(1)
     yield
-    torch.set_num_threads(old)
+    torch.set_num_threads(previous_threads)
 
 
 def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
@@ -42,9 +42,9 @@ def test_checkpoint_round_trip_and_version_rejection(tmp_path: Path) -> None:
     path = tmp_path / "model.pt"
     save_checkpoint(path, model)
     restored = load_model(path)
-    x = torch.randn(2, 33, 300)
+    features = torch.randn(2, 33, 300)
     with torch.no_grad():
-        torch.testing.assert_close(model(x), restored(x))
+        torch.testing.assert_close(model(features), restored(features))
     torch.save(model.state_dict(), path)
     with pytest.raises(ValueError, match="Incompatible"):
         load_model(path)
@@ -77,12 +77,12 @@ def test_inference_decodes_interleaved_classes(tmp_path: Path) -> None:
 
 
 def test_split_and_overlap_guards() -> None:
-    refs = [key for key in range(24) for _ in range(10)]
-    train, val = validation_split(refs)
-    assert validation_split(refs) == (train, val)
-    assert not set(train) & set(val)
-    assert set(train) | set(val) == set(range(len(refs)))
-    assert sorted(refs[i] for i in val) == list(range(24))
+    references = [key for key in range(24) for _ in range(10)]
+    train, validation = validation_split(references)
+    assert validation_split(references) == (train, validation)
+    assert not set(train) & set(validation)
+    assert set(train) | set(validation) == set(range(len(references)))
+    assert sorted(references[index] for index in validation) == list(range(24))
     with pytest.raises(ValueError, match="overlap"):
         assert_disjoint(["1", "2"], ["2", "3"])
     with pytest.raises(ValueError, match="at least two"):
@@ -101,10 +101,10 @@ def test_loaders_fail_for_missing_data(tmp_path: Path) -> None:
 @pytest.mark.skipif(not shutil.which("ffmpeg"), reason="ffmpeg is required for audio integration")
 def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
     tracks = []
-    for i in range(8):
-        audio = tmp_path / f"{i}.wav"
-        write_tone(audio, (110 if i < 4 else 220) + i * 0.2)
-        tracks.append(Track(str(i), audio, ("A", "major" if i < 4 else "minor")))
+    for index in range(8):
+        audio = tmp_path / f"{index}.wav"
+        write_tone(audio, (110 if index < 4 else 220) + index * 0.2)
+        tracks.append(Track(str(index), audio, ("A", "major" if index < 4 else "minor")))
     train_features, meta = prepare_dir("train", tracks, tmp_path, data=tmp_path)
     assert train_features.shape == (8, 300, 33)
     cached, cached_meta = prepare_dir("train", tracks, tmp_path, data=tmp_path)
@@ -117,10 +117,10 @@ def test_prepare_train_evaluate_and_infer(tmp_path: Path) -> None:
     tracks[0].key = ("A", "major")
     prepare_dir("train", tracks, tmp_path, data=tmp_path)
     held_out = []
-    for i in range(2):
-        audio = tmp_path / f"test-{i}.wav"
-        write_tone(audio, 165 + i * 110)
-        held_out.append(Track(f"test-{i}", audio, ("E", "major" if i == 0 else "minor")))
+    for index in range(2):
+        audio = tmp_path / f"test-{index}.wav"
+        write_tone(audio, 165 + index * 110)
+        held_out.append(Track(f"test-{index}", audio, ("E", "major" if index == 0 else "minor")))
     prepare_dir("test", held_out, tmp_path, data=tmp_path)
     checkpoint = train_model(tmp_path, "cpu", epochs=1, batch=4)
     record = json.loads((checkpoint.parent / "run.json").read_text())
@@ -147,19 +147,19 @@ def test_small_batch_can_overfit() -> None:
     torch.manual_seed(13)
     model = KeyCNN()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-    x = torch.zeros(4, 33, 300)
-    x[:2, :, :150] = 1
-    x[2:, :, 150:] = 2
+    features = torch.zeros(4, 33, 300)
+    features[:2, :, :150] = 1
+    features[2:, :, 150:] = 2
     target = torch.tensor([0, 0, 1, 1])
     for _ in range(40):
         model.train()
         optimizer.zero_grad()
-        loss = torch.nn.functional.cross_entropy(model(x), target)
+        loss = torch.nn.functional.cross_entropy(model(features), target)
         loss.backward()
         optimizer.step()
     model.eval()
     with torch.no_grad():
-        assert model(x).argmax(1).tolist() == target.tolist()
+        assert model(features).argmax(1).tolist() == target.tolist()
 
 
 @pytest.mark.parametrize("size", ["small", "medium", "large"])
@@ -186,7 +186,11 @@ def test_training_cli_forwards_model_and_recipe_options(
     from experiments.reference import train
 
     received = {}
-    monkeypatch.setattr(train, "train_model", lambda *a, **kw: received.update(kw))
+    monkeypatch.setattr(
+        train,
+        "train_model",
+        lambda *arguments, **keyword_arguments: received.update(keyword_arguments),
+    )
     monkeypatch.setattr(
         sys,
         "argv",

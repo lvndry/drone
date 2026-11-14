@@ -60,11 +60,11 @@ def progression(class_id: int, seconds: float, rng: np.random.Generator) -> np.n
 
 
 def write_wav(path: Path, samples: np.ndarray) -> None:
-    with wave.open(str(path), "wb") as out:
-        out.setnchannels(1)
-        out.setsampwidth(2)
-        out.setframerate(SR)
-        out.writeframes(np.round(samples * 32767).astype("<i2").tobytes())
+    with wave.open(str(path), "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(SR)
+        wav_file.writeframes(np.round(samples * 32767).astype("<i2").tobytes())
 
 
 def camelot(pitch_class: int, mode: str) -> str:

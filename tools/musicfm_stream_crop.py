@@ -48,11 +48,13 @@ def stream_crop(
         or length <= 0
         or start + length > samples
         or len(waveform_sha256) != 64
-        or any(c not in "0123456789abcdef" for c in waveform_sha256)
+        or any(character not in "0123456789abcdef" for character in waveform_sha256)
     ):
         raise ValueError("Invalid bound full-waveform/crop contract")
     watch()
-    expected_bytes, first, stop = samples * 4, start * 4, (start + length) * 4
+    expected_bytes = samples * 4
+    first = start * 4
+    stop = (start + length) * 4
     digest = hashlib.sha256()
     crop = bytearray()
     position = 0
@@ -77,9 +79,10 @@ def stream_crop(
                 if end > expected_bytes:
                     raise ValueError("Full waveform exceeds its canonical byte count")
                 digest.update(block)
-                lo, hi = max(position, first), min(end, stop)
-                if lo < hi:
-                    crop.extend(block[lo - position : hi - position])
+                low = max(position, first)
+                high = min(end, stop)
+                if low < high:
+                    crop.extend(block[low - position : high - position])
                 position = end
             terminal_deadline = time.monotonic() + 5
             while True:

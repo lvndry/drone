@@ -14,15 +14,15 @@ from experiments import musicfm_bn as bn
 
 def pools() -> tuple[dict[str, int], dict[str, int]]:
     return (
-        {f"bp-{i}": 14_400_000 + i for i in range(1229)},
-        {f"fma-{i}": 1200 + i for i in range(4033)},
+        {f"bp-{index}": 14_400_000 + index for index in range(1229)},
+        {f"fma-{index}": 1200 + index for index in range(4033)},
     )
 
 
 def test_schedule_is_512_deterministic_and_has_exact_domain_masses() -> None:
-    bp, fma = pools()
-    result = bn.schedule(bp, fma)
-    assert result == bn.schedule(dict(reversed(list(bp.items()))), fma)
+    beatport, fma = pools()
+    result = bn.schedule(beatport, fma)
+    assert result == bn.schedule(dict(reversed(list(beatport.items()))), fma)
     assert len(result) == 512
     assert len({(clip.domain, clip.identity) for clip in result}) == 512
     for domain, clips in (("beatport", result[:256]), ("fmak", result[256:])):
@@ -36,22 +36,22 @@ def test_schedule_is_512_deterministic_and_has_exact_domain_masses() -> None:
 
 
 def test_membership_fails_closed_on_pool_identity_errors() -> None:
-    bp, fma = pools()
+    beatport, fma = pools()
     with pytest.raises(ValueError, match="complete unique"):
-        bn.membership("beatport", list(bp)[:-1])
-    ids = list(bp)
+        bn.membership("beatport", list(beatport)[:-1])
+    ids = list(beatport)
     ids[-1] = ids[0]
     with pytest.raises(ValueError, match="complete unique"):
         bn.membership("beatport", ids)
     selected = bn.membership("fmak", list(fma))[0]
     fma[selected] = 1199
     with pytest.raises(ValueError, match="1200"):
-        bn.schedule(bp, fma)
+        bn.schedule(beatport, fma)
 
 
 def test_schedule_version_golden_pins_encoding_rank_and_domain_crop() -> None:
-    bp, _ = pools()
-    ranked = bn.membership("beatport", list(bp))
+    beatport, _ = pools()
+    ranked = bn.membership("beatport", list(beatport))
     assert ranked[:5] == ("bp-1112", "bp-190", "bp-133", "bp-607", "bp-142")
     encoded = json.dumps(ranked, ensure_ascii=True, separators=(",", ":")).encode("ascii")
     assert hashlib.sha256(encoded).hexdigest() == (
@@ -62,8 +62,8 @@ def test_schedule_version_golden_pins_encoding_rank_and_domain_crop() -> None:
 
 
 def test_membership_digest_ties_use_canonical_json_bytes(monkeypatch: pytest.MonkeyPatch) -> None:
-    bp, _ = pools()
-    ids = list(bp)
+    beatport, _ = pools()
+    ids = list(beatport)
     ids[0:3] = ["é", '"quoted"', "\\backslash"]
     monkeypatch.setattr(bn, "_digest", lambda _: b"\x00" * 32)
     expected = sorted(ids, key=lambda value: json.dumps(value, ensure_ascii=True).encode("ascii"))
@@ -105,10 +105,10 @@ def fixtures() -> tuple[bn.PopulationMoments, bn.PopulationMoments]:
 
 
 def test_between_recording_variance_and_equal_recording_mass() -> None:
-    a, b = fixtures()
+    first, second = fixtures()
     result = bn.WeightedPopulation()
-    result.add(a, Fraction(1, 4))
-    result.add(b, Fraction(3, 4))
+    result.add(first, Fraction(1, 4))
+    result.add(second, Fraction(3, 4))
     np.testing.assert_allclose(result.finish().mean, [4.75, 4], rtol=1e-12, atol=1e-12)
     np.testing.assert_allclose(result.finish().variance, [4.9375, 3], rtol=1e-12, atol=1e-12)
     assert result.exact_mass == 1
@@ -116,27 +116,37 @@ def test_between_recording_variance_and_equal_recording_mass() -> None:
 
 
 def test_actual_domain_weights_across_512_recordings() -> None:
-    a, b = fixtures()
+    beatport_moments, fmak_moments = fixtures()
     result = bn.WeightedPopulation()
-    for domain, moments in (("beatport", a), ("fmak", b)):
+    for domain, moments in (("beatport", beatport_moments), ("fmak", fmak_moments)):
         for _ in range(256):
             result.add(moments, bn.recording_weight(domain))
-    p, q = float(Fraction(1230, 2206)), float(Fraction(976, 2206))
-    np.testing.assert_allclose(result.finish().mean, [p + 6 * q, p + 5 * q], atol=1e-12, rtol=1e-12)
+    beatport_share = float(Fraction(1230, 2206))
+    fmak_share = float(Fraction(976, 2206))
     np.testing.assert_allclose(
-        result.finish().variance, [p + 25 * p * q, 16 * p * q], atol=1e-12, rtol=1e-12
+        result.finish().mean,
+        [beatport_share + 6 * fmak_share, beatport_share + 5 * fmak_share],
+        atol=1e-12,
+        rtol=1e-12,
+    )
+    np.testing.assert_allclose(
+        result.finish().variance,
+        [beatport_share + 25 * beatport_share * fmak_share, 16 * beatport_share * fmak_share],
+        atol=1e-12,
+        rtol=1e-12,
     )
     assert result.exact_mass == 1
 
 
 def test_merge_order_is_stable_and_matches_explicit_weighted_positions() -> None:
     rng = np.random.default_rng(29)
-    arrays = [rng.normal(i * 0.7, 2, size=(1, 4, i + 1)) for i in range(40)]
-    weights = [Fraction(i + 1, 820) for i in range(40)]
-    forward, reverse = bn.WeightedPopulation(), bn.WeightedPopulation()
+    arrays = [rng.normal(index * 0.7, 2, size=(1, 4, index + 1)) for index in range(40)]
+    weights = [Fraction(index + 1, 820) for index in range(40)]
+    forward = bn.WeightedPopulation()
+    reverse = bn.WeightedPopulation()
     for indices, accumulator in ((range(40), forward), (reversed(range(40)), reverse)):
-        for i in indices:
-            accumulator.add(bn.recording_moments(arrays[i]), weights[i])
+        for index in indices:
+            accumulator.add(bn.recording_moments(arrays[index]), weights[index])
     # Independent reference: each position gets its recording's mass / support.
     values = np.concatenate([array[0] for array in arrays], axis=1)
     position_weights = np.concatenate(
@@ -195,12 +205,12 @@ def test_moment_and_merge_validation_preserves_previous_state() -> None:
     accumulator = bn.WeightedPopulation()
     with pytest.raises(ValueError, match="empty"):
         accumulator.finish()
-    a, _ = fixtures()
-    accumulator.add(a, Fraction(1, 2))
+    first, _ = fixtures()
+    accumulator.add(first, Fraction(1, 2))
     before = accumulator.finish()
     for weight in (Fraction(0), Fraction(-1), Fraction(10**400), Fraction(1, 10**400)):
         with pytest.raises(ValueError):
-            accumulator.add(a, weight)
+            accumulator.add(first, weight)
     with pytest.raises(ValueError, match="channel count"):
         accumulator.add(bn.recording_moments(np.ones((1, 3, 4))), Fraction(1, 2))
     np.testing.assert_array_equal(accumulator.finish().mean, before.mean)

@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from numpy.typing import NDArray
 from torch import Tensor, nn
-from torch.nn import functional as F
+from torch.nn import functional
 
 
 def _require(condition: bool, message: str) -> None:
@@ -46,7 +46,7 @@ def weighted_ce(logits: Tensor, targets: Tensor, weights: Tensor) -> Tensor:
         and bool((weights > 0).all()),
         "Nonfinite/invalid objective input",
     )
-    return (F.cross_entropy(logits, targets, reduction="none") * weights).mean()
+    return (functional.cross_entropy(logits, targets, reduction="none") * weights).mean()
 
 
 def mean_logits(
@@ -113,7 +113,10 @@ def train_batch(
     _require(bool(torch.isfinite(loss)), "Nonfinite loss; no optimizer step")
     loss.backward()
     _require(
-        all(p.grad is not None and bool(torch.isfinite(p.grad).all()) for p in head.parameters()),
+        all(
+            parameter.grad is not None and bool(torch.isfinite(parameter.grad).all())
+            for parameter in head.parameters()
+        ),
         "Missing/nonfinite gradients; no optimizer step",
     )
     optimizer.step()

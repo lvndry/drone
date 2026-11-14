@@ -19,8 +19,8 @@ def test_predictor_matches_direct_k10_call_at_full_length(
     torch.manual_seed(13)
     model = KeyCNN().eval()
     features = np.random.default_rng(13).random((N_CORE, 56), dtype=np.float32)
-    monkeypatch.setattr(drone, "load_checkpoint", lambda *a: (model, {}))
-    monkeypatch.setattr(drone, "prepare", lambda *a, **kw: (features, None))
+    monkeypatch.setattr(drone, "load_checkpoint", lambda *arguments: (model, {}))
+    monkeypatch.setattr(drone, "prepare", lambda *arguments, **keyword_arguments: (features, None))
     with torch.inference_mode():
         expected = model(torch.from_numpy(features[None])).softmax(1)[0]
     prediction = drone.Predictor(weights=tmp_path / "unused.pt").predict("track.wav")

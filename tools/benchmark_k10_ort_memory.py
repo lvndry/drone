@@ -21,19 +21,19 @@ def rss_mib() -> float:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--selection", type=Path, required=True)
-    p.add_argument("--features", type=Path, required=True)
-    p.add_argument("--onnx", type=Path, required=True)
-    p.add_argument("--output", type=Path, required=True)
-    args = p.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--selection", type=Path, required=True)
+    parser.add_argument("--features", type=Path, required=True)
+    parser.add_argument("--onnx", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
     selection = json.loads(args.selection.read_bytes())
     manifest = json.loads((args.features / "manifest.json").read_bytes())
     if manifest["feature_spec"] != "cqt24-8oct-c1-pad4-hop4096-v2":
         raise ValueError("Different CQT contract")
     if selection["private_audio_used"] or selection["accuracy_scored"]:
         raise ValueError("Use the public performance-only selection")
-    lookup = {r["id"]: r for r in manifest["rows"]}
+    lookup = {row["id"]: row for row in manifest["rows"]}
     options = ort.SessionOptions()
     options.intra_op_num_threads = 1
     options.inter_op_num_threads = 1

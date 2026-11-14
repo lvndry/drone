@@ -50,9 +50,9 @@ class Writer:
             raise ValueError("Trace output symlink")
         self.root = root.resolve()
         (self.root / "objects").mkdir(parents=True, exist_ok=True)
-        if any(p.is_symlink() for p in self.root.rglob("*")):
+        if any(entry.is_symlink() for entry in self.root.rglob("*")):
             raise ValueError("Trace output symlink")
-        self.size = sum(p.stat().st_size for p in self.root.rglob("*") if p.is_file())
+        self.size = sum(entry.stat().st_size for entry in self.root.rglob("*") if entry.is_file())
 
     def array(self, values: NDArray[Any], dtype: DTypeLike) -> dict[str, Any]:
         array = np.asarray(values, dtype=dtype, order="C")
@@ -66,7 +66,9 @@ class Writer:
             bound(path, hash_)
         else:
             # Other owned files (including a future task-local JIT cache) count too.
-            self.size = sum(p.stat().st_size for p in self.root.rglob("*") if p.is_file())
+            self.size = sum(
+                entry.stat().st_size for entry in self.root.rglob("*") if entry.is_file()
+            )
             if self.size + len(raw) > LIMIT - 262144:
                 raise ValueError("64MiB shared trace-output cap")
             with path.open("xb") as stream:
@@ -85,7 +87,9 @@ class NumpyProxy:
     """Module-local hooks return original ufunc results without changing layout."""
 
     def __init__(self, writer: Writer, records: dict[str, Any], normalization: bool) -> None:
-        self.writer, self.records, self.normalization = writer, records, normalization
+        self.writer = writer
+        self.records = records
+        self.normalization = normalization
 
     def __getattr__(self, name: str) -> object:
         return getattr(np, name)
@@ -233,7 +237,7 @@ def runtime(proof_path: Path, expected: str) -> tuple[dict[str, Any], ModuleType
         bound(Path(info["path"]), info["sha256"])
     if not proof["jit_libraries"]:
         raise ValueError("Explicit LLVM/JIT native-library pins required")
-    if any(os.environ.get(k) != v for k, v in proof["dispatch_environment"].items()):
+    if any(os.environ.get(name) != value for name, value in proof["dispatch_environment"].items()):
         raise ValueError("Dispatch environment changed")
     actual_sources = {
         "cqt": "librosa.core.constantq",
@@ -271,14 +275,15 @@ def execute(manifest: Path, output: Path, proof_path: Path, proof_sha: str) -> N
     pcm = np.frombuffer(bound(pcm_path, PCM), dtype="<f4")
     if pcm.shape != (1633354,) or not np.isfinite(pcm).all():
         raise ValueError("Fixed PCM geometry/finiteness")
-    writer, records = Writer(output), {}
+    writer = Writer(output)
+    records: dict[str, Any] = {}
     if "onnxruntime" in sys.modules or "torch" in sys.modules:
         raise ValueError("Frontend-only process required")
     report = output / "python-trace.json"
     if report.exists():
         raise ValueError("Immutable trace report exists")
     # Import only here: tests of storage/proxies never invoke a transform.
-    import librosa.core.constantq as cq
+    import librosa.core.constantq as constantq
 
     Trace = load_support(proof).Trace
 
@@ -291,7 +296,7 @@ def execute(manifest: Path, output: Path, proof_path: Path, proof_sha: str) -> N
             record["probes"] = super().observed(name, values, dtype).get("probes", [])
             return record
 
-    original_stack = getattr(cq, "__trim_stack")
+    original_stack = getattr(constantq, "__trim_stack")
 
     def stack(responses: list[NDArray[Any]], bins: int, dtype: DTypeLike) -> NDArray[Any]:
         result = original_stack(responses, bins, dtype)
@@ -300,13 +305,14 @@ def execute(manifest: Path, output: Path, proof_path: Path, proof_sha: str) -> N
         return result
 
     with contextlib.ExitStack() as cleanup:
-        old_np, old_feature_np = cq.np, features.np
-        cleanup.callback(setattr, cq, "np", old_np)
+        old_np = constantq.np
+        old_feature_np = features.np
+        cleanup.callback(setattr, constantq, "np", old_np)
         cleanup.callback(setattr, features, "np", old_feature_np)
-        cleanup.callback(setattr, cq, "__trim_stack", original_stack)
-        setattr(cq, "np", NumpyProxy(writer, records, True))
+        cleanup.callback(setattr, constantq, "__trim_stack", original_stack)
+        setattr(constantq, "np", NumpyProxy(writer, records, True))
         setattr(features, "np", NumpyProxy(writer, records, False))
-        setattr(cq, "__trim_stack", stack)
+        setattr(constantq, "__trim_stack", stack)
         with CompleteTrace(output, "python", True) as trace:
             padded = features.cqt(pcm)
     core = np.ascontiguousarray(padded.astype(np.float16).astype(np.float32)[8:200])
@@ -366,7 +372,7 @@ def execute(manifest: Path, output: Path, proof_path: Path, proof_sha: str) -> N
     )
     with report.open("x") as stream:
         stream.write(encoded)
-    if sum(p.stat().st_size for p in output.rglob("*") if p.is_file()) > LIMIT:
+    if sum(entry.stat().st_size for entry in output.rglob("*") if entry.is_file()) > LIMIT:
         raise ValueError("Final trace output cap")
     if not preserved:
         raise ValueError(
