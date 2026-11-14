@@ -174,9 +174,12 @@ def main() -> None:
     if target.exists() and read(target) != result:
         raise ValueError("Existing selection differs; refusing to overwrite")
     target.write_text(json.dumps(result, indent=2) + "\n")
+    seed13_probabilities, seed37_probabilities, seed73_probabilities = seed_probabilities
     np.savez(
         args.root / "validation-probabilities.npz",
-        **dict(zip([f"seed{seed}" for seed in seeds], seed_probabilities, strict=True)),
+        seed13=seed13_probabilities,
+        seed37=seed37_probabilities,
+        seed73=seed73_probabilities,
     )
     print(
         json.dumps(
