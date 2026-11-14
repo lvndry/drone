@@ -89,6 +89,22 @@ Outside dance music, on 500 tracks of mixed genres from the Free Music Archive
 against drone-v1's 65.4%: 72.4% and 77.6% on the two 250-track panels, a gain
 of 9 to 10 points on each.
 
+### For DJs: exact or a fifth away
+
+A key a fifth away (a neighbouring number on the Camelot wheel, same letter)
+still mixes; the relative key, the parallel key or anything else does not.
+Counted that way, drone-v2 gives a usable key on 90.6% of the expert single-key
+tracks, against 85.6% for libkeyfinder (+5.0 points, 95% interval 2.0 to 8.3),
+and on 75.8% against 71.9% with the original GiantSteps labels. The gap is
+smaller than on exact keys because many of libkeyfinder's misses were already
+a fifth away.
+
+On 309 afro house tracks from a DJ library, drone-v2 (through Euphoria) and
+rekordbox 7 named the same key for 89.3% of tracks and keys within a fifth
+for 95.5%; where Euphoria rated its key high confidence (two tracks in three),
+99.0% were within a fifth of rekordbox's. That is agreement between two
+detectors, not accuracy against a reference.
+
 ### What these numbers do not say
 
 - **Not compared with Mixed In Key.** Published Mixed In Key results (85 to

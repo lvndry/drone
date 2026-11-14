@@ -1,0 +1,226 @@
+[
+ {
+  "track": "1034795",
+  "reference": 13,
+  "both_predict": 23,
+  "relation": "fifth",
+  "confidence": 2
+ },
+ {
+  "track": "1052744",
+  "reference": 15,
+  "both_predict": 17,
+  "relation": "other",
+  "confidence": 1
+ },
+ {
+  "track": "1178656",
+  "reference": 15,
+  "both_predict": 1,
+  "relation": "fifth",
+  "confidence": 2
+ },
+ {
+  "track": "1234669",
+  "reference": 15,
+  "both_predict": 17,
+  "relation": "other",
+  "confidence": 0
+ },
+ {
+  "track": "1234752",
+  "reference": 23,
+  "both_predict": 4,
+  "relation": "relative",
+  "confidence": 2
+ },
+ {
+  "track": "1678455",
+  "reference": 13,
+  "both_predict": 23,
+  "relation": "fifth",
+  "confidence": null
+ },
+ {
+  "track": "1681077",
+  "reference": 0,
+  "both_predict": 23,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "1792506",
+  "reference": 14,
+  "both_predict": 5,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "2673157",
+  "reference": 21,
+  "both_predict": 23,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "3262951",
+  "reference": 1,
+  "both_predict": 6,
+  "relation": "relative",
+  "confidence": 2
+ },
+ {
+  "track": "3270413",
+  "reference": 14,
+  "both_predict": 0,
+  "relation": "fifth",
+  "confidence": 2
+ },
+ {
+  "track": "3313070",
+  "reference": 23,
+  "both_predict": 4,
+  "relation": "relative",
+  "confidence": null
+ },
+ {
+  "track": "3402886",
+  "reference": 12,
+  "both_predict": 13,
+  "relation": "parallel",
+  "confidence": 2
+ },
+ {
+  "track": "3467773",
+  "reference": 21,
+  "both_predict": 2,
+  "relation": "relative",
+  "confidence": 2
+ },
+ {
+  "track": "3518768",
+  "reference": 6,
+  "both_predict": 1,
+  "relation": "relative",
+  "confidence": null
+ },
+ {
+  "track": "3561744",
+  "reference": 15,
+  "both_predict": 13,
+  "relation": "other",
+  "confidence": null
+ },
+ {
+  "track": "3568438",
+  "reference": 16,
+  "both_predict": 1,
+  "relation": "other",
+  "confidence": null
+ },
+ {
+  "track": "3568465",
+  "reference": 19,
+  "both_predict": 23,
+  "relation": "other",
+  "confidence": null
+ },
+ {
+  "track": "3602280",
+  "reference": 15,
+  "both_predict": 11,
+  "relation": "other",
+  "confidence": null
+ },
+ {
+  "track": "3625787",
+  "reference": 15,
+  "both_predict": 1,
+  "relation": "fifth",
+  "confidence": 2
+ },
+ {
+  "track": "3958755",
+  "reference": 6,
+  "both_predict": 7,
+  "relation": "parallel",
+  "confidence": 2
+ },
+ {
+  "track": "3967462",
+  "reference": 9,
+  "both_predict": 1,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "4284574",
+  "reference": 19,
+  "both_predict": 9,
+  "relation": "fifth",
+  "confidence": 2
+ },
+ {
+  "track": "4325646",
+  "reference": 4,
+  "both_predict": 13,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "4360488",
+  "reference": 11,
+  "both_predict": 13,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "4657878",
+  "reference": 13,
+  "both_predict": 3,
+  "relation": "fifth",
+  "confidence": null
+ },
+ {
+  "track": "4693198",
+  "reference": 16,
+  "both_predict": 17,
+  "relation": "parallel",
+  "confidence": 2
+ },
+ {
+  "track": "4960012",
+  "reference": 14,
+  "both_predict": 15,
+  "relation": "parallel",
+  "confidence": 2
+ },
+ {
+  "track": "634032",
+  "reference": 9,
+  "both_predict": 1,
+  "relation": "other",
+  "confidence": 2
+ },
+ {
+  "track": "677299",
+  "reference": 12,
+  "both_predict": 13,
+  "relation": "parallel",
+  "confidence": 2
+ },
+ {
+  "track": "774875",
+  "reference": 13,
+  "both_predict": 23,
+  "relation": "fifth",
+  "confidence": null
+ },
+ {
+  "track": "992081",
+  "reference": 8,
+  "both_predict": 23,
+  "relation": "other",
+  "confidence": 2
+ }
+]

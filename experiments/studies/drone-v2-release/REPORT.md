@@ -49,6 +49,48 @@ pop 73.2 to 87.5 (56), rock 66.7 to 70.8 (48), folk 69.4 to 77.8 (36), hip-hop
 78.6 to 85.7 (14). Smaller genres are in the data file; most have too few
 tracks to read.
 
+## What counts for a DJ: exact or a fifth away
+
+A key a fifth away (a neighbouring number on the Camelot wheel, same letter)
+still mixes acceptably; the relative key, the parallel key or anything else
+does not. Scored that way, from Euphoria's per-preview readings, whose keys
+equal this package's on all 604 previews:
+
+| Labels | drone-v2 | libkeyfinder 2.2.8 | Gain (95% interval) |
+| --- | ---: | ---: | ---: |
+| GiantSteps, original labels (604) | 75.8 | 71.9 | +4.0 (+1.0 to +7.0) |
+| GiantSteps+, single-key (457) | 90.6 | 85.6 | +5.0 (+2.0 to +8.3) |
+
+The gain is smaller than on exact keys because many libkeyfinder errors were
+already a fifth away (11.3% of previews, against 6.0% for drone-v2). drone-v2
+gives a usable key on about nine tracks in ten of the cleanly labelled set.
+
+## On a DJ library
+
+One afro house folder of a private DJ library (309 full-length tracks, mostly
+streaming downloads with no key tags) was analysed by Euphoria with drone-v2 and
+by rekordbox 7. Agreement is not accuracy, since both detectors can be wrong the
+same way, but it shows how drone-v2 behaves on real DJ music:
+
+| drone-v2 against rekordbox | Tracks | Share |
+| --- | ---: | ---: |
+| Same key | 276 | 89.3% |
+| A fifth away | 19 | 6.1% |
+| Relative key | 5 | 1.6% |
+| Parallel key | 4 | 1.3% |
+| Another key | 5 | 1.6% |
+
+| Euphoria confidence | Tracks | Same key | Same or a fifth away |
+| --- | ---: | ---: | ---: |
+| High | 209 | 95.7% | 99.0% |
+| Medium | 83 | 79.5% | 91.6% |
+| Low | 17 | 58.8% | 70.6% |
+
+For the 14 clear disagreements, the key sites that could be read automatically
+gave no consistent winner: of the six with a verifiable published key, three
+sided with drone-v2, two with rekordbox and one gave a third key. Track names and
+per-track keys are not published here.
+
 ## Speed
 
 On an Apple M5, one thread, 19 GiantSteps previews (two minutes each), the
