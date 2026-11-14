@@ -5,6 +5,9 @@ exportable model. It predicts 24 classes: 12 tonics, each in major or minor.
 [Euphoria](https://github.com/lvndry/euphoria) is its main consumer; other audio
 applications can use Drone independently.
 
+**New here?** Start with the [overview](docs/overview.md): what Drone is, how it
+works, what was learned, and how to find your way around this repository.
+
 **Model card:** [lvndry/drone on Hugging Face](https://huggingface.co/lvndry/drone).
 The bundled artifacts and their provenance are documented in
 [weights/README.md](weights/README.md).
