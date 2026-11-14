@@ -1,0 +1,92 @@
+{
+ "baseline": "analysis-r6.npz:shift12",
+ "candidate": "analysis-r8b.npz:pooldj",
+ "shift_average": false,
+ "rows": {
+  "valid": {
+   "tracks": 250,
+   "baseline_exact": 70.67,
+   "candidate_exact": 70.53,
+   "difference": -0.13,
+   "interval_95": [
+    -1.33,
+    1.07
+   ]
+  },
+  "holdout": {
+   "tracks": 250,
+   "baseline_exact": 76.8,
+   "candidate_exact": 76.0,
+   "difference": -0.8,
+   "interval_95": [
+    -2.4,
+    0.8
+   ]
+  },
+  "gsplus_primary_development": {
+   "tracks": 294,
+   "baseline_exact": 79.59,
+   "candidate_exact": 77.66,
+   "difference": -1.93,
+   "interval_95": [
+    -3.63,
+    -0.34
+   ]
+  },
+  "gsplus_primary_test": {
+   "tracks": 277,
+   "baseline_exact": 80.63,
+   "candidate_exact": 80.02,
+   "difference": -0.6,
+   "interval_95": [
+    -1.81,
+    0.48
+   ]
+  },
+  "gsplus_clean_development": {
+   "tracks": 231,
+   "baseline_exact": 87.88,
+   "candidate_exact": 86.15,
+   "difference": -1.73,
+   "interval_95": [
+    -3.61,
+    -0.0
+   ]
+  },
+  "gsplus_clean_test": {
+   "tracks": 226,
+   "baseline_exact": 87.17,
+   "candidate_exact": 86.14,
+   "difference": -1.03,
+   "interval_95": [
+    -2.36,
+    0.15
+   ]
+  },
+  "pooled_development": {
+   "tracks": 794,
+   "difference": -1.01,
+   "interval_95": [
+    -1.93,
+    -0.17
+   ]
+  },
+  "pooled_fma_development": {
+   "tracks": 500,
+   "difference": -0.47,
+   "interval_95": [
+    -1.47,
+    0.53
+   ]
+  },
+  "pooled_gsplus_development": {
+   "tracks": 294,
+   "difference": -1.93,
+   "interval_95": [
+    -3.63,
+    -0.34
+   ]
+  }
+ },
+ "decision": "reject"
+}

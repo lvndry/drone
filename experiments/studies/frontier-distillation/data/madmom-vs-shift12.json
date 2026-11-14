@@ -1,0 +1,150 @@
+{
+ "drone": "analysis-r6.npz:shift12",
+ "bootstrap_samples": 10000,
+ "panels": {
+  "gs_original": {
+   "madmom_mirex": 74.62,
+   "missing_predictions": 0,
+   "ensemble": {
+    "all": {
+     "tracks": 604,
+     "madmom_exact": 67.88,
+     "drone_exact": 69.7,
+     "difference": 1.82,
+     "interval_95": [
+      -0.33,
+      4.14
+     ]
+    },
+    "test_half": {
+     "tracks": 293,
+     "madmom_exact": 68.6,
+     "drone_exact": 69.62,
+     "difference": 1.02,
+     "interval_95": [
+      -1.71,
+      4.1
+     ]
+    }
+   },
+   "ensemble_shift_average": {
+    "all": {
+     "tracks": 604,
+     "madmom_exact": 67.88,
+     "drone_exact": 70.03,
+     "difference": 2.15,
+     "interval_95": [
+      0.0,
+      4.47
+     ]
+    },
+    "test_half": {
+     "tracks": 293,
+     "madmom_exact": 68.6,
+     "drone_exact": 70.65,
+     "difference": 2.05,
+     "interval_95": [
+      -0.68,
+      4.78
+     ]
+    }
+   }
+  },
+  "gsplus_primary": {
+   "madmom_mirex": 83.1,
+   "missing_predictions": 0,
+   "ensemble": {
+    "all": {
+     "tracks": 571,
+     "madmom_exact": 77.41,
+     "drone_exact": 79.51,
+     "difference": 2.1,
+     "interval_95": [
+      -0.35,
+      4.73
+     ]
+    },
+    "test_half": {
+     "tracks": 277,
+     "madmom_exact": 77.26,
+     "drone_exact": 79.78,
+     "difference": 2.53,
+     "interval_95": [
+      -0.72,
+      6.14
+     ]
+    }
+   },
+   "ensemble_shift_average": {
+    "all": {
+     "tracks": 571,
+     "madmom_exact": 77.41,
+     "drone_exact": 80.56,
+     "difference": 3.15,
+     "interval_95": [
+      0.7,
+      5.78
+     ]
+    },
+    "test_half": {
+     "tracks": 277,
+     "madmom_exact": 77.26,
+     "drone_exact": 81.59,
+     "difference": 4.33,
+     "interval_95": [
+      1.08,
+      7.58
+     ]
+    }
+   }
+  },
+  "gsplus_clean": {
+   "madmom_mirex": 87.51,
+   "missing_predictions": 0,
+   "ensemble": {
+    "all": {
+     "tracks": 457,
+     "madmom_exact": 83.37,
+     "drone_exact": 87.09,
+     "difference": 3.72,
+     "interval_95": [
+      1.09,
+      6.35
+     ]
+    },
+    "test_half": {
+     "tracks": 226,
+     "madmom_exact": 83.19,
+     "drone_exact": 86.28,
+     "difference": 3.1,
+     "interval_95": [
+      -0.44,
+      6.64
+     ]
+    }
+   },
+   "ensemble_shift_average": {
+    "all": {
+     "tracks": 457,
+     "madmom_exact": 83.37,
+     "drone_exact": 88.18,
+     "difference": 4.81,
+     "interval_95": [
+      2.19,
+      7.44
+     ]
+    },
+    "test_half": {
+     "tracks": 226,
+     "madmom_exact": 83.19,
+     "drone_exact": 88.05,
+     "difference": 4.87,
+     "interval_95": [
+      1.77,
+      8.41
+     ]
+    }
+   }
+  }
+ }
+}

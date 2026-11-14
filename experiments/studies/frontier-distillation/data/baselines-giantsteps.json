@@ -1,0 +1,242 @@
+{
+ "gs_original": {
+  "libkeyfinder 2.2.8": {
+   "all": {
+    "tracks": 604,
+    "exact": 60.43,
+    "weighted": 69.04
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 60.41,
+    "weighted": 67.78
+   },
+   "missing": 0
+  },
+  "madmom KEY_CNN": {
+   "all": {
+    "tracks": 604,
+    "exact": 67.88,
+    "weighted": 74.62
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 68.6,
+    "weighted": 74.51
+   },
+   "missing": 0
+  },
+  "drone-v1": {
+   "all": {
+    "tracks": 604,
+    "exact": 68.54,
+    "weighted": 74.88
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 67.24,
+    "weighted": 72.59
+   },
+   "missing": 0
+  },
+  "supervised control, 3-seed ensemble": {
+   "all": {
+    "tracks": 604,
+    "exact": 69.04,
+    "weighted": 74.8
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 70.31,
+    "weighted": 75.49
+   },
+   "missing": 0
+  },
+  "shift12 ensemble": {
+   "all": {
+    "tracks": 604,
+    "exact": 69.7,
+    "weighted": 75.38
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 69.62,
+    "weighted": 74.98
+   },
+   "missing": 0
+  },
+  "shift12 ensemble, shift-averaged": {
+   "all": {
+    "tracks": 604,
+    "exact": 70.03,
+    "weighted": 75.53
+   },
+   "test_half": {
+    "tracks": 293,
+    "exact": 70.65,
+    "weighted": 75.73
+   },
+   "missing": 0
+  }
+ },
+ "gsplus_primary": {
+  "libkeyfinder 2.2.8": {
+   "all": {
+    "tracks": 571,
+    "exact": 69.88,
+    "weighted": 77.83
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 69.68,
+    "weighted": 76.53
+   },
+   "missing": 0
+  },
+  "madmom KEY_CNN": {
+   "all": {
+    "tracks": 571,
+    "exact": 77.41,
+    "weighted": 83.1
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 77.26,
+    "weighted": 82.64
+   },
+   "missing": 0
+  },
+  "drone-v1": {
+   "all": {
+    "tracks": 571,
+    "exact": 77.41,
+    "weighted": 83.33
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 77.26,
+    "weighted": 82.35
+   },
+   "missing": 0
+  },
+  "supervised control, 3-seed ensemble": {
+   "all": {
+    "tracks": 571,
+    "exact": 79.86,
+    "weighted": 84.15
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 80.87,
+    "weighted": 85.2
+   },
+   "missing": 0
+  },
+  "shift12 ensemble": {
+   "all": {
+    "tracks": 571,
+    "exact": 79.51,
+    "weighted": 84.03
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 79.78,
+    "weighted": 84.33
+   },
+   "missing": 0
+  },
+  "shift12 ensemble, shift-averaged": {
+   "all": {
+    "tracks": 571,
+    "exact": 80.56,
+    "weighted": 84.71
+   },
+   "test_half": {
+    "tracks": 277,
+    "exact": 81.59,
+    "weighted": 85.63
+   },
+   "missing": 0
+  }
+ },
+ "gsplus_clean": {
+  "libkeyfinder 2.2.8": {
+   "all": {
+    "tracks": 457,
+    "exact": 76.15,
+    "weighted": 82.47
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 74.78,
+    "weighted": 80.27
+   },
+   "missing": 0
+  },
+  "madmom KEY_CNN": {
+   "all": {
+    "tracks": 457,
+    "exact": 83.37,
+    "weighted": 87.51
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 83.19,
+    "weighted": 86.81
+   },
+   "missing": 0
+  },
+  "drone-v1": {
+   "all": {
+    "tracks": 457,
+    "exact": 83.37,
+    "weighted": 87.4
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 80.97,
+    "weighted": 85.44
+   },
+   "missing": 0
+  },
+  "supervised control, 3-seed ensemble": {
+   "all": {
+    "tracks": 457,
+    "exact": 86.87,
+    "weighted": 89.5
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 87.17,
+    "weighted": 90.04
+   },
+   "missing": 0
+  },
+  "shift12 ensemble": {
+   "all": {
+    "tracks": 457,
+    "exact": 87.09,
+    "weighted": 89.5
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 86.28,
+    "weighted": 89.07
+   },
+   "missing": 0
+  },
+  "shift12 ensemble, shift-averaged": {
+   "all": {
+    "tracks": 457,
+    "exact": 88.18,
+    "weighted": 90.24
+   },
+   "test_half": {
+    "tracks": 226,
+    "exact": 88.05,
+    "weighted": 90.22
+   },
+   "missing": 0
+  }
+ }
+}

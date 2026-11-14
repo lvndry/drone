@@ -1,0 +1,92 @@
+{
+ "baseline": "analysis-v2.npz:control",
+ "candidate": "analysis-v2.npz:softheavy",
+ "shift_average": false,
+ "rows": {
+  "valid": {
+   "tracks": 250,
+   "baseline_exact": 69.6,
+   "candidate_exact": 70.8,
+   "difference": 1.2,
+   "interval_95": [
+    -0.53,
+    2.93
+   ]
+  },
+  "holdout": {
+   "tracks": 250,
+   "baseline_exact": 73.73,
+   "candidate_exact": 75.47,
+   "difference": 1.73,
+   "interval_95": [
+    -0.13,
+    3.73
+   ]
+  },
+  "gsplus_primary_development": {
+   "tracks": 294,
+   "baseline_exact": 77.32,
+   "candidate_exact": 78.8,
+   "difference": 1.47,
+   "interval_95": [
+    -0.23,
+    3.17
+   ]
+  },
+  "gsplus_primary_test": {
+   "tracks": 277,
+   "baseline_exact": 78.94,
+   "candidate_exact": 80.63,
+   "difference": 1.68,
+   "interval_95": [
+    0.12,
+    3.37
+   ]
+  },
+  "gsplus_clean_development": {
+   "tracks": 231,
+   "baseline_exact": 84.99,
+   "candidate_exact": 86.87,
+   "difference": 1.88,
+   "interval_95": [
+    0.0,
+    3.9
+   ]
+  },
+  "gsplus_clean_test": {
+   "tracks": 226,
+   "baseline_exact": 84.66,
+   "candidate_exact": 86.73,
+   "difference": 2.06,
+   "interval_95": [
+    0.29,
+    3.98
+   ]
+  },
+  "pooled_development": {
+   "tracks": 794,
+   "difference": 1.47,
+   "interval_95": [
+    0.46,
+    2.52
+   ]
+  },
+  "pooled_fma_development": {
+   "tracks": 500,
+   "difference": 1.47,
+   "interval_95": [
+    0.2,
+    2.8
+   ]
+  },
+  "pooled_gsplus_development": {
+   "tracks": 294,
+   "difference": 1.47,
+   "interval_95": [
+    -0.23,
+    3.17
+   ]
+  }
+ },
+ "decision": "adopt"
+}
