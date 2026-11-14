@@ -42,12 +42,13 @@ def test_export_verifies_dynamic_batch_and_cpu_parity(tmp_path: Path, width: flo
     assert options.get_session_config_entry("session.intra_op.allow_spinning") == "0"
 
 
-def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths() -> None:
+@pytest.mark.parametrize("release", ["drone-v1", "drone-v2"])
+def test_packaged_onnx_matches_shipped_checkpoint_at_full_lengths(release: str) -> None:
     from drone.export import cpu_session
 
     weights = Path(__file__).resolve().parents[1] / "weights"
-    model, _ = load_checkpoint(weights / "drone-v1.pt")
-    session = cpu_session(weights / "drone-v1.onnx")
+    model, _ = load_checkpoint(weights / f"{release}.pt")
+    session = cpu_session(weights / f"{release}.onnx")
     shape = session.get_inputs()[0].shape
     assert isinstance(shape[0], str) and isinstance(shape[2], str)
     for frames in (8, 319, 645):

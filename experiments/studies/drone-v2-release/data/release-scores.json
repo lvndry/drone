@@ -1,0 +1,503 @@
+{
+ "panels": {
+  "fma_valid": {
+   "tracks": 250,
+   "v1": {
+    "exact": 62.4,
+    "weighted": 69.28
+   },
+   "v2": {
+    "exact": 72.4,
+    "weighted": 77.6
+   },
+   "v2_minus_v1": {
+    "difference": 10.0,
+    "interval_95": [
+     4.8,
+     14.81
+    ]
+   }
+  },
+  "fma_holdout": {
+   "tracks": 250,
+   "v1": {
+    "exact": 68.4,
+    "weighted": 75.52
+   },
+   "v2": {
+    "exact": 77.6,
+    "weighted": 81.48
+   },
+   "v2_minus_v1": {
+    "difference": 9.2,
+    "interval_95": [
+     4.8,
+     13.6
+    ]
+   }
+  },
+  "giantsteps_original": {
+   "tracks": 604,
+   "v1": {
+    "exact": 68.54,
+    "weighted": 74.88
+   },
+   "v2": {
+    "exact": 69.87,
+    "weighted": 75.45
+   },
+   "libkeyfinder": {
+    "exact": 60.43,
+    "weighted": 69.04
+   },
+   "v2_minus_v1": {
+    "difference": 1.32,
+    "interval_95": [
+     -1.16,
+     3.97
+    ]
+   },
+   "v2_minus_libkeyfinder": {
+    "difference": 9.44,
+    "interval_95": [
+     6.13,
+     12.75
+    ]
+   }
+  },
+  "giantsteps_expert_primary": {
+   "tracks": 571,
+   "v1": {
+    "exact": 77.41,
+    "weighted": 83.33
+   },
+   "v2": {
+    "exact": 80.74,
+    "weighted": 84.94
+   },
+   "libkeyfinder": {
+    "exact": 69.88,
+    "weighted": 77.83
+   },
+   "v2_minus_v1": {
+    "difference": 3.33,
+    "interval_95": [
+     0.7,
+     6.13
+    ]
+   },
+   "v2_minus_libkeyfinder": {
+    "difference": 10.86,
+    "interval_95": [
+     7.36,
+     14.36
+    ]
+   }
+  },
+  "giantsteps_expert_clean": {
+   "tracks": 457,
+   "v1": {
+    "exact": 83.37,
+    "weighted": 87.4
+   },
+   "v2": {
+    "exact": 87.96,
+    "weighted": 90.13
+   },
+   "libkeyfinder": {
+    "exact": 76.15,
+    "weighted": 82.47
+   },
+   "v2_minus_v1": {
+    "difference": 4.6,
+    "interval_95": [
+     1.97,
+     7.44
+    ]
+   },
+   "v2_minus_libkeyfinder": {
+    "difference": 11.82,
+    "interval_95": [
+     8.1,
+     15.54
+    ]
+   }
+  },
+  "giantsteps_expert_clean_test_half": {
+   "tracks": 226,
+   "v1": {
+    "exact": 80.97,
+    "weighted": 85.44
+   },
+   "v2": {
+    "exact": 87.17,
+    "weighted": 89.69
+   },
+   "libkeyfinder": {
+    "exact": 74.78,
+    "weighted": 80.27
+   },
+   "v2_minus_v1": {
+    "difference": 6.19,
+    "interval_95": [
+     2.21,
+     10.62
+    ]
+   },
+   "v2_minus_libkeyfinder": {
+    "difference": 12.39,
+    "interval_95": [
+     7.08,
+     18.14
+    ]
+   }
+  }
+ },
+ "fma_genres": {
+  "electronic": {
+   "tracks": 91,
+   "v1": 59.3,
+   "v2": 69.2
+  },
+  "pop": {
+   "tracks": 56,
+   "v1": 73.2,
+   "v2": 87.5
+  },
+  "rock": {
+   "tracks": 48,
+   "v1": 66.7,
+   "v2": 70.8
+  },
+  "folk": {
+   "tracks": 36,
+   "v1": 69.4,
+   "v2": 77.8
+  },
+  "indie-rock": {
+   "tracks": 20,
+   "v1": 70.0,
+   "v2": 90.0
+  },
+  "unknown": {
+   "tracks": 19,
+   "v1": 78.9,
+   "v2": 84.2
+  },
+  "punk": {
+   "tracks": 16,
+   "v1": 75.0,
+   "v2": 75.0
+  },
+  "hip-hop": {
+   "tracks": 14,
+   "v1": 78.6,
+   "v2": 85.7
+  },
+  "lo-fi": {
+   "tracks": 11,
+   "v1": 36.4,
+   "v2": 63.6
+  },
+  "experimental": {
+   "tracks": 10,
+   "v1": 40.0,
+   "v2": 70.0
+  },
+  "jazz": {
+   "tracks": 10,
+   "v1": 70.0,
+   "v2": 80.0
+  },
+  "classical": {
+   "tracks": 10,
+   "v1": 80.0,
+   "v2": 80.0
+  },
+  "soundtrack": {
+   "tracks": 8,
+   "v1": 62.5,
+   "v2": 87.5
+  },
+  "trip-hop": {
+   "tracks": 7,
+   "v1": 71.4,
+   "v2": 85.7
+  },
+  "blues": {
+   "tracks": 7,
+   "v1": 42.9,
+   "v2": 57.1
+  },
+  "psych-folk": {
+   "tracks": 6,
+   "v1": 50.0,
+   "v2": 50.0
+  },
+  "psych-rock": {
+   "tracks": 6,
+   "v1": 66.7,
+   "v2": 66.7
+  },
+  "easy listening": {
+   "tracks": 6,
+   "v1": 83.3,
+   "v2": 83.3
+  },
+  "metal": {
+   "tracks": 6,
+   "v1": 66.7,
+   "v2": 50.0
+  },
+  "international": {
+   "tracks": 6,
+   "v1": 83.3,
+   "v2": 100.0
+  },
+  "old-time / historic": {
+   "tracks": 5,
+   "v1": 20.0,
+   "v2": 60.0
+  },
+  "experimental pop": {
+   "tracks": 5,
+   "v1": 80.0,
+   "v2": 100.0
+  },
+  "funk": {
+   "tracks": 5,
+   "v1": 60.0,
+   "v2": 60.0
+  },
+  "freak-folk": {
+   "tracks": 5,
+   "v1": 80.0,
+   "v2": 80.0
+  },
+  "free-folk": {
+   "tracks": 5,
+   "v1": 60.0,
+   "v2": 100.0
+  },
+  "idm": {
+   "tracks": 5,
+   "v1": 80.0,
+   "v2": 80.0
+  },
+  "industrial": {
+   "tracks": 5,
+   "v1": 80.0,
+   "v2": 60.0
+  },
+  "novelty": {
+   "tracks": 5,
+   "v1": 40.0,
+   "v2": 40.0
+  },
+  "noise": {
+   "tracks": 5,
+   "v1": 20.0,
+   "v2": 20.0
+  },
+  "country": {
+   "tracks": 4,
+   "v1": 50.0,
+   "v2": 50.0
+  },
+  "compilation": {
+   "tracks": 4,
+   "v1": 100.0,
+   "v2": 75.0
+  },
+  "chiptune": {
+   "tracks": 4,
+   "v1": 50.0,
+   "v2": 50.0
+  },
+  "field recordings": {
+   "tracks": 4,
+   "v1": 50.0,
+   "v2": 75.0
+  },
+  "ambient electronic": {
+   "tracks": 3,
+   "v1": 33.3,
+   "v2": 33.3
+  },
+  "post-rock": {
+   "tracks": 3,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "electro-punk": {
+   "tracks": 2,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "disco": {
+   "tracks": 2,
+   "v1": 50.0,
+   "v2": 50.0
+  },
+  "krautrock": {
+   "tracks": 2,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "garage": {
+   "tracks": 2,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "glitch": {
+   "tracks": 2,
+   "v1": 0.0,
+   "v2": 50.0
+  },
+  "singer-songwriter": {
+   "tracks": 2,
+   "v1": 50.0,
+   "v2": 100.0
+  },
+  "techno": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "latin america": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 100.0
+  },
+  "comedy": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "big band/swing": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "alternative hip-hop": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 100.0
+  },
+  "reggae - dub": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "progressive": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "loud-rock": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "noise-rock": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "shoegaze": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "choral music": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "dance": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "goth": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "soul-rnb": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "europe": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "holiday": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 100.0
+  },
+  "rap": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "post-punk": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "electroacoustic": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "minimal electronic": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "contemporary classical": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "new age": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "power-pop": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "new wave": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "minimalism": {
+   "tracks": 1,
+   "v1": 0.0,
+   "v2": 0.0
+  },
+  "house": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "latin": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  },
+  "hardcore": {
+   "tracks": 1,
+   "v1": 100.0,
+   "v2": 100.0
+  }
+ }
+}

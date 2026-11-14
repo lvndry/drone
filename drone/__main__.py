@@ -13,7 +13,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("audio", nargs="+")
     parser.add_argument(
-        "--weights", help="Checkpoint path; defaults to DRONE_WEIGHTS or weights/drone-v1.pt"
+        "--weights", help="Checkpoint path; defaults to DRONE_WEIGHTS or weights/drone-v2.pt"
     )
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--threads", type=int, default=1)

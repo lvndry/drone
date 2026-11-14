@@ -16,7 +16,8 @@ pre-set success threshold was missed and the idea was not continued), **open**
 | Study | Question | Result | Decision | Status |
 |---|---|---|---|---|
 | [Compact-model research](studies/compact-models/REPORT.md) | Can a corrected small CNN beat libkeyfinder, and which features and pooling matter? | Time-only pooling beat global pooling by about 22 MIREX points. The 47,284-parameter octave model scored 68.99% MIREX on 1,000 FMAK tracks and 70.40% on GiantSteps, versus libkeyfinder's 67.82% and 69.35%; both paired 95% intervals include zero. | Keep libkeyfinder; port K10 instead of extending this design. | Superseded by the K10 release |
-| [K10 release (`drone-v1`)](../docs/training.md) | Does our own training of the published K10 architecture beat libkeyfinder on GiantSteps? | 109,128 parameters. Shipped seed 13: 74.8% MIREX / 68.5% exact; three-seed mean 73.58% / 66.8%, versus libkeyfinder 69.35% / 60.60%. GiantSteps was used in development. | Released as `drone-v1`. | Current |
+| [drone-v2 release](studies/drone-v2-release/REPORT.md) | Which shift12 checkpoint ships, and how accurate is it from audio file to key? | Seed 42, one pass per track. Exact: 88.0% on GiantSteps+ single-key tracks (drone-v1 83.4%, libkeyfinder 76.2%), 75.0% on 500 FMAKv2 tracks (drone-v1 65.4%). | Released as `drone-v2`, the package default. | Current |
+| [K10 release (`drone-v1`)](../docs/training.md) | Does our own training of the published K10 architecture beat libkeyfinder on GiantSteps? | 109,128 parameters. Shipped seed 13: 74.8% MIREX / 68.5% exact; three-seed mean 73.58% / 66.8%, versus libkeyfinder 69.35% / 60.60%. GiantSteps was used in development. | Released as `drone-v1`. | Superseded by `drone-v2` |
 
 ## Accuracy experiments
 

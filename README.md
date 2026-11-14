@@ -13,24 +13,24 @@ The bundled artifacts and their provenance are documented in
 
 | Question | Answer |
 |---|---|
-| Released model | `drone-v1`: our own training of the published K10 architecture (MIREX 2026, MIT-licensed `jhurliman/jams`), a three-block CNN that pools over time only. |
-| Size | 109,128 parameters. Runs on CPU. |
-| Shipped checkpoint accuracy | Seed 13: **74.8% symmetric MIREX / 68.5% exact** on GiantSteps (604 two-minute EDM previews, 24 major/minor key labels). See [weights/README.md](weights/README.md). |
-| Recipe accuracy | The same recipe at seeds 13, 37 and 73 averages **73.58% MIREX / 66.8% exact**. This is the recipe mean, not the score of the shipped checkpoint. |
-| Baseline | libkeyfinder 2.2.8 as run inside Euphoria scores 69.35% MIREX / 60.60% exact on the same 604 files. |
-| Training | 1,363 Beatport EDM previews (1,237 fitting, 126 validation), 320-frame crops, +/-4 semitone shifts, AdamW, 120 epochs. Details in [docs/training.md](docs/training.md). |
+| Released model | `drone-v2`: the published K10 architecture (MIREX 2026, MIT-licensed `jhurliman/jams`), a three-block CNN that pools over time only, trained with ensemble distillation and pitch shifts of up to 12 semitones. `drone-v1` remains in `weights/`. |
+| Size | 109,128 parameters. One forward pass per track on CPU. |
+| Accuracy | Exact: **88.0%** on GiantSteps tracks with one key in the GiantSteps+ expert labels (457), **69.9%** on the original GiantSteps labels (604), **75.0%** on 500 mixed-genre FMAKv2 tracks. See [weights/README.md](weights/README.md). |
+| Baselines | On the same 457 tracks: libkeyfinder 2.2.8 76.2%, drone-v1 83.4%, madmom KEY_CNN 83.4%. |
+| Training | 4,988 FMAKv2 and 1,275 GiantSteps-MTG-Key tracks, 320-frame crops, AdamW, 120 epochs, half of the loss from a three-model teacher. Details in the [frontier study](experiments/studies/frontier-distillation/REPORT.md); `drone-v1`'s recipe is in [docs/training.md](docs/training.md). |
 | Research index | [experiments/README.md](experiments/README.md) lists every study with its question, result and decision. |
 
-GiantSteps was used during development, so it is not a held-out test for this
-model. On a separate 93-recording reference panel (48 Winterreise performances
-and 45 GiantSteps tracks), madmom's KEY_CNN agrees exactly on 72/93 recordings,
-Drone on 63/93 and corrected libkeyfinder on 57/93: **madmom leads on that
-panel** ([reference comparison](experiments/studies/key-sota-4way/REPORT.md)).
+GiantSteps was used during development (never for training), so it is not a
+held-out test. On a separate 93-recording reference panel (48 Winterreise
+performances and 45 GiantSteps tracks), madmom's KEY_CNN agreed exactly on 72/93
+recordings, `drone-v1` on 63/93 and corrected libkeyfinder on 57/93: **madmom
+led on that panel**, which has not been rerun with `drone-v2`
+([reference comparison](experiments/studies/key-sota-4way/REPORT.md)).
 
 The research goal is a compact CPU model that beats commercial DJ key detection
 on full-length club music; 90% exact accuracy is an aspiration, not a measured
-result. The release was trained on roughly two-minute EDM previews, and accuracy
-on 5 to 10 minute house, deep-house and melodic-house tracks has not been
+result. The release was trained on 30-second clips and two-minute previews, and
+accuracy on 5 to 10 minute house, deep-house and melodic-house tracks has not been
 established (see the [matched-data pilot](experiments/studies/k10-v2-pilot/REPORT.md)).
 Softmax outputs are uncalibrated model scores, not validated probabilities of a
 correct key. Features and checkpoints from before K10 are incompatible and must
@@ -114,7 +114,7 @@ After preparing the base train/test data above, save the JSONL output of
 ```bash
 uv run --extra corrections train.py prepare-corrections \
   --corrections corrections.jsonl --audio /path/to/library
-uv run train.py finetune weights/drone-v1.pt --device cpu --threads 4
+uv run train.py finetune weights/drone-v2.pt --device cpu --threads 4
 ```
 
 BLAKE3 is needed only for matching and hashing in this optional adapter. Base
@@ -159,7 +159,7 @@ shifts preserve major/minor mode and therefore do not rebalance mode counts.
 
 ## Inference
 
-The `drone-v1` weights ship in `weights/` (and packaged in the wheel):
+The `drone-v2` weights ship in `weights/` (and packaged in the wheel):
 
 ```bash
 uv run python -m drone track.mp3 --threads 1
@@ -170,14 +170,14 @@ For multiple files, load once and reuse the predictor:
 ```python
 from drone import Predictor
 
-predictor = Predictor()  # resolves drone-v1 by default
+predictor = Predictor()  # resolves drone-v2 by default
 print(predictor.predict("first.mp3"))  # tonic, mode, softmax probability
 print(predictor.predict("second.mp3"))
 ```
 
 `drone.predict(path)` is also available for a single file. `DRONE_WEIGHTS`
 overrides the default artifact; otherwise drone checks packaged
-`drone/weights/drone-v1.pt`, then the checkout's `weights/drone-v1.pt`.
+`drone/weights/drone-v2.pt`, then the checkout's `weights/drone-v2.pt`.
 No model is downloaded automatically. A missing or incompatible artifact
 produces an actionable error. Softmax probabilities are not calibrated
 accuracy estimates. Audio feature caches are keyed by file contents and
@@ -186,9 +186,9 @@ feature specification.
 ## Export and CPU measurement
 
 ```bash
-uv run --extra export python -m drone.export weights/drone-v1.pt data/drone-v1.onnx
-uv run --extra export python -m drone.benchmark weights/drone-v1.pt \
-  --onnx data/drone-v1.onnx --audio track.mp3 --threads 1 --output data/cpu.json
+uv run --extra export python -m drone.export weights/drone-v2.pt data/drone-v2.onnx
+uv run --extra export python -m drone.benchmark weights/drone-v2.pt \
+  --onnx data/drone-v2.onnx --audio track.mp3 --threads 1 --output data/cpu.json
 ```
 
 Export verifies ONNX/PyTorch output parity at several batch sizes and writes a
@@ -203,7 +203,7 @@ For a native host that runs the network itself rather than through an ONNX
 runtime, export the tensors as safetensors:
 
 ```bash
-uv run python -m drone.safetensors weights/drone-v1.pt data/drone-v1.safetensors
+uv run python -m drone.safetensors weights/drone-v2.pt data/drone-v2.safetensors
 ```
 
 It stores every learned parameter and BatchNorm running statistic in float32

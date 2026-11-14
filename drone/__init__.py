@@ -14,15 +14,18 @@ from drone.datasets import Track, prepare
 from drone.keys import decode_key
 from drone.model import KeyCNN
 
+DEFAULT_RELEASE = "drone-v2"
+
 
 def default_weights() -> Path:
     override = os.environ.get("DRONE_WEIGHTS")
     if override:
         return Path(override)
-    packaged = Path(str(files("drone").joinpath("weights", "drone-v1.pt")))
+    file_name = f"{DEFAULT_RELEASE}.pt"
+    packaged = Path(str(files("drone").joinpath("weights", file_name)))
     if packaged.is_file():
         return packaged
-    return Path(__file__).resolve().parent.parent / "weights" / "drone-v1.pt"
+    return Path(__file__).resolve().parent.parent / "weights" / file_name
 
 
 def load_model(path: str | Path | None = None) -> KeyCNN:
