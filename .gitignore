@@ -21,6 +21,9 @@ weights/*
 !weights/*.onnx
 !weights/*.pt
 !weights/README.md
+!weights/MODEL_CARD.md
+!weights/*.safetensors
+!weights/drone-v*.json
 .venv/
 .pytest_cache/
 .ruff_cache/
