@@ -13,9 +13,9 @@
     {
       "path": "research/drone-native-cqt/composed/REPORT.md",
       "migrated_sha256": "b2f25aca428823ee6c3e4b31ac9bf6b3252f5212605772f2f78fdd26925b9444",
-      "current_sha256": "c8c27348edd597b2c22c42c45f0169a5ca91badf9803e56da801ebb63b89730f",
+      "current_sha256": "cbc60b78c4353ebe9837c2e3fbaa32969bd0a667867f2cda2df497c558474b40",
       "git_mode": "100644",
-      "reason": "Add a retrospective ID-and-source-audio-hash join of target-free native-panel genre/BPM metadata with duration coverage and missingness; frozen numerical evidence and historical unknowns remain unchanged."
+      "reason": "Add a retrospective ID-and-source-audio-hash join of target-free native-panel genre/BPM metadata with duration coverage and missingness; frozen numerical evidence and historical unknowns remain unchanged. Later rewritten in plain research language with all measurements unchanged."
     },
     {
       "path": "research/drone-native-cqt/src/plan.rs",
@@ -27,16 +27,30 @@
     {
       "path": "research/drone-native-cqt/REPORT.md",
       "migrated_sha256": "73357e7071165bedf96a7b1568aaa746218d6345743e55df51f56f9ea1f22650",
-      "current_sha256": "a2e281e5a30b85ee7bd4fa467aa4fe9a5f4dbd444153649391f26eb3b0d8161f",
+      "current_sha256": "cc96ac351d2b267cccb01a0734b255f08cc9473932da15d9537b7f5f417b154a",
       "git_mode": "100644",
-      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence."
+      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence. Later rewritten in plain research language with all measurements unchanged."
     },
     {
       "path": "research/drone-native-cached/REPORT.md",
       "migrated_sha256": "4f9961072dfc5c7c8cdedfe29370a20410a8d303d088273005636eda1f664b52",
-      "current_sha256": "fb81b1a7fa5a59d68f1f9bd3bb3f0879b424534ed52a4a8cea1642556b4cfbee",
+      "current_sha256": "4d5c43e978d1fedb997f276ada60ad9fd7d11384ede4951eea3e47a4ab7349c1",
       "git_mode": "100644",
-      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence."
+      "reason": "Move source and artifact identifiers into linked technical provenance; preserve numerical results and original evidence. Later rewritten in plain research language with all measurements unchanged."
+    },
+    {
+      "path": "research/drone-native-cqt/README.md",
+      "migrated_sha256": "73c3cfd72ee102a8cb67a130bb47e9982aa55147deb34f5d48b5f654a5abb15e",
+      "current_sha256": "68974d3fd08d35b5da9b0ea9583e3d146f1390834eb74840e79705fd46843a85",
+      "git_mode": "100644",
+      "reason": "Rewritten in plain research language with all measurements unchanged."
+    },
+    {
+      "path": "research/drone-native-cached/README.md",
+      "migrated_sha256": "de9f7b6a706777dd4893fa0defbcbc64505b52ed42bc7a453763edb28db1830f",
+      "current_sha256": "1dbddcebd0b47a4af2b6b98055d3275c2d3f831429f4fa6630afd459de9dd133",
+      "git_mode": "100644",
+      "reason": "Rewritten in plain research language with all measurements unchanged."
     }
   ],
   "additions": [

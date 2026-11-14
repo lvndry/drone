@@ -1,45 +1,51 @@
-# K10 crop context and audio exposure: completed matched CPU pair
+# K10 training crop length: 65 versus 320 frames
 
-**The 65-frame candidate misses the fixed accuracy gate. No continuation or
-promotion is earned.** On the common selected FMA panel it gains one correct case
-(+0.40 percentage points), below the required five. BP exact and both BP weighted
-scores improve, but the fresh 320-frame CPU control also fails the separately
-frozen historical-score guard. Both complete fixed horizons and checkpoint reload
-proofs. Release weights, confirmation and calibration remain untouched.
+Training K10 on 65-frame crops instead of 320-frame crops did not meet the pre-set
+threshold. On FMA the shorter crop gained one correct track (+0.40 points), well
+short of the five required, though Beatport exact and both Beatport MIREX scores
+improved slightly. The fresh 320-frame control also scored below the earlier GPU
+control. No further seeds, release change or calibration followed. The study ran
+in November 2026 on CPU.
 
-## Question and fixed method
+## Question
 
-The experiment asks whether a shorter training crop is a useful lever for this
-compact classifier under a matched update budget. It compares **65 versus 320
-cached CQT frames**, nominally **12.07 versus 59.44 seconds**. This changes sampled
-audio exposure, length-dependent crop starts, pooling, BN statistics and gradient
-noise along with context. It is not a pure context effect, a teacher architecture
-comparison, or a CPU deployment tier. It does not match the MusicFM waveform/mel
-frontend or establish why the teacher differs.
+Is a shorter training crop a useful lever for this compact key classifier when the
+number of updates is held fixed? The study compares 65 and 320 CQT frames (about
+12.07 and 59.44 seconds). Changing crop length also changes how much audio each
+update sees, where crops can start, pooling, batch-normalization statistics and
+gradient noise, so this is not a pure test of temporal context. It is also not a
+teacher-architecture comparison or a CPU deployment option, and it does not
+reproduce the MusicFM waveform and mel frontend.
 
-The [frozen protocol](PROTOCOL.md) was prospective when written. Execution later
-received its own exact approval; its original preparation-only wording remains
-historical. Both fresh seed-13 KeyCNN instances use the same 109,128-parameter
-architecture and tensor initialization, 1,229 BP + 4,033 FMA fitting identities,
-nominal BP sampling mass 1230/2206, keyed IDs/seeds/pitch-bin-reslice augmentation,
-batch 32 and uniform legal crop-start rule. Starts depend on crop length; the
-common stream is not an identical temporal view. Both use FP32 CPU AdamW
-(lr 1e-3, weight decay 1e-4), the same cosine schedule, **8,280 updates / 120
-selection events**, and no independent early stopping. CPU affinity is 14–15,
-Torch two threads / inter-op one, numeric-library threads one, nice 19 and CUDA
-masked. The 320 arm runs first; the 65 arm is independently initialized afterward.
+## Method
 
-Every 69 updates, the original batch-four evaluator processes the same **376
-full true-length feature arrays / 372,532 frames**: BP126 and FMA250. Equal-domain
-exact is the primary selector, equal-domain symmetric MIREX the tie-break, and the
-earliest tied event wins. Both MIREX conventions are reported. These panels are
-repeatedly exposed development data. FMA has audited artist/album grouping; BP
-has ID/exact-audio guards and incomplete artist identity, not artist-disjoint
-validation. No calibration, reserved confirmation, old final or private DJ input
-is used. Full-duration evaluation here means the available recording: BP inputs
-are approximately two-minute previews.
+The [protocol](PROTOCOL.md) was fixed before the run. Both arms are fresh seed-13
+KeyCNN models with the same 109,128-parameter architecture and the same initial
+weights. Both use 1,229 Beatport and 4,033 FMA fitting recordings, Beatport
+sampling weight 1230/2206, the same per-recording seeds and pitch-shift
+augmentation, batch size 32 and a uniform rule for legal crop starts. Because legal
+starts depend on crop length, the two arms do not see identical audio windows.
 
-## Completed accuracy and fixed decisions
+Training: FP32 AdamW on CPU (learning rate 1e-3, weight decay 1e-4), the same cosine
+schedule, 8,280 updates with 120 validation evaluations, and no early stopping.
+Each arm used two CPU threads. The 320-frame arm ran first.
+
+Every 69 updates the model was evaluated on the same 376 full-length validation
+recordings (372,532 frames): 126 Beatport and 250 FMA. The checkpoint with the
+highest mean exact accuracy over the two domains was selected, with mean symmetric
+MIREX as tie-break and the earliest event winning remaining ties. Both MIREX
+conventions are reported. These validation sets have been used repeatedly during
+development. FMA is split by audited artist and album groups; Beatport has
+duplicate-ID and exact-audio checks but incomplete artist information, so it is
+not artist-disjoint. Beatport inputs are about two-minute previews.
+
+Pre-set success threshold: the 65-frame arm had to gain at least 5 FMA exact cases
+over the fresh 320-frame control, with no decline in Beatport exact or either
+Beatport MIREX score. Separately, the fresh 320-frame control had to match or beat
+the earlier GPU control from the [v2 pilot](../k10-v2-pilot/REPORT.md) on exact and
+both MIREX scores in both domains.
+
+## Results
 
 | Selected arm | Update | BP exact | BP symmetric / asymmetric MIREX | FMA exact | FMA symmetric / asymmetric MIREX |
 |---|---:|---:|---:|---:|---:|
@@ -48,123 +54,112 @@ are approximately two-minute previews.
 
 ![Full-song inner exact curves and selected events](figures/selection-curves.png)
 
-The canonical candidate was fixed as 65 frames before outcomes. Its continuation
-rule requires at least **+5 FMA exact cases** with BP exact and both BP MIREX
-conventions nondeclining versus fresh CPU320. The measured FMA gain is **+1**;
-this gate fails. FMA weighted scores were reporting metrics, not an added gate.
-The separate historical control guard requires CPU320 to avoid any decline in
-both domains' exact and both weighted metrics versus the earlier expanded CUDA
-control. It also fails: CPU320 loses **1 BP exact case and 2 FMA cases**, with
-symmetric/asymmetric integer weighted-score gaps of −13/−8 BP and −16/−11 FMA
-(each unit is 0.1 track credit). These are disclosed CPU/CUDA and thread-count
-comparisons, not a claim of historical numerical trajectory reproduction. The
-failed guard is retained; no threshold or denominator is relaxed.
+*Figure 1. Exact accuracy on the full-length validation recordings over training
+for both arms, with the selected updates marked. The two curves overlap for most
+of training.*
 
-Selected exact error movements are **6 repairs / 5 new errors** on BP (83 both
-correct, 32 both wrong) and **9 repairs / 8 new errors** on FMA (166 both correct,
-67 both wrong). No winning arm, additional seed or longer horizon was chosen
-from these outcomes.
+The FMA gain was +1 case against the required +5, so the threshold failed. The
+control comparison also failed: the 320-frame CPU control lost 1 Beatport and 2 FMA
+exact cases against the earlier GPU control, with symmetric / asymmetric weighted
+score gaps of -13 / -8 on Beatport and -16 / -11 on FMA (each unit is 0.1 track of
+credit). That comparison also differs in hardware (CPU versus CUDA) and thread
+count, so it does not test exact reproduction of the earlier run. Neither threshold
+was relaxed.
+
+Between the selected checkpoints, 6 Beatport tracks became correct and 5 became
+wrong (83 correct in both, 32 wrong in both). On FMA, 9 became correct and 8 became
+wrong (166 correct in both, 67 wrong in both).
 
 ![Selected paired metric differences and descriptive intervals](figures/paired-differences.png)
 
-| 65 minus 320 | Exact delta [95% interval], pp | Symmetric delta [interval], pp | Asymmetric delta [interval], pp |
+*Figure 2. 65-frame minus 320-frame differences with 95% bootstrap intervals. Every
+interval includes zero.*
+
+| 65 minus 320 | Exact change [95% interval], points | Symmetric MIREX change [interval] | Asymmetric MIREX change [interval] |
 |---|---:|---:|---:|
-| BP | +0.79 [−3.97, +6.35] | +1.27 [−3.33, +5.95] | +1.27 [−3.33, +5.95] |
-| FMA | +0.40 [−2.79, +3.67] | +0.12 [−2.17, +2.51] | −0.08 [−2.59, +2.50] |
+| BP | +0.79 [-3.97, +6.35] | +1.27 [-3.33, +5.95] | +1.27 [-3.33, +5.95] |
+| FMA | +0.40 [-2.79, +3.67] | +0.12 [-2.17, +2.51] | -0.08 [-2.59, +2.50] |
 
-Intervals use 10,000 paired metadata-cluster bootstrap replicates, seed 20261112:
-126 singleton BP groups and 100 FMA groups (largest five). They are **descriptive
-adaptive-development intervals from one seed**, not independent test evidence,
-training-seed variability or proof of BP artist independence. Current metadata
-cannot guarantee all work/near-duplicate relationships are known.
+Intervals use 10,000 paired bootstrap replicates (seed 20261112) over 126 Beatport
+recordings and 100 FMA metadata clusters. They describe one seed on reused
+validation data, not training-seed variation or independent test evidence.
 
-## Duration and primary-use limitations
+### Accuracy by track duration
 
-| Domain / actual duration | Tracks / groups | 320 correct → 65 correct |
+| Domain / duration | Tracks / groups | 320 correct, 65 correct |
 |---|---:|---:|
-| BP <2 minutes | 5 / 5 | 4 → 4 |
-| BP 2–<5 minutes | 121 / 121 | 84 → 85 |
-| BP 5–10 or >10 minutes | 0 / 0 | — |
-| FMA <2 minutes | 32 / 18 | 21 → 21 |
-| FMA 2–<5 minutes | 179 / 80 | 124 → 123 |
-| FMA 5–10 minutes | 37 / 27 | 27 → 29 |
-| FMA >10 minutes | 2 / 2 | 2 → 2 |
+| BP under 2 minutes | 5 / 5 | 4, 4 |
+| BP 2 to under 5 minutes | 121 / 121 | 84, 85 |
+| BP 5 minutes or more | 0 / 0 | n/a |
+| FMA under 2 minutes | 32 / 18 | 21, 21 |
+| FMA 2 to under 5 minutes | 179 / 80 | 124, 123 |
+| FMA 5 to 10 minutes | 37 / 27 | 27, 29 |
+| FMA over 10 minutes | 2 / 2 | 2, 2 |
 
-Actual canonical sample counts define the bins (600 seconds is included in
-5–10 minutes); groups may span bins and must not be summed as independent groups.
-The five slightly sub-120-second BP inputs do not establish a shorter-song cohort.
-The FMA 5–10-minute stratum is not a verified house panel. Available metadata
-supports only **five 5–10-minute House inner examples in three groups**, no
-8–10-minute House examples and no verified deep-house/melodic-house tags. This
-study cannot establish reliable accuracy for the user's primary long-house use.
-Broad Electronic and unknown genre identities remain distinct. No private library
-or new external panel was consulted to improve these results.
+Durations come from the actual sample counts (600 seconds counts as 5 to 10
+minutes). Metadata groups can span bins, so group counts should not be summed.
+The FMA 5-to-10-minute bin is not a house-music panel: it contains only five House
+examples in three groups, none from 8 to 10 minutes and none tagged deep or melodic
+house. This study therefore cannot measure accuracy on long house tracks, the
+main intended use.
 
-## Resource qualification and completed execution
-
-The earlier [disposable CPU qualification](RESOURCE_PROTOCOL.md) used the
-[frozen probe implementation](https://github.com/lvndry/drone/tree/804b21c) for three actual batch-32 fitting draws per crop size with **synthetic
-targets only**, then one full 376-song pass per size with no retained predictions,
-task scores or weights. Whole-controller cost was 34.826 wall seconds, 56.44
-aggregate CPU-seconds and 2,464,256,000 bytes peak whole-tree RSS. The 320 update
-compute times were 1.2105/1.1403/1.0679 seconds; the 65 times were
-0.1397/0.1410/0.1296 seconds. Full validation took 12.196 and 10.394 seconds.
-Per-arm Linux lifetime high-water values are not independent peak measurements.
-The qualification established finite resource feasibility, not accuracy.
-
-The actual task pair completed in **13,902.322 seconds (3.862 hours)**, using
-**26,496.92 aggregate CPU-seconds** and **3,014,115,328 bytes (2.807 GiB)** sampled
-whole-tree peak RSS, within the shared six-hour / 40,000-CPU-second / eight-GiB /
-512-MiB limits. Individual arm wall times were 11,407.757 seconds and 2,485.871
-seconds, including their selected-artifact replay. Warmup, order, shared host
-load and metadata verification make these training-run timings, not general
-product performance estimates. No serving affinity was changed.
+### Cost and audio exposure
 
 ![Completed arm cost and actual sampled audio exposure](figures/cost-and-exposure.png)
 
-Both arms sample all 5,262 fitting IDs across 264,960 draws, with identical per-ID
-coverage. Non-padding frame exposure is **84,532,873** for 320 and **17,222,313**
-for 65, a **4.908×** difference. Reduced training CPU cost therefore accompanies
-less observed audio; this does not isolate context or show that accuracy is
-preserved under every use condition. Product inference and weights are unchanged.
+*Figure 3. Training cost per arm and the number of non-padding frames each arm saw.
+The 65-frame arm is cheaper but sees about 4.9 times less audio.*
 
-## Artifact and provenance verification
+The pair took 13,902.322 seconds (3.862 hours) in total, using 26,496.92 CPU-seconds
+and a peak of 3,014,115,328 bytes (2.807 GiB) of memory. The 320-frame arm took
+11,407.757 seconds and the 65-frame arm 2,485.871 seconds, each including the
+reload check of its selected checkpoint. These are training-run timings on a shared
+machine, not product performance estimates.
 
-The retained [archive index](data/archive-index.json) binds original bytes and
-deterministic compressed supplements for both complete histories/results,
-configuration, approval, cost evidence, controller and read-only postflight.
-The numerical source is retained as a small compressed witness; no weights,
-CQT arrays or audio are committed. The 17 executed runtime-source hashes are
-preserved in both results and independently matched against server bytes.
-Publication code may add analysis helpers without relabeling executed source.
+Both arms sampled all 5,262 fitting recordings across 264,960 draws with identical
+per-recording counts. Non-padding frames seen were 84,532,873 for 320 frames and
+17,222,313 for 65 frames, a 4.908 times difference. Lower training cost therefore
+comes with less audio seen; this does not isolate the effect of context.
 
-All four checkpoint byte hashes match their arm records. Each selected file was
-strictly loaded into a fresh KeyCNN and replayed all 376 true-length inputs:
-**zero argmax disagreements and identical scores**. The tensors' initial digest,
-common ID/seed/pitch trace, per-ID coverage, runtime and data/source provenance
-match between arms. Temporal traces differ by design; the 320 BP augmentation
-trace matches the historical replay exactly. These are explicitly experimental
-checkpoint payloads, not production-compatible release artifacts.
+An earlier CPU feasibility check ([resource protocol](RESOURCE_PROTOCOL.md)) ran three
+batch-32 updates per crop size with random targets, then one pass over all 376
+validation recordings with no predictions kept. It took 34.826 seconds, 56.44
+CPU-seconds and 2,464,256,000 bytes of peak memory. Update times were
+1.2105 / 1.1403 / 1.0679 seconds at 320 frames and 0.1397 / 0.1410 / 0.1296 seconds
+at 65 frames; the full validation pass took 12.196 and 10.394 seconds.
 
-Controller exit is zero, `complete=true`, `error=null`, with both completed arm
-hashes. Postflight confirms both CPU processes and the original teacher processes
-are absent; the controller verified the teacher's legitimate full terminal
-receipts rather than treating unexplained disappearance as success. All four
-vLLM PID/start identities remain unchanged. No failure-named run artifact was
-found; the authoritative completion/exit/finite/reload checks supply the positive
-success evidence. No retry, resume, new inference, horizon extension, BN rescue,
-confirmation or promotion was performed during report preparation.
+Each selected checkpoint was reloaded into a fresh KeyCNN and re-run on all 376
+validation inputs, giving identical scores and predictions. Both arms had the same
+initial weights, recording and seed order, per-recording coverage and data sources;
+only the crop windows differ, by design.
 
-Reproduce metadata checks and plots without fitting or inference:
+## Decision
+
+Do not continue with 65-frame training: the FMA gain of one case is far below the
+five-case threshold. No winning arm, additional seed or longer schedule was chosen
+from these results, and the release model is unchanged.
+
+## Limitations
+
+- One seed on validation sets already used during development. The intervals all
+  include zero, so the data do not show that the two crop lengths are equivalent
+  either.
+- Crop length changes audio exposure, crop positions and normalization statistics
+  together; the effect of context alone is not isolated.
+- The fresh CPU control did not match the earlier GPU control.
+- Beatport validation is not artist-disjoint, and FMA metadata may not reveal every
+  near-duplicate.
+- There is no long house-music panel.
+
+## Reproduce
+
+Checksums and sizes for all evidence files are in the [archive index](data/archive-index.json).
+No weights, CQT arrays or audio are committed. The executed training source is kept
+as [a compressed copy](data/executed-context-source.py.gz). Verify metrics, selection,
+thresholds, intervals and duration counts and redraw the figures without training:
 
 ```sh
 python -m tools.check_k10_context_report
 python -m tools.plot_research
 python -m pytest -q tests/test_k10_context_report.py
 ```
-
-The checker verifies raw/decoded hashes, selected metrics and earliest selector,
-source-bound analysis equivalence, checkpoint receipts, complete horizons,
-common streams, fixed failed gates, clustered intervals and per-ID/duration
-movements. The small result is a **negative one-seed continuation decision**;
-it does not demonstrate a reliable accuracy gain or equivalence of crop lengths.
