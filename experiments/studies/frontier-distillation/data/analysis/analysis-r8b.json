@@ -1,0 +1,169 @@
+{
+ "pooldj": {
+  "valid": {
+   "single_exact_mean": 70.53,
+   "single_mirex_mean": 76.36,
+   "single_exact_each": [
+    71.6,
+    70.8,
+    69.2
+   ],
+   "shift_average_exact_mean": 71.07,
+   "shift_average_mirex_mean": 76.47,
+   "ensemble": {
+    "exact": 70.4,
+    "mirex": 76.28,
+    "breakdown": {
+     "exact": 176,
+     "other": 33,
+     "parallel": 10,
+     "fifth": 17,
+     "relative": 14
+    }
+   },
+   "ensemble_shift_average": {
+    "exact": 71.6,
+    "mirex": 77.0,
+    "breakdown": {
+     "exact": 179,
+     "other": 33,
+     "parallel": 11,
+     "fifth": 16,
+     "relative": 11
+    }
+   }
+  },
+  "holdout": {
+   "single_exact_mean": 76.0,
+   "single_mirex_mean": 80.4,
+   "single_exact_each": [
+    76.8,
+    74.4,
+    76.8
+   ],
+   "shift_average_exact_mean": 76.13,
+   "shift_average_mirex_mean": 80.8,
+   "ensemble": {
+    "exact": 78.0,
+    "mirex": 82.0,
+    "breakdown": {
+     "fifth": 10,
+     "exact": 195,
+     "other": 27,
+     "parallel": 4,
+     "relative": 14
+    }
+   },
+   "ensemble_shift_average": {
+    "exact": 77.6,
+    "mirex": 82.08,
+    "breakdown": {
+     "fifth": 13,
+     "exact": 194,
+     "other": 26,
+     "parallel": 4,
+     "relative": 13
+    }
+   }
+  },
+  "gs_original": {
+   "single_exact_mean": 69.48,
+   "single_mirex_mean": 75.15,
+   "single_exact_each": [
+    69.37,
+    70.03,
+    69.04
+   ],
+   "shift_average_exact_mean": 69.65,
+   "shift_average_mirex_mean": 75.39,
+   "ensemble": {
+    "exact": 70.2,
+    "mirex": 75.93,
+    "breakdown": {
+     "exact": 424,
+     "other": 83,
+     "relative": 38,
+     "parallel": 21,
+     "fifth": 38
+    }
+   },
+   "ensemble_shift_average": {
+    "exact": 70.7,
+    "mirex": 76.08,
+    "breakdown": {
+     "exact": 427,
+     "other": 85,
+     "fifth": 35,
+     "relative": 36,
+     "parallel": 21
+    }
+   }
+  },
+  "gsplus_primary": {
+   "single_exact_mean": 78.81,
+   "single_mirex_mean": 83.63,
+   "single_exact_each": [
+    79.51,
+    78.98,
+    77.93
+   ],
+   "shift_average_exact_mean": 79.74,
+   "shift_average_mirex_mean": 84.3,
+   "ensemble": {
+    "exact": 79.33,
+    "mirex": 84.19,
+    "breakdown": {
+     "exact": 453,
+     "fifth": 31,
+     "other": 39,
+     "relative": 26,
+     "parallel": 22
+    }
+   },
+   "ensemble_shift_average": {
+    "exact": 80.04,
+    "mirex": 84.52,
+    "breakdown": {
+     "exact": 457,
+     "fifth": 28,
+     "other": 40,
+     "relative": 24,
+     "parallel": 22
+    }
+   }
+  },
+  "gsplus_clean": {
+   "single_exact_mean": 86.14,
+   "single_mirex_mean": 88.87,
+   "single_exact_each": [
+    86.87,
+    86.21,
+    85.34
+   ],
+   "shift_average_exact_mean": 87.02,
+   "shift_average_mirex_mean": 89.6,
+   "ensemble": {
+    "exact": 86.65,
+    "mirex": 89.43,
+    "breakdown": {
+     "exact": 396,
+     "fifth": 15,
+     "other": 26,
+     "relative": 12,
+     "parallel": 8
+    }
+   },
+   "ensemble_shift_average": {
+    "exact": 87.53,
+    "mirex": 89.96,
+    "breakdown": {
+     "exact": 400,
+     "fifth": 13,
+     "other": 26,
+     "relative": 10,
+     "parallel": 8
+    }
+   }
+  }
+ }
+}
