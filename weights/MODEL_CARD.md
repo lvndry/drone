@@ -112,6 +112,14 @@ of 9 to 10 points on each.
 
 ### Python
 
+In a project managed by [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv add "drone-key @ git+https://github.com/lvndry/drone"
+```
+
+With pip:
+
 ```bash
 pip install "drone-key @ git+https://github.com/lvndry/drone"
 ```
