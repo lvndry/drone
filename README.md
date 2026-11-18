@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.svg" alt="drone logo: a dashed ring around a dot" width="96" height="96"></p>
+
 # drone
 
 Drone is a public, reusable musical-key classifier with a Python API, CLI and
